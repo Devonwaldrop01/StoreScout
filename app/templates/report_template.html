@@ -1,0 +1,784 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>StoreScout Report</title>
+  <style>
+    @page { margin: 0; }
+
+    :root {
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --ink: #0f172a;
+      --ink-light: #2e3e57;
+      --muted: #64748b;
+      --muted-light: #94a3b8;
+      --border: #e2e8f0;
+      --bg: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --accent: #8b5cf6;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      font-size: 10pt;
+      line-height: 1.5;
+      padding: 18mm;
+    }
+
+    h1 {
+      font-size: 24pt;
+      font-weight: 700;
+      margin-bottom: 6pt;
+      color: var(--ink);
+      letter-spacing: -0.05em;
+    }
+
+    h2 {
+      font-size: 14pt;
+      font-weight: 700;
+      margin: 16pt 0 10pt 0;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    h3 {
+      font-size: 9pt;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6pt;
+    }
+
+    p { margin: 4pt 0; }
+
+    a { color: var(--primary); text-decoration: none; }
+
+    /* Header */
+    .report-header {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      margin: -18mm -18mm 18mm -18mm;
+      padding: 20mm 18mm;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .report-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 300pt;
+      height: 300pt;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      transform: translate(30%, -30%);
+    }
+
+    .header-content { position: relative; z-index: 1; }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16pt;
+    }
+
+    .brand { display: flex; align-items: center; gap: 8pt; margin-bottom: 4pt; }
+
+    .report-meta { text-align: right; font-size: 8pt; opacity: 0.8; }
+
+    .store-url { font-size: 11pt; opacity: 0.9; margin-bottom: 18pt; font-weight: 500; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12pt;
+    }
+
+    .kpi-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8pt;
+      padding: 12pt;
+    }
+
+    .kpi-card h3 { color: rgba(255, 255, 255, 0.8); margin-bottom: 6pt; font-size: 8pt; }
+
+    .kpi-value { font-size: 20pt; font-weight: 700; margin-bottom: 2pt; color: white; }
+
+    .kpi-subtitle { font-size: 8pt; opacity: 0.7; line-height: 1.3; }
+
+    /* Sections */
+    .section {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10pt;
+      padding: 16pt;
+      margin-bottom: 14pt;
+      break-inside: avoid;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14pt;
+      padding-bottom: 10pt;
+      border-bottom: 2px solid var(--bg-secondary);
+    }
+
+    .section-badge {
+      font-size: 8pt;
+      padding: 4pt 10pt;
+      background: var(--bg-secondary);
+      color: var(--muted);
+      border-radius: 12pt;
+      font-weight: 600;
+    }
+
+    /* Cards */
+    .card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10pt; margin-bottom: 12pt; }
+
+    .card-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12pt; }
+
+    .metric-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8pt;
+      padding: 12pt;
+    }
+
+    .metric-card h3 { font-size: 8pt; }
+
+    .metric-value { font-size: 16pt; font-weight: 700; margin: 6pt 0 2pt 0; color: var(--ink); }
+
+    .metric-label { font-size: 7.5pt; color: var(--muted); line-height: 1.3; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; background: white; }
+
+    th {
+      text-align: left;
+      padding: 8pt 10pt;
+      font-size: 8pt;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 2px solid var(--border);
+      background: var(--bg-secondary);
+    }
+
+    td { padding: 10pt; border-bottom: 1px solid var(--border); font-size: 9pt; vertical-align: top; }
+
+    tr:last-child td { border-bottom: none; }
+
+    .text-right { text-align: right; }
+    .text-muted { color: var(--muted); }
+
+    /* Progress Bars */
+    .bar-container { margin: 10pt 0; }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 80pt 1fr 50pt;
+      gap: 10pt;
+      align-items: center;
+      margin: 6pt 0;
+    }
+
+    .bar-label { font-size: 8.5pt; color: var(--muted); font-weight: 500; }
+
+    .bar-track {
+      background: var(--bg-tertiary);
+      height: 8pt;
+      border-radius: 4pt;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .bar-fill {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+      height: 100%;
+      border-radius: 3pt;
+      transition: width 0.3s ease;
+    }
+
+    .bar-count { text-align: right; font-size: 8.5pt; font-weight: 600; color: var(--ink); }
+
+    /* Takeaways */
+    .takeaways {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border: 1px solid #bfdbfe;
+      border-radius: 10pt;
+      padding: 16pt;
+    }
+
+    .takeaways h2 {
+      margin-top: 0;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8pt;
+    }
+
+    .takeaways h2::before { content: '💡'; font-size: 16pt; }
+
+    .takeaways ul { margin: 12pt 0 0 0; padding-left: 20pt; list-style: none; }
+
+    .takeaways li {
+      margin: 8pt 0;
+      padding-left: 16pt;
+      position: relative;
+      font-size: 9.5pt;
+      line-height: 1.5;
+      color: var(--ink-light);
+    }
+
+    .takeaways li::before { content: '→'; position: absolute; left: 0; color: var(--primary); font-weight: 700; }
+
+    /* Confidence Notes */
+    .confidence-notes {
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 10pt;
+      padding: 14pt;
+    }
+
+    .confidence-notes h2 { margin-top: 0; color: var(--warning); font-size: 12pt; }
+
+    .confidence-notes ul { margin: 10pt 0 0 0; padding-left: 18pt; }
+
+    .confidence-notes li { margin: 6pt 0; font-size: 8.5pt; line-height: 1.4; color: #78350f; }
+
+    /* Utility */
+    .avoid-break { break-inside: avoid; }
+    .mb-sm { margin-bottom: 8pt; }
+    .mb-md { margin-bottom: 12pt; }
+    .mb-lg { margin-bottom: 16pt; }
+
+    /* Positioning Cards */
+    .positioning-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10pt; }
+
+    .position-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8pt;
+      padding: 12pt;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .position-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4pt;
+      height: 100%;
+      background: var(--primary);
+    }
+
+    .position-card h3 { margin-left: 8pt; }
+
+    .position-value { font-size: 18pt; font-weight: 700; margin: 8pt 0 4pt 8pt; color: var(--ink); }
+
+    .position-note { font-size: 8pt; color: var(--muted); margin-left: 8pt; line-height: 1.4; }
+
+    .score-badge {
+      display: inline-block;
+      padding: 2pt 8pt;
+      border-radius: 12pt;
+      font-size: 8pt;
+      font-weight: 600;
+      margin-left: 6pt;
+    }
+
+    .score-high { background: #d1fae5; color: #065f46; }
+    .score-medium { background: #fef3c7; color: #92400e; }
+    .score-low { background: #fee2e2; color: #991b1b; }
+
+    .product-link { color: var(--ink); font-weight: 500; }
+    .product-link:hover { color: var(--primary); }
+
+    .logo-text { font-size: 11pt; font-weight: bold; letter-spacing: -0.025em; color: #0F172A; }
+    .logo-text .store { color: #2463EB; }
+    .logo-text .scout { color: #1E40AF; }
+
+    .logo-container { display: flex; flex-direction: row; align-items: center; }
+
+    /* -------- Launch layout fixes (THIS is the important part) -------- */
+    .launch-stack { display: flex; flex-direction: column; gap: 12pt; } /* spacing between blocks */
+    .launch-block { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8pt; padding: 10pt; }
+    .launch-block h3 { margin-bottom: 8pt; }
+    .launch-snap { margin-top: 10pt; }
+    .launch-snap .card-grid { margin-bottom: 0; }
+    .launch-snap .metric-value { font-size: 15pt; }
+    .launch-inline-note { font-size: 8pt; color: var(--muted); margin-top: 6pt; }
+  </style>
+</head>
+
+<body>
+  {# Defensive defaults #}
+  {% set positioning = positioning or {} %}
+  {% set comparisons = comparisons or {} %}
+  {% set confidence_notes = confidence_notes or [] %}
+  {% set pricing = pricing or {} %}
+  {% set discounts = discounts or {} %}
+  {% set catalog = catalog or {} %}
+  {% set lists = lists or {} %}
+
+  {% set price_buckets = (pricing.get('price_buckets') or {}) %}
+  {% set buckets = price_buckets.get('buckets') or {} %}
+  {% set bucket_order = price_buckets.get('bucket_order') or [] %}
+
+  {% set cmp_disc_fp = comparisons.get('discounted_vs_full_price') or {} %}
+  {% set cmp_updates = comparisons.get('update_activity') or {} %}
+
+  {% set top_exp = lists.get('top_expensive') or [] %}
+  {% set top_disc = lists.get('top_discounts') or [] %}
+
+  {# IMPORTANT: make launch_timeline safe even if ctx is missing it #}
+  {% set launch_timeline = launch_timeline if launch_timeline is defined else {} %}
+  {% set launch = launch_timeline or {} %}
+  {% set launch_counts = (launch.get('launch_counts') or {}) %}
+  {% set velocity = (launch.get('velocity') or {}) %}
+  {% set acceleration = (launch.get('acceleration') or {}) %}
+  {% set price_pos = (launch.get('price_positioning') or {}) %}
+  {% set monthly = (launch.get('monthly_distribution') or {}) %}
+  {% set peak_months = (monthly.get('peak_months') or []) %}
+
+  <div class="report-header">
+    <div class="header-content">
+      <div class="header-top">
+        <div>
+          <div class="brand">
+            <div class="logo">
+              <div class="logo-container">
+                <svg width="24pt" height="24pt" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M30 35 L30 80 C30 85 32 88 37 88 L63 88 C68 88 70 85 70 80 L70 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+                  <path d="M25 35 L75 35 L72 42 L28 42 Z" fill="#2463EB"/>
+                  <path d="M38 35 L38 28 C38 22 42 18 50 18 C58 18 62 22 62 28 L62 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+                  <circle cx="65" cy="55" r="18" fill="#1E40AF" opacity="0.9"/>
+                  <circle cx="65" cy="55" r="12" fill="white" opacity="0.3"/>
+                  <path d="M78 68 L88 78" stroke="#1E40AF" stroke-width="5" stroke-linecap="round"/>
+                  <circle cx="65" cy="55" r="6" stroke="#3B82F6" stroke-width="3" fill="none"/>
+                  <line x1="65" y1="50" x2="65" y2="53" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="65" y1="57" x2="65" y2="60" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="60" y1="55" x2="63" y2="55" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="67" y1="55" x2="70" y2="55" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+                <div class="logo-text">
+                  <span class="store">Store</span><span class="scout">Scout</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h1>Competitive Intelligence Report</h1>
+        </div>
+
+        <div class="report-meta">
+          Generated {{ generated_at }}<br/>
+          Public catalog analysis
+        </div>
+      </div>
+
+      <div class="store-url">{{ store_url }}</div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <h3>Catalog Size</h3>
+          <div class="kpi-value">{{ catalog.total_products or 0 }}</div>
+          <div class="kpi-subtitle">Products discovered</div>
+        </div>
+
+        <div class="kpi-card">
+          <h3>In Stock</h3>
+          <div class="kpi-value">{{ catalog.in_stock_pct or 0 }}%</div>
+          <div class="kpi-subtitle">{{ catalog.in_stock_count or 0 }}/{{ catalog.total_products or 0 }} available</div>
+        </div>
+
+        <div class="kpi-card">
+          <h3>Median Price</h3>
+          <div class="kpi-value">{% if pricing.median is not none %}${{ '%.0f'|format(pricing.median) }}{% else %}—{% endif %}</div>
+          <div class="kpi-subtitle">
+            P25: {% if pricing.p25 is not none %}${{ '%.0f'|format(pricing.p25) }}{% else %}—{% endif %}
+            · P75: {% if pricing.p75 is not none %}${{ '%.0f'|format(pricing.p75) }}{% else %}—{% endif %}
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <h3>Promo Rate</h3>
+          <div class="kpi-value">{{ discounts.discounted_pct or 0 }}%</div>
+          <div class="kpi-subtitle">Active discounts</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section avoid-break">
+    <div class="section-header">
+      <h2>Competitive Positioning</h2>
+      <span class="section-badge">Strategic Snapshot</span>
+    </div>
+
+    <div class="positioning-grid">
+      <div class="position-card">
+        <h3>Market Position</h3>
+        <div class="position-value">{{ (positioning.get('market_position') or {}).get('label','—') }}</div>
+        <div class="position-note">{{ (positioning.get('market_position') or {}).get('note','') }}</div>
+      </div>
+
+      <div class="position-card">
+        <h3>Promo Intensity</h3>
+        <div class="position-value">
+          {{ (positioning.get('promo_intensity') or {}).get('label','—') }}
+          <span class="score-badge score-{{ (positioning.get('promo_intensity') or {}).get('label','low')|lower }}">
+            {{ (positioning.get('promo_intensity') or {}).get('score','—') }}
+          </span>
+        </div>
+        <div class="position-note">{{ (positioning.get('promo_intensity') or {}).get('note','') }}</div>
+      </div>
+
+      <div class="position-card">
+        <h3>Launch Velocity</h3>
+        <div class="position-value">
+          {{ (positioning.get('launch_velocity') or {}).get('label','—') }}
+          <span class="score-badge score-{{ (positioning.get('launch_velocity') or {}).get('label','low')|lower }}">
+            {{ (positioning.get('launch_velocity') or {}).get('score','—') }}
+          </span>
+        </div>
+        <div class="position-note">{{ (positioning.get('launch_velocity') or {}).get('note','') }}</div>
+      </div>
+
+      <div class="position-card">
+        <h3>Catalog Complexity</h3>
+        <div class="position-value">
+          {{ (positioning.get('catalog_complexity') or {}).get('label','—') }}
+          <span class="score-badge score-{{ (positioning.get('catalog_complexity') or {}).get('label','low')|lower }}">
+            {{ (positioning.get('catalog_complexity') or {}).get('score','—') }}
+          </span>
+        </div>
+        <div class="position-note">{{ (positioning.get('catalog_complexity') or {}).get('note','') }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaways avoid-break">
+    <h2>Key Insights</h2>
+    <ul>
+      {% for t in takeaways %}
+        <li>{{ t }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2>Pricing & Discount Strategy</h2>
+      <span class="section-badge">Price Architecture</span>
+    </div>
+
+    <div class="card-grid-2">
+      <div>
+        <h3>Pricing Metrics</h3>
+        <table>
+          <tr><th>Metric</th><th class="text-right">Value</th></tr>
+          <tr><td>Minimum</td><td class="text-right">{% if pricing.min is not none %}${{ '%.2f'|format(pricing.min) }}{% else %}—{% endif %}</td></tr>
+          <tr><td>25th Percentile</td><td class="text-right">{% if pricing.p25 is not none %}${{ '%.2f'|format(pricing.p25) }}{% else %}—{% endif %}</td></tr>
+          <tr><td>Median</td><td class="text-right">{% if pricing.median is not none %}${{ '%.2f'|format(pricing.median) }}{% else %}—{% endif %}</td></tr>
+          <tr><td>75th Percentile</td><td class="text-right">{% if pricing.p75 is not none %}${{ '%.2f'|format(pricing.p75) }}{% else %}—{% endif %}</td></tr>
+          <tr><td>Maximum</td><td class="text-right">{% if pricing.max is not none %}${{ '%.2f'|format(pricing.max) }}{% else %}—{% endif %}</td></tr>
+        </table>
+
+        {% if buckets and bucket_order %}
+        <div class="bar-container">
+          <h3 style="margin-top: 12pt;">Price Distribution</h3>
+          {% set total = catalog.total_products or 1 %}
+          {% for label in bucket_order %}
+            {% set count = buckets.get(label, 0) %}
+            {% if count > 0 %}
+              <div class="bar-row">
+                <div class="bar-label">{{ label }}</div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: {{ (count / total * 100)|round(1) }}%;"></div>
+                </div>
+                <div class="bar-count">{{ count }}</div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div>
+        <h3>Discount Metrics</h3>
+        <table>
+          <tr><th>Metric</th><th class="text-right">Value</th></tr>
+          <tr><td>Discounted Products</td><td class="text-right">{{ discounts.discounted_count or 0 }} ({{ discounts.discounted_pct or 0 }}%)</td></tr>
+          <tr><td>Median Discount</td><td class="text-right">{% if discounts.median_discount_pct is not none %}{{ discounts.median_discount_pct }}%{% else %}—{% endif %}</td></tr>
+          <tr><td>Average Discount</td><td class="text-right">{% if discounts.avg_discount_pct is not none %}{{ discounts.avg_discount_pct }}%{% else %}—{% endif %}</td></tr>
+          <tr><td>Maximum Discount</td><td class="text-right">{% if discounts.max_discount_pct is not none %}{{ discounts.max_discount_pct }}%{% else %}—{% endif %}</td></tr>
+        </table>
+
+        <div style="background: var(--bg-secondary); padding: 10pt; border-radius: 6pt; margin-top: 12pt;">
+          <h3 style="margin-bottom: 4pt;">Note</h3>
+          <p style="font-size: 8pt; color: var(--muted); line-height: 1.4;">
+            {{ discounts.note or "Discounts calculated when compare-at price exceeds actual price." }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ FIXED: Launch Timeline section spacing + grouping -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Launch Timeline & Comparisons</h2>
+      <span class="section-badge">Expansion Strategy</span>
+    </div>
+
+    <div class="card-grid-2">
+      <!-- LEFT -->
+      <div class="launch-stack">
+        {% if launch.get('error') %}
+          <div class="launch-block" style="background:#fffbeb;border-color:#fcd34d;">
+            <h3>Launch Timeline</h3>
+            <p style="font-size: 9pt; color: #78350f;">{{ launch.get('error') }}</p>
+          </div>
+        {% else %}
+          <!-- SNAPSHOT CARDS (prevents "stacked headings" look) -->
+          <div class="launch-snap">
+            <div class="card-grid">
+              <div class="metric-card">
+                <h3>New Products (90d)</h3>
+                <div class="metric-value">{{ (launch_counts.get('90d') or {}).get('count', 0) }}</div>
+                <div class="metric-label">{{ (launch_counts.get('90d') or {}).get('pct', 0) }}% of catalog</div>
+              </div>
+
+              <div class="metric-card">
+                <h3>Velocity (90d)</h3>
+                <div class="metric-value">{{ velocity.get('last_90d', 0) }}/mo</div>
+                <div class="metric-label">Products per month</div>
+              </div>
+
+              <div class="metric-card">
+                <h3>Trend</h3>
+                <div class="metric-value">{{ acceleration.get('trend','—') }}</div>
+                <div class="metric-label">
+                  {% if acceleration.get('30d_vs_90d_pct') is not none %}
+                    {{ '%+.0f'|format(acceleration.get('30d_vs_90d_pct')) }}% vs 90d
+                  {% else %}
+                    —
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <h3>Price Strategy</h3>
+                <div class="metric-value">{{ price_pos.get('strategy','—') }}</div>
+                <div class="metric-label">New vs catalog</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="launch-block">
+            <h3>Product Launch Timeline</h3>
+            <table>
+              <tr><th>Window</th><th class="text-right">Launched</th><th class="text-right">Share</th></tr>
+              <tr>
+                <td>Last 7 days</td>
+                <td class="text-right">{{ (launch_counts.get('7d') or {}).get('count', 0) }}</td>
+                <td class="text-right">{{ (launch_counts.get('7d') or {}).get('pct', 0) }}%</td>
+              </tr>
+              <tr>
+                <td>Last 30 days</td>
+                <td class="text-right">{{ (launch_counts.get('30d') or {}).get('count', 0) }}</td>
+                <td class="text-right">{{ (launch_counts.get('30d') or {}).get('pct', 0) }}%</td>
+              </tr>
+              <tr>
+                <td>Last 90 days</td>
+                <td class="text-right">{{ (launch_counts.get('90d') or {}).get('count', 0) }}</td>
+                <td class="text-right">{{ (launch_counts.get('90d') or {}).get('pct', 0) }}%</td>
+              </tr>
+              <tr>
+                <td>Last 180 days</td>
+                <td class="text-right">{{ (launch_counts.get('180d') or {}).get('count', 0) }}</td>
+                <td class="text-right">{{ (launch_counts.get('180d') or {}).get('pct', 0) }}%</td>
+              </tr>
+              <tr>
+                <td>Last 12 months</td>
+                <td class="text-right">{{ (launch_counts.get('1yr') or {}).get('count', 0) }}</td>
+                <td class="text-right">{{ (launch_counts.get('1yr') or {}).get('pct', 0) }}%</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="launch-block">
+            <h3>New Product Price Positioning</h3>
+            <table>
+              <tr><th>Comparison</th><th class="text-right">Result</th></tr>
+              <tr>
+                <td>Catalog Median</td>
+                <td class="text-right">
+                  {% if price_pos.get('catalog_median') is not none %}
+                    ${{ '%.2f'|format(price_pos.get('catalog_median')) }}
+                  {% else %}—{% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td>New Median (30d)</td>
+                <td class="text-right">
+                  {% if price_pos.get('new_30d_median') is not none %}
+                    ${{ '%.2f'|format(price_pos.get('new_30d_median')) }}
+                    {% if price_pos.get('delta_30d_pct') is not none %}
+                      ({{ '%+.0f'|format(price_pos.get('delta_30d_pct')) }}%)
+                    {% endif %}
+                  {% else %}—{% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td>New Median (90d)</td>
+                <td class="text-right">
+                  {% if price_pos.get('new_90d_median') is not none %}
+                    ${{ '%.2f'|format(price_pos.get('new_90d_median')) }}
+                    {% if price_pos.get('delta_90d_pct') is not none %}
+                      ({{ '%+.0f'|format(price_pos.get('delta_90d_pct')) }}%)
+                    {% endif %}
+                  {% else %}—{% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td>Strategy</td>
+                <td class="text-right">{{ price_pos.get('strategy', '—') }}</td>
+              </tr>
+            </table>
+
+            <div class="launch-inline-note">
+              Velocity (30d): <strong>{{ velocity.get('last_30d', 0) }}/mo</strong> ·
+              Velocity (90d): <strong>{{ velocity.get('last_90d', 0) }}/mo</strong> ·
+              12mo: <strong>{{ velocity.get('last_1yr', 0) }}/mo</strong>
+            </div>
+          </div>
+
+          {% if peak_months %}
+          <div class="launch-block">
+            <h3>Peak Launch Months (12mo)</h3>
+            <table>
+              <tr><th>Month</th><th class="text-right">Launches</th></tr>
+              {% for m in peak_months %}
+                <tr>
+                  <td>{{ m.month }}</td>
+                  <td class="text-right">{{ m.count }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+          </div>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      <!-- RIGHT -->
+      <div>
+        <h3>Price Comparisons</h3>
+        <table>
+          <tr><th>Comparison</th><th class="text-right">Result</th></tr>
+
+          <tr>
+            <td>Discounted vs Full Price Median</td>
+            <td class="text-right">
+              {% if cmp_disc_fp.get('discounted_median_price') is not none and cmp_disc_fp.get('full_price_median_price') is not none %}
+                ${{ '%.2f'|format(cmp_disc_fp.get('discounted_median_price')) }} vs ${{ '%.2f'|format(cmp_disc_fp.get('full_price_median_price')) }}
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+
+          <tr>
+            <td>Discounted Share</td>
+            <td class="text-right">
+              {{ cmp_disc_fp.get('discounted_count',0) }} ({{ cmp_disc_fp.get('discounted_pct',0) }}%)
+            </td>
+          </tr>
+
+          <tr>
+            <td class="text-muted">Update activity (secondary)</td>
+            <td class="text-right text-muted">
+              {{ cmp_updates.get('updated_90',0) }} ({{ cmp_updates.get('updated_90_pct',0) }}%)
+            </td>
+          </tr>
+        </table>
+
+        {% if cmp_updates.get('bulk_update_flag') %}
+          <div style="background: #fffbeb; border: 1px solid #fcd34d; padding: 10pt; border-radius: 8pt; margin-top: 12pt;">
+            <h3 style="margin-bottom: 4pt;">Update Spike Detected</h3>
+            <p style="font-size: 8.5pt; color: #78350f; line-height: 1.4;">
+              {{ cmp_updates.get('bulk_update_dominant_pct', 0) }}% of meaningful updates occurred on
+              {{ cmp_updates.get('bulk_update_bucket') }}.
+              {% if cmp_updates.get('bulk_filter_applied') %}
+                Spike filtered to estimate organic edits.
+              {% else %}
+                Spike detected, but filtering would remove nearly all updates.
+              {% endif %}
+            </p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2>Top Products</h2>
+      <span class="section-badge">Notable Items</span>
+    </div>
+
+    <div class="card-grid-2">
+      <div>
+        <h3>Most Expensive (Top 5)</h3>
+        <table>
+          <tr><th>Product</th><th class="text-right">Price</th></tr>
+          {% for p in top_exp[:5] %}
+            <tr>
+              <td><a href="{{ p.product_url }}" class="product-link">{{ p.title }}</a></td>
+              <td class="text-right">{% if p.price_min is not none %}${{ '%.2f'|format(p.price_min) }}{% else %}—{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <div>
+        <h3>Biggest Discounts (Top 5)</h3>
+        <table>
+          <tr><th>Product</th><th class="text-right">Discount</th></tr>
+          {% for p in top_disc[:5] %}
+            <tr>
+              <td><a href="{{ p.product_url }}" class="product-link">{{ p.title }}</a></td>
+              <td class="text-right">{% if p.discount_pct is not none %}{{ p.discount_pct }}%{% else %}—{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="confidence-notes avoid-break">
+    <h2>Data Coverage & Limitations</h2>
+    <ul>
+      {% for n in confidence_notes %}
+        <li>{{ n }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</body>
+</html>
