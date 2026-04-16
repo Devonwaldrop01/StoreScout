@@ -5,3 +5,4 @@ jinja2
 playwright
 python-multipart
 requests
+dotenv
