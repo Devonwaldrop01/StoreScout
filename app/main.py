@@ -295,7 +295,7 @@ def success(session_id: str):
         raise HTTPException(status_code=400, detail="Missing session_id")
 
     session = stripe.checkout.Session.retrieve(session_id)
-    if session.get("payment_status") != "paid":
+    if session.payment_status != "paid":
         return HTMLResponse("<h2>Payment not completed.</h2>", status_code=402)
 
     store_url = extract_store_url_from_session(session)
