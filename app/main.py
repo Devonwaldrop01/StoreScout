@@ -60,7 +60,7 @@ app = FastAPI(title="StoreScout")
 # app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 def extract_store_url_from_session(session: dict) -> str | None:
-    fields = session.get("custom_fields") or []
+    fields = session.custom_fields or []
     for f in fields:
         # f looks like: {"key": "...", "label": {...}, "type":"text", "text": {"value":"..."}}
         text = f.get("text") or {}
