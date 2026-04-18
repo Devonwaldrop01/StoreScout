@@ -63,7 +63,7 @@ def extract_store_url_from_session(session: dict) -> str | None:
     fields = session.custom_fields or []
     for f in fields:
         # f looks like: {"key": "...", "label": {...}, "type":"text", "text": {"value":"..."}}
-        text = f.get("text") or {}
+        text = f.text or {}
         value = text.get("value")
         if value:
             return value.strip()
