@@ -53,7 +53,8 @@ def html_to_pdf(html: str, out_path: Path, brand_name: str = "StoreScout") -> No
     with sync_playwright() as p:
         # Chromium launch can be slow the first time on a machine. These flags are harmless and
         # can improve stability/perf in some environments.
-        browser = p.chromium.launch(args=["--disable-dev-shm-usage"])
+        browser = p.chromium.launch(headless=True,
+                                    args=["--no-sandbox","--disable-dev-shm-usage"])
         page = browser.new_page()
 
         # Don't block on external network resources (fonts/images). Our template is self-contained.
