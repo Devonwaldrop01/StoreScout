@@ -64,7 +64,7 @@ def extract_store_url_from_session(session: dict) -> str | None:
     for f in fields:
         # f looks like: {"key": "...", "label": {...}, "type":"text", "text": {"value":"..."}}
         text = f.text or {}
-        value = text.get("value")
+        value = text.value
         if value:
             return value.strip()
     return None
