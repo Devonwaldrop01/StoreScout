@@ -360,6 +360,119 @@
     .btn-link:hover {
       background: linear-gradient(180deg, rgba(59,130,246,1), rgba(37,99,235,1));
     }
+
+    /* Sample Report Preview */
+    .report-preview-section { padding: 40px 0 80px; }
+    .preview-stack { display: flex; flex-direction: column; gap: 34px; }
+
+    .preview-block {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 28px;
+      align-items: center;
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .preview-block.reverse { grid-template-columns: 0.85fr 1.15fr; }
+
+    .preview-copy .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(191,219,254,0.95);
+      background: rgba(59,130,246,0.10);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .preview-copy h2 {
+      font-size: 28px;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .preview-copy p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 15px;
+      margin-bottom: 16px;
+    }
+
+    .insight-list {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .insight-list li {
+      color: rgba(229,231,235,0.78);
+      font-size: 14px;
+      line-height: 1.55;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .insight-list li::before {
+      content: "→";
+      color: var(--success);
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .report-img-wrap {
+      background: rgba(255,255,255,0.035);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .report-img {
+      display: block;
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .final-cta-card {
+      margin-top: 44px;
+      text-align: center;
+      background: linear-gradient(180deg, rgba(59,130,246,0.12), rgba(255,255,255,0.04));
+      border: 1px solid rgba(59,130,246,0.22);
+      border-radius: var(--radius);
+      padding: 34px 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .final-cta-card h2 { font-size: 30px; margin-bottom: 10px; }
+    .final-cta-card p {
+      color: var(--muted);
+      max-width: 620px;
+      margin: 0 auto 22px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 860px) {
+      .preview-block,
+      .preview-block.reverse { grid-template-columns: 1fr; }
+      .preview-block.reverse .preview-copy { order: 2; }
+      .preview-block.reverse .report-img-wrap { order: 1; }
+      .preview-copy h2 { font-size: 24px; }
+    }
+
   </style>
 </head>
 
@@ -399,108 +512,108 @@
   <main>
     <section class="hero">
       <div class="container">
-        <h1>Instant Shopify Competitor Intelligence</h1>
-        <p class="subtitle">Uncover pricing strategies, product catalogs, and discount tactics from any public Shopify store in seconds.</p>
+        <h1>Preview a StoreScout Report</h1>
+        <p class="subtitle">
+          See how StoreScout turns public Shopify catalog data into pricing, discount, launch, and positioning insights.
+        </p>
 
-        <div class="generator-card">
-          <form id="genForm" novalidate>
-            <div class="input-group">
-              <label for="storeUrl">Enter Shopify Store URL</label>
-              <input
-                id="storeUrl"
-                name="store_url"
-                type="url"
-                placeholder="https://example-store.com"
-                autocomplete="off"
-                required
-              />
-
-              <div id="urlHelp" class="url-help">
-                <span class="dot"></span>
-                <span id="urlMsg">Paste a Shopify store link to check if it’s supported.</span>
-              </div>
-
-              <p class="hint">💡 Try: allbirds.com, gymshark.com, or colourpop.com</p>
-            </div>
-
-            <div class="button-row">
-              <button id="submitBtn" type="submit" class="btn-primary" disabled>
-                Continue to Checkout
-              </button>
-              <div id="spinner" class="spinner"></div>
-            </div>
-
-            <div id="status" class="status"></div>
-          </form>
-        </div>
+        <a href="/" class="btn-link">Analyze a Store</a>
       </div>
     </section>
 
-    <section class="features">
+    <section class="report-preview-section">
       <div class="container">
-        <h2>What You'll Discover</h2>
-        <p class="features-subtitle">Comprehensive insights from public Shopify data</p>
+        <div class="preview-stack">
 
-        <div class="feature-grid">
-          <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <h3>Pricing Architecture</h3>
-            <p>Complete price distribution, median positioning, and competitive price bands to inform your strategy.</p>
+          <div class="preview-block">
+            <div class="report-img-wrap">
+              <img src="/static/competitive-positioning.png" alt="StoreScout competitive positioning preview" class="report-img">
+            </div>
+
+            <div class="preview-copy">
+              <div class="eyebrow">Strategic Snapshot</div>
+              <h2>Understand how a competitor is positioned.</h2>
+              <p>
+                StoreScout summarizes market position, promo intensity, launch velocity, and catalog complexity so you can quickly understand how a Shopify store competes.
+              </p>
+
+              <ul class="insight-list">
+                <li>See whether a store leans budget, mid-market, or premium.</li>
+                <li>Spot how heavily they rely on promotions.</li>
+                <li>Use the snapshot as a quick starting point before digging deeper.</li>
+              </ul>
+            </div>
           </div>
 
-          <div class="feature-card">
-            <div class="feature-icon">🎯</div>
-            <h3>Discount Strategy</h3>
-            <p>Promotional intensity, discount depth, and seasonal pricing patterns across their catalog.</p>
+          <div class="preview-block reverse">
+            <div class="preview-copy">
+              <div class="eyebrow">Pricing & Discounts</div>
+              <h2>See pricing ranges and discount behavior.</h2>
+              <p>
+                Instead of manually checking products one by one, StoreScout breaks down price bands, median pricing, discounted product share, and discount depth.
+              </p>
+
+              <ul class="insight-list">
+                <li>Identify the competitor’s main price band.</li>
+                <li>Compare discount share against full-price products.</li>
+                <li>Understand whether sales are limited or aggressive.</li>
+              </ul>
+            </div>
+
+            <div class="report-img-wrap">
+              <img src="/static/pricing-discount.png" alt="StoreScout pricing and discount strategy preview" class="report-img">
+            </div>
           </div>
 
-          <div class="feature-card">
-            <div class="feature-icon">🚀</div>
-            <h3>Launch Velocity</h3>
-            <p>New product cadence to understand their expansion pace.</p>
+          <div class="preview-block">
+            <div class="report-img-wrap">
+              <img src="/static/launch-timeline.png" alt="StoreScout launch timeline preview" class="report-img">
+            </div>
+
+            <div class="preview-copy">
+              <div class="eyebrow">Launch Timeline</div>
+              <h2>Track how fast competitors are launching.</h2>
+              <p>
+                StoreScout shows new product activity across different time windows, helping you see whether a brand is accelerating, slowing down, or pushing a new strategy.
+              </p>
+
+              <ul class="insight-list">
+                <li>See new products from the last 30, 90, 180 days, and 12 months.</li>
+                <li>Compare new product pricing against the full catalog.</li>
+                <li>Spot premium expansion or catalog refresh patterns.</li>
+              </ul>
+            </div>
           </div>
 
-          <div class="feature-card">
-            <div class="feature-icon">📦</div>
-            <h3>Catalog Intelligence</h3>
-            <p>Product counts, stock levels, variant complexity, and inventory health metrics.</p>
+          <div class="preview-block reverse">
+            <div class="preview-copy">
+              <div class="eyebrow">Notable Products</div>
+              <h2>Find the products worth paying attention to.</h2>
+              <p>
+                Reports highlight the most expensive products and biggest discounts, making it easier to spot premium offers, bundles, markdowns, and potential positioning signals.
+              </p>
+
+              <ul class="insight-list">
+                <li>Quickly view top expensive products.</li>
+                <li>See which items have the biggest markdowns.</li>
+                <li>Use notable products to guide deeper competitor research.</li>
+              </ul>
+            </div>
+
+            <div class="report-img-wrap">
+              <img src="/static/top-products.png" alt="StoreScout top products preview" class="report-img">
+            </div>
           </div>
 
-          <div class="feature-card">
-            <div class="feature-icon">🎪</div>
-            <h3>Market Positioning</h3>
-            <p>Budget, mid-market, or premium positioning based on pricing and product mix.</p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">💎</div>
-            <h3>Top Lists</h3>
-            <p>Most expensive products, biggest discounts, newest additions, and recent updates.</p>
-          </div>
         </div>
-      </div>
-    </section>
 
-    <section class="how-it-works">
-      <div class="container">
-        <h2>How It Works</h2>
+        <div class="final-cta-card">
+          <h2>Ready to analyze a competitor?</h2>
+          <p>
+            Paste a public Shopify store URL and StoreScout will check support before checkout. If the store can be analyzed, you can generate your report instantly.
+          </p>
 
-        <div class="steps">
-          <div class="step">
-            <div class="step-number">1</div>
-            <h3>Enter URL</h3>
-            <p>Paste any Shopify store URL into the form above</p>
-          </div>
-          <div class="step">
-            <div class="step-number">2</div>
-            <h3>We Verify</h3>
-            <p>We make sure we can access the store’s public product catalog</p>
-          </div>
-          <div class="step">
-            <div class="step-number">3</div>
-            <h3>Checkout → PDF</h3>
-            <p>Pay once, then your report downloads</p>
-          </div>
+          <a href="/" class="btn-link">Run Your Own Report</a>
         </div>
       </div>
     </section>
@@ -512,242 +625,7 @@
     </div>
   </footer>
 
-  <script>
-    const form = document.getElementById('genForm');
-    const storeUrl = document.getElementById('storeUrl');
-    const btn = document.getElementById('submitBtn');
-    const spinner = document.getElementById('spinner');
-
-    const urlHelp = document.getElementById('urlHelp');
-    const urlMsg = document.getElementById('urlMsg');
-
-    const statusEl = document.getElementById('status');
-
-    let checkTimer = null;
-    let lastChecked = "";
-    let lastOkBase = null;
-    let isChecking = false;
-
-    function setHelp(state, msg){
-      urlHelp.classList.remove('ok','bad','wait');
-      if(state) urlHelp.classList.add(state);
-      urlMsg.textContent = msg;
-    }
-
-    function setStatus(msg, type){
-      statusEl.textContent = msg || "";
-      statusEl.className = "status" + (msg ? (" show " + (type || "")) : "");
-    }
-
-    function normalizeUrl(raw){
-      raw = (raw || "").trim();
-      if(!raw) return null;
-
-      // Add scheme if missing
-      if(!raw.includes("://")) raw = "https://" + raw;
-
-      try{
-        const u = new URL(raw);
-        if(!u.hostname) return null;
-        if(u.protocol !== "http:" && u.protocol !== "https:") return null;
-
-        // Base only (supports https://www.brand.com/ etc.)
-        return u.protocol + "//" + u.host;
-      }catch(e){
-        return null;
-      }
-    }
-
-    function humanizeCheck(res, data){
-      // Supported
-      if(res.ok && data && data.ok){
-        return {
-          state: "ok",
-          msg: "Store supported — you can continue to checkout."
-        };
-      }
-
-      const status = res.status;
-      const reason = (data && (data.reason || data.detail)) ? String(data.reason || data.detail) : "";
-
-      // Common “blocked” cases
-      if(status === 403){
-        return {
-          state: "bad",
-          msg: "This store blocks public catalog access (bot protection), so we can’t analyze it. Try another store."
-        };
-      }
-
-      // Common “not found / hidden” cases
-      if(status === 404){
-        return {
-          state: "bad",
-          msg: "We couldn’t access this store’s public product catalog. It may be hidden or not a supported Shopify store."
-        };
-      }
-
-      // Rate limited
-      if(status === 429){
-        return {
-          state: "bad",
-          msg: "This store is rate-limiting requests right now. Please try again in a minute."
-        };
-      }
-
-      // Network-ish
-      if(reason.toLowerCase().includes("network")){
-        return {
-          state: "bad",
-          msg: "We couldn’t reach this store right now. Double-check the link and try again."
-        };
-      }
-
-      // Non-JSON / “not Shopify” vibes
-      if(reason.toLowerCase().includes("did not return json") || reason.toLowerCase().includes("not shopify")){
-        return {
-          state: "bad",
-          msg: "This store doesn’t look like a supported Shopify store (or it’s blocking access). Try a different store."
-        };
-      }
-
-      // Fallback
-      return {
-        state: "bad",
-        msg: "We can’t analyze this store right now. Try another Shopify store."
-      };
-    }
-
-    async function checkStoreNow(){
-      const raw = (storeUrl.value || "").trim();
-      const base = normalizeUrl(raw);
-
-      lastOkBase = null;
-
-      if(!base){
-        btn.disabled = true;
-        setHelp("bad", "Enter a valid store link (example: brand.com).");
-        return;
-      }
-
-      if(isChecking) return;
-      isChecking = true;
-      btn.disabled = true;
-      setHelp("wait", "Checking this store…");
-      setStatus("", "");
-
-      try{
-        const res = await fetch(`/check_store?store_url=${encodeURIComponent(base)}`);
-        const data = await res.json().catch(()=> ({}));
-
-        const ui = humanizeCheck(res, data);
-        setHelp(ui.state, ui.msg);
-
-        if(res.ok && data && data.ok){
-          lastOkBase = data.base_url || base;
-          lastChecked = base;
-          btn.disabled = false;
-        }else{
-          lastChecked = base;
-          btn.disabled = true;
-        }
-
-      }catch(err){
-        console.error(err);
-        setHelp("bad", "We couldn’t reach this store right now. Please try again.");
-        btn.disabled = true;
-      }finally{
-        isChecking = false;
-      }
-    }
-
-    function scheduleCheck(){
-      const raw = (storeUrl.value || "").trim();
-      const base = normalizeUrl(raw);
-
-      if(!base){
-        lastChecked = "";
-        lastOkBase = null;
-        btn.disabled = true;
-        setHelp(null, "Paste a Shopify store link to check if it’s supported.");
-        return;
-      }
-
-      // If unchanged and already OK
-      if(base === lastChecked && lastOkBase){
-        btn.disabled = false;
-        setHelp("ok", "✅ Store supported — you can continue to checkout.");
-        return;
-      }
-
-      // Debounce
-      if(checkTimer) clearTimeout(checkTimer);
-      checkTimer = setTimeout(checkStoreNow, 650);
-    }
-
-    // Only check on input/paste (no blur = no “double check then click twice”)
-    storeUrl.addEventListener("input", scheduleCheck);
-    storeUrl.addEventListener("paste", () => setTimeout(scheduleCheck, 0));
-
-    // Initial state
-    btn.disabled = true;
-    setHelp(null, "Paste a Shopify store link to check if it’s supported.");
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const raw = (storeUrl.value || "").trim();
-      const base = normalizeUrl(raw);
-
-      if(!base){
-        btn.disabled = true;
-        setHelp("bad", "Please enter a valid store link before continuing.");
-        return;
-      }
-
-      // If not validated yet, validate once here
-      if(!lastOkBase || lastChecked !== base){
-        await checkStoreNow();
-        if(!lastOkBase) return;
-      }
-
-      try{
-        btn.disabled = true;
-        spinner.style.display = "inline-block";
-        setStatus("Starting checkout…", "info");
-
-        const fd = new FormData();
-        fd.append("store_url", lastOkBase);
-
-        const res = await fetch("/buy", { method: "POST", body: fd });
-
-        if(!res.ok){
-          let detail = "Could not start checkout.";
-          try{
-            const j = await res.json();
-            if(j && (j.detail || j.error)) detail = j.detail || j.error;
-          }catch(_){}
-          setStatus(detail, "error");
-          btn.disabled = false;
-          return;
-        }
-
-        const j = await res.json().catch(()=> ({}));
-        if(j && j.url){
-          window.location.href = j.url;
-          return;
-        }
-
-        setStatus("Checkout didn’t return a redirect link.", "error");
-        btn.disabled = false;
-
-      }catch(err){
-        console.error(err);
-        setStatus("Network error starting checkout. Please try again.", "error");
-        btn.disabled = false;
-      }finally{
-        spinner.style.display = "none";
-      }
-    });
-  </script>
 </body>
 </html>
+
+

@@ -12,6 +12,7 @@ from urllib.parse import urlparse
 import requests
 from dotenv import load_dotenv
 
+
 load_dotenv()  # This must be called before os.getenv
 
 import base64
@@ -55,6 +56,10 @@ resend.api_key = RESEND_API_KEY
 
 
 app = FastAPI(title="StoreScout")
+
+from fastapi.staticfiles import StaticFiles
+
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 # (optional) if you add static assets later
 # app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
@@ -177,6 +182,17 @@ def home():
     if not idx.exists():
         raise HTTPException(status_code=500, detail="index.html not found. Put it in ./templates or next to main.py")
     return idx.read_text(encoding="utf-8")
+
+@app.get("/faq", response_class=HTMLResponse)
+def faq():
+    faq_path = TEMPLATES_DIR / "faq.html"
+    return HTMLResponse(faq_path.read_text(encoding="utf-8"))
+
+@app.get("/sample-report", response_class=HTMLResponse)
+def sample_report():
+    sample_report_path = TEMPLATES_DIR / "sample-report.html"
+    return HTMLResponse(sample_report_path.read_text(encoding="utf-8"))
+    
 
 
 @app.post("/generate")
