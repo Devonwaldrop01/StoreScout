@@ -32,6 +32,7 @@ except Exception:
     from app.services.analyze import analyze_products  # type: ignore
     from app.services.report import render_report_html, html_to_pdf  # type: ignore
 import time
+from fastapi.responses import FileResponse
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -192,6 +193,16 @@ def faq():
 def sample_report():
     sample_report_path = TEMPLATES_DIR / "sample-report.html"
     return HTMLResponse(sample_report_path.read_text(encoding="utf-8"))
+
+@app.get("/blog", response_class=HTMLResponse)
+def blog():
+    blog_path = TEMPLATES_DIR / "blog.html"
+    return HTMLResponse(blog_path.read_text(encoding="utf-8"))
+
+@app.get("/blog/fenty-pricing-strategy", response_class=HTMLResponse)
+def fenty_pricing_strategy():
+    article_path = TEMPLATES_DIR / "fenty-pricing-strategy.html"
+    return HTMLResponse(article_path.read_text(encoding="utf-8"))
     
 
 
@@ -731,6 +742,14 @@ def success(session_id: str):
 
 
 
+@app.get("/sitemap.xml")
+async def sitemap():
+    return FileResponse("sitemap.xml")
+
+
+@app.get("/robots.txt")
+async def robots():
+    return FileResponse("robots.txt")
 
 
 @app.post("/stripe/webhook")

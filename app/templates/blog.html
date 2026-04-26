@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) - production only -->
+  <script>
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    if (!isLocalhost) {
+      const gaScript = document.createElement("script");
+      gaScript.async = true;
+      gaScript.src = "https://www.googletagmanager.com/gtag/js?id=G-VR7RX1KNC0";
+      document.head.appendChild(gaScript);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag("js", new Date());
+      gtag("config", "G-VR7RX1KNC0");
+    }
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>StoreScout Blog | Shopify Competitor Research & Pricing Strategy</title>
+
+  <meta
+    name="description"
+    content="Learn Shopify competitor research, ecommerce pricing strategy, discount analysis, product launch tracking, and brand positioning through real ecommerce breakdowns."
+  />
+
+  <meta name="author" content="StoreScout" />
+
+  <link rel="canonical" href="https://getstorescout.com/blog" />
+
+  <meta property="og:title" content="StoreScout Blog" />
+  <meta
+    property="og:description"
+    content="Shopify competitor analysis, pricing strategy insights, and ecommerce breakdowns from real stores."
+  />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://getstorescout.com/blog" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="StoreScout Blog" />
+  <meta
+    name="twitter:description"
+    content="Shopify competitor research and ecommerce pricing strategy insights."
+  />
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root{
+      --bg: #0b1220;
+      --card: rgba(255,255,255,0.06);
+      --card2: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.12);
+      --border2: rgba(255,255,255,0.10);
+      --text: #e5e7eb;
+      --muted: rgba(229,231,235,0.72);
+      --muted2: rgba(229,231,235,0.60);
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --shadow: 0 24px 70px rgba(0,0,0,0.60);
+      --radius: 16px;
+    }
+
+    body{
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 800px at 20% 0%, rgba(59,130,246,0.18), transparent 55%),
+        radial-gradient(1200px 800px at 80% 0%, rgba(34,197,94,0.12), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      background: rgba(11,18,32,0.65);
+    }
+
+    .header-content{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .logo-container{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-text{
+      font-size: 1.6rem;
+      font-weight: bold;
+      letter-spacing: -0.025em;
+    }
+
+    .logo-text .store{ color: #2463EB; }
+    .logo-text .scout{ color: #1E40AF; }
+
+    .nav-links{
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .nav-links a{
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active{
+      color: var(--text);
+    }
+
+    .hero{
+      padding: 80px 0 40px;
+      text-align: center;
+    }
+
+    h1{
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 18px;
+      background: linear-gradient(135deg, #ffffff, rgba(229,231,235,0.70));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle{
+      font-size: 20px;
+      color: var(--muted);
+      max-width: 720px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .blog-section{
+      padding: 50px 0 90px;
+    }
+
+    .blog-grid{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 28px;
+    }
+
+    .blog-card{
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: var(--shadow);
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .blog-card:hover{
+      transform: translateY(-3px);
+      border-color: rgba(59,130,246,0.35);
+      background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.045));
+    }
+
+    .tag{
+      display: inline-flex;
+      align-items: center;
+      color: rgba(191,219,254,0.95);
+      background: rgba(59,130,246,0.10);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .blog-card h2{
+      font-size: 24px;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+
+    .blog-card h2 a{
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .blog-card h2 a:hover{
+      color: rgba(191,219,254,0.98);
+    }
+
+    .blog-card p{
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 15px;
+      margin-bottom: 18px;
+    }
+
+    .meta{
+      color: var(--muted2);
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+
+    .read-link{
+      color: rgba(191,219,254,0.98);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .read-link:hover{
+      color: white;
+    }
+
+    .cta-section{
+      padding: 70px 0;
+      text-align: center;
+      background: rgba(255,255,255,0.03);
+      border-top: 1px solid var(--border);
+    }
+
+    .cta-section h2{
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .cta-section p{
+      color: var(--muted);
+      max-width: 640px;
+      margin: 0 auto 24px;
+      line-height: 1.7;
+    }
+
+    .btn-link{
+      display: inline-block;
+      text-decoration: none;
+      background: linear-gradient(180deg, rgba(59,130,246,0.95), rgba(37,99,235,0.95));
+      border: 1px solid rgba(59,130,246,0.35);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .btn-link:hover{
+      background: linear-gradient(180deg, rgba(59,130,246,1), rgba(37,99,235,1));
+    }
+
+    footer{
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px){
+      .container{
+        padding: 20px 18px;
+      }
+
+      .logo-text{
+        font-size: 1.25rem;
+      }
+
+      .logo-container svg{
+        width: 38px;
+        height: 38px;
+      }
+
+      .nav-links{
+        gap: 10px;
+      }
+
+      .nav-links a{
+        font-size: 13px;
+      }
+
+      h1{
+        font-size: 36px;
+      }
+
+      .subtitle{
+        font-size: 17px;
+      }
+
+      .hero{
+        padding: 54px 0 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="/" style="text-decoration:none; color:inherit;">
+          <div class="logo-container">
+            <svg width="44" height="44" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M30 35 L30 80 C30 85 32 88 37 88 L63 88 C68 88 70 85 70 80 L70 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+              <path d="M25 35 L75 35 L72 42 L28 42 Z" fill="#2463EB"/>
+              <path d="M38 35 L38 28 C38 22 42 18 50 18 C58 18 62 22 62 28 L62 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+              <circle cx="65" cy="55" r="18" fill="#1E40AF" opacity="0.9"/>
+              <circle cx="65" cy="55" r="12" fill="white" opacity="0.3"/>
+              <path d="M78 68 L88 78" stroke="#1E40AF" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="65" cy="55" r="6" stroke="#3B82F6" stroke-width="3" fill="none"/>
+            </svg>
+
+            <div class="logo-text">
+              <span class="store">Store</span><span class="scout">Scout</span>
+            </div>
+          </div>
+        </a>
+
+        <nav class="nav-links">
+          <a href="/">Home</a>
+          <a href="/sample-report">Sample Report</a>
+          <a href="/blog" class="active">Blog</a>
+          <a href="/faq">FAQ</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h1>Shopify Competitor Research & Pricing Strategy</h1>
+        <p class="subtitle">
+          StoreScout breakdowns on ecommerce pricing, discount behavior, product launches, catalog positioning, and competitor intelligence.
+        </p>
+      </div>
+    </section>
+
+    <section class="blog-section">
+      <div class="container">
+        <div class="blog-grid">
+
+          <article class="blog-card">
+            <div class="tag">Pricing Strategy</div>
+
+            <h2>
+              <a href="/blog/fenty-pricing-strategy">
+                Fenty Pricing Strategy Breakdown: What Shopify Brands Can Learn
+              </a>
+            </h2>
+
+            <p class="meta">Published by StoreScout · Ecommerce competitor analysis</p>
+
+            <p>
+              A breakdown of Fenty’s pricing structure, premium launches, discount behavior, and what smaller Shopify brands can learn from its positioning strategy.
+            </p>
+
+            <a class="read-link" href="/blog/fenty-pricing-strategy">Read breakdown →</a>
+          </article>
+
+          <article class="blog-card">
+            <div class="tag">Coming Soon</div>
+
+            <h2>
+              <a href="/blog/gymshark-pricing-strategy">
+                Gymshark Pricing Strategy Breakdown
+              </a>
+            </h2>
+
+            <p class="meta">Coming soon · Shopify competitor research</p>
+
+            <p>
+              A future breakdown of Gymshark’s product catalog, pricing architecture, launch velocity, and discount strategy.
+            </p>
+
+            <a class="read-link" href="/">Analyze a competitor →</a>
+          </article>
+
+          <article class="blog-card">
+            <div class="tag">Coming Soon</div>
+
+            <h2>
+              <a href="/blog/how-to-analyze-shopify-competitors">
+                How to Analyze Shopify Competitors Faster
+              </a>
+            </h2>
+
+            <p class="meta">Coming soon · Competitor research workflow</p>
+
+            <p>
+              A practical guide to researching Shopify competitors without opening dozens of tabs or manually checking every product page.
+            </p>
+
+            <a class="read-link" href="/sample-report">View sample report →</a>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="container">
+        <h2>Want to analyze a Shopify competitor?</h2>
+        <p>
+          Paste a public Shopify store URL and StoreScout will break down pricing, discounts, launches, positioning, and notable products.
+        </p>
+        <a href="/" class="btn-link">Analyze a Store</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 StoreScout. Public catalog data only. No checkout or traffic analytics.</p>
+    </div>
+  </footer>
+</body>
+</html>

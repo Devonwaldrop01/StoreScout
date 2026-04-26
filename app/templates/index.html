@@ -1,15 +1,24 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-VR7RX1KNC0"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <!-- Google tag (gtag.js) - production only -->
+  <script>
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
 
-  gtag('config', 'G-VR7RX1KNC0');
-</script>
+    if (!isLocalhost) {
+      const gaScript = document.createElement("script");
+      gaScript.async = true;
+      gaScript.src = "https://www.googletagmanager.com/gtag/js?id=G-VR7RX1KNC0";
+      document.head.appendChild(gaScript);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag("js", new Date());
+      gtag("config", "G-VR7RX1KNC0");
+    }
+  </script>
 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -360,6 +369,83 @@
     .btn-link:hover {
       background: linear-gradient(180deg, rgba(59,130,246,1), rgba(37,99,235,1));
     }
+
+    /* Header layout fix */
+    header .container{
+      max-width: 1180px;
+      padding: 22px 22px;
+    }
+
+    .header-content{
+      width: 100%;
+    }
+
+    .logo-container svg{
+      width: 44px;
+      height: 44px;
+    }
+
+    .logo-text{
+      font-size: 1.6rem;
+    }
+
+    /* Newsletter */
+    .newsletter-section{
+      padding: 10px 18px 70px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .newsletter-shell{
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.025));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .newsletter-shell iframe{
+      display: block;
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 auto !important;
+    }
+
+    .section-cta{
+      text-align: center;
+      margin-top: 34px;
+    }
+
+    .outcome-card p strong{
+      color: var(--text);
+    }
+
+    @media (max-width: 768px){
+      header .container{
+        padding: 16px 18px;
+      }
+
+      .logo-container svg{
+        width: 38px;
+        height: 38px;
+      }
+
+      .logo-text{
+        font-size: 1.25rem;
+      }
+
+      .header-content{
+        gap: 18px;
+      }
+
+      .newsletter-section{
+        padding: 0 18px 48px;
+      }
+    }
+
   </style>
 </head>
 
@@ -390,6 +476,7 @@
         <nav class="nav-links">
           <a href="/">Home</a>
           <a href="/sample-report">Sample Report</a>
+          <a href="/blog">Blog</a>
           <a href="/faq">FAQ</a>
         </nav>
       </div>
@@ -425,61 +512,75 @@
 
             <div class="button-row">
               <button id="submitBtn" type="submit" class="btn-primary" disabled>
-                Continue to Checkout
+                Analyze This Store
               </button>
               <div id="spinner" class="spinner"></div>
             </div>
 
+            
+
             <div id="status" class="status"></div>
+
           </form>
         </div>
+
       </div>
     </section>
+
+   
+
 
     <section class="features">
       <div class="container">
         <h2>What You'll Discover</h2>
-        <p class="features-subtitle">Comprehensive insights from public Shopify data</p>
+        <p class="features-subtitle">See the competitor signals that are hard to catch manually.</p>
 
         <div class="feature-grid">
-          <div class="feature-card">
+          <div class="feature-card outcome-card">
             <div class="feature-icon">📊</div>
-            <h3>Pricing Architecture</h3>
-            <p>Complete price distribution, median positioning, and competitive price bands to inform your strategy.</p>
+            <h3>How they price products</h3>
+            <p><strong>Find their main price bands</strong> so you can understand whether they compete as budget, mid-market, or premium.</p>
           </div>
 
-          <div class="feature-card">
+          <div class="feature-card outcome-card">
             <div class="feature-icon">🎯</div>
-            <h3>Discount Strategy</h3>
-            <p>Promotional intensity, discount depth, and seasonal pricing patterns across their catalog.</p>
+            <h3>How much they discount</h3>
+            <p><strong>See discount share and depth</strong> to understand whether competitors rely on constant promos or protect full-price positioning.</p>
           </div>
 
-          <div class="feature-card">
+          <div class="feature-card outcome-card">
             <div class="feature-icon">🚀</div>
-            <h3>Launch Velocity</h3>
-            <p>New product cadence to understand their expansion pace.</p>
+            <h3>How fast they launch</h3>
+            <p><strong>Track product launch velocity</strong> and spot whether a brand is accelerating, slowing down, or refreshing its catalog.</p>
           </div>
 
-          <div class="feature-card">
+          <div class="feature-card outcome-card">
             <div class="feature-icon">📦</div>
-            <h3>Catalog Intelligence</h3>
-            <p>Product counts, stock levels, variant complexity, and inventory health metrics.</p>
+            <h3>How complex the catalog is</h3>
+            <p><strong>Understand product count, variants, and inventory signals</strong> without opening dozens of tabs.</p>
           </div>
 
-          <div class="feature-card">
+          <div class="feature-card outcome-card">
             <div class="feature-icon">🎪</div>
-            <h3>Market Positioning</h3>
-            <p>Budget, mid-market, or premium positioning based on pricing and product mix.</p>
+            <h3>Where they sit in the market</h3>
+            <p><strong>Quickly read positioning</strong> based on pricing, discounts, product mix, and launch behavior.</p>
           </div>
 
-          <div class="feature-card">
+          <div class="feature-card outcome-card">
             <div class="feature-icon">💎</div>
-            <h3>Top Lists</h3>
-            <p>Most expensive products, biggest discounts, newest additions, and recent updates.</p>
+            <h3>Which products stand out</h3>
+            <p><strong>See expensive products, biggest markdowns, newest launches, and recent updates</strong> in one report.</p>
           </div>
         </div>
+
+        <div class="section-cta">
+          <a href="/sample-report" class="btn-link">View Sample Report</a>
+        </div>
       </div>
+      
     </section>
+
+    
 
     <section class="how-it-works">
       <div class="container">
@@ -488,22 +589,37 @@
         <div class="steps">
           <div class="step">
             <div class="step-number">1</div>
-            <h3>Enter URL</h3>
-            <p>Paste any Shopify store URL into the form above</p>
+            <h3>Paste a Store URL</h3>
+            <p>Enter any public Shopify store you want to analyze</p>
           </div>
           <div class="step">
             <div class="step-number">2</div>
-            <h3>We Verify</h3>
-            <p>We make sure we can access the store’s public product catalog</p>
+            <h3>StoreScout Checks Support</h3>
+            <p>We verify the public product catalog before checkout</p>
           </div>
           <div class="step">
             <div class="step-number">3</div>
-            <h3>Checkout → PDF</h3>
-            <p>Pay once, then your report downloads</p>
+            <h3>Get Your Competitor Report</h3>
+            <p>Receive a PDF breakdown of pricing, discounts, launches, and positioning</p>
           </div>
         </div>
       </div>
     </section>
+
+     <section class="newsletter-section">
+      <div class="newsletter-shell">
+        <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script><iframe src="https://subscribe-forms.beehiiv.com/b7abbe43-e1f1-4226-8ed0-018c13ff57d0" class="beehiiv-embed" data-test-id="beehiiv-embed" frameborder="0" scrolling="no" style="width: 947px; height: 373px; margin: 0; border-radius: 0px 0px 0px 0px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="container" style="text-align:center;">
+        <h2>Ready to research a competitor?</h2>
+        <p class="features-subtitle">Paste a Shopify store URL and StoreScout will check whether it can generate a report before checkout.</p>
+        <a href="#storeUrl" class="btn-link">Analyze a Store</a>
+      </div>
+    </section>
+
   </main>
 
   <footer>
