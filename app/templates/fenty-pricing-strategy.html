@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/png" href="/static/favicon.png" />
+  <link rel="apple-touch-icon" href="/static/favicon.png"/>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -130,12 +132,394 @@
         font-size: 17px;
       }
     }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root{
+      --bg: #0b1220;
+      --bg-secondary: rgba(255,255,255,0.03);
+      --card: rgba(255,255,255,0.06);
+      --card2: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.12);
+      --border2: rgba(255,255,255,0.10);
+      --text: #e5e7eb;
+      --muted: rgba(229,231,235,0.72);
+      --muted2: rgba(229,231,235,0.60);
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --success: #22c55e;
+      --shadow: 0 24px 70px rgba(0,0,0,0.60);
+      --radius: 16px;
+    }
+
+    body{
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 800px at 20% 0%, rgba(59,130,246,0.18), transparent 55%),
+        radial-gradient(1200px 800px at 80% 0%, rgba(34,197,94,0.12), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+
+    a{ color: rgba(147,197,253,0.98); }
+    a:hover{ color: #fff; }
+
+    .container{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 22px;
+    }
+
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      background: rgba(11,18,32,0.65);
+    }
+
+    .header-content{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .logo-container{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-text{
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+    }
+
+    .logo-text .store{ color: #2463EB; }
+    .logo-text .scout{ color: #1E40AF; }
+
+    .nav-links{
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .nav-links a{
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active{
+      color: var(--text);
+    }
+
+    .article-wrap{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 72px 20px 90px;
+    }
+
+    .breadcrumb{
+      color: var(--muted2);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    .breadcrumb a{
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .article-tag{
+      display: inline-flex;
+      align-items: center;
+      color: rgba(191,219,254,0.95);
+      background: rgba(59,130,246,0.10);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    h1{
+      font-size: 48px;
+      line-height: 1.12;
+      margin-bottom: 20px;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #ffffff, rgba(229,231,235,0.72));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .article-subtitle{
+      font-size: 20px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 28px;
+    }
+
+    .meta{
+      color: var(--muted2);
+      font-size: 14px;
+      margin-bottom: 44px;
+    }
+
+    .summary-box{
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin: 34px 0 46px;
+      box-shadow: var(--shadow);
+    }
+
+    .summary-box h2{
+      font-size: 22px;
+      margin: 0 0 14px;
+    }
+
+    .summary-box ul{
+      padding-left: 22px;
+      color: var(--muted);
+    }
+
+    .summary-box li{
+      margin-bottom: 8px;
+    }
+
+    .article-image{
+      width: 100%;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      margin: 26px 0 44px;
+      box-shadow: var(--shadow);
+      background: rgba(255,255,255,0.04);
+    }
+
+    article h2{
+      margin-top: 58px;
+      margin-bottom: 16px;
+      font-size: 30px;
+      line-height: 1.22;
+      letter-spacing: -0.02em;
+    }
+
+    article h3{
+      margin-top: 34px;
+      margin-bottom: 12px;
+      font-size: 22px;
+    }
+
+    article p{
+      color: rgba(229,231,235,0.86);
+      font-size: 18px;
+      margin-bottom: 22px;
+    }
+
+    article ul{
+      margin: 12px 0 26px;
+      padding-left: 24px;
+      color: rgba(229,231,235,0.86);
+      font-size: 18px;
+    }
+
+    article li{
+      margin-bottom: 8px;
+    }
+
+    .stat-grid{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 16px;
+      margin: 28px 0 34px;
+    }
+
+    .stat-card{
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .stat-label{
+      color: var(--muted2);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+    }
+
+    .stat-value{
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .callout{
+      border-left: 4px solid var(--primary);
+      background: rgba(59,130,246,0.08);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin: 30px 0;
+      color: rgba(219,234,254,0.98);
+    }
+
+    .internal-links{
+      margin-top: 56px;
+      padding: 26px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      border-radius: var(--radius);
+    }
+
+    .internal-links h2{
+      font-size: 24px;
+      margin: 0 0 12px;
+    }
+
+    .internal-links ul{
+      margin-bottom: 0;
+    }
+
+    .cta-box{
+      margin-top: 64px;
+      padding: 38px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(59,130,246,0.14), rgba(255,255,255,0.045));
+      border: 1px solid rgba(59,130,246,0.24);
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .cta-box h2{
+      margin-top: 0;
+      font-size: 30px;
+    }
+
+    .btn-link{
+      display: inline-block;
+      text-decoration: none;
+      background: linear-gradient(180deg, rgba(59,130,246,0.95), rgba(37,99,235,0.95));
+      border: 1px solid rgba(59,130,246,0.35);
+      color: white;
+      border-radius: 12px;
+      padding: 13px 20px;
+      font-weight: 800;
+      font-size: 15px;
+      margin-top: 10px;
+    }
+
+    .btn-link:hover{
+      background: linear-gradient(180deg, rgba(59,130,246,1), rgba(37,99,235,1));
+    }
+
+    footer{
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px){
+      .container{
+        padding: 18px 16px;
+      }
+
+      .logo-text{
+        font-size: 1.25rem;
+      }
+
+      .nav-links{
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .nav-links a{
+        font-size: 12px;
+      }
+
+      .article-wrap{
+        padding: 46px 16px 70px;
+      }
+
+      h1{
+        font-size: 34px;
+      }
+
+      .article-subtitle{
+        font-size: 17px;
+      }
+
+      article h2{
+        font-size: 26px;
+      }
+
+      article p,
+      article ul{
+        font-size: 16px;
+      }
+
+      .cta-box{
+        padding: 28px 20px;
+      }
+    }
+  
   </style>
 </head>
 
 <body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="/" style="text-decoration:none; color:inherit;">
+          <div class="logo-container">
+            <svg width="44" height="44" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M30 35 L30 80 C30 85 32 88 37 88 L63 88 C68 88 70 85 70 80 L70 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+              <path d="M25 35 L75 35 L72 42 L28 42 Z" fill="#2463EB"/>
+              <path d="M38 35 L38 28 C38 22 42 18 50 18 C58 18 62 22 62 28 L62 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+              <circle cx="65" cy="55" r="18" fill="#1E40AF" opacity="0.9"/>
+              <circle cx="65" cy="55" r="12" fill="white" opacity="0.3"/>
+              <path d="M78 68 L88 78" stroke="#1E40AF" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="65" cy="55" r="6" stroke="#3B82F6" stroke-width="3" fill="none"/>
+            </svg>
+
+            <div class="logo-text">
+              <span class="store">Store</span><span class="scout">Scout</span>
+            </div>
+          </div>
+        </a>
+
+        <nav class="nav-links" aria-label="Main navigation">
+          <a href="/">Home</a>
+          <a href="/sample-report">Sample Report</a>
+          <a href="/blog" class="active">Blog</a>
+          <a href="/faq">FAQ</a>
+        </nav>
+      </div>
+    </div>
+  </header>
 
   <main class="article-container">
+
+     <div class="breadcrumb">
+      <a href="/">Home</a> / <a href="/blog">Blog</a> / Gymshark Pricing Strategy
+    </div>
 
     <div class="article-tag">
       Ecommerce Pricing Strategy
