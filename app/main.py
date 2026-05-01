@@ -184,6 +184,11 @@ def home():
         raise HTTPException(status_code=500, detail="index.html not found. Put it in ./templates or next to main.py")
     return idx.read_text(encoding="utf-8")
 
+@app.get("/shopify-competitor-analysis-tool")
+def competitortool():
+    competitortool_path = TEMPLATES_DIR / "shopify-analysis.html"
+    return HTMLResponse(competitortool_path.read_text(encoding="utf-8"))
+
 @app.get("/faq", response_class=HTMLResponse)
 def faq():
     faq_path = TEMPLATES_DIR / "faq.html"
@@ -207,6 +212,11 @@ def fenty_pricing_strategy():
 @app.get("/blog/gymshark-pricing-strategy", response_class=HTMLResponse)
 def fenty_pricing_strategy():
     article_path = TEMPLATES_DIR / "gymshark-pricing-strategy.html"
+    return HTMLResponse(article_path.read_text(encoding="utf-8"))
+
+@app.get("/blog/how-to-analyze-shopify-competitors", response_class=HTMLResponse)
+def fenty_pricing_strategy():
+    article_path = TEMPLATES_DIR / "how-to-analyze-shopify-competitors.html"
     return HTMLResponse(article_path.read_text(encoding="utf-8"))
     
 

@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png" />
-  <link rel="apple-touch-icon" href="/static/favicon.png"/>
+  <link rel="apple-touch-icon" href="/static/favicon.png" />
+
   <!-- Google tag (gtag.js) - production only -->
   <script>
     const isLocalhost =
@@ -24,100 +25,126 @@
 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StoreScout - Instant Shopify Competitor Intelligence</title>
+
+  <title>StoreScout - Shopify Competitor Analysis & Ecommerce Pricing Intelligence</title>
+
+  <meta
+    name="description"
+    content="Analyze Shopify competitors in seconds. StoreScout helps ecommerce brands track competitor pricing, discounts, product launches, catalog positioning, and Shopify store strategy."
+  />
+
+  <meta
+    name="keywords"
+    content="shopify competitor analysis, shopify competitor research, ecommerce pricing intelligence, competitor pricing analysis, analyze shopify store, ecommerce competitor analysis, shopify pricing strategy"
+  />
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root{
       --bg: #0b1220;
       --bg-secondary: rgba(255,255,255,0.03);
-      --bg-tertiary: rgba(255,255,255,0.05);
-
       --card: rgba(255,255,255,0.06);
       --card2: rgba(255,255,255,0.04);
-
       --border: rgba(255,255,255,0.12);
       --border2: rgba(255,255,255,0.10);
-
       --text: #e5e7eb;
       --muted: rgba(229,231,235,0.72);
       --muted2: rgba(229,231,235,0.60);
-
       --primary: #3b82f6;
       --primary-dark: #2563eb;
-
       --success: #22c55e;
       --error: #ef4444;
-
       --shadow: 0 24px 70px rgba(0,0,0,0.60);
       --radius: 16px;
     }
 
+    html { scroll-behavior: smooth; }
+
     body{
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(1200px 800px at 20% 0%, rgba(59,130,246,0.18), transparent 55%),
-                  radial-gradient(1200px 800px at 80% 0%, rgba(34,197,94,0.12), transparent 55%),
-                  var(--bg);
+      background:
+        radial-gradient(1200px 800px at 20% 0%, rgba(59,130,246,0.18), transparent 55%),
+        radial-gradient(1200px 800px at 80% 0%, rgba(34,197,94,0.12), transparent 55%),
+        var(--bg);
       color: var(--text);
       min-height: 100vh;
     }
 
-    .wrap, .container{
-      max-width: 980px;
+    .container{
+      width: 100%;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 28px 18px;
+      padding: 0 22px;
     }
 
-    header{
-      position: sticky;
-      top: 0;
-      z-index: 100;
+    header {
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(10px);
       background: rgba(11,18,32,0.65);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    .header-content {
+    .header-inner {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 22px 0;
     }
 
     .logo {
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        }
+
+        .logo svg {
+        flex-shrink: 0;
+        }
+
+        .logo-text {
+        font-size: 1.7rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        }
+
+        .logo-text .store {
+        color: #3b82f6;
+        }
+
+        .logo-text .scout {
+        color: #1d4ed8;
+        }
+
+    .nav-links {
       display: flex;
-      align-items: center;
-      gap: 8px;
+      gap: 20px;
     }
 
-    .logo-text {
-      font-size: 2rem;
-      font-weight: bold;
-      letter-spacing: -0.025em;
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .nav-links a:hover {
       color: var(--text);
     }
-    .logo-text .store { color: #2463EB; }
-    .logo-text .scout { color: #1E40AF; }
 
-    .logo-container {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-    }
-
-    /* Hero */
-    .hero {
-      padding: 80px 0 60px;
-      text-align: center;
-    }
+    .hero { padding: 80px 0 58px; text-align: center; }
 
     h1{
-      font-size: 48px;
-      font-weight: 700;
-      line-height: 1.2;
-      margin-bottom: 20px;
+      max-width: 920px;
+      margin: 0 auto 20px;
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
       background: linear-gradient(135deg, #ffffff, rgba(229,231,235,0.70));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -126,17 +153,15 @@
 
     .subtitle {
       font-size: 20px;
-      color: rgba(229,231,235,0.68);
-      margin-bottom: 48px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+      line-height: 1.65;
+      color: var(--muted);
+      margin: 0 auto 42px;
+      max-width: 760px;
     }
 
-    /* Generator Card */
     .generator-card{
       max-width: 640px;
-      margin: 0 auto 80px;
+      margin: 0 auto;
       background: linear-gradient(180deg, var(--card), var(--card2));
       border: 1px solid var(--border);
       border-radius: 16px;
@@ -147,7 +172,7 @@
 
     label {
       display: block;
-      font-weight: 600;
+      font-weight: 700;
       margin-bottom: 8px;
       font-size: 14px;
       color: var(--text);
@@ -159,13 +184,15 @@
       border: 1px solid var(--border2);
       color: var(--text);
       border-radius: 12px;
-      padding: 12px 12px;
+      padding: 12px;
       outline: none;
       font-size: 16px;
       font-family: inherit;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
+
     input::placeholder{ color: rgba(229,231,235,0.45); }
+
     input:focus{
       border-color: rgba(59,130,246,0.55);
       box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
@@ -173,7 +200,7 @@
 
     .hint {
       font-size: 13px;
-      color: rgba(229,231,235,0.68);
+      color: var(--muted);
       margin-top: 8px;
     }
 
@@ -192,15 +219,17 @@
       color: var(--text);
       border-radius: 12px;
       padding: 12px 14px;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 15px;
       cursor: pointer;
       transition: transform 0.05s ease, background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
     }
+
     button:hover:not(:disabled){
       background: rgba(255,255,255,0.10);
       border-color: rgba(255,255,255,0.20);
     }
+
     button:active{ transform: translateY(1px); }
     button:disabled{ opacity: 0.55; cursor: not-allowed; }
 
@@ -208,9 +237,22 @@
       background: linear-gradient(180deg, rgba(59,130,246,0.95), rgba(37,99,235,0.95));
       border-color: rgba(59,130,246,0.35);
     }
+
     .btn-primary:hover:not(:disabled){
       background: linear-gradient(180deg, rgba(59,130,246,1), rgba(37,99,235,1));
       border-color: rgba(59,130,246,0.55);
+    }
+
+    .btn-link {
+      display: inline-block;
+      text-decoration: none;
+      background: linear-gradient(180deg, rgba(59,130,246,0.95), rgba(37,99,235,0.95));
+      border: 1px solid rgba(59,130,246,0.35);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-weight: 800;
+      font-size: 15px;
     }
 
     .spinner {
@@ -221,26 +263,27 @@
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       display: none;
+      flex: 0 0 auto;
     }
+
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Status */
     .status{
       margin-top: 14px;
       font-size: 13px;
       color: var(--muted2);
       display: none;
-      padding: 12px 12px;
+      padding: 12px;
       border-radius: 12px;
       border: 1px solid var(--border2);
       background: rgba(255,255,255,0.04);
     }
+
     .status.show{ display: block; }
     .status.info{ border-color: rgba(59,130,246,0.35); background: rgba(59,130,246,0.08); color: rgba(191,219,254,0.95); }
     .status.success{ border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.08); color: rgba(134,239,172,0.95); }
     .status.error{ border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.08); color: rgba(254,202,202,0.95); }
 
-    /* URL Help (dark theme) */
     .url-help{
       display:flex;
       align-items:center;
@@ -253,41 +296,66 @@
       font-size: 13px;
       color: var(--muted);
     }
+
     .url-help .dot{
-      width:10px;height:10px;border-radius:999px;
+      width:10px;
+      height:10px;
+      border-radius:999px;
       background: rgba(255,255,255,0.35);
       flex:0 0 10px;
     }
-    .url-help.ok{
-      border-color: rgba(34,197,94,0.35);
-      background: rgba(34,197,94,0.08);
-      color: rgba(134,239,172,0.95);
-    }
+
+    .url-help.ok{ border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.08); color: rgba(134,239,172,0.95); }
     .url-help.ok .dot{ background: rgba(34,197,94,0.95); }
-    .url-help.bad{
-      border-color: rgba(239,68,68,0.35);
-      background: rgba(239,68,68,0.08);
-      color: rgba(254,202,202,0.95);
-    }
+    .url-help.bad{ border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.08); color: rgba(254,202,202,0.95); }
     .url-help.bad .dot{ background: rgba(239,68,68,0.95); }
-    .url-help.wait{
-      border-color: rgba(59,130,246,0.35);
-      background: rgba(59,130,246,0.08);
-      color: rgba(191,219,254,0.95);
-    }
+    .url-help.wait{ border-color: rgba(59,130,246,0.35); background: rgba(59,130,246,0.08); color: rgba(191,219,254,0.95); }
     .url-help.wait .dot{ background: rgba(59,130,246,0.95); }
 
-    /* Features / How it works / Footer */
-    .features { background: var(--bg-secondary); padding: 80px 0; }
-    .features h2 { text-align: center; font-size: 32px; margin-bottom: 16px; }
-    .features-subtitle { text-align: center; color: rgba(229,231,235,0.68); margin-bottom: 48px; font-size: 18px; }
-    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; }
+    .features,
+    .seo-section,
+    .final-cta {
+      border-top: 1px solid var(--border);
+    }
+
+    .features {
+      background: var(--bg-secondary);
+      padding: 80px 0;
+    }
+
+    .features h2,
+    .how-it-works h2,
+    .seo-section h2,
+    .final-cta h2 {
+      text-align: center;
+      font-size: 34px;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .features-subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin: 0 auto 48px;
+      font-size: 18px;
+      line-height: 1.65;
+      max-width: 720px;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 28px;
+    }
+
     .feature-card{
       background: linear-gradient(180deg, var(--card), var(--card2));
       border: 1px solid var(--border);
       padding: 24px;
-      border-radius: 12px;
+      border-radius: 14px;
     }
+
     .feature-icon {
       width: 48px;
       height: 48px;
@@ -300,100 +368,77 @@
       margin-bottom: 16px;
       font-size: 24px;
     }
+
     .feature-card h3 { font-size: 18px; margin-bottom: 8px; }
-    .feature-card p { color: rgba(229,231,235,0.68); font-size: 14px; line-height: 1.6; }
+    .feature-card p { color: var(--muted); font-size: 14px; line-height: 1.65; }
+    .feature-card p strong { color: var(--text); }
+
+    .section-cta{ text-align: center; margin-top: 34px; }
 
     .how-it-works { padding: 80px 0; }
-    .how-it-works h2 { text-align: center; font-size: 32px; margin-bottom: 48px; }
-    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 32px; max-width: 900px; margin: 0 auto; }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 32px;
+      max-width: 900px;
+      margin: 48px auto 0;
+    }
+
     .step { text-align: center; }
+
     .step-number {
-      width: 48px; height: 48px;
+      width: 48px;
+      height: 48px;
       background: var(--primary);
       color: white;
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
       margin: 0 auto 16px;
     }
+
     .step h3 { font-size: 18px; margin-bottom: 8px; }
-    .step p { color: rgba(229,231,235,0.68); font-size: 14px; }
+    .step p { color: var(--muted); font-size: 14px; line-height: 1.6; }
 
-    .nav-links {
-      display: flex;
-      gap: 18px;
-      align-items: center;
+    .seo-section {
+      padding: 72px 0;
+      background: rgba(255,255,255,0.025);
     }
-    .nav-links a {
+
+    .seo-section p {
       color: var(--muted);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 600;
-    }
-    .nav-links a:hover {
-      color: var(--text);
-    }
-    @media (max-width: 768px) {
-      .nav-links {
-        gap: 10px;
-      }
-    .nav-links a {
-      font-size: 13px;
-      }
-    }
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 32px 0;
+      font-size: 17px;
+      line-height: 1.75;
+      max-width: 760px;
+      margin: 0 auto 18px;
       text-align: center;
-      color: rgba(229,231,235,0.68);
-      font-size: 14px;
     }
 
-    @media (max-width: 768px) {
-      h1 { font-size: 36px; }
-      .subtitle { font-size: 18px; }
-      .hero { padding: 48px 0 40px; }
-      .generator-card { padding: 24px; }
-      .features, .how-it-works { padding: 48px 0; }
+    .keyword-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 28px auto 0;
+      max-width: 850px;
     }
-    .btn-link {
-      display: inline-block;
-      text-decoration: none;
-      background: linear-gradient(180deg, rgba(59,130,246,0.95), rgba(37,99,235,0.95));
-      border: 1px solid rgba(59,130,246,0.35);
-      color: var(--text);
-      border-radius: 12px;
-      padding: 12px 18px;
+
+    .keyword-pill {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.045);
+      color: var(--muted);
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 13px;
       font-weight: 700;
-      font-size: 15px;
     }
 
-    .btn-link:hover {
-      background: linear-gradient(180deg, rgba(59,130,246,1), rgba(37,99,235,1));
-    }
-
-    /* Header layout fix */
-    header .container{
-      max-width: 1180px;
-      padding: 22px 22px;
-    }
-
-    .header-content{
-      width: 100%;
-    }
-
-    .logo-container svg{
-      width: 44px;
-      height: 44px;
-    }
-
-    .logo-text{
-      font-size: 1.6rem;
-    }
-
-    /* Newsletter */
     .newsletter-section{
-      padding: 10px 18px 70px;
+      padding: 20px 22px 70px;
       display: flex;
       justify-content: center;
     }
@@ -416,234 +461,112 @@
       margin: 0 auto !important;
     }
 
-    .section-cta{
+    .final-cta {
+      padding: 72px 0;
+      background: var(--bg-secondary);
       text-align: center;
-      margin-top: 34px;
     }
 
-    .outcome-card p strong{
-      color: var(--text);
+    .final-cta .features-subtitle { margin-bottom: 24px; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
     }
 
-    @media (max-width: 768px){
-      header .container{
-        padding: 16px 18px;
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 38px;
       }
 
-      .logo-container svg{
-        width: 38px;
-        height: 38px;
+      .subtitle {
+        font-size: 17px;
       }
 
-      .logo-text{
-        font-size: 1.25rem;
+      .section-title {
+        font-size: 30px;
       }
 
-      .header-content{
-        gap: 18px;
+      .hero {
+        padding: 72px 0 56px;
       }
 
-      .newsletter-section{
-        padding: 0 18px 48px;
+      .section {
+        padding: 58px 0;
+      }
+
+      .header-inner {
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
       }
     }
-    /* Mobile optimization */
-@media (max-width: 768px) {
-  .container,
-  .wrap {
-    max-width: 100%;
-    padding: 18px 16px;
-  }
 
-  header {
-    position: sticky;
-  }
+    @media (max-width: 520px) {
+      .site-header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
 
-  .header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-  }
+      .site-nav { justify-content: flex-start; }
 
-  .logo-container svg {
-    width: 36px;
-    height: 36px;
-  }
-
-  .logo-text {
-    font-size: 1.25rem;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-
-  .nav-links a {
-    font-size: 12px;
-    white-space: nowrap;
-  }
-
-  .hero {
-    padding: 42px 0 34px;
-  }
-
-  h1 {
-    font-size: 32px;
-    line-height: 1.15;
-    margin-bottom: 14px;
-  }
-
-  .subtitle {
-    font-size: 16px;
-    line-height: 1.55;
-    margin-bottom: 28px;
-  }
-
-  .generator-card {
-    width: 100%;
-    max-width: 100%;
-    padding: 20px;
-    margin: 0 auto 44px;
-    border-radius: 14px;
-  }
-
-  input {
-    font-size: 15px;
-    padding: 12px;
-  }
-
-  .button-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  button,
-  .btn-primary,
-  .btn-link {
-    width: 100%;
-    text-align: center;
-  }
-
-  .features,
-  .how-it-works,
-  .newsletter-section,
-  .final-cta {
-    padding: 46px 0;
-  }
-
-  .features h2,
-  .how-it-works h2,
-  .final-cta h2 {
-    font-size: 28px;
-    line-height: 1.2;
-  }
-
-  .features-subtitle {
-    font-size: 16px;
-    margin-bottom: 28px;
-  }
-
-  .feature-grid,
-  .steps {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-
-  .feature-card {
-    padding: 20px;
-  }
-
-  .step {
-    padding: 0 8px;
-  }
-
-  .newsletter-shell,
-  .newsletter-card {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .newsletter-card {
-    padding: 24px 18px;
-  }
-
-  footer {
-    padding: 28px 16px;
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 420px) {
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .nav-links {
-    justify-content: flex-start;
-  }
-
-  h1 {
-    font-size: 29px;
-  }
-
-  .generator-card {
-    padding: 18px;
-  }
-}
-
+      h1 { font-size: 30px; }
+    }
   </style>
 </head>
 
 <body>
-  <header>
-    <div class="container">
-      <div class="header-content">
-        <div class="logo">
-          <div class="logo-container">
-            <svg width="56" height="56" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M30 35 L30 80 C30 85 32 88 37 88 L63 88 C68 88 70 85 70 80 L70 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
-              <path d="M25 35 L75 35 L72 42 L28 42 Z" fill="#2463EB"/>
-              <path d="M38 35 L38 28 C38 22 42 18 50 18 C58 18 62 22 62 28 L62 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
-              <circle cx="65" cy="55" r="18" fill="#1E40AF" opacity="0.9"/>
-              <circle cx="65" cy="55" r="12" fill="white" opacity="0.3"/>
-              <path d="M78 68 L88 78" stroke="#1E40AF" stroke-width="5" stroke-linecap="round"/>
-              <circle cx="65" cy="55" r="6" stroke="#3B82F6" stroke-width="3" fill="none"/>
-              <line x1="65" y1="50" x2="65" y2="53" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
-              <line x1="65" y1="57" x2="65" y2="60" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
-              <line x1="60" y1="55" x2="63" y2="55" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
-              <line x1="67" y1="55" x2="70" y2="55" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
-            </svg>
-            <div class="logo-text">
-              <span class="store">Store</span><span class="scout">Scout</span>
-            </div>
-          </div>
+    <header>
+      <div class="container">
+        <div class="header-inner">
+          
+          <a href="/" class="logo">
+              <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M30 35 L30 80 C30 85 32 88 37 88 L63 88 C68 88 70 85 70 80 L70 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+                  <path d="M25 35 L75 35 L72 42 L28 42 Z" fill="#2463EB"/>
+                  <path d="M38 35 L38 28 C38 22 42 18 50 18 C58 18 62 22 62 28 L62 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+                  <circle cx="65" cy="55" r="18" fill="#1E40AF" opacity="0.9"/>
+                  <circle cx="65" cy="55" r="12" fill="white" opacity="0.3"/>
+                  <path d="M78 68 L88 78" stroke="#1E40AF" stroke-width="5" stroke-linecap="round"/>
+              </svg>
+
+              <div class="logo-text">
+                  <span class="store">Store</span><span class="scout">Scout</span>
+              </div>
+              </a>
+
+          <nav class="nav-links">
+            <a href="/">Home</a>
+            <a href="/shopify-competitor-analysis-tool">Competitor Analysis</a>
+            <a href="/sample-report">Sample Report</a>
+            <a href="/blog">Blog</a>
+            <a href="/faq">FAQ</a>
+          </nav>
         </div>
-        <nav class="nav-links">
-          <a href="/">Home</a>
-          <a href="/sample-report">Sample Report</a>
-          <a href="/blog">Blog</a>
-          <a href="/faq">FAQ</a>
-        </nav>
       </div>
-    </div>
-  </header>
+    </header>
 
   <main>
     <section class="hero">
       <div class="container">
-        <h1>Instant Shopify Competitor Intelligence</h1>
-        <p class="subtitle">Uncover pricing strategies, product catalogs, and discount tactics from any public Shopify store in seconds.</p>
+        <h1>Shopify Competitor Analysis & Ecommerce Pricing Intelligence</h1>
 
-        <div class="generator-card">
+        <p class="subtitle">
+          Analyze any Shopify store in seconds. Track competitor pricing, discount strategies, product launches, catalog positioning, and ecommerce strategy from public Shopify data.
+        </p>
+
+        <div class="generator-card" id="analyze">
           <form id="genForm" novalidate>
             <div class="input-group">
               <label for="storeUrl">Enter Shopify Store URL</label>
+
               <input
                 id="storeUrl"
                 name="store_url"
@@ -665,61 +588,55 @@
               <button id="submitBtn" type="submit" class="btn-primary" disabled>
                 Analyze This Store
               </button>
+
               <div id="spinner" class="spinner"></div>
             </div>
 
-            
-
             <div id="status" class="status"></div>
-
           </form>
         </div>
-
       </div>
     </section>
 
-   
-
-
     <section class="features">
       <div class="container">
-        <h2>What You'll Discover</h2>
-        <p class="features-subtitle">See the competitor signals that are hard to catch manually.</p>
+        <h2>What StoreScout Analyzes</h2>
+        <p class="features-subtitle">Automated Shopify competitor research without opening dozens of tabs.</p>
 
         <div class="feature-grid">
-          <div class="feature-card outcome-card">
+          <div class="feature-card">
             <div class="feature-icon">📊</div>
-            <h3>How they price products</h3>
+            <h3>Competitor Pricing Analysis</h3>
             <p><strong>Find their main price bands</strong> so you can understand whether they compete as budget, mid-market, or premium.</p>
           </div>
 
-          <div class="feature-card outcome-card">
+          <div class="feature-card">
             <div class="feature-icon">🎯</div>
-            <h3>How much they discount</h3>
+            <h3>Discount Strategy Tracking</h3>
             <p><strong>See discount share and depth</strong> to understand whether competitors rely on constant promos or protect full-price positioning.</p>
           </div>
 
-          <div class="feature-card outcome-card">
+          <div class="feature-card">
             <div class="feature-icon">🚀</div>
-            <h3>How fast they launch</h3>
+            <h3>Product Launch Monitoring</h3>
             <p><strong>Track product launch velocity</strong> and spot whether a brand is accelerating, slowing down, or refreshing its catalog.</p>
           </div>
 
-          <div class="feature-card outcome-card">
+          <div class="feature-card">
             <div class="feature-icon">📦</div>
-            <h3>How complex the catalog is</h3>
+            <h3>Shopify Catalog Analysis</h3>
             <p><strong>Understand product count, variants, and inventory signals</strong> without opening dozens of tabs.</p>
           </div>
 
-          <div class="feature-card outcome-card">
+          <div class="feature-card">
             <div class="feature-icon">🎪</div>
-            <h3>Where they sit in the market</h3>
+            <h3>Ecommerce Product Positioning</h3>
             <p><strong>Quickly read positioning</strong> based on pricing, discounts, product mix, and launch behavior.</p>
           </div>
 
-          <div class="feature-card outcome-card">
+          <div class="feature-card">
             <div class="feature-icon">💎</div>
-            <h3>Which products stand out</h3>
+            <h3>Competitor Intelligence Report</h3>
             <p><strong>See expensive products, biggest markdowns, newest launches, and recent updates</strong> in one report.</p>
           </div>
         </div>
@@ -728,10 +645,7 @@
           <a href="/sample-report" class="btn-link">View Sample Report</a>
         </div>
       </div>
-      
     </section>
-
-    
 
     <section class="how-it-works">
       <div class="container">
@@ -741,36 +655,71 @@
           <div class="step">
             <div class="step-number">1</div>
             <h3>Paste a Store URL</h3>
-            <p>Enter any public Shopify store you want to analyze</p>
+            <p>Enter any public Shopify store you want to analyze.</p>
           </div>
+
           <div class="step">
             <div class="step-number">2</div>
             <h3>StoreScout Checks Support</h3>
-            <p>We verify the public product catalog before checkout</p>
+            <p>We verify the public product catalog before checkout.</p>
           </div>
+
           <div class="step">
             <div class="step-number">3</div>
             <h3>Get Your Competitor Report</h3>
-            <p>Receive a PDF breakdown of pricing, discounts, launches, and positioning</p>
+            <p>Receive a PDF breakdown of pricing, discounts, launches, and positioning.</p>
           </div>
         </div>
       </div>
     </section>
 
-     <section class="newsletter-section">
+    <section class="seo-section">
+      <div class="container">
+        <h2>Shopify Competitor Research Made Simple</h2>
+
+        <p>
+          StoreScout helps ecommerce brands, dropshippers, marketers, and agencies run Shopify competitor analysis without manually checking product pages, prices, discounts, and launches.
+        </p>
+
+        <p>
+          Use StoreScout to analyze Shopify competitors, understand ecommerce pricing strategy, compare discount behavior, monitor product launch velocity, and uncover product positioning signals from any supported public Shopify store.
+        </p>
+
+        <div class="keyword-row">
+          <span class="keyword-pill">Shopify competitor analysis</span>
+          <span class="keyword-pill">Ecommerce pricing intelligence</span>
+          <span class="keyword-pill">Competitor pricing analysis</span>
+          <span class="keyword-pill">Analyze Shopify store</span>
+          <span class="keyword-pill">Shopify competitor research</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="newsletter-section">
       <div class="newsletter-shell">
-        <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script><iframe src="https://subscribe-forms.beehiiv.com/b7abbe43-e1f1-4226-8ed0-018c13ff57d0" class="beehiiv-embed" data-test-id="beehiiv-embed" frameborder="0" scrolling="no" style="width: 947px; height: 373px; margin: 0; border-radius: 0px 0px 0px 0px !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"></iframe>
+        <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+        <iframe
+          src="https://subscribe-forms.beehiiv.com/b7abbe43-e1f1-4226-8ed0-018c13ff57d0"
+          class="beehiiv-embed"
+          data-test-id="beehiiv-embed"
+          frameborder="0"
+          scrolling="no"
+          style="width: 947px; height: 373px; margin: 0; border-radius: 0 !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"
+        ></iframe>
       </div>
     </section>
 
-    <section class="features">
-      <div class="container" style="text-align:center;">
-        <h2>Ready to research a competitor?</h2>
-        <p class="features-subtitle">Paste a Shopify store URL and StoreScout will check whether it can generate a report before checkout.</p>
-        <a href="#storeUrl" class="btn-link">Analyze a Store</a>
+    <section class="final-cta">
+      <div class="container">
+        <h2>Start Analyzing Shopify Competitors</h2>
+
+        <p class="features-subtitle">
+          Generate an instant competitor intelligence report with pricing, discounts, product launches, and positioning insights.
+        </p>
+
+        <a href="#storeUrl" class="btn-link">Analyze a Shopify Store</a>
       </div>
     </section>
-
   </main>
 
   <footer>
@@ -810,7 +759,6 @@
       raw = (raw || "").trim();
       if(!raw) return null;
 
-      // Add scheme if missing
       if(!raw.includes("://")) raw = "https://" + raw;
 
       try{
@@ -818,7 +766,6 @@
         if(!u.hostname) return null;
         if(u.protocol !== "http:" && u.protocol !== "https:") return null;
 
-        // Base only (supports https://www.brand.com/ etc.)
         return u.protocol + "//" + u.host;
       }catch(e){
         return null;
@@ -826,7 +773,6 @@
     }
 
     function humanizeCheck(res, data){
-      // Supported
       if(res.ok && data && data.ok){
         return {
           state: "ok",
@@ -837,51 +783,27 @@
       const status = res.status;
       const reason = (data && (data.reason || data.detail)) ? String(data.reason || data.detail) : "";
 
-      // Common “blocked” cases
       if(status === 403){
-        return {
-          state: "bad",
-          msg: "This store blocks public catalog access (bot protection), so we can’t analyze it. Try another store."
-        };
+        return { state: "bad", msg: "This store blocks public catalog access, so we can’t analyze it. Try another store." };
       }
 
-      // Common “not found / hidden” cases
       if(status === 404){
-        return {
-          state: "bad",
-          msg: "We couldn’t access this store’s public product catalog. It may be hidden or not a supported Shopify store."
-        };
+        return { state: "bad", msg: "We couldn’t access this store’s public product catalog. It may be hidden or unsupported." };
       }
 
-      // Rate limited
       if(status === 429){
-        return {
-          state: "bad",
-          msg: "This store is rate-limiting requests right now. Please try again in a minute."
-        };
+        return { state: "bad", msg: "This store is rate-limiting requests right now. Please try again in a minute." };
       }
 
-      // Network-ish
       if(reason.toLowerCase().includes("network")){
-        return {
-          state: "bad",
-          msg: "We couldn’t reach this store right now. Double-check the link and try again."
-        };
+        return { state: "bad", msg: "We couldn’t reach this store right now. Double-check the link and try again." };
       }
 
-      // Non-JSON / “not Shopify” vibes
       if(reason.toLowerCase().includes("did not return json") || reason.toLowerCase().includes("not shopify")){
-        return {
-          state: "bad",
-          msg: "This store doesn’t look like a supported Shopify store (or it’s blocking access). Try a different store."
-        };
+        return { state: "bad", msg: "This store doesn’t look like a supported Shopify store or it’s blocking access." };
       }
 
-      // Fallback
-      return {
-        state: "bad",
-        msg: "We can’t analyze this store right now. Try another Shopify store."
-      };
+      return { state: "bad", msg: "We can’t analyze this store right now. Try another Shopify store." };
     }
 
     async function checkStoreNow(){
@@ -892,7 +814,7 @@
 
       if(!base){
         btn.disabled = true;
-        setHelp("bad", "Enter a valid store link (example: brand.com).");
+        setHelp("bad", "Enter a valid store link. Example: brand.com");
         return;
       }
 
@@ -917,7 +839,6 @@
           lastChecked = base;
           btn.disabled = true;
         }
-
       }catch(err){
         console.error(err);
         setHelp("bad", "We couldn’t reach this store right now. Please try again.");
@@ -939,23 +860,19 @@
         return;
       }
 
-      // If unchanged and already OK
       if(base === lastChecked && lastOkBase){
         btn.disabled = false;
         setHelp("ok", "✅ Store supported — you can continue to checkout.");
         return;
       }
 
-      // Debounce
       if(checkTimer) clearTimeout(checkTimer);
       checkTimer = setTimeout(checkStoreNow, 650);
     }
 
-    // Only check on input/paste (no blur = no “double check then click twice”)
     storeUrl.addEventListener("input", scheduleCheck);
     storeUrl.addEventListener("paste", () => setTimeout(scheduleCheck, 0));
 
-    // Initial state
     btn.disabled = true;
     setHelp(null, "Paste a Shopify store link to check if it’s supported.");
 
@@ -971,7 +888,6 @@
         return;
       }
 
-      // If not validated yet, validate once here
       if(!lastOkBase || lastChecked !== base){
         await checkStoreNow();
         if(!lastOkBase) return;
@@ -993,12 +909,14 @@
             const j = await res.json();
             if(j && (j.detail || j.error)) detail = j.detail || j.error;
           }catch(_){}
+
           setStatus(detail, "error");
           btn.disabled = false;
           return;
         }
 
         const j = await res.json().catch(()=> ({}));
+
         if(j && j.url){
           window.location.href = j.url;
           return;
@@ -1006,7 +924,6 @@
 
         setStatus("Checkout didn’t return a redirect link.", "error");
         btn.disabled = false;
-
       }catch(err){
         console.error(err);
         setStatus("Network error starting checkout. Please try again.", "error");

@@ -1,34 +1,53 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script>
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    if (!isLocalhost) {
+      const gaScript = document.createElement("script");
+      gaScript.async = true;
+      gaScript.src = "https://www.googletagmanager.com/gtag/js?id=G-VR7RX1KNC0";
+      document.head.appendChild(gaScript);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag("js", new Date());
+      gtag("config", "G-VR7RX1KNC0");
+    }
+  </script>
   <link rel="icon" type="image/png" href="/static/favicon.png" />
   <link rel="apple-touch-icon" href="/static/favicon.png"/>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Fenty Pricing Strategy Breakdown: What Shopify Brands Can Learn | StoreScout</title>
+  <title>Fenty Pricing Strategy Breakdown: Premium Positioning, Shopify Pricing & Discounts | StoreScout</title>
 
   <meta
     name="description"
-    content="A breakdown of Fenty's pricing strategy, product launches, premium positioning, and discount behavior using public Shopify catalog data."
+    content="A breakdown of Fenty's pricing strategy using StoreScout. Analyze premium positioning, Shopify pricing psychology, selective discounts, product launches, and ecommerce competitor intelligence."
   />
 
   <meta
     name="keywords"
-    content="Fenty pricing strategy, Shopify competitor analysis, ecommerce pricing strategy, Shopify competitor research, competitor intelligence"
+    content="Fenty pricing strategy, Fenty pricing psychology, premium pricing strategy, Shopify competitor analysis, ecommerce pricing strategy, competitor pricing analysis, Shopify competitor research, ecommerce pricing intelligence"
   />
 
-  <meta name="author" content="StoreScout" />
+  <meta property="og:title" content="Fenty Pricing Strategy Breakdown | Premium Pricing & Shopify Strategy" />
 
-  <link rel="canonical" href="https://getstorescout.com/blog/fenty-pricing-strategy" />
-
-  <meta property="og:title" content="Fenty Pricing Strategy Breakdown | StoreScout" />
   <meta
     property="og:description"
-    content="Learn how Fenty structures pricing, launches, and premium positioning using public Shopify catalog data."
+    content="We analyzed Fenty's Shopify pricing strategy, premium positioning, selective discount behavior, and ecommerce pricing psychology using StoreScout."
   />
-  <meta property="og:type" content="article" />
-  <meta property="og:url" content="https://getstorescout.com/blog/fenty-pricing-strategy" />
+
+  <meta name="twitter:title" content="Fenty Pricing Strategy Breakdown | StoreScout" />
+
+  <meta
+    name="twitter:description"
+    content="A breakdown of Fenty's pricing psychology, premium product positioning, Shopify pricing strategy, and selective discount behavior."
+  />
 
   
 
@@ -167,57 +186,67 @@
     a:hover{ color: #fff; }
 
     .container{
+      width: 100%;
       max-width: 1180px;
       margin: 0 auto;
-      padding: 28px 22px;
+      padding: 0 22px;
     }
 
-    header{
-      position: sticky;
-      top: 0;
-      z-index: 100;
+    header {
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(10px);
       background: rgba(11,18,32,0.65);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    .header-content{
+    .header-inner {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      width: 100%;
+      padding: 22px 0;
     }
 
-    .logo-container{
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        }
+
+        .logo svg {
+        flex-shrink: 0;
+        }
+
+        .logo-text {
+        font-size: 1.7rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        }
+
+        .logo-text .store {
+        color: #3b82f6;
+        }
+
+        .logo-text .scout {
+        color: #1d4ed8;
+        }
+
+    .nav-links {
       display: flex;
-      align-items: center;
-      gap: 8px;
+      gap: 20px;
     }
 
-    .logo-text{
-      font-size: 1.6rem;
-      font-weight: 800;
-      letter-spacing: -0.025em;
-    }
-
-    .logo-text .store{ color: #2463EB; }
-    .logo-text .scout{ color: #1E40AF; }
-
-    .nav-links{
-      display: flex;
-      gap: 18px;
-      align-items: center;
-    }
-
-    .nav-links a{
+    .nav-links a {
       color: var(--muted);
       text-decoration: none;
-      font-size: 14px;
       font-weight: 600;
+      font-size: 14px;
     }
 
-    .nav-links a:hover,
-    .nav-links a.active{
+    .nav-links a:hover {
       color: var(--text);
     }
 
@@ -435,49 +464,47 @@
       font-size: 14px;
     }
 
-    @media (max-width: 768px){
-      .container{
-        padding: 18px 16px;
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 38px;
       }
 
-      .logo-text{
-        font-size: 1.25rem;
-      }
-
-      .nav-links{
-        gap: 10px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-      }
-
-      .nav-links a{
-        font-size: 12px;
-      }
-
-      .article-wrap{
-        padding: 46px 16px 70px;
-      }
-
-      h1{
-        font-size: 34px;
-      }
-
-      .article-subtitle{
+      .subtitle {
         font-size: 17px;
       }
 
-      article h2{
-        font-size: 26px;
+      .section-title {
+        font-size: 30px;
       }
 
-      article p,
-      article ul{
-        font-size: 16px;
+      .hero {
+        padding: 72px 0 56px;
       }
 
-      .cta-box{
-        padding: 28px 20px;
+      .section {
+        padding: 58px 0;
       }
+
+      .header-inner {
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .site-header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .site-nav { justify-content: flex-start; }
+
+      h1 { font-size: 30px; }
     }
   
   </style>
@@ -485,35 +512,34 @@
 
 <body>
   <header>
-    <div class="container">
-      <div class="header-content">
-        <a href="/" style="text-decoration:none; color:inherit;">
-          <div class="logo-container">
-            <svg width="44" height="44" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M30 35 L30 80 C30 85 32 88 37 88 L63 88 C68 88 70 85 70 80 L70 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
-              <path d="M25 35 L75 35 L72 42 L28 42 Z" fill="#2463EB"/>
-              <path d="M38 35 L38 28 C38 22 42 18 50 18 C58 18 62 22 62 28 L62 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
-              <circle cx="65" cy="55" r="18" fill="#1E40AF" opacity="0.9"/>
-              <circle cx="65" cy="55" r="12" fill="white" opacity="0.3"/>
-              <path d="M78 68 L88 78" stroke="#1E40AF" stroke-width="5" stroke-linecap="round"/>
-              <circle cx="65" cy="55" r="6" stroke="#3B82F6" stroke-width="3" fill="none"/>
-            </svg>
+      <div class="container">
+        <div class="header-inner">
+          
+          <a href="/" class="logo">
+              <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M30 35 L30 80 C30 85 32 88 37 88 L63 88 C68 88 70 85 70 80 L70 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+                  <path d="M25 35 L75 35 L72 42 L28 42 Z" fill="#2463EB"/>
+                  <path d="M38 35 L38 28 C38 22 42 18 50 18 C58 18 62 22 62 28 L62 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+                  <circle cx="65" cy="55" r="18" fill="#1E40AF" opacity="0.9"/>
+                  <circle cx="65" cy="55" r="12" fill="white" opacity="0.3"/>
+                  <path d="M78 68 L88 78" stroke="#1E40AF" stroke-width="5" stroke-linecap="round"/>
+              </svg>
 
-            <div class="logo-text">
-              <span class="store">Store</span><span class="scout">Scout</span>
-            </div>
-          </div>
-        </a>
+              <div class="logo-text">
+                  <span class="store">Store</span><span class="scout">Scout</span>
+              </div>
+              </a>
 
-        <nav class="nav-links" aria-label="Main navigation">
-          <a href="/">Home</a>
-          <a href="/sample-report">Sample Report</a>
-          <a href="/blog" class="active">Blog</a>
-          <a href="/faq">FAQ</a>
-        </nav>
+          <nav class="nav-links">
+            <a href="/">Home</a>
+            <a href="/shopify-competitor-analysis-tool">Competitor Analysis</a>
+            <a href="/sample-report">Sample Report</a>
+            <a href="/blog">Blog</a>
+            <a href="/faq">FAQ</a>
+          </nav>
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
 
   <main class="article-container">
 
@@ -526,12 +552,24 @@
     </div>
 
     <h1>
-      Fenty Pricing Strategy Breakdown: What Shopify Brands Can Learn
+      Fenty Pricing Strategy Breakdown: Premium Positioning, Pricing Psychology, and Shopify Growth
     </h1>
 
     <p class="article-subtitle">
-      A breakdown of Fenty’s pricing architecture, premium positioning, launch strategy, and discount behavior using public Shopify catalog data.
+      We analyzed Fenty’s Shopify store using StoreScout to break down premium pricing psychology, product positioning, selective discount strategy, launch behavior, and ecommerce pricing intelligence signals.
     </p>
+
+    <div class="summary-box">
+      <h2>Quick Summary</h2>
+
+      <ul>
+        <li>Fenty maintains strong premium positioning through controlled pricing structure and selective discounting.</li>
+        <li>Newer product launches appear positioned above the catalog median, reinforcing perceived value.</li>
+        <li>The storefront uses pricing consistency to strengthen brand identity and customer expectations.</li>
+        <li>Discount behavior appears selective instead of relying on aggressive markdown saturation.</li>
+        <li>The catalog structure suggests intentional ecommerce positioning rather than random pricing.</li>
+      </ul>
+    </div>
 
     <img
       src= "/static/fenty-report-preview.png"
@@ -540,97 +578,104 @@
     >
 
     <p>
-      Most Shopify brands price products randomly.
+      Most Shopify brands focus on discounts, lower prices, and constant promotions to compete.
     </p>
 
     <p>
-      Fenty appears to structure pricing intentionally around perceived value, premium launches, and catalog positioning.
+      Fenty appears to take a different approach by combining pricing consistency, premium positioning, controlled discount behavior, and strategic product launches to shape customer perception.
     </p>
 
     <p>
-      After analyzing the public catalog data, a few patterns stood out immediately.
+      After analyzing Fenty’s public Shopify catalog data using <a href="/">StoreScout</a>, several ecommerce pricing strategy patterns became clear immediately.
     </p>
 
     <h2>
-      Most products stay within a controlled pricing range
+      Fenty Uses Pricing Consistency to Reinforce Premium Positioning
     </h2>
 
     <p>
-      One of the first things visible in the catalog is pricing consistency.
+      One of the clearest patterns in Fenty’s Shopify storefront is pricing consistency across major product categories.
     </p>
 
     <p>
-      Instead of extreme price variation, much of the catalog stays concentrated within a relatively controlled pricing band.
+      Instead of extreme price variation or aggressive underpricing, much of the catalog remains concentrated within controlled pricing bands that reinforce premium positioning.
     </p>
 
     <p>
-      This creates predictability for customers while reinforcing a clear market position.
+      This matters because pricing architecture affects how customers perceive quality, exclusivity, and brand identity.
     </p>
 
     <p>
-      Many ecommerce brands unintentionally damage perceived value by pricing products inconsistently across collections.
+      Many ecommerce brands unintentionally weaken perceived value by pricing products inconsistently across collections and launches.
     </p>
 
     <h2>
-      New launches push premium positioning
+      New Product Launches Help Push Premium Perception
     </h2>
 
     <p>
-      Another interesting pattern is how newer product launches are positioned.
+      Another interesting signal was how newer products appeared positioned relative to the overall catalog.
     </p>
 
     <p>
-      Several newer products appear above the catalog median price, helping reinforce a more premium perception without changing the pricing structure of the entire store.
+      Several newer launches were priced above the catalog median, suggesting Fenty may use launches and featured collections to gradually reinforce premium perception over time.
     </p>
 
     <p>
-      This is a strategy many ecommerce brands overlook.
+      This is one of the most overlooked ecommerce pricing strategies.
     </p>
 
     <p>
-      Instead of raising every product price, premium positioning can often be introduced gradually through launches and featured collections.
+      Instead of increasing every product price at once, brands can slowly shift customer perception through launches, hero products, limited collections, and featured positioning.
     </p>
 
     <h2>
-      Discount behavior appears selective
+      Selective Discounts Protect Brand Perception
     </h2>
 
     <p>
-      Constant discounting can weaken brand perception over time.
+      Constant discounting can damage perceived value, especially for premium ecommerce brands.
     </p>
 
     <p>
-      Fenty’s catalog appears more selective with promotions instead of relying heavily on permanent markdowns across the entire store.
+      Fenty’s Shopify storefront appears more selective with promotions instead of relying on permanent markdowns across the majority of the catalog.
     </p>
 
     <p>
-      Selective discounting can maintain perceived value while still increasing conversion opportunities during launches or campaigns.
+      Selective discount behavior can create urgency during campaigns while still protecting long-term pricing psychology and brand positioning.
     </p>
+
+    <div class="callout">
+      Bigger ecommerce brands rarely discount products randomly. Pricing strategy often supports positioning, urgency, and customer perception simultaneously.
+    </div>
 
     <h2>
-  Why competitor research matters
-  </h2>
+  Why Shopify Competitor Analysis Matters
+    </h2>
 
-  <p>
-    Most Shopify stores never study competitor pricing deeply enough.
-    Tools like <a href="/">StoreScout</a> make it easier to analyze
-    pricing structure, discounts, launches, and catalog positioning
-    across an entire Shopify store instead of manually checking dozens
-    of product pages.
-  </p>
+    <p>
+      Most Shopify brands never analyze competitor pricing deeply enough.
+    </p>
 
-  <p>
-    Many ecommerce founders look at competitors manually, but they rarely
-    analyze catalog-wide patterns like:
-  </p>
+    <p>
+      Tools like <a href="/shopify-competitor-analysis">StoreScout</a> make it easier to analyze pricing strategy, product launches, discounts, catalog positioning, and ecommerce pricing intelligence across an entire Shopify store instead of manually opening dozens of product pages.
+    </p>
 
-  <p>
-    • pricing distribution<br>
-    • launch cadence<br>
-    • discount depth<br>
-    • product positioning<br>
-    • catalog structure
-  </p>
+    <p>
+      Most ecommerce founders study competitors manually, but they rarely analyze larger catalog-wide patterns like:
+    </p>
+
+    <ul>
+      <li>pricing distribution,</li>
+      <li>discount strategy,</li>
+      <li>launch velocity,</li>
+      <li>product positioning,</li>
+      <li>and catalog complexity.</li>
+    </ul>
+    <br
+    <p>
+      Understanding how successful ecommerce brands structure pricing can help Shopify stores improve perceived value, launches, margins, positioning, and conversion strategy.
+    </p>
 
   <p>
     You can also view a
@@ -654,18 +699,30 @@
       StoreScout blog
     </a>.
   </p>
+
+  <div class="internal-links">
+  <h2>Related StoreScout Resources</h2>
+
+  <ul>
+    <li><a href="/shopify-competitor-analysis">Shopify Competitor Analysis Tool</a></li>
+    <li><a href="/ecommerce-pricing-intelligence">Ecommerce Pricing Intelligence</a></li>
+    <li><a href="/sample-report">View a Sample Competitor Intelligence Report</a></li>
+    <li><a href="/blog/gymshark-pricing-strategy">Read the Gymshark Pricing Strategy Breakdown</a></li>
+    <li><a href="/blog">See More Ecommerce Pricing Strategy Articles</a></li>
+  </ul>
+</div>
   
     <div class="cta-box">
       <h3>
-        Ready to analyze your competitors like never before?
+        Analyze Shopify competitors automatically
       </h3>
 
       <p>
-        StoreScout provides in-depth competitor intelligence using public Shopify catalog data. See how your store stacks up against the competition and uncover hidden opportunities for growth.
+        StoreScout generates Shopify competitor analysis reports using public catalog data, including ecommerce pricing intelligence, discount behavior, product launches, product positioning, and pricing strategy signals.
       </p>
 
       <a href="/" class="cta-button">
-        Get Started with StoreScout
+        Analyze a Shopify Store
       </a>
     </div>
 

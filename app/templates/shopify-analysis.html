@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <script>
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    if (!isLocalhost) {
+      const gaScript = document.createElement("script");
+      gaScript.async = true;
+      gaScript.src = "https://www.googletagmanager.com/gtag/js?id=G-VR7RX1KNC0";
+      document.head.appendChild(gaScript);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag("js", new Date());
+      gtag("config", "G-VR7RX1KNC0");
+    }
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Shopify Competitor Analysis Tool | StoreScout</title>
+
+  <meta
+    name="description"
+    content="Analyze Shopify competitors in seconds with StoreScout. Track pricing strategy, discounts, product launches, catalog positioning, and ecommerce competitor intelligence from public Shopify data."
+  />
+
+  <meta
+    name="keywords"
+    content="shopify competitor analysis, shopify competitor research, analyze shopify store, ecommerce competitor analysis, competitor pricing analysis, ecommerce pricing intelligence"
+  />
+
+  <link rel="icon" type="image/png" href="/static/favicon.png" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0b1220;
+      --bg-secondary: rgba(255,255,255,0.03);
+      --card: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.12);
+      --text: #e5e7eb;
+      --muted: rgba(229,231,235,0.72);
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --shadow: 0 24px 70px rgba(0,0,0,0.60);
+      --radius: 16px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 800px at 20% 0%, rgba(59,130,246,0.18), transparent 55%),
+        radial-gradient(1200px 800px at 80% 0%, rgba(34,197,94,0.10), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container{
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 22px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      background: rgba(11,18,32,0.65);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 0;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        }
+
+        .logo svg {
+        flex-shrink: 0;
+        }
+
+        .logo-text {
+        font-size: 1.7rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        }
+
+        .logo-text .store {
+        color: #3b82f6;
+        }
+
+        .logo-text .scout {
+        color: #1d4ed8;
+        }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .hero {
+      padding: 110px 0 80px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 56px;
+      line-height: 1.08;
+      max-width: 920px;
+      margin: 0 auto 22px;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #ffffff, rgba(229,231,235,0.72));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 0 auto;
+      font-size: 20px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .hero-buttons {
+      margin-top: 38px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      text-decoration: none;
+      padding: 14px 22px;
+      border-radius: 12px;
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, rgba(59,130,246,0.95), rgba(37,99,235,0.95));
+      color: white;
+      border: 1px solid rgba(59,130,246,0.35);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(180deg, rgba(59,130,246,1), rgba(37,99,235,1));
+    }
+
+    .btn-secondary {
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.08);
+    }
+
+    .section {
+      padding: 82px 0;
+    }
+
+    .section-alt {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 38px;
+      margin-bottom: 18px;
+      letter-spacing: -0.03em;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto 52px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 17px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .card p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 26px;
+      margin-top: 50px;
+    }
+
+    .step {
+      text-align: center;
+    }
+
+    .step-number {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+      font-weight: 800;
+      font-size: 20px;
+    }
+
+    .step h3 {
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+
+    .step p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .seo-content {
+      max-width: 860px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .seo-content p {
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 20px;
+      font-size: 17px;
+    }
+
+    .keyword-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 34px;
+    }
+
+    .keyword-pill {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .cta-card {
+      max-width: 860px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 42px 30px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(59,130,246,0.10), rgba(255,255,255,0.04));
+      border: 1px solid rgba(59,130,246,0.24);
+      box-shadow: var(--shadow);
+    }
+
+    .cta-card h2 {
+      font-size: 38px;
+      margin-bottom: 16px;
+      letter-spacing: -0.03em;
+    }
+
+    .cta-card p {
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 680px;
+      margin: 0 auto 24px;
+      font-size: 17px;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 34px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 38px;
+      }
+
+      .subtitle {
+        font-size: 17px;
+      }
+
+      .section-title {
+        font-size: 30px;
+      }
+
+      .hero {
+        padding: 72px 0 56px;
+      }
+
+      .section {
+        padding: 58px 0;
+      }
+
+      .header-inner {
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .site-header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .site-nav { justify-content: flex-start; }
+
+      h1 { font-size: 30px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+      <div class="container">
+        <div class="header-inner">
+          
+          <a href="/" class="logo">
+              <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M30 35 L30 80 C30 85 32 88 37 88 L63 88 C68 88 70 85 70 80 L70 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+                  <path d="M25 35 L75 35 L72 42 L28 42 Z" fill="#2463EB"/>
+                  <path d="M38 35 L38 28 C38 22 42 18 50 18 C58 18 62 22 62 28 L62 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+                  <circle cx="65" cy="55" r="18" fill="#1E40AF" opacity="0.9"/>
+                  <circle cx="65" cy="55" r="12" fill="white" opacity="0.3"/>
+                  <path d="M78 68 L88 78" stroke="#1E40AF" stroke-width="5" stroke-linecap="round"/>
+              </svg>
+
+              <div class="logo-text">
+                  <span class="store">Store</span><span class="scout">Scout</span>
+              </div>
+              </a>
+
+          <nav class="nav-links">
+            <a href="/">Home</a>
+            <a href="/shopify-competitor-analysis-tool">Competitor Analysis</a>
+            <a href="/sample-report">Sample Report</a>
+            <a href="/blog">Blog</a>
+            <a href="/faq">FAQ</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+  <main>
+
+    <section class="hero">
+      <div class="container">
+
+        <h1>
+          Shopify Competitor Analysis for Ecommerce Brands
+        </h1>
+
+        <p class="subtitle">
+          Analyze Shopify competitors in seconds with StoreScout. Track pricing strategy, discount behavior, product launches, catalog positioning, and ecommerce pricing intelligence using public Shopify catalog data.
+        </p>
+
+        <div class="hero-buttons">
+          <a href="/#storeUrl" class="btn-primary">
+            Analyze a Shopify Store
+          </a>
+
+          <a href="/sample-report" class="btn-secondary">
+            View Sample Report
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section section-alt">
+      <div class="container">
+
+        <h2 class="section-title">
+          What StoreScout Analyzes
+        </h2>
+
+        <p class="section-subtitle">
+          StoreScout automates Shopify competitor research so ecommerce brands can understand pricing strategy, discount behavior, product positioning, and launch activity without manually opening dozens of product pages.
+        </p>
+
+        <div class="grid">
+
+          <div class="card">
+            <h3>Competitor Pricing Analysis</h3>
+            <p>
+              Analyze dominant pricing bands, catalog pricing structure, product pricing trends, and premium positioning signals across Shopify competitors.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Discount Strategy Tracking</h3>
+            <p>
+              Understand how ecommerce brands use discounts, markdowns, bundles, and promotional pricing to drive urgency without damaging brand perception.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Product Launch Monitoring</h3>
+            <p>
+              Track launch velocity, new product drops, catalog refreshes, and product expansion strategies from public Shopify catalog data.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Product Positioning Signals</h3>
+            <p>
+              Understand how competitors position themselves using pricing psychology, product structure, discount intensity, and catalog complexity.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+
+        <h2 class="section-title">
+          How Shopify Competitor Analysis Works
+        </h2>
+
+        <p class="section-subtitle">
+          StoreScout turns public Shopify store data into structured ecommerce competitor intelligence reports.
+        </p>
+
+        <div class="steps">
+
+          <div class="step">
+            <div class="step-number">1</div>
+            <h3>Paste a Shopify Store URL</h3>
+            <p>
+              Enter any public Shopify store you want to analyze.
+            </p>
+          </div>
+
+          <div class="step">
+            <div class="step-number">2</div>
+            <h3>StoreScout Analyzes the Catalog</h3>
+            <p>
+              Pricing, discounts, launches, catalog structure, and positioning signals are automatically analyzed.
+            </p>
+          </div>
+
+          <div class="step">
+            <div class="step-number">3</div>
+            <h3>Generate Ecommerce Intelligence</h3>
+            <p>
+              Receive a competitor analysis report with actionable ecommerce pricing and positioning insights.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section section-alt">
+      <div class="container">
+
+        <div class="seo-content">
+
+          <h2 class="section-title">
+            Ecommerce Competitor Research Without Manual Work
+          </h2>
+
+          <p>
+            Most ecommerce brands perform competitor research manually by opening product pages, comparing prices, tracking discounts, and monitoring launches individually.
+          </p>
+
+          <p>
+            StoreScout automates Shopify competitor analysis using public catalog data so brands can analyze pricing strategy, ecommerce positioning, discount behavior, launch velocity, and catalog trends faster.
+          </p>
+
+          <p>
+            Whether you run a Shopify brand, dropshipping business, ecommerce agency, or product research workflow, StoreScout helps uncover competitor intelligence in seconds.
+          </p>
+
+          <div class="keyword-row">
+            <span class="keyword-pill">Shopify competitor analysis</span>
+            <span class="keyword-pill">Shopify competitor research</span>
+            <span class="keyword-pill">Analyze Shopify store</span>
+            <span class="keyword-pill">Competitor pricing analysis</span>
+            <span class="keyword-pill">Ecommerce pricing intelligence</span>
+            <span class="keyword-pill">Product positioning</span>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+
+        <div class="cta-card">
+
+          <h2>
+            Start Analyzing Shopify Competitors
+          </h2>
+
+          <p>
+            Generate competitor intelligence reports with pricing analysis, discount strategy insights, product launch tracking, ecommerce positioning signals, and catalog research.
+          </p>
+
+          <a href="/" class="btn-primary">
+            Analyze Any Shopify Store
+          </a>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>
+        © 2026 StoreScout. Public Shopify catalog data only.
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>

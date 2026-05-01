@@ -6,16 +6,50 @@
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-VR7RX1KNC0"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
 
-  gtag('config', 'G-VR7RX1KNC0');
-</script>
+    if (!isLocalhost) {
+      const gaScript = document.createElement("script");
+      gaScript.async = true;
+      gaScript.src = "https://www.googletagmanager.com/gtag/js?id=G-VR7RX1KNC0";
+      document.head.appendChild(gaScript);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag("js", new Date());
+      gtag("config", "G-VR7RX1KNC0");
+    }
+  </script>
 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StoreScout - Instant Shopify Competitor Intelligence</title>
+  <title>StoreScout FAQ | Shopify Competitor Analysis & Ecommerce Pricing Intelligence</title>
+
+  <meta
+    name="description"
+    content="Frequently asked questions about StoreScout, Shopify competitor analysis, ecommerce pricing intelligence, competitor pricing analysis, report generation, public Shopify catalog data, and ecommerce competitor research."
+  />
+
+  <meta
+    name="keywords"
+    content="Shopify competitor analysis FAQ, ecommerce pricing intelligence, competitor pricing analysis, analyze Shopify store, ecommerce competitor research, Shopify pricing strategy, StoreScout FAQ"
+  />
+
+  <meta property="og:title" content="StoreScout FAQ | Shopify Competitor Analysis" />
+
+  <meta
+    property="og:description"
+    content="Answers about Shopify competitor analysis, pricing intelligence reports, public Shopify catalog data, discount analysis, and ecommerce competitor research."
+  />
+
+  <meta name="twitter:title" content="StoreScout FAQ | Ecommerce Pricing Intelligence" />
+
+  <meta
+    name="twitter:description"
+    content="Learn how StoreScout analyzes Shopify competitors, pricing strategy, discounts, launches, and product positioning."
+  />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -52,51 +86,55 @@
       color: var(--text);
       min-height: 100vh;
     }
-
-    .wrap, .container{
-      max-width: 980px;
+    .container{
+      width: 100%;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 28px 18px;
+      padding: 0 22px;
     }
 
-    header{
-      position: sticky;
-      top: 0;
-      z-index: 100;
+    header {
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(10px);
       background: rgba(11,18,32,0.65);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    .header-content {
+    .header-inner {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 22px 0;
     }
 
     .logo {
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        }
 
-    .logo-text {
-      font-size: 2rem;
-      font-weight: bold;
-      letter-spacing: -0.025em;
-      color: var(--text);
-    }
-    .logo-text .store { color: #2463EB; }
-    .logo-text .scout { color: #1E40AF; }
+        .logo svg {
+        flex-shrink: 0;
+        }
 
-    .logo-container {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-    }
+        .logo-text {
+        font-size: 1.7rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        }
+
+        .logo-text .store {
+        color: #3b82f6;
+        }
+
+        .logo-text .scout {
+        color: #1d4ed8;
+        }
+
 
     /* Hero */
     .hero {
@@ -312,25 +350,18 @@
 
     .nav-links {
       display: flex;
-      gap: 18px;
-      align-items: center;
+      gap: 20px;
     }
+
     .nav-links a {
       color: var(--muted);
       text-decoration: none;
-      font-size: 14px;
       font-weight: 600;
+      font-size: 14px;
     }
+
     .nav-links a:hover {
       color: var(--text);
-    }
-    @media (max-width: 768px) {
-      .nav-links {
-        gap: 10px;
-      }
-    .nav-links a {
-      font-size: 13px;
-      }
     }
     footer {
       border-top: 1px solid var(--border);
@@ -362,50 +393,142 @@
     .btn-link:hover {
       background: linear-gradient(180deg, rgba(59,130,246,1), rgba(37,99,235,1));
     }
+    .seo-section {
+      padding: 70px 0;
+      border-top: 1px solid var(--border);
+      background: rgba(255,255,255,0.025);
+    }
+
+    .seo-section h2 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 18px;
+    }
+
+    .seo-section p {
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 760px;
+      margin: 0 auto 18px;
+      text-align: center;
+      font-size: 17px;
+    }
+
+    .keyword-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .keyword-pill {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.045);
+      color: var(--muted);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .seo-section {
+        padding: 46px 0;
+      }
+
+      .seo-section h2 {
+        font-size: 28px;
+      }
+
+      .seo-section p {
+        font-size: 16px;
+      }
+    }
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 38px;
+      }
+
+      .subtitle {
+        font-size: 17px;
+      }
+
+      .section-title {
+        font-size: 30px;
+      }
+
+      .hero {
+        padding: 72px 0 56px;
+      }
+
+      .section {
+        padding: 58px 0;
+      }
+
+      .header-inner {
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .site-header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .site-nav { justify-content: flex-start; }
+
+      h1 { font-size: 30px; }
+    }
   </style>
 </head>
 
 <body>
   <header>
-    <div class="container">
-      <div class="header-content">
-        <div class="logo">
-          <div class="logo-container">
-            <svg width="56" height="56" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M30 35 L30 80 C30 85 32 88 37 88 L63 88 C68 88 70 85 70 80 L70 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
-              <path d="M25 35 L75 35 L72 42 L28 42 Z" fill="#2463EB"/>
-              <path d="M38 35 L38 28 C38 22 42 18 50 18 C58 18 62 22 62 28 L62 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
-              <circle cx="65" cy="55" r="18" fill="#1E40AF" opacity="0.9"/>
-              <circle cx="65" cy="55" r="12" fill="white" opacity="0.3"/>
-              <path d="M78 68 L88 78" stroke="#1E40AF" stroke-width="5" stroke-linecap="round"/>
-              <circle cx="65" cy="55" r="6" stroke="#3B82F6" stroke-width="3" fill="none"/>
-              <line x1="65" y1="50" x2="65" y2="53" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
-              <line x1="65" y1="57" x2="65" y2="60" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
-              <line x1="60" y1="55" x2="63" y2="55" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
-              <line x1="67" y1="55" x2="70" y2="55" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
-            </svg>
-            <div class="logo-text">
-              <span class="store">Store</span><span class="scout">Scout</span>
-            </div>
-          </div>
+      <div class="container">
+        <div class="header-inner">
+          
+          <a href="/" class="logo">
+              <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M30 35 L30 80 C30 85 32 88 37 88 L63 88 C68 88 70 85 70 80 L70 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+                  <path d="M25 35 L75 35 L72 42 L28 42 Z" fill="#2463EB"/>
+                  <path d="M38 35 L38 28 C38 22 42 18 50 18 C58 18 62 22 62 28 L62 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+                  <circle cx="65" cy="55" r="18" fill="#1E40AF" opacity="0.9"/>
+                  <circle cx="65" cy="55" r="12" fill="white" opacity="0.3"/>
+                  <path d="M78 68 L88 78" stroke="#1E40AF" stroke-width="5" stroke-linecap="round"/>
+              </svg>
+
+              <div class="logo-text">
+                  <span class="store">Store</span><span class="scout">Scout</span>
+              </div>
+              </a>
+
+          <nav class="nav-links">
+            <a href="/">Home</a>
+            <a href="/shopify-competitor-analysis-tool">Competitor Analysis</a>
+            <a href="/sample-report">Sample Report</a>
+            <a href="/blog">Blog</a>
+            <a href="/faq">FAQ</a>
+          </nav>
         </div>
-       <nav class="nav-links">
-          <a href="/">Home</a>
-          <a href="/sample-report">Sample Report</a>
-          <a href="/blog" class="active">Blog</a>
-          <a href="/faq">FAQ</a>
-        </nav>
       </div>
-    </div>
-  </header>
+    </header>
 
   <main>
 
   <section class="hero">
     <div class="container">
-      <h1>Frequently Asked Questions</h1>
+      <h1>Shopify Competitor Analysis FAQ</h1>
+
       <p class="subtitle">
-        Everything you need to know before running a StoreScout report.
+        Learn how StoreScout analyzes Shopify competitors, ecommerce pricing strategy, discount behavior, product launches, product positioning, and public Shopify catalog data.
       </p>
     </div>
   </section>
@@ -416,48 +539,72 @@
 
         <div class="feature-card">
           <h3>What does StoreScout do?</h3>
-          <p>StoreScout analyzes public Shopify product catalog data and turns it into a competitive intelligence PDF report.</p>
+          <p>StoreScout performs Shopify competitor analysis using public Shopify catalog data and generates ecommerce pricing intelligence reports with competitor pricing analysis, discount behavior, product positioning, and launch tracking.</p>
         </div>
 
         <div class="feature-card">
           <h3>What stores does it support?</h3>
-          <p>StoreScout currently supports Shopify stores that expose public product catalog data.</p>
+          <p>StoreScout currently supports Shopify stores that expose public product catalog data for ecommerce competitor research and pricing analysis.</p>
         </div>
 
         <div class="feature-card">
           <h3>What data is included?</h3>
-          <p>Reports include pricing ranges, discount behavior, product counts, launch trends, inventory signals, positioning, and notable products.</p>
+          <p>Reports include competitor pricing analysis, discount strategy signals, product launch tracking, catalog complexity, pricing architecture, ecommerce positioning, and notable product insights.</p>
         </div>
 
         <div class="feature-card">
           <h3>Does StoreScout access private data?</h3>
-          <p>No. StoreScout only uses public Shopify catalog data. It does not access checkout data, traffic data, customer data, or revenue data.</p>
+          <p>No. StoreScout only analyzes public Shopify catalog data. It does not access checkout data, customer information, private analytics, traffic analytics, or revenue dashboards.</p>
         </div>
 
         <div class="feature-card">
           <h3>Is this a one-time payment?</h3>
-          <p>Yes. Right now each report is a one-time purchase. No subscription is required.</p>
+          <p>Yes. StoreScout currently offers one-time Shopify competitor analysis reports without requiring a subscription.</p>
         </div>
 
         <div class="feature-card">
           <h3>What happens if a store is not supported?</h3>
-          <p>If StoreScout cannot access the store’s public catalog, the site will tell you before checkout so you don’t pay for an unsupported store.</p>
+          <p>If StoreScout cannot access the store’s public Shopify catalog data, you will be notified before checkout so you do not pay for an unsupported store.</p>
         </div>
 
         <div class="feature-card">
           <h3>How long does a report take?</h3>
-          <p>Most reports generate quickly after checkout, depending on the store size and catalog access.</p>
+          <p>Most ecommerce pricing intelligence reports generate quickly after checkout depending on catalog size, public Shopify data access, and product count.</p>
         </div>
 
         <div class="feature-card">
           <h3>Can I export raw data?</h3>
-          <p>Not yet. StoreScout currently focuses on PDF intelligence reports, but raw CSV or Google Sheets export is being considered for future updates.</p>
+          <p>Not yet. StoreScout currently focuses on Shopify competitor intelligence PDF reports, though CSV exports and raw ecommerce competitor research tools may be added in future updates.</p>
         </div>
 
       </div>
     </div>
   </section>
 </main>
+
+<section class="seo-section">
+  <div class="container">
+
+    <h2>Shopify Competitor Research & Ecommerce Pricing Intelligence</h2>
+
+    <p>
+      StoreScout helps ecommerce brands analyze Shopify competitors faster using public catalog data, pricing intelligence, discount analysis, product launch tracking, and ecommerce positioning signals.
+    </p>
+
+    <p>
+      Instead of manually opening dozens of product pages, StoreScout automates competitor pricing analysis across Shopify stores and generates structured ecommerce intelligence reports.
+    </p>
+
+    <div class="keyword-row">
+      <span class="keyword-pill">Shopify competitor analysis</span>
+      <span class="keyword-pill">Ecommerce pricing intelligence</span>
+      <span class="keyword-pill">Competitor pricing analysis</span>
+      <span class="keyword-pill">Analyze Shopify store</span>
+      <span class="keyword-pill">Shopify competitor research</span>
+    </div>
+
+  </div>
+</section>
 
   <footer>
     <div class="container">
