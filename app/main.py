@@ -48,6 +48,7 @@ OUTPUTS_DIR = (BASE_DIR / "outputs")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_PAYMENT_LINK_URL = os.getenv("STRIPE_PAYMENT_LINK_URL", "")
+DEV_SKIP_PAYMENT = os.getenv("DEV_SKIP_PAYMENT", "false").lower() == "true"
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
 RESEND_FROM = os.getenv("RESEND_FROM", "")
@@ -278,7 +279,7 @@ def generate(
     )
 
 @app.post("/buy")
-def buy(store_url: str = Form(..., min_length=3)):
+def buy(request: Request, store_url: str = Form(..., min_length=3)):
     # 1) Validate + normalize
     try:
         base = normalize_store_url(store_url)
@@ -290,16 +291,24 @@ def buy(store_url: str = Form(..., min_length=3)):
     if not probe.get("ok"):
         raise HTTPException(status_code=400, detail=f"Store not supported: {probe.get('reason')}")
 
-    # 3) Create Stripe Checkout Session (NOT a payment link)
+    # 3) DEV BYPASS: localhost only
+    host = request.url.hostname
+    is_local = host in ["localhost", "127.0.0.1"]
+
+    if is_local and DEV_SKIP_PAYMENT:
+        print("DEV MODE: skipping Stripe payment")
+        return JSONResponse({
+            "url": f"/success?dev_store_url={base}"
+        })
+
+    # 4) Normal Stripe Checkout flow
     if not STRIPE_SECRET_KEY:
         raise HTTPException(status_code=500, detail="Missing STRIPE_SECRET_KEY")
 
-    # ✅ You must set this in .env (example: https://storescout.yourdomain.com)
     PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "").rstrip("/")
     if not PUBLIC_BASE_URL:
         raise HTTPException(status_code=500, detail="Missing PUBLIC_BASE_URL env var")
 
-    # ✅ You must set this in .env: the Price ID for your product
     STRIPE_PRICE_ID = os.getenv("STRIPE_PRICE_ID", "")
     if not STRIPE_PRICE_ID:
         raise HTTPException(status_code=500, detail="Missing STRIPE_PRICE_ID env var")
@@ -310,7 +319,6 @@ def buy(store_url: str = Form(..., min_length=3)):
             line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
             success_url=f"{PUBLIC_BASE_URL}/success?session_id={{CHECKOUT_SESSION_ID}}",
             cancel_url=f"{PUBLIC_BASE_URL}/",
-            # This is what your extract_store_url_from_session() reads ✅
             custom_fields=[
                 {
                     "key": "store_url",
@@ -332,17 +340,20 @@ from fastapi import HTTPException
 import stripe
 
 @app.get("/success")
-def success(session_id: str):
-    if not session_id:
-        raise HTTPException(status_code=400, detail="Missing session_id")
+def success(session_id: str = None, dev_store_url: str = None):
+    if dev_store_url:
+      store_url = normalize_store_url(dev_store_url)
+    else:
+        if not session_id:
+            raise HTTPException(status_code=400, detail="Missing session_id")
 
-    session = stripe.checkout.Session.retrieve(session_id)
-    if session.payment_status != "paid":
-        return HTMLResponse("<h2>Payment not completed.</h2>", status_code=402)
+        session = stripe.checkout.Session.retrieve(session_id)
+        if session.payment_status != "paid":
+            return HTMLResponse("<h2>Payment not completed.</h2>", status_code=402)
 
-    store_url = extract_store_url_from_session(session)
-    if not store_url:
-        return HTMLResponse("<h2>Missing store URL from checkout.</h2>", status_code=400)
+        store_url = extract_store_url_from_session(session)
+        if not store_url:
+            return HTMLResponse("<h2>Missing store URL from checkout.</h2>", status_code=400)
 
     safe_store_url = store_url.replace("\\", "\\\\").replace('"', '\\"')
 
