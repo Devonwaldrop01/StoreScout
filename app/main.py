@@ -220,7 +220,7 @@ def fenty_pricing_strategy():
     article_path = TEMPLATES_DIR / "how-to-analyze-shopify-competitors.html"
     return HTMLResponse(article_path.read_text(encoding="utf-8"))
 
-@app.get("/landing-page", response_class=HTMLResponse)
+@app.get("/landing", response_class=HTMLResponse)
 def fenty_pricing_strategy():
     article_path = TEMPLATES_DIR / "landing-page.html"
     return HTMLResponse(article_path.read_text(encoding="utf-8"))
