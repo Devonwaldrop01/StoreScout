@@ -1,7 +1,6 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-
   <!-- Meta Pixel Code -->
   <script>
   !function(f,b,e,v,n,t,s)
@@ -19,13 +18,7 @@
   src="https://www.facebook.com/tr?id=898113633245460&ev=PageView&noscript=1"
   /></noscript>
   <!-- End Meta Pixel Code -->
-
-
-
-  <link rel="icon" type="image/png" href="/static/favicon.png" />
-  <link rel="apple-touch-icon" href="/static/favicon.png" />
-
-  <!-- Google tag (gtag.js) - production only -->
+   <!-- Google tag (gtag.js) - production only -->
   <script>
     const isLocalhost =
       window.location.hostname === "localhost" ||
@@ -43,916 +36,1082 @@
       gtag("config", "G-VR7RX1KNC0");
     }
   </script>
-
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>Shopify Competitor Analysis Tool | StoreScout</title>
-
-  <meta
-    name="description"
-    content="Analyze Shopify competitors using pricing, discount, launch velocity, and product positioning data, StoreScout helps ecommerce brands uncover competitor insights from public Shopify data without opening dozens of tabs."
-  />
-
-  <meta
-    name="keywords"
-    content="shopify competitor analysis, shopify competitor research, ecommerce pricing intelligence, competitor pricing analysis, analyze shopify store, ecommerce competitor analysis, shopify pricing strategy"
-  />
-
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root{
-      --bg: #0b1220;
-      --bg-secondary: rgba(255,255,255,0.03);
-      --card: rgba(255,255,255,0.06);
-      --card2: rgba(255,255,255,0.04);
-      --border: rgba(255,255,255,0.12);
-      --border2: rgba(255,255,255,0.10);
-      --text: #e5e7eb;
-      --muted: rgba(229,231,235,0.72);
-      --muted2: rgba(229,231,235,0.60);
-      --primary: #3b82f6;
-      --primary-dark: #2563eb;
-      --success: #22c55e;
-      --error: #ef4444;
-      --shadow: 0 24px 70px rgba(0,0,0,0.60);
-      --radius: 16px;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body{
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background:
-        radial-gradient(1200px 800px at 20% 0%, rgba(59,130,246,0.18), transparent 55%),
-        radial-gradient(1200px 800px at 80% 0%, rgba(34,197,94,0.12), transparent 55%),
-        var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    .container{
-      width: 100%;
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 0 22px;
-    }
-
-    header {
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(10px);
-      background: rgba(11,18,32,0.65);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .header-inner {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 22px 0;
-    }
-
-    .logo {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        text-decoration: none;
-        }
-
-        .logo svg {
-        flex-shrink: 0;
-        }
-
-        .logo-text {
-        font-size: 1.7rem;
-        font-weight: 800;
-        letter-spacing: -0.03em;
-        line-height: 1;
-        }
-
-        .logo-text .store {
-        color: #3b82f6;
-        }
-
-        .logo-text .scout {
-        color: #1d4ed8;
-        }
-
-    .nav-links {
-      display: flex;
-      gap: 20px;
-    }
-
-    .nav-links a {
-      color: var(--muted);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .nav-links a:hover {
-      color: var(--text);
-    }
-
-    .hero { padding: 80px 0 58px; text-align: center; }
-
-    h1{
-      max-width: 920px;
-      margin: 0 auto 20px;
-      font-size: 52px;
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.04em;
-      background: linear-gradient(135deg, #ffffff, rgba(229,231,235,0.70));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .subtitle {
-      font-size: 20px;
-      line-height: 1.65;
-      color: var(--muted);
-      margin: 0 auto 42px;
-      max-width: 760px;
-    }
-
-    .generator-card{
-      max-width: 640px;
-      margin: 0 auto;
-      background: linear-gradient(180deg, var(--card), var(--card2));
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: var(--shadow);
-      text-align: left;
-    }
-
-    label {
-      display: block;
-      font-weight: 700;
-      margin-bottom: 8px;
-      font-size: 14px;
-      color: var(--text);
-    }
-
-    input{
-      width: 100%;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--border2);
-      color: var(--text);
-      border-radius: 12px;
-      padding: 12px;
-      outline: none;
-      font-size: 16px;
-      font-family: inherit;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    input::placeholder{ color: rgba(229,231,235,0.45); }
-
-    input:focus{
-      border-color: rgba(59,130,246,0.55);
-      box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
-    }
-
-    .hint {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 8px;
-    }
-
-    .button-row {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-top: 14px;
-    }
-
-    button{
-      flex: 1;
-      appearance: none;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.07);
-      color: var(--text);
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-weight: 800;
-      font-size: 15px;
-      cursor: pointer;
-      transition: transform 0.05s ease, background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
-    }
-
-    button:hover:not(:disabled){
-      background: rgba(255,255,255,0.10);
-      border-color: rgba(255,255,255,0.20);
-    }
-
-    button:active{ transform: translateY(1px); }
-    button:disabled{ opacity: 0.55; cursor: not-allowed; }
-
-    .btn-primary{
-      background: linear-gradient(180deg, rgba(59,130,246,0.95), rgba(37,99,235,0.95));
-      border-color: rgba(59,130,246,0.35);
-    }
-
-    .btn-primary:hover:not(:disabled){
-      background: linear-gradient(180deg, rgba(59,130,246,1), rgba(37,99,235,1));
-      border-color: rgba(59,130,246,0.55);
-    }
-
-    .btn-link {
-      display: inline-block;
-      text-decoration: none;
-      background: linear-gradient(180deg, rgba(59,130,246,0.95), rgba(37,99,235,0.95));
-      border: 1px solid rgba(59,130,246,0.35);
-      color: var(--text);
-      border-radius: 12px;
-      padding: 12px 18px;
-      font-weight: 800;
-      font-size: 15px;
-    }
-
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 2px solid rgba(255,255,255,0.22);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      display: none;
-      flex: 0 0 auto;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .status{
-      margin-top: 14px;
-      font-size: 13px;
-      color: var(--muted2);
-      display: none;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border2);
-      background: rgba(255,255,255,0.04);
-    }
-
-    .status.show{ display: block; }
-    .status.info{ border-color: rgba(59,130,246,0.35); background: rgba(59,130,246,0.08); color: rgba(191,219,254,0.95); }
-    .status.success{ border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.08); color: rgba(134,239,172,0.95); }
-    .status.error{ border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.08); color: rgba(254,202,202,0.95); }
-
-    .url-help{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-top:10px;
-      padding:10px 12px;
-      border: 1px solid var(--border2);
-      background: rgba(255,255,255,0.04);
-      border-radius: 12px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .url-help .dot{
-      width:10px;
-      height:10px;
-      border-radius:999px;
-      background: rgba(255,255,255,0.35);
-      flex:0 0 10px;
-    }
-
-    .url-help.ok{ border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.08); color: rgba(134,239,172,0.95); }
-    .url-help.ok .dot{ background: rgba(34,197,94,0.95); }
-    .url-help.bad{ border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.08); color: rgba(254,202,202,0.95); }
-    .url-help.bad .dot{ background: rgba(239,68,68,0.95); }
-    .url-help.wait{ border-color: rgba(59,130,246,0.35); background: rgba(59,130,246,0.08); color: rgba(191,219,254,0.95); }
-    .url-help.wait .dot{ background: rgba(59,130,246,0.95); }
-
-    .features,
-    .seo-section,
-    .final-cta {
-      border-top: 1px solid var(--border);
-    }
-
-    .features {
-      background: var(--bg-secondary);
-      padding: 80px 0;
-    }
-
-    .features h2,
-    .how-it-works h2,
-    .seo-section h2,
-    .final-cta h2 {
-      text-align: center;
-      font-size: 34px;
-      line-height: 1.2;
-      margin-bottom: 16px;
-      letter-spacing: -0.02em;
-    }
-
-    .features-subtitle {
-      text-align: center;
-      color: var(--muted);
-      margin: 0 auto 48px;
-      font-size: 18px;
-      line-height: 1.65;
-      max-width: 720px;
-    }
-
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 28px;
-    }
-
-    .feature-card{
-      background: linear-gradient(180deg, var(--card), var(--card2));
-      border: 1px solid var(--border);
-      padding: 24px;
-      border-radius: 14px;
-    }
-
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, rgba(239,246,255,0.12), rgba(219,234,254,0.08));
-      border: 1px solid rgba(59,130,246,0.25);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-      font-size: 24px;
-    }
-
-    .feature-card h3 { font-size: 18px; margin-bottom: 8px; }
-    .feature-card p { color: var(--muted); font-size: 14px; line-height: 1.65; }
-    .feature-card p strong { color: var(--text); }
-
-    .section-cta{ text-align: center; margin-top: 34px; }
-
-    .how-it-works { padding: 80px 0; }
-
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 32px;
-      max-width: 900px;
-      margin: 48px auto 0;
-    }
-
-    .step { text-align: center; }
-
-    .step-number {
-      width: 48px;
-      height: 48px;
-      background: var(--primary);
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 20px;
-      margin: 0 auto 16px;
-    }
-
-    .step h3 { font-size: 18px; margin-bottom: 8px; }
-    .step p { color: var(--muted); font-size: 14px; line-height: 1.6; }
-
-    .seo-section {
-      padding: 72px 0;
-      background: rgba(255,255,255,0.025);
-    }
-
-    .seo-section p {
-      color: var(--muted);
-      font-size: 17px;
-      line-height: 1.75;
-      max-width: 760px;
-      margin: 0 auto 18px;
-      text-align: center;
-    }
-
-    .keyword-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin: 28px auto 0;
-      max-width: 850px;
-    }
-
-    .keyword-pill {
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.045);
-      color: var(--muted);
-      padding: 9px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .newsletter-section{
-      padding: 20px 22px 70px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .newsletter-shell{
-      width: 100%;
-      max-width: 760px;
-      margin: 0 auto;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.025));
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .newsletter-shell iframe{
-      display: block;
-      width: 100% !important;
-      max-width: 100% !important;
-      margin: 0 auto !important;
-    }
-
-    .final-cta {
-      padding: 72px 0;
-      background: var(--bg-secondary);
-      text-align: center;
-    }
-
-    .final-cta .features-subtitle { margin-bottom: 24px; }
-
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 32px 0;
-      text-align: center;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 38px;
-      }
-
-      .subtitle {
-        font-size: 17px;
-      }
-
-      .section-title {
-        font-size: 30px;
-      }
-
-      .hero {
-        padding: 72px 0 56px;
-      }
-
-      .section {
-        padding: 58px 0;
-      }
-
-      .header-inner {
-        flex-direction: column;
-        gap: 14px;
-      }
-
-      .nav-links {
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-    }
-
-    @media (max-width: 520px) {
-      .site-header-inner {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .site-nav { justify-content: flex-start; }
-
-      h1 { font-size: 30px; }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StoreScout — Shopify Competitor Analysis Reports for $9</title>
+<meta name="description" content="See any Shopify store's pricing, discounts, and product strategy in seconds. Get a 5-page competitor intelligence report for a one-time $9 — no subscription, instant PDF."/>
+<meta property="og:title" content="StoreScout — Shopify Competitor Analysis Reports for $9"/>
+<meta property="og:description" content="See any Shopify store's pricing, discounts, and product strategy in seconds. Get a 5-page competitor intelligence report for a one-time $9 — no subscription, instant PDF."/>
+<meta property="og:type" content="website"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+<style>
+/* ── TOKENS ── */
+:root{
+  --bg:       #060d18;
+  --bg2:      #0a1628;
+  --bg3:      #0e1d35;
+  --border:   rgba(255,255,255,.09);
+  --text:     #eef3fa;
+  --muted:    #7d92aa;
+  --muted2:   #566a80;
+  /* Blues — match logo exactly */
+  --blue:     #1d4ed8;   /* logo "Scout" — deep, primary */
+  --blue2:    #3b82f6;   /* logo "Store" — mid, CTA */
+  --blue3:    #60a5fa;   /* light accent, data labels   */
+  /* Green — accent/highlight only */
+  --green:    #a3f000;
+  --green2:   #74ff54;
+  --green-dim: rgba(163,240,0,.12);
+  --line:     rgba(255,255,255,.08);
+  --nav-h:    68px;
+  --font:     'Plus Jakarta Sans', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 80% -5%,  rgba(59,130,246,.20), transparent),
+    radial-gradient(ellipse 35% 35% at 8%  18%,  rgba(163,240,0,.08),  transparent),
+    radial-gradient(ellipse 45% 55% at 50% 105%, rgba(29,78,216,.10),  transparent);
+}
+body>*{position:relative;z-index:1}
+
+.wrap{width:min(1160px,calc(100% - 40px));margin:0 auto}
+
+/* ── NAV ── */
+.nav{
+  position:sticky;top:0;z-index:200;height:var(--nav-h);
+  display:flex;align-items:center;
+  background:rgba(6,13,24,.88);backdrop-filter:blur(18px) saturate(1.4);
+  border-bottom:1px solid var(--line);transition:box-shadow .3s;
+}
+.nav.scrolled{box-shadow:0 4px 40px rgba(0,0,0,.5)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;width:min(1160px,calc(100% - 40px));margin:0 auto}
+
+.logo{display:flex;align-items:center;gap:10px}
+.logo-text{font-size:1.45rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+.logo-text .store{color:#3b82f6}
+.logo-text .scout{color:#1d4ed8}
+
+.nav-links{display:flex;gap:4px;align-items:center}
+.nav-links a{padding:8px 14px;border-radius:10px;color:var(--muted);font-size:.875rem;font-weight:500;transition:color .2s,background .2s}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.06)}
+.nav-cta{background:var(--blue2) !important;color:#fff !important;font-weight:700 !important;border-radius:10px !important;padding:9px 18px !important}
+.nav-cta:hover{background:var(--blue) !important;opacity:1}
+.hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:38px;height:38px;padding:8px;border-radius:9px;background:rgba(255,255,255,.07);border:1px solid var(--line);cursor:pointer;flex-shrink:0}
+.hamburger span{display:block;height:2px;border-radius:2px;background:var(--text);transition:transform .25s,opacity .25s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+.mobile-menu{display:none;flex-direction:column;position:fixed;top:var(--nav-h);left:0;right:0;background:rgba(6,13,24,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--line);padding:14px 20px 22px;gap:4px;z-index:199;transform:translateY(-110%);transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:0 16px 48px rgba(0,0,0,.5)}
+.mobile-menu.open{transform:translateY(0)}
+.mobile-menu a{padding:13px 16px;border-radius:12px;color:var(--text);font-size:1rem;font-weight:600;border-bottom:1px solid var(--line);transition:background .15s}
+.mobile-menu a:last-child{border-bottom:none}
+.mob-cta{margin-top:8px !important;background:var(--blue2) !important;color:#fff !important;text-align:center;border-radius:12px !important;border-bottom:none !important}
+
+/* ── BENEFIT PREVIEW (hero) ── */
+.benefit-preview{
+  margin-bottom:20px;
+  padding:16px 20px;
+  border-radius:16px;
+  background:linear-gradient(135deg,rgba(59,130,246,.06),rgba(163,240,0,.035));
+  border:1px solid rgba(59,130,246,.18);
+  width:100%;
+}
+.bp-label{
+  display:flex;align-items:center;gap:8px;
+  font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--blue3);margin-bottom:12px;
+}
+.bp-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+.bp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.bp-stat b{display:block;font-size:1.35rem;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1;margin-bottom:4px}
+.bp-stat span{font-size:.72rem;color:var(--muted);line-height:1.35;display:block;font-weight:500}
+
+/* ── SECONDARY CTA (under form) ── */
+.cta-secondary-row{margin-top:12px;display:flex;justify-content:center}
+.cta-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 18px;border-radius:11px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-family:var(--font);font-size:.9rem;font-weight:600;
+  transition:background .18s,border-color .18s,transform .18s;
+}
+.cta-secondary:hover{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.25);color:var(--blue3);transform:translateY(-1px)}
+.cta-secondary svg{flex-shrink:0;transition:transform .2s}
+.cta-secondary:hover svg{transform:translateY(2px)}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;font-family:var(--font);font-weight:700;border-radius:14px;transition:transform .18s,box-shadow .18s,opacity .18s;white-space:nowrap}
+.btn-blue{background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;box-shadow:0 0 40px rgba(59,130,246,.30),inset 0 1px 0 rgba(255,255,255,.18);padding:17px 32px;font-size:1.05rem}
+.btn-blue:hover{transform:translateY(-2px);box-shadow:0 0 56px rgba(59,130,246,.45),inset 0 1px 0 rgba(255,255,255,.18)}
+.btn-ghost{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);padding:15px 24px;font-size:.97rem}
+.btn-ghost:hover{background:rgba(255,255,255,.10)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none !important;box-shadow:none !important}
+
+/* ── HERO ── */
+.hero{padding:72px 0 64px;display:flex;align-items:center;justify-content:center;text-align:center}
+.hero-inner{display:flex;flex-direction:column;align-items:center;width:100%;max-width:760px;margin:0 auto}
+
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border-radius:999px;border:1px solid rgba(163,240,0,.28);background:rgba(163,240,0,.07);color:#cfffaa;font-size:.77rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px}
+.eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.78)}}
+
+h1{font-size:clamp(2.8rem,5.5vw,5.2rem);font-weight:800;line-height:.93;letter-spacing:-.045em;margin-bottom:20px;max-width:700px}
+h1 em{font-style:normal;color:var(--green)}
+.hero-sub{font-size:clamp(1rem,1.5vw,1.15rem);color:#a0b3c8;line-height:1.65;margin-bottom:24px;max-width:560px}
+
+.price-pill{display:inline-flex;align-items:center;gap:10px;margin-bottom:28px;padding:9px 16px;border-radius:12px;background:rgba(163,240,0,.08);border:1px solid rgba(163,240,0,.25);font-size:.9rem;font-weight:600;color:#d4ffaa}
+.price-pill strong{color:#fff;font-size:1rem}
+
+/* BENEFIT PREVIEW */
+.benefit-preview{
+  width:100%;margin-bottom:24px;
+  padding:16px 24px;border-radius:16px;
+  background:linear-gradient(135deg,rgba(59,130,246,.06),rgba(163,240,0,.03));
+  border:1px solid rgba(59,130,246,.18);
+}
+.bp-label{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--blue3);margin-bottom:14px;
+}
+.bp-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+.bp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-radius:12px;overflow:hidden}
+.bp-stat{padding:14px 10px;text-align:center;border-right:1px solid rgba(255,255,255,.07)}
+.bp-stat:last-child{border-right:none}
+.bp-stat b{display:block;font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1;margin-bottom:5px}
+.bp-stat span{font-size:.72rem;color:var(--muted);line-height:1.3;display:block;font-weight:500}
+
+/* FORM */
+.hero-form{width:100%;padding:20px;border-radius:20px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.1);margin-bottom:20px}
+.input-row{display:flex;gap:10px}
+.input-row input{flex:1;height:54px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);color:#fff;padding:0 18px;font-family:var(--font);font-size:.97rem;outline:none;transition:border-color .2s;min-width:0;text-align:left}
+.input-row input:focus{border-color:rgba(59,130,246,.5)}
+.input-row input::placeholder{color:#4d6070}
+.input-row .btn-blue{height:54px;padding:0 24px;font-size:.95rem;border-radius:12px;flex-shrink:0}
+.form-hint{margin-top:11px;font-size:.78rem;color:var(--muted2);display:flex;align-items:center;justify-content:center;gap:6px;text-align:center}
+.form-hint svg{flex-shrink:0;opacity:.6}
+
+/* URL help / status */
+.url-help{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);border-radius:12px;font-size:12.5px;color:var(--muted)}
+.url-help .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.3);flex:0 0 9px}
+.url-help.ok{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.07);color:rgba(134,239,172,.95)}
+.url-help.ok .dot{background:rgba(34,197,94,.95)}
+.url-help.bad{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.07);color:rgba(254,202,202,.95)}
+.url-help.bad .dot{background:rgba(239,68,68,.95)}
+.url-help.wait{border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.07);color:rgba(191,219,254,.95)}
+.url-help.wait .dot{background:rgba(59,130,246,.95)}
+
+.status{margin-top:12px;font-size:12.5px;display:none;padding:11px 13px;border-radius:11px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);text-align:left}
+.status.show{display:block}
+.status.info{border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.08);color:rgba(191,219,254,.95)}
+.status.success{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.08);color:rgba(134,239,172,.95)}
+.status.error{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08);color:rgba(254,202,202,.95)}
+
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.18);border-top-color:var(--blue2);border-radius:50%;animation:spin .75s linear infinite;display:none;margin:10px auto 0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.trust-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:9px;background:rgba(255,255,255,.045);border:1px solid var(--line);color:var(--muted);font-size:.8rem;font-weight:500}
+
+/* Secondary CTA */
+.cta-secondary-row{margin-top:12px;display:flex;justify-content:center}
+.cta-secondary{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:.9rem;font-weight:600;transition:background .18s,border-color .18s,transform .18s}
+.cta-secondary:hover{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.25);color:var(--blue3);transform:translateY(-1px)}
+.cta-secondary svg{flex-shrink:0;transition:transform .2s}
+.cta-secondary:hover svg{transform:translateY(2px)}
+
+/* HERO REPORT CARD — now removed from hero, no longer needed here */
+.hero-right{display:none}
+.report-wrap{display:none}
+
+.fbadge{position:absolute;z-index:10;border-radius:16px;padding:13px 16px;text-align:center;animation:floatY 4s ease-in-out infinite}
+.fbadge.tl{top:-16px;left:-22px;background:var(--bg2);border:1px solid var(--green);box-shadow:0 0 28px rgba(163,240,0,.22)}
+.fbadge.tl b{display:block;font-size:1.8rem;font-weight:800;color:var(--green);line-height:1}
+.fbadge.tl span{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.fbadge.br{bottom:20px;right:-24px;background:var(--bg2);border:1px solid rgba(163,240,0,.45);box-shadow:0 0 24px rgba(163,240,0,.14);animation-delay:-2s}
+.fbadge.br .mp{display:flex;gap:14px}
+.fbadge.br .mp-item{text-align:center}
+.fbadge.br .mp-item b{display:block;font-size:1.25rem;font-weight:800;color:var(--green);line-height:1}
+.fbadge.br .mp-item span{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+
+.report-card{border-radius:22px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.09);background:#fff;color:#111827;transform:perspective(1100px) rotateY(-5deg) rotateX(2.5deg);transition:transform .4s ease}
+.report-card:hover{transform:perspective(1100px) rotateY(-1.5deg) rotateX(1deg)}
+
+.rc-head{background:#1e2c42;padding:24px 26px 20px;color:#fff}
+.rc-top-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.rc-pill{font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);padding:5px 11px;border-radius:999px;color:rgba(255,255,255,.8)}
+.rc-ts{font-size:.64rem;color:rgba(255,255,255,.4);text-align:right;line-height:1.4}
+.rc-url{font-size:.85rem;font-weight:700;color:rgba(255,255,255,.9);margin-bottom:14px}
+.rc-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.rc-m{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.13);border-radius:9px;padding:9px 9px 8px}
+.rc-m small{display:block;font-size:.52rem;font-weight:700;letter-spacing:.07em;color:rgba(255,255,255,.5);text-transform:uppercase;margin-bottom:4px}
+.rc-m strong{font-size:1.05rem;font-weight:800;color:#fff;display:block;letter-spacing:-.03em}
+.rc-m em{font-style:normal;font-size:.54rem;color:rgba(255,255,255,.4);display:block;margin-top:2px}
+
+.rc-body{background:#fff;padding:20px 24px 22px}
+.rc-head2{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}
+.rc-head2 h4{font-size:.92rem;font-weight:700;color:#111827;letter-spacing:-.02em}
+.rc-head2 span{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6b7280;background:#f3f4f6;padding:3px 9px;border-radius:999px}
+.rc-pos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rc-pos-item{border:1px solid #e5e7eb;border-left:4px solid #3b82f6;border-radius:9px;padding:11px 12px}
+.rc-pos-item small{font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;display:block;margin-bottom:4px}
+.rc-pos-item strong{font-size:1.1rem;font-weight:800;color:#111827;letter-spacing:-.03em;display:block}
+.rc-pos-item p{margin:4px 0 0;font-size:.63rem;color:#6b7280;line-height:1.35}
+
+/* ── SOCIAL PROOF BAR ── */
+.proof-bar{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,255,255,.02);padding:0}
+.proof-inner{display:grid;grid-template-columns:repeat(4,1fr)}
+.proof-item{padding:28px 0;text-align:center;border-right:1px solid var(--line);position:relative}
+.proof-item:last-child{border-right:none}
+.proof-num{font-size:2.4rem;font-weight:800;letter-spacing:-.04em;color:#fff;line-height:1;margin-bottom:5px}
+.proof-num span{color:var(--green)}
+.proof-lbl{font-size:.82rem;color:var(--muted);font-weight:500}
+
+/* ── SECTION COMMONS ── */
+.section{padding:88px 0}
+.sec-label{display:inline-flex;align-items:center;gap:8px;font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue3);margin-bottom:14px}
+.sec-label::before{content:"";width:18px;height:2px;background:var(--blue3);border-radius:2px}
+h2{font-size:clamp(2rem,3.8vw,3.3rem);font-weight:800;letter-spacing:-.045em;line-height:1.0;color:var(--text)}
+.sec-sub{color:var(--muted);font-size:1.03rem;line-height:1.65;max-width:540px;margin:12px auto 0}
+.center{text-align:center}
+
+/* ── HOW IT WORKS ── */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);border-radius:24px;overflow:hidden;margin-top:52px}
+.step{background:var(--bg2);padding:38px 32px;transition:background .25s}
+.step:hover{background:var(--bg3)}
+.step-n{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-weight:800;font-size:1.05rem;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);color:var(--blue3);margin-bottom:20px}
+.step h3{font-size:1.12rem;font-weight:700;margin-bottom:9px;letter-spacing:-.02em}
+.step p{color:var(--muted);line-height:1.6;font-size:.92rem}
+.step-arr{display:none}
+
+/* ── BEFORE / AFTER ── */
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:52px}
+.ba-card{border-radius:20px;padding:30px;border:1px solid var(--border)}
+.ba-card.before{background:rgba(239,68,68,.05);border-color:rgba(239,68,68,.18)}
+.ba-card.after{background:rgba(34,197,94,.05);border-color:rgba(34,197,94,.2)}
+.ba-label{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.ba-icon{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:.95rem;flex-shrink:0}
+.ba-icon.red{background:rgba(239,68,68,.15)}
+.ba-icon.grn{background:rgba(34,197,94,.15)}
+.ba-label strong{font-size:1rem;font-weight:700}
+.ba-label span{font-size:.8rem;color:var(--muted)}
+.ba-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.ba-list li{display:flex;align-items:flex-start;gap:10px;font-size:.9rem;line-height:1.5;color:#b0bece}
+.ba-list li::before{content:"";width:18px;height:18px;border-radius:5px;flex-shrink:0;display:grid;place-items:center;margin-top:1px}
+.ba-card.before .ba-list li::before{background:rgba(239,68,68,.15);content:"✕";font-size:.6rem;color:rgba(239,68,68,.9);display:flex;align-items:center;justify-content:center}
+.ba-card.after .ba-list li::before{background:rgba(34,197,94,.15);content:"✓";font-size:.65rem;color:rgba(34,197,94,.9);display:flex;align-items:center;justify-content:center}
+
+/* ── SAMPLE REPORT ── */
+.sample-wrap{margin-top:52px}
+.report-pages{display:flex;flex-direction:column;gap:20px}
+
+/* report page cards */
+.rp{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4);color:#111827}
+.rp-head{background:#1e2c42;color:#fff;padding:26px 28px 22px}
+.rp-head-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.rp-pill{font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16);padding:5px 12px;border-radius:999px;color:rgba(255,255,255,.8)}
+.rp-gen{font-size:.63rem;color:rgba(255,255,255,.4);text-align:right;line-height:1.4}
+.rp-title{font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:-.03em}
+.rp-url{font-size:.82rem;color:rgba(255,255,255,.65);margin-bottom:16px}
+.rp-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rp-metric{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:11px 10px}
+.rp-metric small{display:block;font-size:.55rem;font-weight:700;letter-spacing:.07em;color:rgba(255,255,255,.5);text-transform:uppercase;margin-bottom:5px}
+.rp-metric strong{font-size:1.25rem;font-weight:800;color:#fff;display:block;letter-spacing:-.04em}
+.rp-metric em{font-style:normal;font-size:.58rem;color:rgba(255,255,255,.4);display:block;margin-top:3px}
+
+.rp-body{padding:26px 28px 28px}
+.rp-section{margin-bottom:24px}
+.rp-section:last-child{margin-bottom:0}
+.rp-section-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:1px solid #e5e7eb;margin-bottom:16px}
+.rp-section-head h3{font-size:1.05rem;font-weight:700;color:#111827;letter-spacing:-.02em}
+.rp-section-head span{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6b7280;background:#f3f4f6;padding:4px 10px;border-radius:999px}
+.rp-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rp-pos{border:1px solid #e5e7eb;border-left:4px solid #3b82f6;border-radius:10px;padding:13px 14px}
+.rp-pos small{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;display:block;margin-bottom:5px}
+.rp-pos strong{font-size:1.2rem;font-weight:800;color:#111827;letter-spacing:-.03em;display:block}
+.rp-pos p{margin:5px 0 0;font-size:.68rem;color:#6b7280;line-height:1.35}
+
+/* insights */
+.insight-box{background:#eff6ff;border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:16px 18px;margin-bottom:16px}
+.insight-box h4{font-size:.82rem;font-weight:700;color:var(--blue2);margin-bottom:10px}
+.insight-box ul{padding-left:16px;color:#374151;font-size:.82rem;line-height:1.8}
+
+/* pricing table */
+.price-table-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.price-table-head{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6b7280;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #e5e7eb}
+.price-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:.82rem;color:#6b7280}
+.price-row b{color:#111827;font-weight:700}
+
+/* launch table */
+.launch-table{width:100%;border-collapse:collapse}
+.launch-table th{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;padding:8px 0;border-bottom:2px solid #e5e7eb;text-align:left}
+.launch-table td{padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:.82rem;color:#374151}
+.launch-table td b{color:#111827;font-weight:700}
+
+/* top products */
+.product-item{padding:10px 0;border-bottom:1px solid #f3f4f6;font-size:.82rem}
+.product-item:last-child{border-bottom:none}
+.product-name{color:#111827;font-weight:500;margin-bottom:2px;line-height:1.35}
+.product-price{color:#3b82f6;font-weight:700}
+
+/* data coverage */
+.coverage-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f3f4f6;font-size:.82rem;color:#4b5563}
+.coverage-item:last-child{border-bottom:none}
+.coverage-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0}
+.coverage-note{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 14px;font-size:.78rem;color:#92400e;line-height:1.5;margin-top:12px}
+
+/* ── FEATURES ── */
+.features{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:52px}
+.feat{padding:32px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid var(--border);position:relative;overflow:hidden;transition:border-color .25s,background .25s}
+.feat::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue2),var(--blue3));opacity:0;transition:opacity .3s}
+.feat:hover::after{opacity:1}
+.feat:hover{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.07)}
+.feat-icon{width:44px;height:44px;border-radius:12px;background:rgba(59,130,246,.11);border:1px solid rgba(59,130,246,.22);display:grid;place-items:center;font-size:1.2rem;margin-bottom:18px}
+.feat h3{font-size:1.08rem;font-weight:700;margin-bottom:9px;letter-spacing:-.02em}
+.feat p{color:var(--muted);line-height:1.65;font-size:.9rem}
+
+/* ── FAQ ── */
+.faq-list{max-width:760px;margin:52px auto 0;display:flex;flex-direction:column;gap:3px}
+.faq-item{border-radius:14px;overflow:hidden;background:rgba(255,255,255,.045);border:1px solid var(--border)}
+.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;padding:18px 22px;background:none;border:none;color:var(--text);font-family:var(--font);font-size:.97rem;font-weight:600;cursor:pointer;text-align:left;gap:16px;transition:background .2s}
+.faq-q:hover{background:rgba(255,255,255,.04)}
+.faq-icon{width:22px;height:22px;border-radius:6px;border:1px solid var(--border);display:grid;place-items:center;flex-shrink:0;font-size:.85rem;color:var(--blue3);transition:transform .25s,background .25s}
+.faq-item.open .faq-icon{transform:rotate(45deg);background:rgba(59,130,246,.13);border-color:rgba(59,130,246,.30);color:var(--blue3)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease}
+.faq-item.open .faq-a{max-height:300px}
+.faq-a p{padding:0 22px 18px;color:var(--muted);line-height:1.7;font-size:.92rem}
+
+/* ── FINAL CTA ── */
+.cta-box{border-radius:28px;padding:72px 60px;text-align:center;position:relative;overflow:hidden;background:linear-gradient(150deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.11);box-shadow:0 40px 100px rgba(0,0,0,.4)}
+.cta-box::before{content:"";position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(59,130,246,.16),transparent);pointer-events:none}
+.cta-box h2{margin-bottom:16px}
+.cta-box p{color:#a0b3c8;max-width:560px;margin:0 auto 34px;line-height:1.65;font-size:1.05rem}
+.cta-trust{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:22px}
+
+/* ── STRIPE BADGE ── */
+.stripe-badge{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--muted);font-size:.78rem;font-weight:600}
+.stripe-badge svg{opacity:.7}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--line);padding:28px 0}
+.foot-inner{display:flex;justify-content:space-between;align-items:center}
+.foot-copy{color:var(--muted2);font-size:.8rem}
+.foot-links{display:flex;gap:18px}
+.foot-links a{color:var(--muted2);font-size:.8rem;transition:color .2s}
+.foot-links a:hover{color:var(--muted)}
+
+/* ── FADE IN ── */
+.fi{opacity:0;transform:translateY(24px);transition:opacity .55s ease,transform .55s ease}
+.fi.v{opacity:1;transform:translateY(0)}
+.fi:nth-child(2){transition-delay:.08s}
+.fi:nth-child(3){transition-delay:.16s}
+.fi:nth-child(4){transition-delay:.24s}
+
+/* ── PEEK INSIDE ── */
+.peek-section{padding:72px 0 80px;background:rgba(255,255,255,.015);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.peek-card-wrap{display:flex;flex-direction:column;align-items:center;gap:28px}
+.peek-report-card{width:100%;max-width:780px;border-radius:22px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.09);background:#fff;color:#111827}
+.peek-cta{display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap}
+
+/* ── RESPONSIVE ── */
+@media(max-width:860px){
+  .ba-grid{grid-template-columns:1fr}
+  .features{grid-template-columns:1fr 1fr}
+  .proof-inner{grid-template-columns:1fr 1fr}
+  .proof-item:nth-child(2){border-right:none}
+  .proof-item:nth-child(3){border-top:1px solid var(--line)}
+  .proof-item:nth-child(4){border-top:1px solid var(--line);border-right:none}
+  .steps{grid-template-columns:1fr}
+  .rp-metrics{grid-template-columns:1fr 1fr}
+  .price-table-grid{grid-template-columns:1fr}
+  .cta-box{padding:48px 32px}
+  .foot-inner{flex-direction:column;gap:14px;text-align:center}
+  .foot-links{justify-content:center}
+}
+
+@media(max-width:600px){
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .mobile-menu{display:flex}
+  .wrap{width:calc(100% - 32px)}
+  h1{font-size:2.35rem;letter-spacing:-.03em}
+  h2{font-size:1.85rem}
+  .section{padding:56px 0}
+  .hero{padding:36px 0 48px}
+  .input-row{flex-direction:column}
+  .input-row .btn-blue{width:100%;height:54px;justify-content:center}
+  .bp-stats{grid-template-columns:1fr 1fr;border-radius:10px}
+  .bp-stat{padding:12px 8px}
+  .bp-stat b{font-size:1.3rem}
+  .cta-secondary{width:100%;justify-content:center}
+  .ba-grid{grid-template-columns:1fr}
+  .features{grid-template-columns:1fr}
+  .rp-2col{grid-template-columns:1fr}
+  .rp-body{padding:16px}
+  .rp-head{padding:18px 16px 14px}
+  .rc-metrics,.rp-metrics{grid-template-columns:1fr 1fr;gap:6px}
+  .rc-pos{grid-template-columns:1fr}
+  .rp-title{font-size:1.15rem}
+  .cta-box{padding:32px 20px}
+  .price-table-grid{grid-template-columns:1fr}
+  .proof-inner{grid-template-columns:1fr 1fr}
+  .logo-text{font-size:1.2rem}
+  .steps{border-radius:18px}
+  .step{padding:26px 20px}
+  .trust-chips{justify-content:center}
+  .chip{font-size:.76rem;padding:6px 10px}
+  .peek-section{padding:52px 0 60px}
+  .peek-cta{flex-direction:column;width:100%}
+  .peek-cta .btn{width:100%;justify-content:center}
+}
+</style>
 </head>
-
 <body>
-    <header>
-      <div class="container">
-        <div class="header-inner">
-          
-          <a href="/" class="logo">
-              <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M30 35 L30 80 C30 85 32 88 37 88 L63 88 C68 88 70 85 70 80 L70 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
-                  <path d="M25 35 L75 35 L72 42 L28 42 Z" fill="#2463EB"/>
-                  <path d="M38 35 L38 28 C38 22 42 18 50 18 C58 18 62 22 62 28 L62 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
-                  <circle cx="65" cy="55" r="18" fill="#1E40AF" opacity="0.9"/>
-                  <circle cx="65" cy="55" r="12" fill="white" opacity="0.3"/>
-                  <path d="M78 68 L88 78" stroke="#1E40AF" stroke-width="5" stroke-linecap="round"/>
-              </svg>
 
-              <div class="logo-text">
-                  <span class="store">Store</span><span class="scout">Scout</span>
-              </div>
-              </a>
-
-          <nav class="nav-links">
-            <a href="/">Home</a>
-            <a href="/shopify-competitor-analysis-tool">Competitor Analysis</a>
-            <a href="/sample-report">Sample Report</a>
-            <a href="/blog">Blog</a>
-            <a href="/faq">FAQ</a>
-          </nav>
-        </div>
-      </div>
-    </header>
-
-  <main>
-    <section class="hero">
-      <div class="container">
-        <h1>Shopify Competitor Analysis & Ecommerce Pricing Intelligence</h1>
-
-        <p class="subtitle">
-          Analyze any Shopify store in seconds. Track competitor pricing, discount strategies, product launches, catalog positioning, and ecommerce strategy from public Shopify data.
-        </p>
-
-        <div class="generator-card" id="analyze">
-          <form id="genForm" novalidate>
-            <div class="input-group">
-              <label for="storeUrl">Enter Shopify Store URL</label>
-
-              <input
-                id="storeUrl"
-                name="store_url"
-                type="url"
-                placeholder="https://example-store.com"
-                autocomplete="off"
-                required
-              />
-
-              <div id="urlHelp" class="url-help">
-                <span class="dot"></span>
-                <span id="urlMsg">Paste a Shopify store link to check if it’s supported.</span>
-              </div>
-
-              <p class="hint">💡 Try: allbirds.com, gymshark.com, or colourpop.com</p>
-            </div>
-
-            <div class="button-row">
-              <button id="submitBtn" type="submit" class="btn-primary" disabled>
-                Analyze This Store
-              </button>
-
-              <div id="spinner" class="spinner"></div>
-            </div>
-
-            <div id="status" class="status"></div>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <section class="features">
-      <div class="container">
-        <h2>What StoreScout Analyzes</h2>
-        <p class="features-subtitle">Automated Shopify competitor research without opening dozens of tabs.</p>
-
-        <div class="feature-grid">
-          <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <h3>Competitor Pricing Analysis</h3>
-            <p><strong>Find their main price bands</strong> so you can understand whether they compete as budget, mid-market, or premium.</p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">🎯</div>
-            <h3>Discount Strategy Tracking</h3>
-            <p><strong>See discount share and depth</strong> to understand whether competitors rely on constant promos or protect full-price positioning.</p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">🚀</div>
-            <h3>Product Launch Monitoring</h3>
-            <p><strong>Track product launch velocity</strong> and spot whether a brand is accelerating, slowing down, or refreshing its catalog.</p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">📦</div>
-            <h3>Shopify Catalog Analysis</h3>
-            <p><strong>Understand product count, variants, and inventory signals</strong> without opening dozens of tabs.</p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">🎪</div>
-            <h3>Ecommerce Product Positioning</h3>
-            <p><strong>Quickly read positioning</strong> based on pricing, discounts, product mix, and launch behavior.</p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">💎</div>
-            <h3>Competitor Intelligence Report</h3>
-            <p><strong>See expensive products, biggest markdowns, newest launches, and recent updates</strong> in one report.</p>
-          </div>
-        </div>
-
-        <div class="section-cta">
-          <a href="/sample-report" class="btn-link">View Sample Report</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="how-it-works">
-      <div class="container">
-        <h2>How It Works</h2>
-
-        <div class="steps">
-          <div class="step">
-            <div class="step-number">1</div>
-            <h3>Paste a Store URL</h3>
-            <p>Enter any public Shopify store you want to analyze.</p>
-          </div>
-
-          <div class="step">
-            <div class="step-number">2</div>
-            <h3>StoreScout Checks Support</h3>
-            <p>We verify the public product catalog before checkout.</p>
-          </div>
-
-          <div class="step">
-            <div class="step-number">3</div>
-            <h3>Get Your Competitor Report</h3>
-            <p>Receive a PDF breakdown of pricing, discounts, launches, and positioning.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="seo-section">
-      <div class="container">
-        <h2>Shopify Competitor Research Made Simple</h2>
-
-        <p>
-          StoreScout helps ecommerce brands, dropshippers, marketers, and agencies run Shopify competitor analysis without manually checking product pages, prices, discounts, and launches.
-        </p>
-
-        <p>
-          Use StoreScout to analyze Shopify competitors, understand ecommerce pricing strategy, compare discount behavior, monitor product launch velocity, and uncover product positioning signals from any supported public Shopify store.
-        </p>
-
-        <div class="keyword-row">
-          <span class="keyword-pill">Shopify competitor analysis</span>
-          <span class="keyword-pill">Ecommerce pricing intelligence</span>
-          <span class="keyword-pill">Competitor pricing analysis</span>
-          <span class="keyword-pill">Analyze Shopify store</span>
-          <span class="keyword-pill">Shopify competitor research</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="newsletter-section">
-      <div class="newsletter-shell">
-        <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
-        <iframe
-          src="https://subscribe-forms.beehiiv.com/b7abbe43-e1f1-4226-8ed0-018c13ff57d0"
-          class="beehiiv-embed"
-          data-test-id="beehiiv-embed"
-          frameborder="0"
-          scrolling="no"
-          style="width: 947px; height: 373px; margin: 0; border-radius: 0 !important; background-color: transparent; box-shadow: 0 0 #0000; max-width: 100%;"
-        ></iframe>
-      </div>
-    </section>
-
-    <section class="final-cta">
-      <div class="container">
-        <h2>Start Analyzing Shopify Competitors</h2>
-
-        <p class="features-subtitle">
-          Generate an instant competitor intelligence report with pricing, discounts, product launches, and positioning insights.
-        </p>
-
-        <a href="#storeUrl" class="btn-link">Analyze a Shopify Store</a>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container">
-      <p>&copy; 2026 StoreScout. Public catalog data only. No checkout or traffic analytics.</p>
+<!-- NAV -->
+<nav class="nav" id="site-nav">
+  <div class="nav-inner">
+    <a href="/" class="logo">
+      <svg width="38" height="38" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M30 35 L30 80 C30 85 32 88 37 88 L63 88 C68 88 70 85 70 80 L70 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M25 35 L75 35 L72 42 L28 42 Z" fill="#2463EB"/>
+        <path d="M38 35 L38 28 C38 22 42 18 50 18 C58 18 62 22 62 28 L62 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <circle cx="65" cy="55" r="18" fill="#1E40AF" opacity="0.9"/>
+        <circle cx="65" cy="55" r="12" fill="white" opacity="0.3"/>
+        <path d="M78 68 L88 78" stroke="#1E40AF" stroke-width="5" stroke-linecap="round"/>
+      </svg>
+      <div class="logo-text"><span class="store">Store</span><span class="scout">Scout</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#sample">Sample report</a>
+      <a href="#faq">FAQ</a>
+      <a href="#analyze" class="nav-cta">Get report — $9</a>
     </div>
-  </footer>
+    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#how">How it works</a>
+  <a href="#sample">Sample report</a>
+  <a href="#faq">FAQ</a>
+  <a href="#analyze" class="mob-cta">Get report — $9</a>
+</div>
 
-  <script>
-    const form = document.getElementById('genForm');
-    const storeUrl = document.getElementById('storeUrl');
-    const btn = document.getElementById('submitBtn');
-    const spinner = document.getElementById('spinner');
+<main>
 
-    const urlHelp = document.getElementById('urlHelp');
-    const urlMsg = document.getElementById('urlMsg');
+<!-- ── HERO ── -->
+<section class="hero" id="start">
+  <div class="wrap hero-inner">
 
-    const statusEl = document.getElementById('status');
+    <div class="eyebrow"><span class="eyebrow-dot"></span>Shopify competitor intelligence</div>
 
-    let checkTimer = null;
-    let lastChecked = "";
-    let lastOkBase = null;
-    let isChecking = false;
+    <h1>What is your competitor's <em>actual</em> strategy?</h1>
 
-    function setHelp(state, msg){
-      urlHelp.classList.remove('ok','bad','wait');
-      if(state) urlHelp.classList.add(state);
-      urlMsg.textContent = msg;
+    <p class="hero-sub">Scan most Shopify stores and get a 5-page intelligence report — pricing cycles, discount patterns, launch activity, and market positioning — in 30 seconds.</p>
+
+    <!-- INSTANT BENEFIT PROOF -->
+    <div class="benefit-preview">
+      <div class="bp-label"><span class="bp-dot"></span>Real data — from allbirds.com</div>
+      <div class="bp-stats">
+        <div class="bp-stat"><b>1,061</b><span>Products found</span></div>
+        <div class="bp-stat"><b>64%</b><span>On active discount</span></div>
+        <div class="bp-stat"><b>50%</b><span>Median discount depth</span></div>
+        <div class="bp-stat"><b>5.7/mo</b><span>New launches</span></div>
+      </div>
+    </div>
+
+    <div class="price-pill">
+      <strong>One-time $9</strong>
+      &nbsp;·&nbsp; No subscription &nbsp;·&nbsp; Instant PDF download
+    </div>
+
+    <div class="hero-form" id="analyze">
+      <form id="genForm" novalidate>
+        <div class="input-row">
+          <input id="storeUrl" name="store_url" type="url" placeholder="https://yourcompetitor.com" autocomplete="off" required/>
+          <button id="submitBtn" type="submit" class="btn btn-blue" disabled>Analyze for $9 →</button>
+        </div>
+        <div id="urlHelp" class="url-help">
+          <span class="dot"></span>
+          <span id="urlMsg">Paste any Shopify store URL to check compatibility.</span>
+        </div>
+        <div id="spinner" class="spinner"></div>
+        <div id="status" class="status"></div>
+      </form>
+      <p class="form-hint">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Secured by Stripe &nbsp;·&nbsp; No account needed &nbsp;·&nbsp; If unsupported, you won't be charged
+      </p>
+      <div class="cta-secondary-row">
+        <a href="#sample" class="cta-secondary">
+          Not ready? See a real sample report
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="trust-chips">
+      <span class="chip">🔒 Stripe checkout</span>
+      <span class="chip">📄 Instant PDF</span>
+      <span class="chip">🚫 No subscription</span>
+      <span class="chip">⚡ 30-second report</span>
+      <span class="chip">🏪 Most Shopify stores</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── PROOF BAR ── -->
+<div class="proof-bar">
+  <div class="proof-inner wrap">
+    <div class="proof-item fi"><div class="proof-num">30<span>s</span></div><div class="proof-lbl">Average report time</div></div>
+    <div class="proof-item fi"><div class="proof-num">5</div><div class="proof-lbl">Pages per report</div></div>
+    <div class="proof-item fi"><div class="proof-num"><span>$</span>9</div><div class="proof-lbl">One-time, no sub</div></div>
+    <div class="proof-item fi"><div class="proof-num">Most</div><div class="proof-lbl">Shopify stores supported</div></div>
+  </div>
+</div>
+
+<!-- ── PEEK INSIDE ── -->
+<section class="peek-section">
+  <div class="wrap">
+    <div class="center fi" style="margin-bottom:32px">
+      <div class="sec-label">What the report looks like</div>
+      <h2>A real report. Real data. Not a mockup.</h2>
+      <p class="sec-sub">This was generated on allbirds.com on May 6, 2026. Your report will look exactly like this.</p>
+    </div>
+    <div class="peek-card-wrap fi">
+      <div class="peek-report-card">
+        <div class="rc-head">
+          <div class="rc-top-row">
+            <span class="rc-pill">Page 1 of 5</span>
+            <div class="rc-ts">Generated 2026-05-06T11:25:03Z<br>Public catalog analysis</div>
+          </div>
+          <div class="rc-url">https://allbirds.com</div>
+          <div class="rc-metrics">
+            <div class="rc-m"><small>Catalog</small><strong>1,061</strong><em>Products</em></div>
+            <div class="rc-m"><small>In Stock</small><strong>84.8%</strong><em>900 available</em></div>
+            <div class="rc-m"><small>Med. Price</small><strong>$70</strong><em>P25·$42 P75·$105</em></div>
+            <div class="rc-m"><small>Promo Rate</small><strong>64.1%</strong><em>Active discounts</em></div>
+          </div>
+        </div>
+        <div class="rc-body">
+          <div class="rc-head2"><h4>Competitive Positioning</h4><span>Strategic Snapshot</span></div>
+          <div class="rc-pos">
+            <div class="rc-pos-item"><small>Market Position</small><strong>Mid-Market</strong><p>Based on catalog median price.</p></div>
+            <div class="rc-pos-item"><small>Promo Intensity</small><strong>Medium 58</strong><p>Discounted share + depth.</p></div>
+            <div class="rc-pos-item"><small>Launch Velocity</small><strong>Low 41</strong><p>New product + update activity.</p></div>
+            <div class="rc-pos-item"><small>Catalog Complexity</small><strong>Medium 58</strong><p>Size + price spread + variants.</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="peek-cta">
+        <a href="#sample" class="btn btn-ghost">See all 5 pages ↓</a>
+        <a href="#analyze" class="btn btn-blue">Get yours for $9 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="center fi">
+      <div class="sec-label">How it works</div>
+      <h2>Three steps. Thirty seconds.</h2>
+      <p class="sec-sub">No spreadsheets. No manual digging. No dashboard to learn. Just paste a URL and get your report.</p>
+    </div>
+    <div class="steps">
+      <div class="step fi">
+        <div class="step-n">1</div>
+        <h3>Paste a Shopify store URL</h3>
+        <p>Most public Shopify stores work. No account setup required. We'll verify compatibility before you pay — so you're never charged for a store we can't analyze.</p>
+      </div>
+      <div class="step fi">
+        <div class="step-n">2</div>
+        <h3>Pay once, securely</h3>
+        <p>One-time $9 via Stripe. No subscription, no auto-renewal, no hidden fees. You pay for exactly one report and that's it.</p>
+      </div>
+      <div class="step fi">
+        <div class="step-n">3</div>
+        <h3>Download your PDF instantly</h3>
+        <p>A 5-page strategy report is generated and delivered immediately. No waiting, no email queue — download it the second checkout completes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── BEFORE / AFTER ── -->
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="center fi">
+      <div class="sec-label">The problem we solve</div>
+      <h2>Stop wasting hours on manual research.</h2>
+      <p class="sec-sub">Your competitors' strategy is publicly available. StoreScout turns that raw data into a readable report in seconds.</p>
+    </div>
+    <div class="ba-grid">
+      <div class="ba-card before fi">
+        <div class="ba-label">
+          <div class="ba-icon red">❌</div>
+          <div><strong>Without StoreScout</strong><span style="display:block">Hours of manual research</span></div>
+        </div>
+        <ul class="ba-list">
+          <li>Opening 10+ browser tabs to check competitor pricing</li>
+          <li>Building spreadsheets to track discount patterns manually</li>
+          <li>Guessing at launch frequency with no real data</li>
+          <li>Losing hours every week doing research you hate</li>
+          <li>Making pricing decisions based on gut feel, not data</li>
+        </ul>
+      </div>
+      <div class="ba-card after fi">
+        <div class="ba-label">
+          <div class="ba-icon grn">✅</div>
+          <div><strong>With StoreScout</strong><span style="display:block">30 seconds with a $9 report</span></div>
+        </div>
+        <ul class="ba-list">
+          <li>Instant pricing architecture — median, P25, P75, full range</li>
+          <li>Exact discount rate, depth, and which products are marked down</li>
+          <li>Launch velocity — how often they add new products</li>
+          <li>Competitive positioning score across 4 strategic dimensions</li>
+          <li>Actionable insights you can act on today, not next week</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SAMPLE REPORT ── -->
+<section class="section" id="sample" style="padding-top:0">
+  <div class="wrap">
+    <div class="center fi">
+      <div class="sec-label">Real sample report</div>
+      <h2>See exactly what you're getting.</h2>
+      <p class="sec-sub">This is a real StoreScout report run on allbirds.com. Every report you order looks exactly like this.</p>
+    </div>
+
+    <div class="sample-wrap">
+      <div class="report-pages">
+
+        <!-- PAGE 1 -->
+        <div class="rp fi">
+          <div class="rp-head">
+            <div class="rp-head-top">
+              <span class="rp-pill">📋 1 of 5 — Overview</span>
+              <div class="rp-gen">Generated 2026-05-06T11:25:03Z<br>Public catalog analysis</div>
+            </div>
+            <div class="rp-title">Competitive Intelligence Report</div>
+            <div class="rp-url">https://allbirds.com</div>
+            <div class="rp-metrics">
+              <div class="rp-metric"><small>Catalog Size</small><strong>1,061</strong><em>Products discovered</em></div>
+              <div class="rp-metric"><small>In Stock</small><strong>84.83%</strong><em>900/1061 available</em></div>
+              <div class="rp-metric"><small>Median Price</small><strong>$70</strong><em>P25: $42 · P75: $105</em></div>
+              <div class="rp-metric"><small>Promo Rate</small><strong>64.09%</strong><em>Active discounts</em></div>
+            </div>
+          </div>
+          <div class="rp-body">
+            <div class="rp-section">
+              <div class="rp-section-head"><h3>Competitive Positioning</h3><span>Strategic Snapshot</span></div>
+              <div class="rp-2col">
+                <div class="rp-pos"><small>Market Position</small><strong>Mid-Market</strong><p>Based on catalog median price (simple heuristic).</p></div>
+                <div class="rp-pos"><small>Promo Intensity</small><strong>Medium &nbsp;<span style="background:#fef3c7;color:#92400e;font-size:.7rem;padding:2px 7px;border-radius:999px;font-weight:700">58</span></strong><p>Blend of discounted share + median discount depth.</p></div>
+                <div class="rp-pos"><small>Launch Velocity</small><strong>Low &nbsp;<span style="background:#fef3c7;color:#92400e;font-size:.7rem;padding:2px 7px;border-radius:999px;font-weight:700">41</span></strong><p>Blend of new product + update activity (last 90 days).</p></div>
+                <div class="rp-pos"><small>Catalog Complexity</small><strong>Medium &nbsp;<span style="background:#fef3c7;color:#92400e;font-size:.7rem;padding:2px 7px;border-radius:999px;font-weight:700">58</span></strong><p>Blend of catalog size + price spread + variants.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 2 -->
+        <div class="rp fi">
+          <div class="rp-head" style="background:#1a2f4a">
+            <div class="rp-head-top">
+              <span class="rp-pill">💰 2 of 5 — Pricing & Discounts</span>
+              <div class="rp-gen">allbirds.com</div>
+            </div>
+          </div>
+          <div class="rp-body">
+            <div class="rp-section">
+              <div class="rp-section-head"><h3>💡 Key Insights</h3></div>
+              <div class="insight-box">
+                <h4>Strategic Intelligence</h4>
+                <ul>
+                  <li>Moderate launch velocity: 5.0 products/month, showing steady growth.</li>
+                  <li>Consistent positioning: New products (90d) at $75.00 vs catalog $70.00 (+7% delta).</li>
+                  <li>84.83% of products are currently in stock, which suggests stable inventory.</li>
+                  <li>64.09% of products show valid discounts (compare-at &gt; price), indicating aggressive promotion.</li>
+                  <li>The dominant price band is $50–$99 (35.25% of products), showing where they primarily compete.</li>
+                  <li>Newest products skew above the store median price, suggesting a premium expansion strategy.</li>
+                  <li>Products have multiple variants on average, suggesting upsell/option strategy (sizes, bundles, tiers).</li>
+                </ul>
+              </div>
+            </div>
+            <div class="rp-section">
+              <div class="rp-section-head"><h3>Price Architecture</h3><span>Pricing & Discount Strategy</span></div>
+              <div class="price-table-grid">
+                <div>
+                  <div class="price-table-head">Pricing Metrics</div>
+                  <div class="price-row"><span>Minimum</span><b>$2.00</b></div>
+                  <div class="price-row"><span>25th Percentile</span><b>$42.00</b></div>
+                  <div class="price-row"><span>Median</span><b>$70.00</b></div>
+                  <div class="price-row"><span>75th Percentile</span><b>$105.00</b></div>
+                  <div class="price-row"><span>Maximum</span><b>$160.00</b></div>
+                </div>
+                <div>
+                  <div class="price-table-head">Discount Metrics</div>
+                  <div class="price-row"><span>Discounted Products</span><b>680 (64.09%)</b></div>
+                  <div class="price-row"><span>Median Discount</span><b>50.0%</b></div>
+                  <div class="price-row"><span>Average Discount</span><b>47.54%</b></div>
+                  <div class="price-row"><span>Maximum Discount</span><b>75.0%</b></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 3 -->
+        <div class="rp fi">
+          <div class="rp-head" style="background:#1a2f4a">
+            <div class="rp-head-top">
+              <span class="rp-pill">🚀 3 of 5 — Launch Timeline</span>
+              <div class="rp-gen">allbirds.com</div>
+            </div>
+          </div>
+          <div class="rp-body">
+            <div class="rp-section">
+              <div class="rp-section-head"><h3>Expansion Strategy</h3><span>Launch Timeline & Comparisons</span></div>
+              <div class="rp-2col" style="margin-bottom:20px">
+                <div class="rp-pos"><small>New Products (90d)</small><strong>17</strong><p>1.6% of catalog</p></div>
+                <div class="rp-pos"><small>Velocity (90d)</small><strong>5.7/mo</strong><p>Products per month</p></div>
+                <div class="rp-pos"><small>Trend</small><strong>Steady</strong><p>-12% vs prior 90d</p></div>
+                <div class="rp-pos"><small>Price Strategy</small><strong>Consistent</strong><p>New vs catalog positioning</p></div>
+              </div>
+              <div class="price-table-head">Product Launch Timeline</div>
+              <table class="launch-table">
+                <thead><tr><th>Window</th><th>Launched</th><th>Share</th></tr></thead>
+                <tbody>
+                  <tr><td>Last 7 days</td><td><b>0</b></td><td>0.0%</td></tr>
+                  <tr><td>Last 30 days</td><td><b>5</b></td><td>0.47%</td></tr>
+                  <tr><td>Last 90 days</td><td><b>17</b></td><td>1.6%</td></tr>
+                  <tr><td>Last 180 days</td><td><b>73</b></td><td>6.88%</td></tr>
+                  <tr><td>Last 12 months</td><td><b>533</b></td><td>50.24%</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="rp-section" style="margin-top:20px">
+              <div class="rp-section-head"><h3>New Product Price Positioning</h3></div>
+              <div class="price-row"><span>Catalog Median</span><b>$70.00</b></div>
+              <div class="price-row"><span>New Median (30d)</span><b>$77.00 <span style="color:#22c55e;font-size:.75rem">(+10%)</span></b></div>
+              <div class="price-row"><span>New Median (90d)</span><b>$75.00 <span style="color:#22c55e;font-size:.75rem">(+7%)</span></b></div>
+              <div class="price-row"><span>Strategy</span><b>Consistent positioning</b></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 4 -->
+        <div class="rp fi">
+          <div class="rp-head" style="background:#1a2f4a">
+            <div class="rp-head-top">
+              <span class="rp-pill">🏆 4 of 5 — Top Products</span>
+              <div class="rp-gen">allbirds.com</div>
+            </div>
+          </div>
+          <div class="rp-body">
+            <div class="rp-2col">
+              <div class="rp-section">
+                <div class="rp-section-head"><h3>Most Expensive (Top 5)</h3></div>
+                <div class="product-item"><div class="product-name">Women's Wool Runner NZ Mid Waterproof — Natural Black</div><div class="product-price">$160.00</div></div>
+                <div class="product-item"><div class="product-name">Women's Wool Runner NZ Mid Waterproof — Dark Grey</div><div class="product-price">$160.00</div></div>
+                <div class="product-item"><div class="product-name">Men's Wool Runner NZ Mid Waterproof — Dark Grey</div><div class="product-price">$160.00</div></div>
+                <div class="product-item"><div class="product-name">Men's Wool Runner NZ Mid Waterproof — Natural Black (White Sole)</div><div class="product-price">$160.00</div></div>
+                <div class="product-item"><div class="product-name">Women's Wool Runner NZ Mid Waterproof — Natural Black (White Sole)</div><div class="product-price">$160.00</div></div>
+              </div>
+              <div class="rp-section">
+                <div class="rp-section-head"><h3>Biggest Discounts (Top 5)</h3></div>
+                <div class="product-item"><div class="product-name">Men's Tree Flyer 1 — Natural Black (Blizzard Sole)</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
+                <div class="product-item"><div class="product-name">Men's Tree Flyer 1 — Lux Beige (Blizzard Sole)</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
+                <div class="product-item"><div class="product-name">Men's Tree Flyer 1 — Blizzard (Blizzard Sole)</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
+                <div class="product-item"><div class="product-name">Men's Sea Tee — Navy Night</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
+                <div class="product-item"><div class="product-name">Men's Sea Tee — Juniper</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 5 -->
+        <div class="rp fi">
+          <div class="rp-head" style="background:#1a2f4a">
+            <div class="rp-head-top">
+              <span class="rp-pill">📊 5 of 5 — Data Coverage</span>
+              <div class="rp-gen">allbirds.com</div>
+            </div>
+          </div>
+          <div class="rp-body">
+            <div class="rp-section">
+              <div class="rp-section-head"><h3>Data Coverage & Limitations</h3></div>
+              <div class="coverage-item"><span class="coverage-dot"></span>Date coverage: 100% of products include created/published dates</div>
+              <div class="coverage-item"><span class="coverage-dot"></span>Pricing coverage: 100% of products include a usable price</div>
+              <div class="coverage-item"><span class="coverage-dot"></span>Discount coverage: 64.09% include compare-at pricing fields</div>
+              <div class="coverage-item"><span class="coverage-dot"></span>Safety cap: up to 10 pages × 250 products (max ~2,500 products)</div>
+              <div class="coverage-item"><span class="coverage-dot"></span>Data source: public Shopify /products.json endpoint</div>
+              <div class="coverage-note">ℹ️ This report is based only on the public Shopify product catalog endpoint. It does not include traffic, conversion rate, ads, or checkout data. Discounts are counted only when compare_at_min &gt; price_min.</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /report-pages -->
+
+      <div style="margin-top:32px;text-align:center">
+        <a href="#analyze" class="btn btn-blue" style="padding:18px 40px;font-size:1.1rem">Get Your Report for $9 →</a>
+        <p style="margin-top:12px;color:var(--muted2);font-size:.82rem">One-time payment · Instant PDF · No subscription</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHAT'S INSIDE ── -->
+<section class="section" id="features" style="padding-top:0">
+  <div class="wrap">
+    <div class="center fi">
+      <div class="sec-label">What's inside</div>
+      <h2>5 pages of actionable intelligence.</h2>
+      <p class="sec-sub">Built for ecommerce founders who need fast competitive clarity — not another tool to manage.</p>
+    </div>
+    <div class="features">
+      <div class="feat fi">
+        <div class="feat-icon">💰</div>
+        <h3>Pricing architecture</h3>
+        <p>Median price, full percentile range (P25/P75), dominant price bands, min/max, and exactly where the store concentrates its catalog. Know if they're competing on price or on premium.</p>
+      </div>
+      <div class="feat fi">
+        <div class="feat-icon">🏷️</div>
+        <h3>Discount behavior</h3>
+        <p>What percentage of products are discounted, how deep those discounts go (median + average + max), and whether aggressive promotions are baked into their strategy.</p>
+      </div>
+      <div class="feat fi">
+        <div class="feat-icon">🚀</div>
+        <h3>Launch velocity & timeline</h3>
+        <p>How often they launch new products (per month), what those new products are priced at vs the existing catalog, and whether they're growing, slowing, or stagnant.</p>
+      </div>
+      <div class="feat fi">
+        <div class="feat-icon">🎯</div>
+        <h3>Competitive positioning</h3>
+        <p>Four scored dimensions — market position, promo intensity, launch velocity, and catalog complexity — translated into a clear strategic snapshot you can act on.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── FAQ ── -->
+<section class="section" id="faq" style="padding-top:0">
+  <div class="wrap">
+    <div class="center fi">
+      <div class="sec-label">FAQ</div>
+      <h2>Common questions, answered.</h2>
+    </div>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-q">Which Shopify stores work with StoreScout?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Most stores running on Shopify that haven't restricted their public product catalog endpoint. Some stores block or disable this endpoint — we check compatibility before you pay, so if your target store isn't supported, you won't be charged.</p></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">Is this a subscription? Will I be charged again?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>No — StoreScout is a one-time $9 payment per report. There is no subscription, no auto-renewal, and no account to manage. You pay once, get your PDF, and that's it. You can order additional reports for other stores whenever you like.</p></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">How is the report generated? Is the data accurate?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>StoreScout reads the publicly available product catalog from the Shopify store's /products.json endpoint — the same data anyone could access manually, but processed and analyzed automatically. The data is real, current, and pulled at the time you order. It does not include traffic, revenue, or ad data.</p></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">How fast is delivery?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Instant. Reports are generated in under 30 seconds. As soon as your payment goes through, your PDF is ready to download — no email queues, no waiting, no manual processing.</p></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">What exactly is in the 5-page report?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Page 1: Overview metrics and competitive positioning scores. Page 2: Pricing architecture and discount strategy. Page 3: Launch timeline, velocity, and expansion patterns. Page 4: Top products — most expensive and most discounted. Page 5: Data coverage and methodology notes. You can see a real example in the sample report section above.</p></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">Is this data publicly available? Is it legal?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Yes. StoreScout only uses the public /products.json endpoint that Shopify exposes by default on all standard stores. This is the same data that anyone with a browser can access. We don't scrape private pages, bypass authentication, or access any data that isn't publicly available.</p></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">What if my target store isn't supported?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>We check compatibility before you reach checkout. If the store isn't accessible or doesn't return usable data, you'll be told upfront and won't be able to proceed to payment. You will not be charged for a report we can't generate.</p></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── FINAL CTA ── -->
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="cta-box fi">
+      <div class="sec-label" style="justify-content:center">Start now</div>
+      <h2>Get competitor clarity<br>before your next move.</h2>
+      <p>One Shopify URL. One secure $9 payment. One instant 5-page strategy report. No subscriptions. No dashboard. No wasted time.</p>
+      <a href="#analyze" class="btn btn-blue" style="padding:18px 44px;font-size:1.1rem">Analyze Any Store for $9 →</a>
+      <div class="cta-trust">
+        <span class="stripe-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Secured by Stripe
+        </span>
+        <span class="chip">📄 Instant PDF</span>
+        <span class="chip">🚫 No subscription</span>
+        <span class="chip">✅ Verified before payment</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-inner">
+    <p class="foot-copy">StoreScout · Public Shopify catalog analysis · Not affiliated with Shopify or analyzed brands.</p>
+    <div class="foot-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Support</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Nav scroll shadow
+const nav = document.getElementById('site-nav');
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
+
+// Fade-in observer
+const fi = document.querySelectorAll('.fi');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('v'); obs.unobserve(e.target); } });
+}, { threshold: 0.1 });
+fi.forEach(el => obs.observe(el));
+
+// Hamburger
+const hbg = document.getElementById('hamburger');
+const mob = document.getElementById('mobileMenu');
+hbg.addEventListener('click', () => {
+  const o = mob.classList.toggle('open');
+  hbg.classList.toggle('open', o);
+  hbg.setAttribute('aria-expanded', o);
+});
+mob.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  mob.classList.remove('open'); hbg.classList.remove('open'); hbg.setAttribute('aria-expanded', false);
+}));
+
+// FAQ accordion
+document.querySelectorAll('.faq-q').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if(!isOpen) item.classList.add('open');
+  });
+});
+</script>
+
+<!-- FORM SCRIPT -->
+<script>
+const form     = document.getElementById('genForm');
+const storeUrl = document.getElementById('storeUrl');
+const btn      = document.getElementById('submitBtn');
+const spinner  = document.getElementById('spinner');
+const urlHelp  = document.getElementById('urlHelp');
+const urlMsg   = document.getElementById('urlMsg');
+const statusEl = document.getElementById('status');
+
+let checkTimer=null, lastChecked="", lastOkBase=null, isChecking=false;
+
+function setHelp(state,msg){ urlHelp.classList.remove('ok','bad','wait'); if(state) urlHelp.classList.add(state); urlMsg.textContent=msg; }
+function setStatus(msg,type){ statusEl.textContent=msg||""; statusEl.className="status"+(msg?(" show "+(type||"")):""); }
+function normalizeUrl(raw){
+  raw=(raw||"").trim(); if(!raw) return null;
+  if(!raw.includes("://")) raw="https://"+raw;
+  try{ const u=new URL(raw); if(!u.hostname) return null; if(u.protocol!=="http:"&&u.protocol!=="https:") return null; return u.protocol+"//"+u.host; }catch(e){ return null; }
+}
+function humanizeCheck(res,data){
+  if(res.ok&&data&&data.ok) return {state:"ok",msg:"✅ Store supported — you can continue to checkout."};
+  const s=res.status, r=(data&&(data.reason||data.detail))?String(data.reason||data.detail):"";
+  if(s===403) return {state:"bad",msg:"This store blocks public catalog access. Try another store."};
+  if(s===404) return {state:"bad",msg:"We couldn't access this store's public product catalog."};
+  if(s===429) return {state:"bad",msg:"This store is rate-limiting requests. Try again in a minute."};
+  if(r.toLowerCase().includes("not shopify")) return {state:"bad",msg:"This doesn't look like a Shopify store or it's blocking access."};
+  return {state:"bad",msg:"We can't analyze this store right now. Try another Shopify store."};
+}
+async function checkStoreNow(){
+  const raw=(storeUrl.value||"").trim(), base=normalizeUrl(raw);
+  lastOkBase=null;
+  if(!base){ btn.disabled=true; setHelp("bad","Enter a valid store link. Example: brand.com"); return; }
+  if(isChecking) return;
+  isChecking=true; btn.disabled=true; spinner.style.display="block";
+  setHelp("wait","Checking this store…"); setStatus("","");
+  try{
+    const res=await fetch(`/check_store?store_url=${encodeURIComponent(base)}`);
+    const data=await res.json().catch(()=>({}));
+    const ui=humanizeCheck(res,data); setHelp(ui.state,ui.msg);
+    if(res.ok&&data&&data.ok){ lastOkBase=data.base_url||base; lastChecked=base; btn.disabled=false; }
+    else{ lastChecked=base; btn.disabled=true; }
+  }catch(err){ setHelp("bad","Couldn't reach this store. Please try again."); btn.disabled=true; }
+  finally{ isChecking=false; spinner.style.display="none"; }
+}
+function scheduleCheck(){
+  const raw=(storeUrl.value||"").trim(), base=normalizeUrl(raw);
+  if(!base){ lastChecked=""; lastOkBase=null; btn.disabled=true; setHelp(null,"Paste any Shopify store URL to check compatibility."); return; }
+  if(base===lastChecked&&lastOkBase){ btn.disabled=false; setHelp("ok","✅ Store supported — you can continue to checkout."); return; }
+  if(checkTimer) clearTimeout(checkTimer);
+  checkTimer=setTimeout(checkStoreNow,650);
+}
+storeUrl.addEventListener("input",scheduleCheck);
+storeUrl.addEventListener("paste",()=>setTimeout(scheduleCheck,0));
+btn.disabled=true;
+setHelp(null,"Paste any Shopify store URL to check compatibility.");
+
+form.addEventListener("submit",async(e)=>{
+  e.preventDefault();
+  const raw=(storeUrl.value||"").trim(), base=normalizeUrl(raw);
+  if(!base){ btn.disabled=true; setHelp("bad","Please enter a valid store link before continuing."); return; }
+  if(!lastOkBase||lastChecked!==base){ await checkStoreNow(); if(!lastOkBase) return; }
+  try{
+    btn.disabled=true; spinner.style.display="block"; setStatus("Starting checkout…","info");
+    const fd=new FormData(); fd.append("store_url",lastOkBase);
+    const res=await fetch("/buy",{method:"POST",body:fd});
+    if(!res.ok){
+      let detail="Could not start checkout.";
+      try{ const j=await res.json(); if(j&&(j.detail||j.error)) detail=j.detail||j.error; }catch(_){}
+      setStatus(detail,"error"); btn.disabled=false; return;
     }
+    const j=await res.json().catch(()=>({}));
+    if(j&&j.url){ window.location.href=j.url; return; }
+    setStatus("Checkout didn't return a redirect link.","error"); btn.disabled=false;
+  }catch(err){ setStatus("Network error. Please try again.","error"); btn.disabled=false; }
+  finally{ spinner.style.display="none"; }
+});
+</script>
 
-    function setStatus(msg, type){
-      statusEl.textContent = msg || "";
-      statusEl.className = "status" + (msg ? (" show " + (type || "")) : "");
-    }
-
-    function normalizeUrl(raw){
-      raw = (raw || "").trim();
-      if(!raw) return null;
-
-      if(!raw.includes("://")) raw = "https://" + raw;
-
-      try{
-        const u = new URL(raw);
-        if(!u.hostname) return null;
-        if(u.protocol !== "http:" && u.protocol !== "https:") return null;
-
-        return u.protocol + "//" + u.host;
-      }catch(e){
-        return null;
-      }
-    }
-
-    function humanizeCheck(res, data){
-      if(res.ok && data && data.ok){
-        return {
-          state: "ok",
-          msg: "Store supported — you can continue to checkout."
-        };
-      }
-
-      const status = res.status;
-      const reason = (data && (data.reason || data.detail)) ? String(data.reason || data.detail) : "";
-
-      if(status === 403){
-        return { state: "bad", msg: "This store blocks public catalog access, so we can’t analyze it. Try another store." };
-      }
-
-      if(status === 404){
-        return { state: "bad", msg: "We couldn’t access this store’s public product catalog. It may be hidden or unsupported." };
-      }
-
-      if(status === 429){
-        return { state: "bad", msg: "This store is rate-limiting requests right now. Please try again in a minute." };
-      }
-
-      if(reason.toLowerCase().includes("network")){
-        return { state: "bad", msg: "We couldn’t reach this store right now. Double-check the link and try again." };
-      }
-
-      if(reason.toLowerCase().includes("did not return json") || reason.toLowerCase().includes("not shopify")){
-        return { state: "bad", msg: "This store doesn’t look like a supported Shopify store or it’s blocking access." };
-      }
-
-      return { state: "bad", msg: "We can’t analyze this store right now. Try another Shopify store." };
-    }
-
-    async function checkStoreNow(){
-      const raw = (storeUrl.value || "").trim();
-      const base = normalizeUrl(raw);
-
-      lastOkBase = null;
-
-      if(!base){
-        btn.disabled = true;
-        setHelp("bad", "Enter a valid store link. Example: brand.com");
-        return;
-      }
-
-      if(isChecking) return;
-      isChecking = true;
-      btn.disabled = true;
-      setHelp("wait", "Checking this store…");
-      setStatus("", "");
-
-      try{
-        const res = await fetch(`/check_store?store_url=${encodeURIComponent(base)}`);
-        const data = await res.json().catch(()=> ({}));
-
-        const ui = humanizeCheck(res, data);
-        setHelp(ui.state, ui.msg);
-
-        if(res.ok && data && data.ok){
-          lastOkBase = data.base_url || base;
-          lastChecked = base;
-          btn.disabled = false;
-        }else{
-          lastChecked = base;
-          btn.disabled = true;
-        }
-      }catch(err){
-        console.error(err);
-        setHelp("bad", "We couldn’t reach this store right now. Please try again.");
-        btn.disabled = true;
-      }finally{
-        isChecking = false;
-      }
-    }
-
-    function scheduleCheck(){
-      const raw = (storeUrl.value || "").trim();
-      const base = normalizeUrl(raw);
-
-      if(!base){
-        lastChecked = "";
-        lastOkBase = null;
-        btn.disabled = true;
-        setHelp(null, "Paste a Shopify store link to check if it’s supported.");
-        return;
-      }
-
-      if(base === lastChecked && lastOkBase){
-        btn.disabled = false;
-        setHelp("ok", "✅ Store supported — you can continue to checkout.");
-        return;
-      }
-
-      if(checkTimer) clearTimeout(checkTimer);
-      checkTimer = setTimeout(checkStoreNow, 650);
-    }
-
-    storeUrl.addEventListener("input", scheduleCheck);
-    storeUrl.addEventListener("paste", () => setTimeout(scheduleCheck, 0));
-
-    btn.disabled = true;
-    setHelp(null, "Paste a Shopify store link to check if it’s supported.");
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const raw = (storeUrl.value || "").trim();
-      const base = normalizeUrl(raw);
-
-      if(!base){
-        btn.disabled = true;
-        setHelp("bad", "Please enter a valid store link before continuing.");
-        return;
-      }
-
-      if(!lastOkBase || lastChecked !== base){
-        await checkStoreNow();
-        if(!lastOkBase) return;
-      }
-
-      try{
-        btn.disabled = true;
-        spinner.style.display = "inline-block";
-        setStatus("Starting checkout…", "info");
-
-        const fd = new FormData();
-        fd.append("store_url", lastOkBase);
-
-        const res = await fetch("/buy", { method: "POST", body: fd });
-
-        if(!res.ok){
-          let detail = "Could not start checkout.";
-          try{
-            const j = await res.json();
-            if(j && (j.detail || j.error)) detail = j.detail || j.error;
-          }catch(_){}
-
-          setStatus(detail, "error");
-          btn.disabled = false;
-          return;
-        }
-
-        const j = await res.json().catch(()=> ({}));
-
-        if(j && j.url){
-          window.location.href = j.url;
-          return;
-        }
-
-        setStatus("Checkout didn’t return a redirect link.", "error");
-        btn.disabled = false;
-      }catch(err){
-        console.error(err);
-        setStatus("Network error starting checkout. Please try again.", "error");
-        btn.disabled = false;
-      }finally{
-        spinner.style.display = "none";
-      }
-    });
-  </script>
 </body>
 </html>
