@@ -45,455 +45,590 @@
   </script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>StoreScout — Shopify Competitor Analysis Reports for $9</title>
-<meta name="description" content="See any Shopify store's pricing, discounts, and product strategy in seconds. Get a 5-page competitor intelligence report for a one-time $9 — no subscription, instant PDF."/>
-<meta property="og:title" content="StoreScout — Shopify Competitor Analysis Reports for $9"/>
-<meta property="og:description" content="See any Shopify store's pricing, discounts, and product strategy in seconds. Get a 5-page competitor intelligence report for a one-time $9 — no subscription, instant PDF."/>
+<title>StoreScout — Decode Any Shopify Competitor for $9</title>
+<meta name="description" content="Paste any Shopify store URL. Get a 5-page competitor intelligence PDF with pricing, discounts, launch velocity and positioning — in 30 seconds, for a one-time $9."/>
+<meta property="og:title" content="StoreScout — Decode Any Shopify Competitor for $9"/>
+<meta property="og:description" content="Paste any Shopify store URL. Get a 5-page competitor intelligence PDF with pricing, discounts, launch velocity and positioning — in 30 seconds, for a one-time $9."/>
 <meta property="og:type" content="website"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"></noscript>
 <style>
-/* ── TOKENS ── */
+/* ─────────────────────────────────────────────
+   TOKENS
+   ───────────────────────────────────────────── */
 :root{
   --bg:       #060d18;
   --bg2:      #0a1628;
   --bg3:      #0e1d35;
+  --bg-card:  rgba(255,255,255,.045);
   --border:   rgba(255,255,255,.09);
+  --line:     rgba(255,255,255,.08);
   --text:     #eef3fa;
   --muted:    #7d92aa;
   --muted2:   #566a80;
-  /* Blues — match logo exactly */
-  --blue:     #1d4ed8;   /* logo "Scout" — deep, primary */
-  --blue2:    #3b82f6;   /* logo "Store" — mid, CTA */
-  --blue3:    #60a5fa;   /* light accent, data labels   */
-  /* Green — accent/highlight only */
+  --blue:     #1d4ed8;
+  --blue2:    #3b82f6;
+  --blue3:    #60a5fa;
   --green:    #a3f000;
   --green2:   #74ff54;
-  --green-dim: rgba(163,240,0,.12);
-  --line:     rgba(255,255,255,.08);
-  --nav-h:    68px;
+  --green-glow: rgba(163,240,0,.35);
+  --nav-h:    64px;
   --font:     'Plus Jakarta Sans', sans-serif;
+  --mono:     'JetBrains Mono', monospace;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-bottom:0}
+body.has-sticky{padding-bottom:84px}
 a{color:inherit;text-decoration:none}
 img{display:block;max-width:100%}
+button{font-family:inherit}
 
 body::before{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
-    radial-gradient(ellipse 60% 50% at 80% -5%,  rgba(59,130,246,.20), transparent),
-    radial-gradient(ellipse 35% 35% at 8%  18%,  rgba(163,240,0,.08),  transparent),
-    radial-gradient(ellipse 45% 55% at 50% 105%, rgba(29,78,216,.10),  transparent);
+    radial-gradient(ellipse 55% 45% at 85% -5%,  rgba(59,130,246,.22), transparent),
+    radial-gradient(ellipse 30% 30% at 5%  20%,  rgba(163,240,0,.10),  transparent),
+    radial-gradient(ellipse 45% 55% at 50% 110%, rgba(29,78,216,.10),  transparent);
 }
 body>*{position:relative;z-index:1}
 
 .wrap{width:min(1160px,calc(100% - 40px));margin:0 auto}
 
-/* ── NAV ── */
+/* ─────────────────────────────────────────────
+   NAV
+   ───────────────────────────────────────────── */
 .nav{
   position:sticky;top:0;z-index:200;height:var(--nav-h);
   display:flex;align-items:center;
-  background:rgba(6,13,24,.88);backdrop-filter:blur(18px) saturate(1.4);
+  background:rgba(6,13,24,.85);backdrop-filter:blur(18px) saturate(1.4);
   border-bottom:1px solid var(--line);transition:box-shadow .3s;
 }
 .nav.scrolled{box-shadow:0 4px 40px rgba(0,0,0,.5)}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;width:min(1160px,calc(100% - 40px));margin:0 auto}
-
 .logo{display:flex;align-items:center;gap:10px}
-.logo-text{font-size:1.45rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+.logo-text{font-size:1.4rem;font-weight:800;letter-spacing:-.03em;line-height:1}
 .logo-text .store{color:#3b82f6}
 .logo-text .scout{color:#1d4ed8}
-
 .nav-links{display:flex;gap:4px;align-items:center}
 .nav-links a{padding:8px 14px;border-radius:10px;color:var(--muted);font-size:.875rem;font-weight:500;transition:color .2s,background .2s}
 .nav-links a:hover{color:var(--text);background:rgba(255,255,255,.06)}
-.nav-cta{background:var(--blue2) !important;color:#fff !important;font-weight:700 !important;border-radius:10px !important;padding:9px 18px !important}
-.nav-cta:hover{background:var(--blue) !important;opacity:1}
+.nav-cta{background:var(--green) !important;color:#0a1628 !important;font-weight:800 !important;border-radius:10px !important;padding:9px 18px !important;box-shadow:0 0 24px var(--green-glow)}
+.nav-cta:hover{background:var(--green2) !important;opacity:1}
 .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:38px;height:38px;padding:8px;border-radius:9px;background:rgba(255,255,255,.07);border:1px solid var(--line);cursor:pointer;flex-shrink:0}
 .hamburger span{display:block;height:2px;border-radius:2px;background:var(--text);transition:transform .25s,opacity .25s}
 .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .hamburger.open span:nth-child(2){opacity:0}
 .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-
 .mobile-menu{display:none;flex-direction:column;position:fixed;top:var(--nav-h);left:0;right:0;background:rgba(6,13,24,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--line);padding:14px 20px 22px;gap:4px;z-index:199;transform:translateY(-110%);transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:0 16px 48px rgba(0,0,0,.5)}
 .mobile-menu.open{transform:translateY(0)}
 .mobile-menu a{padding:13px 16px;border-radius:12px;color:var(--text);font-size:1rem;font-weight:600;border-bottom:1px solid var(--line);transition:background .15s}
 .mobile-menu a:last-child{border-bottom:none}
-.mob-cta{margin-top:8px !important;background:var(--blue2) !important;color:#fff !important;text-align:center;border-radius:12px !important;border-bottom:none !important}
+.mob-cta{margin-top:8px !important;background:var(--green) !important;color:#0a1628 !important;text-align:center;border-radius:12px !important;border-bottom:none !important;font-weight:800 !important}
 
-/* ── BENEFIT PREVIEW (hero) ── */
-.benefit-preview{
-  margin-bottom:20px;
-  padding:16px 20px;
-  border-radius:16px;
-  background:linear-gradient(135deg,rgba(59,130,246,.06),rgba(163,240,0,.035));
-  border:1px solid rgba(59,130,246,.18);
-  width:100%;
-}
-.bp-label{
-  display:flex;align-items:center;gap:8px;
-  font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--blue3);margin-bottom:12px;
-}
-.bp-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
-.bp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.bp-stat b{display:block;font-size:1.35rem;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1;margin-bottom:4px}
-.bp-stat span{font-size:.72rem;color:var(--muted);line-height:1.35;display:block;font-weight:500}
-
-/* ── SECONDARY CTA (under form) ── */
-.cta-secondary-row{margin-top:12px;display:flex;justify-content:center}
-.cta-secondary{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:11px 18px;border-radius:11px;
-  background:rgba(255,255,255,.04);
-  border:1px solid var(--border);
-  color:var(--text);
-  font-family:var(--font);font-size:.9rem;font-weight:600;
-  transition:background .18s,border-color .18s,transform .18s;
-}
-.cta-secondary:hover{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.25);color:var(--blue3);transform:translateY(-1px)}
-.cta-secondary svg{flex-shrink:0;transition:transform .2s}
-.cta-secondary:hover svg{transform:translateY(2px)}
-
-/* ── BUTTONS ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;font-family:var(--font);font-weight:700;border-radius:14px;transition:transform .18s,box-shadow .18s,opacity .18s;white-space:nowrap}
+/* ─────────────────────────────────────────────
+   BUTTONS
+   ───────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;font-family:var(--font);font-weight:700;border-radius:14px;transition:transform .18s,box-shadow .18s,opacity .18s,background .18s;white-space:nowrap}
 .btn-blue{background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;box-shadow:0 0 40px rgba(59,130,246,.30),inset 0 1px 0 rgba(255,255,255,.18);padding:17px 32px;font-size:1.05rem}
 .btn-blue:hover{transform:translateY(-2px);box-shadow:0 0 56px rgba(59,130,246,.45),inset 0 1px 0 rgba(255,255,255,.18)}
+.btn-green{background:var(--green);color:#0a1628;box-shadow:0 0 36px var(--green-glow),inset 0 1px 0 rgba(255,255,255,.4);padding:17px 32px;font-size:1.05rem;font-weight:800;letter-spacing:-.01em}
+.btn-green:hover{transform:translateY(-2px);background:var(--green2);box-shadow:0 0 56px var(--green-glow),inset 0 1px 0 rgba(255,255,255,.4)}
 .btn-ghost{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);padding:15px 24px;font-size:.97rem}
 .btn-ghost:hover{background:rgba(255,255,255,.10)}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none !important;box-shadow:none !important}
 
-/* ── HERO ── */
-.hero{padding:72px 0 64px;display:flex;align-items:center;justify-content:center;text-align:center}
-.hero-inner{display:flex;flex-direction:column;align-items:center;width:100%;max-width:760px;margin:0 auto}
+/* ─────────────────────────────────────────────
+   HERO — minimal, curiosity-first
+   ───────────────────────────────────────────── */
+.hero{padding:64px 0 28px;text-align:center;position:relative}
+.hero-inner{display:flex;flex-direction:column;align-items:center;width:100%;max-width:720px;margin:0 auto}
 
-.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border-radius:999px;border:1px solid rgba(163,240,0,.28);background:rgba(163,240,0,.07);color:#cfffaa;font-size:.77rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px}
-.eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.78)}}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;border:1px solid rgba(163,240,0,.32);background:rgba(163,240,0,.08);color:#d4ffaa;font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:24px}
+.eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.75)}}
 
-h1{font-size:clamp(2.8rem,5.5vw,5.2rem);font-weight:800;line-height:.93;letter-spacing:-.045em;margin-bottom:20px;max-width:700px}
-h1 em{font-style:normal;color:var(--green)}
-.hero-sub{font-size:clamp(1rem,1.5vw,1.15rem);color:#a0b3c8;line-height:1.65;margin-bottom:24px;max-width:560px}
+h1{font-size:clamp(2.6rem,5.4vw,4.6rem);font-weight:800;line-height:.95;letter-spacing:-.045em;margin-bottom:18px;max-width:780px}
+h1 em{font-style:normal;color:var(--green);text-shadow:0 0 24px rgba(163,240,0,.35)}
 
-.price-pill{display:inline-flex;align-items:center;gap:10px;margin-bottom:28px;padding:9px 16px;border-radius:12px;background:rgba(163,240,0,.08);border:1px solid rgba(163,240,0,.25);font-size:.9rem;font-weight:600;color:#d4ffaa}
-.price-pill strong{color:#fff;font-size:1rem}
+.hero-tagline{font-size:clamp(.98rem,1.4vw,1.1rem);color:#9ab0c8;line-height:1.55;margin-bottom:28px;max-width:480px;font-weight:500}
 
-/* BENEFIT PREVIEW */
-.benefit-preview{
-  width:100%;margin-bottom:24px;
-  padding:16px 24px;border-radius:16px;
-  background:linear-gradient(135deg,rgba(59,130,246,.06),rgba(163,240,0,.03));
-  border:1px solid rgba(59,130,246,.18);
-}
-.bp-label{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--blue3);margin-bottom:14px;
-}
-.bp-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
-.bp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-radius:12px;overflow:hidden}
-.bp-stat{padding:14px 10px;text-align:center;border-right:1px solid rgba(255,255,255,.07)}
-.bp-stat:last-child{border-right:none}
-.bp-stat b{display:block;font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1;margin-bottom:5px}
-.bp-stat span{font-size:.72rem;color:var(--muted);line-height:1.3;display:block;font-weight:500}
-
-/* FORM */
-.hero-form{width:100%;padding:20px;border-radius:20px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.1);margin-bottom:20px}
-.input-row{display:flex;gap:10px}
-.input-row input{flex:1;height:54px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);color:#fff;padding:0 18px;font-family:var(--font);font-size:.97rem;outline:none;transition:border-color .2s;min-width:0;text-align:left}
-.input-row input:focus{border-color:rgba(59,130,246,.5)}
+/* Hero form */
+.hero-form{width:100%;max-width:560px;padding:18px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(8px);position:relative}
+.hero-form::before{content:"";position:absolute;inset:-1px;border-radius:19px;padding:1px;background:linear-gradient(135deg,rgba(59,130,246,.4),transparent 40%,rgba(163,240,0,.3));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.6}
+.input-row{display:flex;gap:10px;position:relative}
+.input-row input{flex:1;height:56px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);color:#fff;padding:0 18px;font-family:var(--font);font-size:1rem;outline:none;transition:border-color .2s,box-shadow .2s;min-width:0;text-align:left;font-weight:500}
+.input-row input:focus{border-color:rgba(59,130,246,.55);box-shadow:0 0 0 4px rgba(59,130,246,.12)}
 .input-row input::placeholder{color:#4d6070}
-.input-row .btn-blue{height:54px;padding:0 24px;font-size:.95rem;border-radius:12px;flex-shrink:0}
-.form-hint{margin-top:11px;font-size:.78rem;color:var(--muted2);display:flex;align-items:center;justify-content:center;gap:6px;text-align:center}
-.form-hint svg{flex-shrink:0;opacity:.6}
+.input-row .btn-green{height:56px;padding:0 22px;font-size:.97rem;border-radius:12px;flex-shrink:0}
+.form-microline{margin-top:11px;font-size:.76rem;color:var(--muted2);display:flex;align-items:center;justify-content:center;gap:6px;text-align:center}
+.form-microline svg{flex-shrink:0;opacity:.65}
 
 /* URL help / status */
-.url-help{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);border-radius:12px;font-size:12.5px;color:var(--muted)}
+.url-help{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);border-radius:11px;font-size:12.5px;color:var(--muted);text-align:left}
 .url-help .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.3);flex:0 0 9px}
-.url-help.ok{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.07);color:rgba(134,239,172,.95)}
-.url-help.ok .dot{background:rgba(34,197,94,.95)}
+.url-help.ok{border-color:rgba(163,240,0,.4);background:rgba(163,240,0,.07);color:#d4ffaa}
+.url-help.ok .dot{background:var(--green);box-shadow:0 0 8px var(--green)}
 .url-help.bad{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.07);color:rgba(254,202,202,.95)}
 .url-help.bad .dot{background:rgba(239,68,68,.95)}
 .url-help.wait{border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.07);color:rgba(191,219,254,.95)}
 .url-help.wait .dot{background:rgba(59,130,246,.95)}
-
 .status{margin-top:12px;font-size:12.5px;display:none;padding:11px 13px;border-radius:11px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);text-align:left}
 .status.show{display:block}
 .status.info{border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.08);color:rgba(191,219,254,.95)}
-.status.success{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.08);color:rgba(134,239,172,.95)}
+.status.success{border-color:rgba(163,240,0,.4);background:rgba(163,240,0,.08);color:#d4ffaa}
 .status.error{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08);color:rgba(254,202,202,.95)}
-
-.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.18);border-top-color:var(--blue2);border-radius:50%;animation:spin .75s linear infinite;display:none;margin:10px auto 0}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.18);border-top-color:var(--green);border-radius:50%;animation:spin .75s linear infinite;display:none;margin:10px auto 0}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.trust-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:9px;background:rgba(255,255,255,.045);border:1px solid var(--line);color:var(--muted);font-size:.8rem;font-weight:500}
+.hero-trust{margin-top:18px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;color:var(--muted2);font-size:.78rem;font-weight:500}
+.hero-trust span{display:inline-flex;align-items:center;gap:5px}
+.hero-trust .dotted{display:inline-block;width:3px;height:3px;border-radius:50%;background:var(--muted2)}
 
-/* Secondary CTA */
-.cta-secondary-row{margin-top:12px;display:flex;justify-content:center}
-.cta-secondary{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:.9rem;font-weight:600;transition:background .18s,border-color .18s,transform .18s}
-.cta-secondary:hover{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.25);color:var(--blue3);transform:translateY(-1px)}
-.cta-secondary svg{flex-shrink:0;transition:transform .2s}
-.cta-secondary:hover svg{transform:translateY(2px)}
+/* Scroll cue */
+.scroll-cue{margin-top:42px;display:inline-flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font-size:.78rem;font-weight:600;letter-spacing:.04em;cursor:pointer;background:none;border:none;animation:floatY 2.4s ease-in-out infinite}
+.scroll-cue:hover{color:var(--green)}
+.scroll-cue-arrow{width:24px;height:24px;border-radius:50%;border:1px solid var(--border);display:grid;place-items:center;transition:border-color .2s,background .2s}
+.scroll-cue:hover .scroll-cue-arrow{border-color:var(--green);background:rgba(163,240,0,.08)}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 
-/* HERO REPORT CARD — now removed from hero, no longer needed here */
-.hero-right{display:none}
-.report-wrap{display:none}
+/* ─────────────────────────────────────────────
+   DECRYPT SECTION — the interactive hook
+   ───────────────────────────────────────────── */
+.decrypt-section{padding:36px 0 24px}
+.decrypt-card{
+  max-width:760px;margin:0 auto;
+  border-radius:24px;
+  background:linear-gradient(180deg,rgba(20,32,56,.85),rgba(12,22,42,.85));
+  border:1px solid rgba(59,130,246,.22);
+  padding:0;overflow:hidden;position:relative;
+  box-shadow:0 30px 80px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);
+}
+.decrypt-head{padding:20px 24px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.decrypt-head-left{display:flex;align-items:center;gap:10px;min-width:0}
+.decrypt-flag{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:7px;background:rgba(163,240,0,.1);border:1px solid rgba(163,240,0,.3);font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#d4ffaa;flex-shrink:0}
+.decrypt-flag-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 1.4s infinite}
+.decrypt-url{font-family:var(--mono);font-size:.82rem;color:var(--blue3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.decrypt-head-right{font-size:.66rem;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0}
 
-.fbadge{position:absolute;z-index:10;border-radius:16px;padding:13px 16px;text-align:center;animation:floatY 4s ease-in-out infinite}
-.fbadge.tl{top:-16px;left:-22px;background:var(--bg2);border:1px solid var(--green);box-shadow:0 0 28px rgba(163,240,0,.22)}
-.fbadge.tl b{display:block;font-size:1.8rem;font-weight:800;color:var(--green);line-height:1}
-.fbadge.tl span{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
-.fbadge.br{bottom:20px;right:-24px;background:var(--bg2);border:1px solid rgba(163,240,0,.45);box-shadow:0 0 24px rgba(163,240,0,.14);animation-delay:-2s}
-.fbadge.br .mp{display:flex;gap:14px}
-.fbadge.br .mp-item{text-align:center}
-.fbadge.br .mp-item b{display:block;font-size:1.25rem;font-weight:800;color:var(--green);line-height:1}
-.fbadge.br .mp-item span{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.decrypt-body{padding:24px;position:relative}
+.decrypt-title{font-size:.74rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;text-align:center}
 
-.report-card{border-radius:22px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.09);background:#fff;color:#111827;transform:perspective(1100px) rotateY(-5deg) rotateX(2.5deg);transition:transform .4s ease}
-.report-card:hover{transform:perspective(1100px) rotateY(-1.5deg) rotateX(1deg)}
+.decrypt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;position:relative}
+.dc-stat{
+  padding:18px 14px;text-align:center;
+  border-radius:14px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  position:relative;overflow:hidden;
+  cursor:pointer;
+  transition:transform .25s,border-color .25s,background .25s;
+}
+.dc-stat:hover{transform:translateY(-3px);border-color:rgba(163,240,0,.35);background:rgba(163,240,0,.04)}
+.dc-stat b{
+  display:block;font-size:1.6rem;font-weight:800;
+  color:#fff;letter-spacing:-.04em;line-height:1;margin-bottom:6px;
+  font-family:var(--mono);
+  filter:blur(8px);
+  transition:filter .55s cubic-bezier(.2,.8,.2,1),color .4s;
+  user-select:none;
+}
+.dc-stat span{font-size:.7rem;color:var(--muted);line-height:1.3;display:block;font-weight:600}
+.dc-stat::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(110deg,transparent 30%,rgba(163,240,0,.18) 50%,transparent 70%);
+  opacity:0;transition:opacity .3s;
+  pointer-events:none;
+}
+.dc-stat:hover::before{opacity:1}
+.decrypt-card.revealed .dc-stat b{filter:blur(0);color:var(--green)}
+.decrypt-card.revealed .dc-stat:nth-child(2) b{transition-delay:.08s}
+.decrypt-card.revealed .dc-stat:nth-child(3) b{transition-delay:.16s}
+.decrypt-card.revealed .dc-stat:nth-child(4) b{transition-delay:.24s}
 
-.rc-head{background:#1e2c42;padding:24px 26px 20px;color:#fff}
-.rc-top-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
-.rc-pill{font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);padding:5px 11px;border-radius:999px;color:rgba(255,255,255,.8)}
-.rc-ts{font-size:.64rem;color:rgba(255,255,255,.4);text-align:right;line-height:1.4}
-.rc-url{font-size:.85rem;font-weight:700;color:rgba(255,255,255,.9);margin-bottom:14px}
-.rc-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
-.rc-m{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.13);border-radius:9px;padding:9px 9px 8px}
-.rc-m small{display:block;font-size:.52rem;font-weight:700;letter-spacing:.07em;color:rgba(255,255,255,.5);text-transform:uppercase;margin-bottom:4px}
-.rc-m strong{font-size:1.05rem;font-weight:800;color:#fff;display:block;letter-spacing:-.03em}
-.rc-m em{font-style:normal;font-size:.54rem;color:rgba(255,255,255,.4);display:block;margin-top:2px}
+.decrypt-overlay{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  background:rgba(10,22,42,.65);
+  backdrop-filter:blur(2px);
+  z-index:3;
+  cursor:pointer;
+  transition:opacity .5s,visibility .5s;
+}
+.decrypt-card.revealed .decrypt-overlay{opacity:0;visibility:hidden;pointer-events:none}
+.decrypt-tap-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:14px 22px;border-radius:14px;
+  background:var(--green);color:#0a1628;
+  font-size:.95rem;font-weight:800;letter-spacing:-.01em;
+  box-shadow:0 0 32px var(--green-glow),0 0 0 0 var(--green-glow);
+  animation:tapPulse 2s infinite;
+  border:none;cursor:pointer;
+  transition:transform .15s;
+}
+.decrypt-tap-btn:hover{transform:translateY(-2px)}
+.decrypt-tap-btn:active{transform:translateY(0)}
+@keyframes tapPulse{
+  0%,100%{box-shadow:0 0 32px var(--green-glow),0 0 0 0 var(--green-glow)}
+  50%{box-shadow:0 0 36px var(--green-glow),0 0 0 18px rgba(163,240,0,0)}
+}
+.decrypt-overlay-hint{font-size:.78rem;color:var(--muted);font-weight:500;letter-spacing:.02em}
 
-.rc-body{background:#fff;padding:20px 24px 22px}
-.rc-head2{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}
-.rc-head2 h4{font-size:.92rem;font-weight:700;color:#111827;letter-spacing:-.02em}
-.rc-head2 span{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6b7280;background:#f3f4f6;padding:3px 9px;border-radius:999px}
-.rc-pos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.rc-pos-item{border:1px solid #e5e7eb;border-left:4px solid #3b82f6;border-radius:9px;padding:11px 12px}
-.rc-pos-item small{font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;display:block;margin-bottom:4px}
-.rc-pos-item strong{font-size:1.1rem;font-weight:800;color:#111827;letter-spacing:-.03em;display:block}
-.rc-pos-item p{margin:4px 0 0;font-size:.63rem;color:#6b7280;line-height:1.35}
+.decrypt-foot{
+  padding:18px 24px 22px;border-top:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  background:rgba(0,0,0,.15);
+}
+.decrypt-foot-text{font-size:.86rem;color:var(--muted);line-height:1.45;flex:1;min-width:200px}
+.decrypt-foot-text b{color:var(--text);font-weight:700}
+.decrypt-foot a{flex-shrink:0}
 
-/* ── SOCIAL PROOF BAR ── */
-.proof-bar{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,255,255,.02);padding:0}
-.proof-inner{display:grid;grid-template-columns:repeat(4,1fr)}
-.proof-item{padding:28px 0;text-align:center;border-right:1px solid var(--line);position:relative}
-.proof-item:last-child{border-right:none}
-.proof-num{font-size:2.4rem;font-weight:800;letter-spacing:-.04em;color:#fff;line-height:1;margin-bottom:5px}
-.proof-num span{color:var(--green)}
-.proof-lbl{font-size:.82rem;color:var(--muted);font-weight:500}
-
-/* ── SECTION COMMONS ── */
-.section{padding:88px 0}
-.sec-label{display:inline-flex;align-items:center;gap:8px;font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue3);margin-bottom:14px}
+/* ─────────────────────────────────────────────
+   INTERACTIVE REPORT INSPECTOR
+   ───────────────────────────────────────────── */
+.inspector-section{padding:56px 0 72px}
+.inspector-head{text-align:center;margin-bottom:32px}
+.sec-label{display:inline-flex;align-items:center;gap:8px;font-size:.74rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--blue3);margin-bottom:14px}
 .sec-label::before{content:"";width:18px;height:2px;background:var(--blue3);border-radius:2px}
-h2{font-size:clamp(2rem,3.8vw,3.3rem);font-weight:800;letter-spacing:-.045em;line-height:1.0;color:var(--text)}
-.sec-sub{color:var(--muted);font-size:1.03rem;line-height:1.65;max-width:540px;margin:12px auto 0}
-.center{text-align:center}
+h2{font-size:clamp(1.95rem,3.6vw,3.1rem);font-weight:800;letter-spacing:-.04em;line-height:1.04;color:var(--text)}
+.sec-sub{color:var(--muted);font-size:1rem;line-height:1.6;max-width:560px;margin:14px auto 0}
 
-/* ── HOW IT WORKS ── */
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);border-radius:24px;overflow:hidden;margin-top:52px}
-.step{background:var(--bg2);padding:38px 32px;transition:background .25s}
-.step:hover{background:var(--bg3)}
-.step-n{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-weight:800;font-size:1.05rem;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);color:var(--blue3);margin-bottom:20px}
-.step h3{font-size:1.12rem;font-weight:700;margin-bottom:9px;letter-spacing:-.02em}
-.step p{color:var(--muted);line-height:1.6;font-size:.92rem}
-.step-arr{display:none}
+.inspector-tabs{
+  display:flex;gap:6px;margin-bottom:18px;
+  padding:6px;border-radius:14px;
+  background:rgba(255,255,255,.035);border:1px solid var(--border);
+  overflow-x:auto;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.inspector-tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:1;min-width:max-content;
+  padding:11px 14px;border-radius:9px;
+  background:none;border:none;
+  color:var(--muted);font-size:.84rem;font-weight:600;
+  cursor:pointer;transition:background .18s,color .18s;
+  white-space:nowrap;display:inline-flex;align-items:center;gap:7px;justify-content:center;
+}
+.tab:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.tab.active{background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(59,130,246,.10));color:#fff;box-shadow:inset 0 0 0 1px rgba(59,130,246,.25)}
+.tab-num{font-family:var(--mono);font-size:.72rem;font-weight:700;opacity:.7}
 
-/* ── BEFORE / AFTER ── */
-.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:52px}
-.ba-card{border-radius:20px;padding:30px;border:1px solid var(--border)}
-.ba-card.before{background:rgba(239,68,68,.05);border-color:rgba(239,68,68,.18)}
-.ba-card.after{background:rgba(34,197,94,.05);border-color:rgba(34,197,94,.2)}
-.ba-label{display:flex;align-items:center;gap:10px;margin-bottom:18px}
-.ba-icon{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:.95rem;flex-shrink:0}
-.ba-icon.red{background:rgba(239,68,68,.15)}
-.ba-icon.grn{background:rgba(34,197,94,.15)}
-.ba-label strong{font-size:1rem;font-weight:700}
-.ba-label span{font-size:.8rem;color:var(--muted)}
-.ba-list{list-style:none;display:flex;flex-direction:column;gap:10px}
-.ba-list li{display:flex;align-items:flex-start;gap:10px;font-size:.9rem;line-height:1.5;color:#b0bece}
-.ba-list li::before{content:"";width:18px;height:18px;border-radius:5px;flex-shrink:0;display:grid;place-items:center;margin-top:1px}
-.ba-card.before .ba-list li::before{background:rgba(239,68,68,.15);content:"✕";font-size:.6rem;color:rgba(239,68,68,.9);display:flex;align-items:center;justify-content:center}
-.ba-card.after .ba-list li::before{background:rgba(34,197,94,.15);content:"✓";font-size:.65rem;color:rgba(34,197,94,.9);display:flex;align-items:center;justify-content:center}
+.inspector-stage{
+  position:relative;border-radius:22px;overflow:hidden;
+  box-shadow:0 32px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.07);
+  background:#fff;color:#111827;
+  cursor:zoom-in;
+  transition:transform .25s;
+}
+.inspector-stage:hover{transform:translateY(-2px)}
+.inspector-stage::after{
+  content:"⛶ Click to inspect";
+  position:absolute;top:14px;right:14px;z-index:5;
+  padding:7px 12px;border-radius:9px;
+  background:rgba(10,22,42,.85);color:#fff;
+  font-size:.7rem;font-weight:700;letter-spacing:.04em;
+  backdrop-filter:blur(8px);
+  pointer-events:none;
+  opacity:0;transition:opacity .25s;
+}
+.inspector-stage:hover::after{opacity:1}
 
-/* ── SAMPLE REPORT ── */
-.sample-wrap{margin-top:52px}
-.report-pages{display:flex;flex-direction:column;gap:20px}
+.rp-page{display:none}
+.rp-page.active{display:block;animation:rpFade .35s ease}
+@keyframes rpFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* report page cards */
-.rp{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4);color:#111827}
-.rp-head{background:#1e2c42;color:#fff;padding:26px 28px 22px}
-.rp-head-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
-.rp-pill{font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16);padding:5px 12px;border-radius:999px;color:rgba(255,255,255,.8)}
+/* Report page styling (unchanged from original report card look) */
+.rp-head{background:#1a2f4a;color:#fff;padding:24px 26px 20px}
+.rp-head-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:10px}
+.rp-pill{font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16);padding:5px 12px;border-radius:999px;color:rgba(255,255,255,.85)}
 .rp-gen{font-size:.63rem;color:rgba(255,255,255,.4);text-align:right;line-height:1.4}
-.rp-title{font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:-.03em}
-.rp-url{font-size:.82rem;color:rgba(255,255,255,.65);margin-bottom:16px}
-.rp-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.rp-metric{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:11px 10px}
+.rp-title{font-size:1.35rem;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:-.03em}
+.rp-url{font-size:.8rem;color:rgba(255,255,255,.65);margin-bottom:14px;font-family:var(--mono)}
+.rp-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.rp-metric{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:10px 9px}
 .rp-metric small{display:block;font-size:.55rem;font-weight:700;letter-spacing:.07em;color:rgba(255,255,255,.5);text-transform:uppercase;margin-bottom:5px}
-.rp-metric strong{font-size:1.25rem;font-weight:800;color:#fff;display:block;letter-spacing:-.04em}
-.rp-metric em{font-style:normal;font-size:.58rem;color:rgba(255,255,255,.4);display:block;margin-top:3px}
-
-.rp-body{padding:26px 28px 28px}
-.rp-section{margin-bottom:24px}
+.rp-metric strong{font-size:1.12rem;font-weight:800;color:#fff;display:block;letter-spacing:-.03em}
+.rp-metric em{font-style:normal;font-size:.55rem;color:rgba(255,255,255,.4);display:block;margin-top:3px}
+.rp-body{padding:22px 26px 26px}
+.rp-section{margin-bottom:20px}
 .rp-section:last-child{margin-bottom:0}
-.rp-section-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:1px solid #e5e7eb;margin-bottom:16px}
-.rp-section-head h3{font-size:1.05rem;font-weight:700;color:#111827;letter-spacing:-.02em}
-.rp-section-head span{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6b7280;background:#f3f4f6;padding:4px 10px;border-radius:999px}
+.rp-section-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #e5e7eb;margin-bottom:14px}
+.rp-section-head h3{font-size:1rem;font-weight:700;color:#111827;letter-spacing:-.02em}
+.rp-section-head span{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6b7280;background:#f3f4f6;padding:4px 10px;border-radius:999px}
 .rp-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.rp-pos{border:1px solid #e5e7eb;border-left:4px solid #3b82f6;border-radius:10px;padding:13px 14px}
-.rp-pos small{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;display:block;margin-bottom:5px}
-.rp-pos strong{font-size:1.2rem;font-weight:800;color:#111827;letter-spacing:-.03em;display:block}
-.rp-pos p{margin:5px 0 0;font-size:.68rem;color:#6b7280;line-height:1.35}
-
-/* insights */
-.insight-box{background:#eff6ff;border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:16px 18px;margin-bottom:16px}
-.insight-box h4{font-size:.82rem;font-weight:700;color:var(--blue2);margin-bottom:10px}
-.insight-box ul{padding-left:16px;color:#374151;font-size:.82rem;line-height:1.8}
-
-/* pricing table */
-.price-table-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.price-table-head{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6b7280;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #e5e7eb}
-.price-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:.82rem;color:#6b7280}
+.rp-pos{border:1px solid #e5e7eb;border-left:4px solid #3b82f6;border-radius:10px;padding:12px 13px}
+.rp-pos small{font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;display:block;margin-bottom:5px}
+.rp-pos strong{font-size:1.1rem;font-weight:800;color:#111827;letter-spacing:-.03em;display:block}
+.rp-pos p{margin:5px 0 0;font-size:.66rem;color:#6b7280;line-height:1.35}
+.insight-box{background:#eff6ff;border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:14px 16px;margin-bottom:14px}
+.insight-box h4{font-size:.8rem;font-weight:700;color:var(--blue2);margin-bottom:9px}
+.insight-box ul{padding-left:16px;color:#374151;font-size:.8rem;line-height:1.75}
+.price-table-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.price-table-head{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6b7280;margin-bottom:9px;padding-bottom:7px;border-bottom:2px solid #e5e7eb}
+.price-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f3f4f6;font-size:.8rem;color:#6b7280}
 .price-row b{color:#111827;font-weight:700}
-
-/* launch table */
 .launch-table{width:100%;border-collapse:collapse}
-.launch-table th{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;padding:8px 0;border-bottom:2px solid #e5e7eb;text-align:left}
-.launch-table td{padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:.82rem;color:#374151}
+.launch-table th{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;padding:7px 0;border-bottom:2px solid #e5e7eb;text-align:left}
+.launch-table td{padding:7px 0;border-bottom:1px solid #f3f4f6;font-size:.8rem;color:#374151}
 .launch-table td b{color:#111827;font-weight:700}
-
-/* top products */
-.product-item{padding:10px 0;border-bottom:1px solid #f3f4f6;font-size:.82rem}
+.product-item{padding:9px 0;border-bottom:1px solid #f3f4f6;font-size:.8rem}
 .product-item:last-child{border-bottom:none}
 .product-name{color:#111827;font-weight:500;margin-bottom:2px;line-height:1.35}
 .product-price{color:#3b82f6;font-weight:700}
-
-/* data coverage */
-.coverage-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f3f4f6;font-size:.82rem;color:#4b5563}
+.coverage-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f3f4f6;font-size:.8rem;color:#4b5563}
 .coverage-item:last-child{border-bottom:none}
 .coverage-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0}
-.coverage-note{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 14px;font-size:.78rem;color:#92400e;line-height:1.5;margin-top:12px}
+.coverage-note{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:11px 13px;font-size:.76rem;color:#92400e;line-height:1.5;margin-top:11px}
 
-/* ── FEATURES ── */
-.features{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:52px}
-.feat{padding:32px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid var(--border);position:relative;overflow:hidden;transition:border-color .25s,background .25s}
-.feat::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue2),var(--blue3));opacity:0;transition:opacity .3s}
-.feat:hover::after{opacity:1}
-.feat:hover{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.07)}
-.feat-icon{width:44px;height:44px;border-radius:12px;background:rgba(59,130,246,.11);border:1px solid rgba(59,130,246,.22);display:grid;place-items:center;font-size:1.2rem;margin-bottom:18px}
-.feat h3{font-size:1.08rem;font-weight:700;margin-bottom:9px;letter-spacing:-.02em}
-.feat p{color:var(--muted);line-height:1.65;font-size:.9rem}
+.inspector-cta{margin-top:28px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;text-align:center}
+.inspector-cta-text{font-size:.92rem;color:var(--muted);font-weight:500}
+.inspector-cta-text b{color:var(--text);font-weight:700}
 
-/* ── FAQ ── */
-.faq-list{max-width:760px;margin:52px auto 0;display:flex;flex-direction:column;gap:3px}
-.faq-item{border-radius:14px;overflow:hidden;background:rgba(255,255,255,.045);border:1px solid var(--border)}
-.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;padding:18px 22px;background:none;border:none;color:var(--text);font-family:var(--font);font-size:.97rem;font-weight:600;cursor:pointer;text-align:left;gap:16px;transition:background .2s}
+/* Zoom modal */
+.zoom-modal{
+  position:fixed;inset:0;z-index:300;
+  background:rgba(2,6,14,.85);backdrop-filter:blur(8px);
+  display:none;align-items:flex-start;justify-content:center;
+  padding:32px 16px;overflow-y:auto;
+  opacity:0;transition:opacity .25s;
+}
+.zoom-modal.open{display:flex;opacity:1}
+.zoom-modal-inner{
+  max-width:900px;width:100%;margin:auto;
+  background:#fff;color:#111827;
+  border-radius:20px;overflow:hidden;
+  box-shadow:0 60px 120px rgba(0,0,0,.6);
+  position:relative;
+  animation:zoomIn .3s ease;
+}
+@keyframes zoomIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.zoom-close{
+  position:absolute;top:12px;right:12px;z-index:10;
+  width:38px;height:38px;border-radius:11px;
+  background:rgba(255,255,255,.95);color:#111827;border:1px solid #e5e7eb;
+  font-size:1.1rem;font-weight:700;cursor:pointer;
+  display:grid;place-items:center;
+  transition:background .15s,transform .15s;
+}
+.zoom-close:hover{background:#fff;transform:scale(1.06)}
+
+/* ─────────────────────────────────────────────
+   TRUST PROOF BAR
+   ───────────────────────────────────────────── */
+.proof-bar{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
+.proof-inner{display:grid;grid-template-columns:repeat(4,1fr)}
+.proof-item{padding:26px 0;text-align:center;border-right:1px solid var(--line)}
+.proof-item:last-child{border-right:none}
+.proof-num{font-size:2.2rem;font-weight:800;letter-spacing:-.04em;color:#fff;line-height:1;margin-bottom:4px}
+.proof-num span{color:var(--green)}
+.proof-lbl{font-size:.78rem;color:var(--muted);font-weight:500}
+
+/* ─────────────────────────────────────────────
+   SECTION COMMON
+   ───────────────────────────────────────────── */
+.section{padding:72px 0}
+.section-center{text-align:center;margin-bottom:44px}
+.center{text-align:center}
+
+/* ─────────────────────────────────────────────
+   HOW IT WORKS
+   ───────────────────────────────────────────── */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:36px}
+.step{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:18px;padding:28px 26px;transition:border-color .2s,background .2s;position:relative}
+.step:hover{border-color:rgba(59,130,246,.25);background:rgba(255,255,255,.06)}
+.step-n{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-weight:800;font-size:1rem;background:rgba(163,240,0,.1);border:1px solid rgba(163,240,0,.3);color:var(--green);margin-bottom:16px;font-family:var(--mono)}
+.step h3{font-size:1.05rem;font-weight:700;margin-bottom:8px;letter-spacing:-.02em}
+.step p{color:var(--muted);line-height:1.55;font-size:.88rem}
+
+/* ─────────────────────────────────────────────
+   DISCOVER — curiosity bullets
+   ───────────────────────────────────────────── */
+.discover{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:36px}
+.disc{padding:24px 26px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--border);position:relative;overflow:hidden;transition:border-color .2s,background .2s,transform .2s}
+.disc::before{content:"";position:absolute;top:0;left:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--blue2),var(--green));opacity:0;transition:opacity .25s}
+.disc:hover{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.06);transform:translateY(-2px)}
+.disc:hover::before{opacity:1}
+.disc-icon{width:38px;height:38px;border-radius:10px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.22);display:grid;place-items:center;font-size:1.05rem;margin-bottom:14px}
+.disc h3{font-size:1.02rem;font-weight:700;margin-bottom:7px;letter-spacing:-.02em;color:#fff}
+.disc p{color:var(--muted);line-height:1.55;font-size:.88rem}
+
+/* ─────────────────────────────────────────────
+   PRICING ANCHOR
+   ───────────────────────────────────────────── */
+.anchor-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:36px;max-width:820px;margin-left:auto;margin-right:auto}
+.anchor-card{border-radius:20px;padding:30px;border:1px solid var(--border);position:relative;overflow:hidden;display:flex;flex-direction:column}
+.anchor-card.them{background:rgba(255,255,255,.025)}
+.anchor-card.us{background:linear-gradient(180deg,rgba(163,240,0,.06),rgba(163,240,0,.02));border-color:rgba(163,240,0,.32);box-shadow:0 0 40px rgba(163,240,0,.05)}
+.anchor-flag{display:inline-flex;align-items:center;padding:5px 11px;border-radius:8px;font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;align-self:flex-start}
+.anchor-card.them .anchor-flag{background:rgba(255,255,255,.06);color:var(--muted)}
+.anchor-card.us .anchor-flag{background:var(--green);color:#0a1628}
+.anchor-price{font-size:2.4rem;font-weight:800;letter-spacing:-.04em;line-height:1;margin-bottom:6px}
+.anchor-price-sub{font-size:.82rem;color:var(--muted);font-weight:500;margin-bottom:18px}
+.anchor-card.us .anchor-price{color:var(--green)}
+.anchor-list{list-style:none;display:flex;flex-direction:column;gap:8px;font-size:.88rem;color:#b0bece;line-height:1.5}
+.anchor-list li{display:flex;align-items:flex-start;gap:9px}
+.anchor-list li::before{content:"";width:16px;height:16px;border-radius:5px;display:grid;place-items:center;flex-shrink:0;margin-top:1px;font-size:.6rem;font-weight:700}
+.anchor-card.them .anchor-list li::before{background:rgba(239,68,68,.15);content:"−";color:rgba(239,68,68,.9);display:flex;align-items:center;justify-content:center;line-height:1}
+.anchor-card.us .anchor-list li::before{background:rgba(163,240,0,.18);content:"✓";color:var(--green);display:flex;align-items:center;justify-content:center;font-size:.62rem}
+.anchor-explain{margin-top:28px;font-size:.9rem;color:var(--muted);text-align:center;max-width:580px;margin-left:auto;margin-right:auto;line-height:1.55}
+.anchor-explain b{color:var(--text)}
+
+/* ─────────────────────────────────────────────
+   FAQ
+   ───────────────────────────────────────────── */
+.faq-list{max-width:760px;margin:36px auto 0;display:flex;flex-direction:column;gap:6px}
+.faq-item{border-radius:13px;overflow:hidden;background:rgba(255,255,255,.04);border:1px solid var(--border)}
+.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;padding:17px 20px;background:none;border:none;color:var(--text);font-family:var(--font);font-size:.95rem;font-weight:600;cursor:pointer;text-align:left;gap:16px;transition:background .2s}
 .faq-q:hover{background:rgba(255,255,255,.04)}
 .faq-icon{width:22px;height:22px;border-radius:6px;border:1px solid var(--border);display:grid;place-items:center;flex-shrink:0;font-size:.85rem;color:var(--blue3);transition:transform .25s,background .25s}
 .faq-item.open .faq-icon{transform:rotate(45deg);background:rgba(59,130,246,.13);border-color:rgba(59,130,246,.30);color:var(--blue3)}
-.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease}
 .faq-item.open .faq-a{max-height:300px}
-.faq-a p{padding:0 22px 18px;color:var(--muted);line-height:1.7;font-size:.92rem}
+.faq-a p{padding:0 20px 16px;color:var(--muted);line-height:1.65;font-size:.9rem}
 
-/* ── FINAL CTA ── */
-.cta-box{border-radius:28px;padding:72px 60px;text-align:center;position:relative;overflow:hidden;background:linear-gradient(150deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.11);box-shadow:0 40px 100px rgba(0,0,0,.4)}
-.cta-box::before{content:"";position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(59,130,246,.16),transparent);pointer-events:none}
-.cta-box h2{margin-bottom:16px}
-.cta-box p{color:#a0b3c8;max-width:560px;margin:0 auto 34px;line-height:1.65;font-size:1.05rem}
-.cta-trust{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:22px}
-
-/* ── STRIPE BADGE ── */
-.stripe-badge{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--muted);font-size:.78rem;font-weight:600}
+/* ─────────────────────────────────────────────
+   FINAL CTA
+   ───────────────────────────────────────────── */
+.final-cta-box{border-radius:26px;padding:60px 50px;text-align:center;position:relative;overflow:hidden;background:linear-gradient(150deg,rgba(255,255,255,.07),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);box-shadow:0 40px 100px rgba(0,0,0,.4);max-width:780px;margin:0 auto}
+.final-cta-box::before{content:"";position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(163,240,0,.12),transparent);pointer-events:none}
+.final-cta-box h2{margin-bottom:14px;position:relative}
+.final-cta-box p{color:#a0b3c8;max-width:520px;margin:0 auto 28px;line-height:1.6;font-size:1rem;position:relative}
+.final-trust{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:22px;position:relative}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:9px;background:rgba(255,255,255,.045);border:1px solid var(--line);color:var(--muted);font-size:.78rem;font-weight:500}
+.stripe-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--muted);font-size:.76rem;font-weight:600}
 .stripe-badge svg{opacity:.7}
 
-/* ── FOOTER ── */
-footer{border-top:1px solid var(--line);padding:28px 0}
+/* ─────────────────────────────────────────────
+   FOOTER
+   ───────────────────────────────────────────── */
+footer{border-top:1px solid var(--line);padding:26px 0}
 .foot-inner{display:flex;justify-content:space-between;align-items:center}
 .foot-copy{color:var(--muted2);font-size:.8rem}
 .foot-links{display:flex;gap:18px}
 .foot-links a{color:var(--muted2);font-size:.8rem;transition:color .2s}
 .foot-links a:hover{color:var(--muted)}
 
-/* ── FADE IN ── */
-.fi{opacity:0;transform:translateY(24px);transition:opacity .55s ease,transform .55s ease}
+/* ─────────────────────────────────────────────
+   STICKY MOBILE CTA
+   ───────────────────────────────────────────── */
+.sticky-cta{
+  display:none;
+  position:fixed;left:0;right:0;bottom:0;z-index:180;
+  padding:12px 14px;
+  background:rgba(6,13,24,.95);backdrop-filter:blur(20px);
+  border-top:1px solid rgba(163,240,0,.2);
+  box-shadow:0 -10px 40px rgba(0,0,0,.6);
+  transform:translateY(110%);transition:transform .35s cubic-bezier(.2,.8,.2,1);
+}
+.sticky-cta.show{transform:translateY(0)}
+.sticky-cta-inner{display:flex;align-items:center;gap:12px;max-width:600px;margin:0 auto}
+.sticky-cta-left{display:flex;flex-direction:column;flex:1;min-width:0}
+.sticky-cta-price{font-size:1.05rem;font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1}
+.sticky-cta-price em{color:var(--green);font-style:normal}
+.sticky-cta-sub{font-size:.72rem;color:var(--muted);margin-top:3px;font-weight:500}
+.sticky-cta-btn{
+  flex-shrink:0;
+  padding:13px 18px;border-radius:11px;
+  background:var(--green);color:#0a1628;
+  font-weight:800;font-size:.92rem;
+  box-shadow:0 0 24px var(--green-glow);
+  border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:transform .15s;
+}
+.sticky-cta-btn:hover{transform:translateY(-1px)}
+.sticky-cta-btn:active{transform:translateY(0)}
+
+/* ─────────────────────────────────────────────
+   FADE IN
+   ───────────────────────────────────────────── */
+.fi{opacity:0;transform:translateY(20px);transition:opacity .55s ease,transform .55s ease}
 .fi.v{opacity:1;transform:translateY(0)}
-.fi:nth-child(2){transition-delay:.08s}
-.fi:nth-child(3){transition-delay:.16s}
-.fi:nth-child(4){transition-delay:.24s}
 
-/* ── PEEK INSIDE ── */
-.peek-section{padding:72px 0 80px;background:rgba(255,255,255,.015);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.peek-card-wrap{display:flex;flex-direction:column;align-items:center;gap:28px}
-.peek-report-card{width:100%;max-width:780px;border-radius:22px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.09);background:#fff;color:#111827}
-.peek-cta{display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap}
-
-/* ── RESPONSIVE ── */
+/* ─────────────────────────────────────────────
+   RESPONSIVE — MOBILE FIRST OPTIMIZATIONS
+   ───────────────────────────────────────────── */
 @media(max-width:860px){
-  .ba-grid{grid-template-columns:1fr}
-  .features{grid-template-columns:1fr 1fr}
+  .discover{grid-template-columns:1fr 1fr}
   .proof-inner{grid-template-columns:1fr 1fr}
   .proof-item:nth-child(2){border-right:none}
   .proof-item:nth-child(3){border-top:1px solid var(--line)}
   .proof-item:nth-child(4){border-top:1px solid var(--line);border-right:none}
   .steps{grid-template-columns:1fr}
-  .rp-metrics{grid-template-columns:1fr 1fr}
+  .anchor-grid{grid-template-columns:1fr}
   .price-table-grid{grid-template-columns:1fr}
-  .cta-box{padding:48px 32px}
+  .final-cta-box{padding:42px 28px}
   .foot-inner{flex-direction:column;gap:14px;text-align:center}
   .foot-links{justify-content:center}
 }
 
-@media(max-width:600px){
+@media(max-width:640px){
   .nav-links{display:none}
   .hamburger{display:flex}
   .mobile-menu{display:flex}
-  .wrap{width:calc(100% - 32px)}
-  h1{font-size:2.35rem;letter-spacing:-.03em}
+  .sticky-cta{display:block}
+  body.has-sticky{padding-bottom:84px}
+  .wrap{width:calc(100% - 28px)}
+  h1{font-size:2.4rem;letter-spacing:-.035em;line-height:1}
   h2{font-size:1.85rem}
-  .section{padding:56px 0}
-  .hero{padding:36px 0 48px}
+  .hero{padding:34px 0 20px}
+  .hero-tagline{font-size:.95rem;margin-bottom:22px}
   .input-row{flex-direction:column}
-  .input-row .btn-blue{width:100%;height:54px;justify-content:center}
-  .bp-stats{grid-template-columns:1fr 1fr;border-radius:10px}
-  .bp-stat{padding:12px 8px}
-  .bp-stat b{font-size:1.3rem}
-  .cta-secondary{width:100%;justify-content:center}
-  .ba-grid{grid-template-columns:1fr}
-  .features{grid-template-columns:1fr}
-  .rp-2col{grid-template-columns:1fr}
-  .rp-body{padding:16px}
+  .input-row .btn-green{width:100%;height:54px;justify-content:center}
+  .hero-trust{gap:8px;font-size:.74rem}
+  .scroll-cue{margin-top:30px}
+
+  .decrypt-section{padding:24px 0 16px}
+  .decrypt-head{padding:16px 18px 12px;flex-wrap:wrap;gap:8px}
+  .decrypt-url{font-size:.76rem}
+  .decrypt-head-right{font-size:.6rem}
+  .decrypt-body{padding:20px 18px}
+  .decrypt-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .dc-stat{padding:16px 10px}
+  .dc-stat b{font-size:1.4rem}
+  .dc-stat span{font-size:.66rem}
+  .decrypt-tap-btn{padding:12px 18px;font-size:.88rem}
+  .decrypt-overlay-hint{font-size:.72rem;text-align:center;padding:0 24px}
+  .decrypt-foot{padding:16px 18px 18px;flex-direction:column;align-items:stretch;gap:12px}
+  .decrypt-foot a{width:100%;justify-content:center;padding:14px 20px;font-size:.95rem}
+  .decrypt-foot-text{text-align:center;font-size:.84rem}
+
+  .inspector-section{padding:40px 0 56px}
+  .inspector-head{margin-bottom:24px}
+  .tab{padding:10px 12px;font-size:.78rem}
+  .inspector-stage::after{display:none}
   .rp-head{padding:18px 16px 14px}
-  .rc-metrics,.rp-metrics{grid-template-columns:1fr 1fr;gap:6px}
-  .rc-pos{grid-template-columns:1fr}
+  .rp-head-top{flex-wrap:wrap;gap:8px}
   .rp-title{font-size:1.15rem}
-  .cta-box{padding:32px 20px}
-  .price-table-grid{grid-template-columns:1fr}
-  .proof-inner{grid-template-columns:1fr 1fr}
-  .logo-text{font-size:1.2rem}
-  .steps{border-radius:18px}
-  .step{padding:26px 20px}
-  .trust-chips{justify-content:center}
-  .chip{font-size:.76rem;padding:6px 10px}
-  .peek-section{padding:52px 0 60px}
-  .peek-cta{flex-direction:column;width:100%}
-  .peek-cta .btn{width:100%;justify-content:center}
+  .rp-metrics{grid-template-columns:1fr 1fr;gap:6px}
+  .rp-body{padding:18px 16px}
+  .rp-2col{grid-template-columns:1fr}
+  .inspector-cta{flex-direction:column;width:100%}
+  .inspector-cta .btn{width:100%;justify-content:center}
+
+  .section{padding:52px 0}
+  .section-center{margin-bottom:30px}
+  .discover{grid-template-columns:1fr;gap:10px}
+  .disc{padding:20px 22px}
+  .anchor-card{padding:24px 22px}
+  .final-cta-box{padding:36px 22px;border-radius:22px}
+  .logo-text{font-size:1.18rem}
+  .zoom-modal{padding:16px 8px}
+  .zoom-close{width:34px;height:34px;top:8px;right:8px}
 }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
+<!-- ─────────────────────────────────────────────
+     NAV
+     ───────────────────────────────────────────── -->
 <nav class="nav" id="site-nav">
   <div class="nav-inner">
     <a href="/" class="logo">
-      <svg width="38" height="38" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="34" height="34" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M30 35 L30 80 C30 85 32 88 37 88 L63 88 C68 88 70 85 70 80 L70 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
         <path d="M25 35 L75 35 L72 42 L28 42 Z" fill="#2463EB"/>
         <path d="M38 35 L38 28 C38 22 42 18 50 18 C58 18 62 22 62 28 L62 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
@@ -504,8 +639,8 @@ footer{border-top:1px solid var(--line);padding:28px 0}
       <div class="logo-text"><span class="store">Store</span><span class="scout">Scout</span></div>
     </a>
     <div class="nav-links">
+      <a href="#preview">Live preview</a>
       <a href="#how">How it works</a>
-      <a href="#sample">Sample report</a>
       <a href="#faq">FAQ</a>
       <a href="#analyze" class="nav-cta">Get report — $9</a>
     </div>
@@ -515,45 +650,31 @@ footer{border-top:1px solid var(--line);padding:28px 0}
   </div>
 </nav>
 <div class="mobile-menu" id="mobileMenu">
+  <a href="#preview">Live preview</a>
   <a href="#how">How it works</a>
-  <a href="#sample">Sample report</a>
   <a href="#faq">FAQ</a>
   <a href="#analyze" class="mob-cta">Get report — $9</a>
 </div>
 
 <main>
 
-<!-- ── HERO ── -->
+<!-- ─────────────────────────────────────────────
+     HERO — minimal hook + form + scroll cue
+     ───────────────────────────────────────────── -->
 <section class="hero" id="start">
   <div class="wrap hero-inner">
 
     <div class="eyebrow"><span class="eyebrow-dot"></span>Shopify competitor intelligence</div>
 
-    <h1>What is your competitor's <em>actual</em> strategy?</h1>
+    <h1>See what’s <em>actually</em> working in any Shopify store.</h1>
 
-    <p class="hero-sub">Scan most Shopify stores and get a 5-page intelligence report — pricing cycles, discount patterns, launch activity, and market positioning — in 30 seconds.</p>
-
-    <!-- INSTANT BENEFIT PROOF -->
-    <div class="benefit-preview">
-      <div class="bp-label"><span class="bp-dot"></span>Real data — from allbirds.com</div>
-      <div class="bp-stats">
-        <div class="bp-stat"><b>1,061</b><span>Products found</span></div>
-        <div class="bp-stat"><b>64%</b><span>On active discount</span></div>
-        <div class="bp-stat"><b>50%</b><span>Median discount depth</span></div>
-        <div class="bp-stat"><b>5.7/mo</b><span>New launches</span></div>
-      </div>
-    </div>
-
-    <div class="price-pill">
-      <strong>One-time $9</strong>
-      &nbsp;·&nbsp; No subscription &nbsp;·&nbsp; Instant PDF download
-    </div>
+    <p class="hero-tagline">Paste their store URL. Get their pricing, discounts, launches and positioning in a 5-page PDF. <b style="color:#d4ffaa">30 seconds. $9. Done.</b></p>
 
     <div class="hero-form" id="analyze">
       <form id="genForm" novalidate>
         <div class="input-row">
           <input id="storeUrl" name="store_url" type="url" placeholder="https://yourcompetitor.com" autocomplete="off" required/>
-          <button id="submitBtn" type="submit" class="btn btn-blue" disabled>Analyze for $9 →</button>
+          <button id="submitBtn" type="submit" class="btn btn-green" disabled>Analyze for $9 →</button>
         </div>
         <div id="urlHelp" class="url-help">
           <span class="dot"></span>
@@ -562,30 +683,278 @@ footer{border-top:1px solid var(--line);padding:28px 0}
         <div id="spinner" class="spinner"></div>
         <div id="status" class="status"></div>
       </form>
-      <p class="form-hint">
+      <p class="form-microline">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        Secured by Stripe &nbsp;·&nbsp; No account needed &nbsp;·&nbsp; If unsupported, you won't be charged
+        Stripe checkout · No account needed · Verified before payment
       </p>
-      <div class="cta-secondary-row">
-        <a href="#sample" class="cta-secondary">
-          Not ready? See a real sample report
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-        </a>
-      </div>
     </div>
 
-    <div class="trust-chips">
-      <span class="chip">🔒 Stripe checkout</span>
-      <span class="chip">📄 Instant PDF</span>
-      <span class="chip">🚫 No subscription</span>
-      <span class="chip">⚡ 30-second report</span>
-      <span class="chip">🏪 Most Shopify stores</span>
+    <div class="hero-trust">
+      <span>🔒 Stripe</span><span class="dotted"></span>
+      <span>📄 Instant PDF</span><span class="dotted"></span>
+      <span>🚫 No subscription</span><span class="dotted"></span>
+      <span>⚡ 30 seconds</span>
     </div>
+
+    <button type="button" class="scroll-cue" onclick="document.getElementById('decrypt').scrollIntoView({behavior:'smooth',block:'start'})">
+      See what one report reveals
+      <span class="scroll-cue-arrow">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </span>
+    </button>
 
   </div>
 </section>
 
-<!-- ── PROOF BAR ── -->
+<!-- ─────────────────────────────────────────────
+     DECRYPT — interactive tap-to-reveal hook
+     This is the engagement payoff for the
+     hero. Users want to click numbers, so we
+     give them numbers to click.
+     ───────────────────────────────────────────── -->
+<section class="decrypt-section" id="decrypt">
+  <div class="wrap">
+    <div class="decrypt-card fi" id="decryptCard">
+
+      <div class="decrypt-head">
+        <div class="decrypt-head-left">
+          <span class="decrypt-flag"><span class="decrypt-flag-dot"></span>Live sample</span>
+          <span class="decrypt-url">https://allbirds.com</span>
+        </div>
+        <div class="decrypt-head-right">Page 1 of 5</div>
+      </div>
+
+      <div class="decrypt-body">
+        <div class="decrypt-title">Their strategy at a glance</div>
+
+        <div class="decrypt-grid">
+          <div class="dc-stat"><b>1,061</b><span>Products in catalog</span></div>
+          <div class="dc-stat"><b>64.1%</b><span>On active discount</span></div>
+          <div class="dc-stat"><b>50%</b><span>Median discount depth</span></div>
+          <div class="dc-stat"><b>5.7/mo</b><span>New launches</span></div>
+        </div>
+
+        <div class="decrypt-overlay" id="decryptOverlay">
+          <button type="button" class="decrypt-tap-btn" id="decryptBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/></svg>
+            Tap to reveal their data
+          </button>
+          <span class="decrypt-overlay-hint">Real numbers from a real Shopify store</span>
+        </div>
+      </div>
+
+      <div class="decrypt-foot">
+        <p class="decrypt-foot-text">
+          <b>This is page 1 of a real 5-page report.</b> Want one for any competitor of yours?
+        </p>
+        <a href="#start" class="btn btn-green" style="padding:13px 22px;font-size:.92rem;border-radius:11px">
+          Get yours for $9 →
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────
+     INTERACTIVE REPORT INSPECTOR
+     ───────────────────────────────────────────── -->
+<section class="inspector-section" id="preview">
+  <div class="wrap">
+    <div class="inspector-head fi">
+      <div class="sec-label">Inspect a real report</div>
+      <h2>5 pages. Click any tab.</h2>
+      <p class="sec-sub">A real StoreScout report generated on allbirds.com. Tap any page to inspect it full-size. Yours will look exactly like this.</p>
+    </div>
+
+    <div class="inspector-tabs fi" role="tablist">
+      <button class="tab active" data-tab="1" role="tab"><span class="tab-num">01</span> Overview</button>
+      <button class="tab" data-tab="2" role="tab"><span class="tab-num">02</span> Pricing</button>
+      <button class="tab" data-tab="3" role="tab"><span class="tab-num">03</span> Launches</button>
+      <button class="tab" data-tab="4" role="tab"><span class="tab-num">04</span> Top products</button>
+      <button class="tab" data-tab="5" role="tab"><span class="tab-num">05</span> Coverage</button>
+    </div>
+
+    <div class="inspector-stage fi" id="inspectorStage">
+
+      <!-- PAGE 1 -->
+      <div class="rp-page active" data-page="1">
+        <div class="rp-head">
+          <div class="rp-head-top">
+            <span class="rp-pill">📋 1 of 5 — Overview</span>
+            <div class="rp-gen">Generated 2026-05-06T11:25:03Z<br>Public catalog analysis</div>
+          </div>
+          <div class="rp-title">Competitive Intelligence Report</div>
+          <div class="rp-url">https://allbirds.com</div>
+          <div class="rp-metrics">
+            <div class="rp-metric"><small>Catalog Size</small><strong>1,061</strong><em>Products discovered</em></div>
+            <div class="rp-metric"><small>In Stock</small><strong>84.83%</strong><em>900/1061 available</em></div>
+            <div class="rp-metric"><small>Median Price</small><strong>$70</strong><em>P25: $42 · P75: $105</em></div>
+            <div class="rp-metric"><small>Promo Rate</small><strong>64.09%</strong><em>Active discounts</em></div>
+          </div>
+        </div>
+        <div class="rp-body">
+          <div class="rp-section">
+            <div class="rp-section-head"><h3>Competitive Positioning</h3><span>Strategic Snapshot</span></div>
+            <div class="rp-2col">
+              <div class="rp-pos"><small>Market Position</small><strong>Mid-Market</strong><p>Based on catalog median price (simple heuristic).</p></div>
+              <div class="rp-pos"><small>Promo Intensity</small><strong>Medium &nbsp;<span style="background:#fef3c7;color:#92400e;font-size:.7rem;padding:2px 7px;border-radius:999px;font-weight:700">58</span></strong><p>Blend of discounted share + median discount depth.</p></div>
+              <div class="rp-pos"><small>Launch Velocity</small><strong>Low &nbsp;<span style="background:#fef3c7;color:#92400e;font-size:.7rem;padding:2px 7px;border-radius:999px;font-weight:700">41</span></strong><p>Blend of new product + update activity (last 90 days).</p></div>
+              <div class="rp-pos"><small>Catalog Complexity</small><strong>Medium &nbsp;<span style="background:#fef3c7;color:#92400e;font-size:.7rem;padding:2px 7px;border-radius:999px;font-weight:700">58</span></strong><p>Blend of catalog size + price spread + variants.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 2 -->
+      <div class="rp-page" data-page="2">
+        <div class="rp-head">
+          <div class="rp-head-top">
+            <span class="rp-pill">💰 2 of 5 — Pricing & Discounts</span>
+            <div class="rp-gen">allbirds.com</div>
+          </div>
+        </div>
+        <div class="rp-body">
+          <div class="rp-section">
+            <div class="rp-section-head"><h3>💡 Key Insights</h3></div>
+            <div class="insight-box">
+              <h4>Strategic Intelligence</h4>
+              <ul>
+                <li>Moderate launch velocity: 5.0 products/month, showing steady growth.</li>
+                <li>Consistent positioning: New products (90d) at $75.00 vs catalog $70.00 (+7% delta).</li>
+                <li>84.83% of products are currently in stock, which suggests stable inventory.</li>
+                <li>64.09% of products show valid discounts (compare-at &gt; price), indicating aggressive promotion.</li>
+                <li>The dominant price band is $50–$99 (35.25% of products), showing where they primarily compete.</li>
+                <li>Newest products skew above the store median price, suggesting a premium expansion strategy.</li>
+                <li>Products have multiple variants on average, suggesting upsell/option strategy (sizes, bundles, tiers).</li>
+              </ul>
+            </div>
+          </div>
+          <div class="rp-section">
+            <div class="rp-section-head"><h3>Price Architecture</h3><span>Pricing & Discount Strategy</span></div>
+            <div class="price-table-grid">
+              <div>
+                <div class="price-table-head">Pricing Metrics</div>
+                <div class="price-row"><span>Minimum</span><b>$2.00</b></div>
+                <div class="price-row"><span>25th Percentile</span><b>$42.00</b></div>
+                <div class="price-row"><span>Median</span><b>$70.00</b></div>
+                <div class="price-row"><span>75th Percentile</span><b>$105.00</b></div>
+                <div class="price-row"><span>Maximum</span><b>$160.00</b></div>
+              </div>
+              <div>
+                <div class="price-table-head">Discount Metrics</div>
+                <div class="price-row"><span>Discounted Products</span><b>680 (64.09%)</b></div>
+                <div class="price-row"><span>Median Discount</span><b>50.0%</b></div>
+                <div class="price-row"><span>Average Discount</span><b>47.54%</b></div>
+                <div class="price-row"><span>Maximum Discount</span><b>75.0%</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 3 -->
+      <div class="rp-page" data-page="3">
+        <div class="rp-head">
+          <div class="rp-head-top">
+            <span class="rp-pill">🚀 3 of 5 — Launch Timeline</span>
+            <div class="rp-gen">allbirds.com</div>
+          </div>
+        </div>
+        <div class="rp-body">
+          <div class="rp-section">
+            <div class="rp-section-head"><h3>Expansion Strategy</h3><span>Launch Timeline & Comparisons</span></div>
+            <div class="rp-2col" style="margin-bottom:18px">
+              <div class="rp-pos"><small>New Products (90d)</small><strong>17</strong><p>1.6% of catalog</p></div>
+              <div class="rp-pos"><small>Velocity (90d)</small><strong>5.7/mo</strong><p>Products per month</p></div>
+              <div class="rp-pos"><small>Trend</small><strong>Steady</strong><p>-12% vs prior 90d</p></div>
+              <div class="rp-pos"><small>Price Strategy</small><strong>Consistent</strong><p>New vs catalog positioning</p></div>
+            </div>
+            <div class="price-table-head">Product Launch Timeline</div>
+            <table class="launch-table">
+              <thead><tr><th>Window</th><th>Launched</th><th>Share</th></tr></thead>
+              <tbody>
+                <tr><td>Last 7 days</td><td><b>0</b></td><td>0.0%</td></tr>
+                <tr><td>Last 30 days</td><td><b>5</b></td><td>0.47%</td></tr>
+                <tr><td>Last 90 days</td><td><b>17</b></td><td>1.6%</td></tr>
+                <tr><td>Last 180 days</td><td><b>73</b></td><td>6.88%</td></tr>
+                <tr><td>Last 12 months</td><td><b>533</b></td><td>50.24%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="rp-section" style="margin-top:18px">
+            <div class="rp-section-head"><h3>New Product Price Positioning</h3></div>
+            <div class="price-row"><span>Catalog Median</span><b>$70.00</b></div>
+            <div class="price-row"><span>New Median (30d)</span><b>$77.00 <span style="color:#22c55e;font-size:.75rem">(+10%)</span></b></div>
+            <div class="price-row"><span>New Median (90d)</span><b>$75.00 <span style="color:#22c55e;font-size:.75rem">(+7%)</span></b></div>
+            <div class="price-row"><span>Strategy</span><b>Consistent positioning</b></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 4 -->
+      <div class="rp-page" data-page="4">
+        <div class="rp-head">
+          <div class="rp-head-top">
+            <span class="rp-pill">🏆 4 of 5 — Top Products</span>
+            <div class="rp-gen">allbirds.com</div>
+          </div>
+        </div>
+        <div class="rp-body">
+          <div class="rp-2col">
+            <div class="rp-section">
+              <div class="rp-section-head"><h3>Most Expensive (Top 5)</h3></div>
+              <div class="product-item"><div class="product-name">Women's Wool Runner NZ Mid Waterproof — Natural Black</div><div class="product-price">$160.00</div></div>
+              <div class="product-item"><div class="product-name">Women's Wool Runner NZ Mid Waterproof — Dark Grey</div><div class="product-price">$160.00</div></div>
+              <div class="product-item"><div class="product-name">Men's Wool Runner NZ Mid Waterproof — Dark Grey</div><div class="product-price">$160.00</div></div>
+              <div class="product-item"><div class="product-name">Men's Wool Runner NZ Mid Waterproof — Natural Black (White Sole)</div><div class="product-price">$160.00</div></div>
+              <div class="product-item"><div class="product-name">Women's Wool Runner NZ Mid Waterproof — Natural Black (White Sole)</div><div class="product-price">$160.00</div></div>
+            </div>
+            <div class="rp-section">
+              <div class="rp-section-head"><h3>Biggest Discounts (Top 5)</h3></div>
+              <div class="product-item"><div class="product-name">Men's Tree Flyer 1 — Natural Black (Blizzard Sole)</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
+              <div class="product-item"><div class="product-name">Men's Tree Flyer 1 — Lux Beige (Blizzard Sole)</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
+              <div class="product-item"><div class="product-name">Men's Tree Flyer 1 — Blizzard (Blizzard Sole)</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
+              <div class="product-item"><div class="product-name">Men's Sea Tee — Navy Night</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
+              <div class="product-item"><div class="product-name">Men's Sea Tee — Juniper</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 5 -->
+      <div class="rp-page" data-page="5">
+        <div class="rp-head">
+          <div class="rp-head-top">
+            <span class="rp-pill">📊 5 of 5 — Data Coverage</span>
+            <div class="rp-gen">allbirds.com</div>
+          </div>
+        </div>
+        <div class="rp-body">
+          <div class="rp-section">
+            <div class="rp-section-head"><h3>Data Coverage & Limitations</h3></div>
+            <div class="coverage-item"><span class="coverage-dot"></span>Date coverage: 100% of products include created/published dates</div>
+            <div class="coverage-item"><span class="coverage-dot"></span>Pricing coverage: 100% of products include a usable price</div>
+            <div class="coverage-item"><span class="coverage-dot"></span>Discount coverage: 64.09% include compare-at pricing fields</div>
+            <div class="coverage-item"><span class="coverage-dot"></span>Safety cap: up to 10 pages × 250 products (max ~2,500 products)</div>
+            <div class="coverage-item"><span class="coverage-dot"></span>Data source: public Shopify /products.json endpoint</div>
+            <div class="coverage-note">ℹ️ This report is based only on the public Shopify product catalog endpoint. It does not include traffic, conversion rate, ads, or checkout data. Discounts are counted only when compare_at_min &gt; price_min.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="inspector-cta fi">
+      <p class="inspector-cta-text"><b>Want this exact report on your competitor?</b></p>
+      <a href="#start" class="btn btn-green">Run yours for $9 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────
+     PROOF BAR
+     ───────────────────────────────────────────── -->
 <div class="proof-bar">
   <div class="proof-inner wrap">
     <div class="proof-item fi"><div class="proof-num">30<span>s</span></div><div class="proof-lbl">Average report time</div></div>
@@ -595,342 +964,121 @@ footer{border-top:1px solid var(--line);padding:28px 0}
   </div>
 </div>
 
-<!-- ── PEEK INSIDE ── -->
-<section class="peek-section">
-  <div class="wrap">
-    <div class="center fi" style="margin-bottom:32px">
-      <div class="sec-label">What the report looks like</div>
-      <h2>A real report. Real data. Not a mockup.</h2>
-      <p class="sec-sub">This was generated on allbirds.com on May 6, 2026. Your report will look exactly like this.</p>
-    </div>
-    <div class="peek-card-wrap fi">
-      <div class="peek-report-card">
-        <div class="rc-head">
-          <div class="rc-top-row">
-            <span class="rc-pill">Page 1 of 5</span>
-            <div class="rc-ts">Generated 2026-05-06T11:25:03Z<br>Public catalog analysis</div>
-          </div>
-          <div class="rc-url">https://allbirds.com</div>
-          <div class="rc-metrics">
-            <div class="rc-m"><small>Catalog</small><strong>1,061</strong><em>Products</em></div>
-            <div class="rc-m"><small>In Stock</small><strong>84.8%</strong><em>900 available</em></div>
-            <div class="rc-m"><small>Med. Price</small><strong>$70</strong><em>P25·$42 P75·$105</em></div>
-            <div class="rc-m"><small>Promo Rate</small><strong>64.1%</strong><em>Active discounts</em></div>
-          </div>
-        </div>
-        <div class="rc-body">
-          <div class="rc-head2"><h4>Competitive Positioning</h4><span>Strategic Snapshot</span></div>
-          <div class="rc-pos">
-            <div class="rc-pos-item"><small>Market Position</small><strong>Mid-Market</strong><p>Based on catalog median price.</p></div>
-            <div class="rc-pos-item"><small>Promo Intensity</small><strong>Medium 58</strong><p>Discounted share + depth.</p></div>
-            <div class="rc-pos-item"><small>Launch Velocity</small><strong>Low 41</strong><p>New product + update activity.</p></div>
-            <div class="rc-pos-item"><small>Catalog Complexity</small><strong>Medium 58</strong><p>Size + price spread + variants.</p></div>
-          </div>
-        </div>
-      </div>
-      <div class="peek-cta">
-        <a href="#sample" class="btn btn-ghost">See all 5 pages ↓</a>
-        <a href="#analyze" class="btn btn-blue">Get yours for $9 →</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── HOW IT WORKS ── -->
+<!-- ─────────────────────────────────────────────
+     HOW IT WORKS
+     ───────────────────────────────────────────── -->
 <section class="section" id="how">
   <div class="wrap">
-    <div class="center fi">
+    <div class="section-center fi">
       <div class="sec-label">How it works</div>
-      <h2>Three steps. Thirty seconds.</h2>
-      <p class="sec-sub">No spreadsheets. No manual digging. No dashboard to learn. Just paste a URL and get your report.</p>
+      <h2>Paste. Pay. Download.</h2>
+      <p class="sec-sub">No dashboard. No spreadsheets. No account. Just one URL and your PDF.</p>
     </div>
     <div class="steps">
       <div class="step fi">
-        <div class="step-n">1</div>
+        <div class="step-n">01</div>
         <h3>Paste a Shopify store URL</h3>
-        <p>Most public Shopify stores work. No account setup required. We'll verify compatibility before you pay — so you're never charged for a store we can't analyze.</p>
+        <p>We instantly verify the store can be analyzed — before you pay. If it can't, you can't proceed, so you're never charged for a report we can't generate.</p>
       </div>
       <div class="step fi">
-        <div class="step-n">2</div>
-        <h3>Pay once, securely</h3>
-        <p>One-time $9 via Stripe. No subscription, no auto-renewal, no hidden fees. You pay for exactly one report and that's it.</p>
+        <div class="step-n">02</div>
+        <h3>Pay $9 once, via Stripe</h3>
+        <p>No subscription. No auto-renewal. No saved card. One charge for one report. Stop ordering whenever.</p>
       </div>
       <div class="step fi">
-        <div class="step-n">3</div>
+        <div class="step-n">03</div>
         <h3>Download your PDF instantly</h3>
-        <p>A 5-page strategy report is generated and delivered immediately. No waiting, no email queue — download it the second checkout completes.</p>
+        <p>The full 5-page strategy report is generated and delivered the second checkout completes. No email queue, no waiting.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── BEFORE / AFTER ── -->
-<section class="section" style="padding-top:0">
+<!-- ─────────────────────────────────────────────
+     DISCOVER — curiosity-framed features
+     ───────────────────────────────────────────── -->
+<section class="section" id="discover" style="padding-top:0">
   <div class="wrap">
-    <div class="center fi">
-      <div class="sec-label">The problem we solve</div>
-      <h2>Stop wasting hours on manual research.</h2>
-      <p class="sec-sub">Your competitors' strategy is publicly available. StoreScout turns that raw data into a readable report in seconds.</p>
+    <div class="section-center fi">
+      <div class="sec-label">What you'll uncover</div>
+      <h2>The stuff they thought<br>was hidden.</h2>
+      <p class="sec-sub">Every Shopify store leaks strategic data through its public catalog. StoreScout reads that data and translates it into a readable report.</p>
     </div>
-    <div class="ba-grid">
-      <div class="ba-card before fi">
-        <div class="ba-label">
-          <div class="ba-icon red">❌</div>
-          <div><strong>Without StoreScout</strong><span style="display:block">Hours of manual research</span></div>
-        </div>
-        <ul class="ba-list">
-          <li>Opening 10+ browser tabs to check competitor pricing</li>
-          <li>Building spreadsheets to track discount patterns manually</li>
-          <li>Guessing at launch frequency with no real data</li>
-          <li>Losing hours every week doing research you hate</li>
-          <li>Making pricing decisions based on gut feel, not data</li>
+    <div class="discover">
+      <div class="disc fi">
+        <div class="disc-icon">💰</div>
+        <h3>Their full pricing architecture</h3>
+        <p>Median, P25/P75 range, dominant price bands, and where their catalog actually concentrates. Know exactly where they compete — and where they don't.</p>
+      </div>
+      <div class="disc fi">
+        <div class="disc-icon">🏷️</div>
+        <h3>How aggressively they discount</h3>
+        <p>What % of products are marked down, how deep the discounts go, and whether promotion is built into their strategy or used sparingly.</p>
+      </div>
+      <div class="disc fi">
+        <div class="disc-icon">🚀</div>
+        <h3>Their launch cadence & velocity</h3>
+        <p>How often they ship new products, at what price points, and whether they're accelerating, stagnant, or quietly slowing down.</p>
+      </div>
+      <div class="disc fi">
+        <div class="disc-icon">🎯</div>
+        <h3>Their strategic position, scored</h3>
+        <p>Market position, promo intensity, launch velocity, and catalog complexity — translated into 4 clear scores you can act on today.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────
+     PRICING ANCHOR
+     ───────────────────────────────────────────── -->
+<section class="section" id="pricing" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-center fi">
+      <div class="sec-label">Why $9</div>
+      <h2>Most competitor tools<br>charge $99/month.</h2>
+      <p class="sec-sub">We don't sell a dashboard. We sell the answer. You pay once, get the PDF, move on.</p>
+    </div>
+    <div class="anchor-grid">
+      <div class="anchor-card them fi">
+        <span class="anchor-flag">Most SaaS tools</span>
+        <div class="anchor-price" style="color:var(--muted)">$99<span style="font-size:1rem;font-weight:600">/month</span></div>
+        <div class="anchor-price-sub">$1,188/year minimum</div>
+        <ul class="anchor-list">
+          <li>Locked into a monthly subscription</li>
+          <li>Dashboard you have to learn</li>
+          <li>Account, login, saved card on file</li>
+          <li>You're paying every month, whether you use it or not</li>
+          <li>Cancellation hurdles</li>
         </ul>
       </div>
-      <div class="ba-card after fi">
-        <div class="ba-label">
-          <div class="ba-icon grn">✅</div>
-          <div><strong>With StoreScout</strong><span style="display:block">30 seconds with a $9 report</span></div>
-        </div>
-        <ul class="ba-list">
-          <li>Instant pricing architecture — median, P25, P75, full range</li>
-          <li>Exact discount rate, depth, and which products are marked down</li>
-          <li>Launch velocity — how often they add new products</li>
-          <li>Competitive positioning score across 4 strategic dimensions</li>
-          <li>Actionable insights you can act on today, not next week</li>
+      <div class="anchor-card us fi">
+        <span class="anchor-flag">StoreScout</span>
+        <div class="anchor-price">$9<span style="font-size:1rem;font-weight:600;color:var(--muted)"> · one-time</span></div>
+        <div class="anchor-price-sub">Pay per report. Done in 30 seconds.</div>
+        <ul class="anchor-list">
+          <li>One charge, one report, no commitment</li>
+          <li>Zero learning curve — open PDF, read insights</li>
+          <li>No account, no saved card, nothing to cancel</li>
+          <li>Run it when you actually need it</li>
+          <li>Order more for other stores, anytime</li>
         </ul>
       </div>
     </div>
+    <p class="anchor-explain fi">
+      <b>$9 covers one specific competitor.</b> If you only need to size up 2 or 3 stores this quarter, you're not paying $300+/month for the privilege.
+    </p>
   </div>
 </section>
 
-<!-- ── SAMPLE REPORT ── -->
-<section class="section" id="sample" style="padding-top:0">
-  <div class="wrap">
-    <div class="center fi">
-      <div class="sec-label">Real sample report</div>
-      <h2>See exactly what you're getting.</h2>
-      <p class="sec-sub">This is a real StoreScout report run on allbirds.com. Every report you order looks exactly like this.</p>
-    </div>
-
-    <div class="sample-wrap">
-      <div class="report-pages">
-
-        <!-- PAGE 1 -->
-        <div class="rp fi">
-          <div class="rp-head">
-            <div class="rp-head-top">
-              <span class="rp-pill">📋 1 of 5 — Overview</span>
-              <div class="rp-gen">Generated 2026-05-06T11:25:03Z<br>Public catalog analysis</div>
-            </div>
-            <div class="rp-title">Competitive Intelligence Report</div>
-            <div class="rp-url">https://allbirds.com</div>
-            <div class="rp-metrics">
-              <div class="rp-metric"><small>Catalog Size</small><strong>1,061</strong><em>Products discovered</em></div>
-              <div class="rp-metric"><small>In Stock</small><strong>84.83%</strong><em>900/1061 available</em></div>
-              <div class="rp-metric"><small>Median Price</small><strong>$70</strong><em>P25: $42 · P75: $105</em></div>
-              <div class="rp-metric"><small>Promo Rate</small><strong>64.09%</strong><em>Active discounts</em></div>
-            </div>
-          </div>
-          <div class="rp-body">
-            <div class="rp-section">
-              <div class="rp-section-head"><h3>Competitive Positioning</h3><span>Strategic Snapshot</span></div>
-              <div class="rp-2col">
-                <div class="rp-pos"><small>Market Position</small><strong>Mid-Market</strong><p>Based on catalog median price (simple heuristic).</p></div>
-                <div class="rp-pos"><small>Promo Intensity</small><strong>Medium &nbsp;<span style="background:#fef3c7;color:#92400e;font-size:.7rem;padding:2px 7px;border-radius:999px;font-weight:700">58</span></strong><p>Blend of discounted share + median discount depth.</p></div>
-                <div class="rp-pos"><small>Launch Velocity</small><strong>Low &nbsp;<span style="background:#fef3c7;color:#92400e;font-size:.7rem;padding:2px 7px;border-radius:999px;font-weight:700">41</span></strong><p>Blend of new product + update activity (last 90 days).</p></div>
-                <div class="rp-pos"><small>Catalog Complexity</small><strong>Medium &nbsp;<span style="background:#fef3c7;color:#92400e;font-size:.7rem;padding:2px 7px;border-radius:999px;font-weight:700">58</span></strong><p>Blend of catalog size + price spread + variants.</p></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PAGE 2 -->
-        <div class="rp fi">
-          <div class="rp-head" style="background:#1a2f4a">
-            <div class="rp-head-top">
-              <span class="rp-pill">💰 2 of 5 — Pricing & Discounts</span>
-              <div class="rp-gen">allbirds.com</div>
-            </div>
-          </div>
-          <div class="rp-body">
-            <div class="rp-section">
-              <div class="rp-section-head"><h3>💡 Key Insights</h3></div>
-              <div class="insight-box">
-                <h4>Strategic Intelligence</h4>
-                <ul>
-                  <li>Moderate launch velocity: 5.0 products/month, showing steady growth.</li>
-                  <li>Consistent positioning: New products (90d) at $75.00 vs catalog $70.00 (+7% delta).</li>
-                  <li>84.83% of products are currently in stock, which suggests stable inventory.</li>
-                  <li>64.09% of products show valid discounts (compare-at &gt; price), indicating aggressive promotion.</li>
-                  <li>The dominant price band is $50–$99 (35.25% of products), showing where they primarily compete.</li>
-                  <li>Newest products skew above the store median price, suggesting a premium expansion strategy.</li>
-                  <li>Products have multiple variants on average, suggesting upsell/option strategy (sizes, bundles, tiers).</li>
-                </ul>
-              </div>
-            </div>
-            <div class="rp-section">
-              <div class="rp-section-head"><h3>Price Architecture</h3><span>Pricing & Discount Strategy</span></div>
-              <div class="price-table-grid">
-                <div>
-                  <div class="price-table-head">Pricing Metrics</div>
-                  <div class="price-row"><span>Minimum</span><b>$2.00</b></div>
-                  <div class="price-row"><span>25th Percentile</span><b>$42.00</b></div>
-                  <div class="price-row"><span>Median</span><b>$70.00</b></div>
-                  <div class="price-row"><span>75th Percentile</span><b>$105.00</b></div>
-                  <div class="price-row"><span>Maximum</span><b>$160.00</b></div>
-                </div>
-                <div>
-                  <div class="price-table-head">Discount Metrics</div>
-                  <div class="price-row"><span>Discounted Products</span><b>680 (64.09%)</b></div>
-                  <div class="price-row"><span>Median Discount</span><b>50.0%</b></div>
-                  <div class="price-row"><span>Average Discount</span><b>47.54%</b></div>
-                  <div class="price-row"><span>Maximum Discount</span><b>75.0%</b></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PAGE 3 -->
-        <div class="rp fi">
-          <div class="rp-head" style="background:#1a2f4a">
-            <div class="rp-head-top">
-              <span class="rp-pill">🚀 3 of 5 — Launch Timeline</span>
-              <div class="rp-gen">allbirds.com</div>
-            </div>
-          </div>
-          <div class="rp-body">
-            <div class="rp-section">
-              <div class="rp-section-head"><h3>Expansion Strategy</h3><span>Launch Timeline & Comparisons</span></div>
-              <div class="rp-2col" style="margin-bottom:20px">
-                <div class="rp-pos"><small>New Products (90d)</small><strong>17</strong><p>1.6% of catalog</p></div>
-                <div class="rp-pos"><small>Velocity (90d)</small><strong>5.7/mo</strong><p>Products per month</p></div>
-                <div class="rp-pos"><small>Trend</small><strong>Steady</strong><p>-12% vs prior 90d</p></div>
-                <div class="rp-pos"><small>Price Strategy</small><strong>Consistent</strong><p>New vs catalog positioning</p></div>
-              </div>
-              <div class="price-table-head">Product Launch Timeline</div>
-              <table class="launch-table">
-                <thead><tr><th>Window</th><th>Launched</th><th>Share</th></tr></thead>
-                <tbody>
-                  <tr><td>Last 7 days</td><td><b>0</b></td><td>0.0%</td></tr>
-                  <tr><td>Last 30 days</td><td><b>5</b></td><td>0.47%</td></tr>
-                  <tr><td>Last 90 days</td><td><b>17</b></td><td>1.6%</td></tr>
-                  <tr><td>Last 180 days</td><td><b>73</b></td><td>6.88%</td></tr>
-                  <tr><td>Last 12 months</td><td><b>533</b></td><td>50.24%</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="rp-section" style="margin-top:20px">
-              <div class="rp-section-head"><h3>New Product Price Positioning</h3></div>
-              <div class="price-row"><span>Catalog Median</span><b>$70.00</b></div>
-              <div class="price-row"><span>New Median (30d)</span><b>$77.00 <span style="color:#22c55e;font-size:.75rem">(+10%)</span></b></div>
-              <div class="price-row"><span>New Median (90d)</span><b>$75.00 <span style="color:#22c55e;font-size:.75rem">(+7%)</span></b></div>
-              <div class="price-row"><span>Strategy</span><b>Consistent positioning</b></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PAGE 4 -->
-        <div class="rp fi">
-          <div class="rp-head" style="background:#1a2f4a">
-            <div class="rp-head-top">
-              <span class="rp-pill">🏆 4 of 5 — Top Products</span>
-              <div class="rp-gen">allbirds.com</div>
-            </div>
-          </div>
-          <div class="rp-body">
-            <div class="rp-2col">
-              <div class="rp-section">
-                <div class="rp-section-head"><h3>Most Expensive (Top 5)</h3></div>
-                <div class="product-item"><div class="product-name">Women's Wool Runner NZ Mid Waterproof — Natural Black</div><div class="product-price">$160.00</div></div>
-                <div class="product-item"><div class="product-name">Women's Wool Runner NZ Mid Waterproof — Dark Grey</div><div class="product-price">$160.00</div></div>
-                <div class="product-item"><div class="product-name">Men's Wool Runner NZ Mid Waterproof — Dark Grey</div><div class="product-price">$160.00</div></div>
-                <div class="product-item"><div class="product-name">Men's Wool Runner NZ Mid Waterproof — Natural Black (White Sole)</div><div class="product-price">$160.00</div></div>
-                <div class="product-item"><div class="product-name">Women's Wool Runner NZ Mid Waterproof — Natural Black (White Sole)</div><div class="product-price">$160.00</div></div>
-              </div>
-              <div class="rp-section">
-                <div class="rp-section-head"><h3>Biggest Discounts (Top 5)</h3></div>
-                <div class="product-item"><div class="product-name">Men's Tree Flyer 1 — Natural Black (Blizzard Sole)</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
-                <div class="product-item"><div class="product-name">Men's Tree Flyer 1 — Lux Beige (Blizzard Sole)</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
-                <div class="product-item"><div class="product-name">Men's Tree Flyer 1 — Blizzard (Blizzard Sole)</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
-                <div class="product-item"><div class="product-name">Men's Sea Tee — Navy Night</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
-                <div class="product-item"><div class="product-name">Men's Sea Tee — Juniper</div><div class="product-price" style="color:#ef4444">75.0% off</div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PAGE 5 -->
-        <div class="rp fi">
-          <div class="rp-head" style="background:#1a2f4a">
-            <div class="rp-head-top">
-              <span class="rp-pill">📊 5 of 5 — Data Coverage</span>
-              <div class="rp-gen">allbirds.com</div>
-            </div>
-          </div>
-          <div class="rp-body">
-            <div class="rp-section">
-              <div class="rp-section-head"><h3>Data Coverage & Limitations</h3></div>
-              <div class="coverage-item"><span class="coverage-dot"></span>Date coverage: 100% of products include created/published dates</div>
-              <div class="coverage-item"><span class="coverage-dot"></span>Pricing coverage: 100% of products include a usable price</div>
-              <div class="coverage-item"><span class="coverage-dot"></span>Discount coverage: 64.09% include compare-at pricing fields</div>
-              <div class="coverage-item"><span class="coverage-dot"></span>Safety cap: up to 10 pages × 250 products (max ~2,500 products)</div>
-              <div class="coverage-item"><span class="coverage-dot"></span>Data source: public Shopify /products.json endpoint</div>
-              <div class="coverage-note">ℹ️ This report is based only on the public Shopify product catalog endpoint. It does not include traffic, conversion rate, ads, or checkout data. Discounts are counted only when compare_at_min &gt; price_min.</div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /report-pages -->
-
-      <div style="margin-top:32px;text-align:center">
-        <a href="#analyze" class="btn btn-blue" style="padding:18px 40px;font-size:1.1rem">Get Your Report for $9 →</a>
-        <p style="margin-top:12px;color:var(--muted2);font-size:.82rem">One-time payment · Instant PDF · No subscription</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── WHAT'S INSIDE ── -->
-<section class="section" id="features" style="padding-top:0">
-  <div class="wrap">
-    <div class="center fi">
-      <div class="sec-label">What's inside</div>
-      <h2>5 pages of actionable intelligence.</h2>
-      <p class="sec-sub">Built for ecommerce founders who need fast competitive clarity — not another tool to manage.</p>
-    </div>
-    <div class="features">
-      <div class="feat fi">
-        <div class="feat-icon">💰</div>
-        <h3>Pricing architecture</h3>
-        <p>Median price, full percentile range (P25/P75), dominant price bands, min/max, and exactly where the store concentrates its catalog. Know if they're competing on price or on premium.</p>
-      </div>
-      <div class="feat fi">
-        <div class="feat-icon">🏷️</div>
-        <h3>Discount behavior</h3>
-        <p>What percentage of products are discounted, how deep those discounts go (median + average + max), and whether aggressive promotions are baked into their strategy.</p>
-      </div>
-      <div class="feat fi">
-        <div class="feat-icon">🚀</div>
-        <h3>Launch velocity & timeline</h3>
-        <p>How often they launch new products (per month), what those new products are priced at vs the existing catalog, and whether they're growing, slowing, or stagnant.</p>
-      </div>
-      <div class="feat fi">
-        <div class="feat-icon">🎯</div>
-        <h3>Competitive positioning</h3>
-        <p>Four scored dimensions — market position, promo intensity, launch velocity, and catalog complexity — translated into a clear strategic snapshot you can act on.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ── FAQ ── -->
+<!-- ─────────────────────────────────────────────
+     FAQ
+     ───────────────────────────────────────────── -->
 <section class="section" id="faq" style="padding-top:0">
   <div class="wrap">
-    <div class="center fi">
+    <div class="section-center fi">
       <div class="sec-label">FAQ</div>
-      <h2>Common questions, answered.</h2>
+      <h2>Quick answers.</h2>
     </div>
     <div class="faq-list">
 
@@ -956,7 +1104,7 @@ footer{border-top:1px solid var(--line);padding:28px 0}
 
       <div class="faq-item">
         <button class="faq-q">What exactly is in the 5-page report?<span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>Page 1: Overview metrics and competitive positioning scores. Page 2: Pricing architecture and discount strategy. Page 3: Launch timeline, velocity, and expansion patterns. Page 4: Top products — most expensive and most discounted. Page 5: Data coverage and methodology notes. You can see a real example in the sample report section above.</p></div>
+        <div class="faq-a"><p>Page 1: Overview metrics and competitive positioning scores. Page 2: Pricing architecture and discount strategy. Page 3: Launch timeline, velocity, and expansion patterns. Page 4: Top products — most expensive and most discounted. Page 5: Data coverage and methodology notes. Tap the tabs in the live preview above to see every page.</p></div>
       </div>
 
       <div class="faq-item">
@@ -973,15 +1121,19 @@ footer{border-top:1px solid var(--line);padding:28px 0}
   </div>
 </section>
 
-<!-- ── FINAL CTA ── -->
+<!-- ─────────────────────────────────────────────
+     FINAL CTA
+     ───────────────────────────────────────────── -->
 <section class="section" style="padding-top:0">
   <div class="wrap">
-    <div class="cta-box fi">
-      <div class="sec-label" style="justify-content:center">Start now</div>
-      <h2>Get competitor clarity<br>before your next move.</h2>
-      <p>One Shopify URL. One secure $9 payment. One instant 5-page strategy report. No subscriptions. No dashboard. No wasted time.</p>
-      <a href="#analyze" class="btn btn-blue" style="padding:18px 44px;font-size:1.1rem">Analyze Any Store for $9 →</a>
-      <div class="cta-trust">
+    <div class="final-cta-box fi">
+      <div class="sec-label" style="justify-content:center;display:flex">Start now</div>
+      <h2>Stop guessing.<br>Start <em style="font-style:normal;color:var(--green)">knowing</em>.</h2>
+      <p>One Shopify URL. One $9 charge. One instant 5-page strategy report. Then move.</p>
+      <a href="#start" class="btn btn-green" style="padding:18px 40px;font-size:1.05rem">
+        Analyze Any Store for $9 →
+      </a>
+      <div class="final-trust">
         <span class="stripe-badge">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           Secured by Stripe
@@ -1007,6 +1159,35 @@ footer{border-top:1px solid var(--line);padding:28px 0}
   </div>
 </footer>
 
+<!-- ─────────────────────────────────────────────
+     STICKY MOBILE CTA — always one tap to buy
+     ───────────────────────────────────────────── -->
+<div class="sticky-cta" id="stickyCta">
+  <div class="sticky-cta-inner">
+    <div class="sticky-cta-left">
+      <div class="sticky-cta-price">One report · <em>$9</em></div>
+      <div class="sticky-cta-sub">Instant PDF · No subscription</div>
+    </div>
+    <button class="sticky-cta-btn" onclick="document.getElementById('storeUrl').focus(); document.getElementById('analyze').scrollIntoView({behavior:'smooth',block:'center'})">
+      Analyze →
+    </button>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────
+     ZOOM MODAL (report inspector)
+     ───────────────────────────────────────────── -->
+<div class="zoom-modal" id="zoomModal" role="dialog" aria-modal="true" aria-label="Report page preview">
+  <div class="zoom-modal-inner" id="zoomInner">
+    <button class="zoom-close" id="zoomClose" aria-label="Close">✕</button>
+    <!-- Content injected by JS -->
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────
+     UI SCRIPT (nav, fade-in, hamburger, FAQ,
+     tabs, decrypt, zoom modal, sticky CTA)
+     ───────────────────────────────────────────── -->
 <script>
 // Nav scroll shadow
 const nav = document.getElementById('site-nav');
@@ -1040,9 +1221,89 @@ document.querySelectorAll('.faq-q').forEach(btn => {
     if(!isOpen) item.classList.add('open');
   });
 });
+
+// DECRYPT — tap-to-reveal hook
+const decryptCard = document.getElementById('decryptCard');
+const decryptBtn = document.getElementById('decryptBtn');
+const decryptOverlay = document.getElementById('decryptOverlay');
+let decryptRevealed = false;
+function revealDecrypt(){
+  if(decryptRevealed) return;
+  decryptRevealed = true;
+  decryptCard.classList.add('revealed');
+  // Optional analytics breadcrumb
+  if(window.fbq) try{ fbq('trackCustom','DecryptRevealed'); }catch(_){}
+  if(window.clarity) try{ clarity('event','decrypt_revealed'); }catch(_){}
+}
+decryptBtn.addEventListener('click', revealDecrypt);
+decryptOverlay.addEventListener('click', revealDecrypt);
+// Also let people tap individual stat cards
+document.querySelectorAll('.dc-stat').forEach(s => s.addEventListener('click', revealDecrypt));
+
+// REPORT INSPECTOR — tabs
+const tabs = document.querySelectorAll('.tab');
+const pages = document.querySelectorAll('.rp-page');
+tabs.forEach(t => {
+  t.addEventListener('click', () => {
+    const n = t.getAttribute('data-tab');
+    tabs.forEach(x => x.classList.remove('active'));
+    pages.forEach(p => p.classList.remove('active'));
+    t.classList.add('active');
+    const target = document.querySelector(`.rp-page[data-page="${n}"]`);
+    if(target) target.classList.add('active');
+    if(window.clarity) try{ clarity('event','tab_'+n); }catch(_){}
+  });
+});
+
+// ZOOM MODAL — click report stage to open
+const stage = document.getElementById('inspectorStage');
+const modal = document.getElementById('zoomModal');
+const modalInner = document.getElementById('zoomInner');
+const closeBtn = document.getElementById('zoomClose');
+function openZoom(){
+  const active = document.querySelector('.rp-page.active');
+  if(!active) return;
+  // Build modal content (close button + clone of active page)
+  modalInner.innerHTML = '<button class="zoom-close" id="zoomClose" aria-label="Close">✕</button>';
+  modalInner.appendChild(active.cloneNode(true));
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  modalInner.querySelector('#zoomClose').addEventListener('click', closeZoom);
+  if(window.fbq) try{ fbq('trackCustom','ReportZoomed'); }catch(_){}
+  if(window.clarity) try{ clarity('event','report_zoomed'); }catch(_){}
+}
+function closeZoom(){
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+stage.addEventListener('click', openZoom);
+modal.addEventListener('click', e => { if(e.target === modal) closeZoom(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeZoom(); });
+
+// STICKY MOBILE CTA — show after user scrolls past hero
+const sticky = document.getElementById('stickyCta');
+const hero = document.getElementById('start');
+let stickyShown = false;
+window.addEventListener('scroll', () => {
+  if(!hero) return;
+  const heroBottom = hero.offsetTop + hero.offsetHeight;
+  const shouldShow = window.scrollY > heroBottom - 200;
+  // Don't show when the final CTA section is on screen
+  const finalCta = document.querySelector('.final-cta-box');
+  const finalInView = finalCta && (finalCta.getBoundingClientRect().top < window.innerHeight - 100);
+  if(shouldShow && !finalInView){
+    if(!stickyShown){ sticky.classList.add('show'); document.body.classList.add('has-sticky'); stickyShown = true; }
+  }else{
+    if(stickyShown){ sticky.classList.remove('show'); document.body.classList.remove('has-sticky'); stickyShown = false; }
+  }
+}, {passive:true});
 </script>
 
-<!-- FORM SCRIPT -->
+<!-- ─────────────────────────────────────────────
+     FORM SCRIPT — store check + checkout
+     (UNCHANGED — preserves /check_store and /buy
+      endpoints, all IDs, all behavior)
+     ───────────────────────────────────────────── -->
 <script>
 const form     = document.getElementById('genForm');
 const storeUrl = document.getElementById('storeUrl');
