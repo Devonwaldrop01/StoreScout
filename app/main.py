@@ -200,6 +200,38 @@ def sample_report():
     sample_report_path = TEMPLATES_DIR / "sample-report.html"
     return HTMLResponse(sample_report_path.read_text(encoding="utf-8"))
 
+@app.get("/free-report")
+def free_report():
+    """Serve the free Allbirds sample PDF. Generates once and caches."""
+    static_dir = BASE_DIR / "static"
+    pdf_path = static_dir / "free-report.pdf"
+
+    if pdf_path.exists():
+        return FileResponse(
+            path=str(pdf_path),
+            media_type="application/pdf",
+            filename="allbirds-storescout-report.pdf",
+        )
+
+    try:
+        store_url = "https://www.allbirds.com"
+        raw_products = fetch_products_shopify(store_url)
+        normalized = [normalize_product(p, store_url) for p in raw_products]
+        insights = analyze_products(normalized)
+        insights["store_url"] = store_url
+
+        html = render_report_html(insights, TEMPLATES_DIR, is_free_report=True)
+        static_dir.mkdir(exist_ok=True)
+        html_to_pdf(html, pdf_path, is_free_report=True)
+
+        return FileResponse(
+            path=str(pdf_path),
+            media_type="application/pdf",
+            filename="allbirds-storescout-report.pdf",
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not generate free report: {str(e)}")
+
 @app.get("/blog", response_class=HTMLResponse)
 def blog():
     blog_path = TEMPLATES_DIR / "blog.html"

@@ -163,7 +163,8 @@ body>*{position:relative;z-index:1}
 .hero{padding:64px 0 28px;text-align:center;position:relative}
 .hero-inner{display:flex;flex-direction:column;align-items:center;width:100%;max-width:720px;margin:0 auto}
 
-.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;border:1px solid rgba(163,240,0,.32);background:rgba(163,240,0,.08);color:#d4ffaa;font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:24px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;border:1px solid rgba(163,240,0,.32);background:rgba(163,240,0,.08);color:#d4ffaa;font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:24px;cursor:pointer;transition:background .2s,border-color .2s}
+.eyebrow:hover{background:rgba(163,240,0,.15);border-color:rgba(163,240,0,.55)}
 .eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 1.8s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.75)}}
 
@@ -559,6 +560,30 @@ footer{border-top:1px solid var(--line);padding:26px 0}
 .sticky-cta-btn:active{transform:translateY(0)}
 
 /* ─────────────────────────────────────────────
+   PASTE BUTTON — mobile clipboard shortcut
+   ───────────────────────────────────────────── */
+.paste-btn{
+  display:none;
+  width:100%;margin-top:9px;
+  padding:11px 14px;
+  background:rgba(255,255,255,.04);
+  border:1px dashed rgba(255,255,255,.16);
+  border-radius:11px;
+  color:var(--muted);font-size:.84rem;font-weight:600;
+  cursor:pointer;font-family:var(--font);
+  transition:background .18s,border-color .18s,color .18s;
+  text-align:center;
+}
+.paste-btn:hover,.paste-btn:active{
+  background:rgba(59,130,246,.08);
+  border-color:rgba(59,130,246,.35);
+  color:var(--blue3);
+}
+@media(max-width:640px){
+  .paste-btn{display:block}
+}
+
+/* ─────────────────────────────────────────────
    FADE IN
    ───────────────────────────────────────────── */
 .fi{opacity:0;transform:translateY(20px);transition:opacity .55s ease,transform .55s ease}
@@ -685,18 +710,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <section class="hero" id="start">
   <div class="wrap hero-inner">
 
-    <div class="eyebrow"><span class="eyebrow-dot"></span>Shopify competitor intelligence</div>
+    <a href="#preview" class="eyebrow"><span class="eyebrow-dot"></span>Shopify competitor intelligence — see a live report ↓</a>
 
-    <h1>See what’s <em>actually</em> working in any Shopify store.</h1>
+    <h1>See <em>exactly</em> what any Shopify competitor is doing.</h1>
 
-    <p class="hero-tagline">Paste their store URL. Get their pricing, discounts, launches and positioning in a 5-page PDF. <b style="color:#d4ffaa">30 seconds. $9. Done.</b></p>
+    <p class="hero-tagline">Paste their URL. Get their pricing tiers, discount depth, newest launches, and brand type — in a clean 5-page PDF. <b style="color:#d4ffaa">30 seconds. $9. Done.</b></p>
 
     <div class="hero-form" id="analyze">
       <form id="genForm" novalidate>
         <div class="input-row">
-          <input id="storeUrl" name="store_url" type="url" placeholder="https://yourcompetitor.com" autocomplete="off" required/>
+          <input id="storeUrl" name="store_url" type="url" placeholder="yourcompetitor.com" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" required/>
           <button id="submitBtn" type="submit" class="btn btn-green" disabled>Analyze for $9 →</button>
         </div>
+        <button type="button" id="pasteBtn" class="paste-btn">📋 Paste store URL from clipboard</button>
         <div id="urlHelp" class="url-help">
           <span class="dot"></span>
           <span id="urlMsg">Paste any Shopify store URL to check compatibility.</span>
@@ -706,7 +732,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </form>
       <p class="form-microline">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        Stripe checkout · No account needed · Verified before payment
+        Stripe · No account · Verified before payment · Opens in browser
       </p>
     </div>
 
@@ -766,8 +792,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       <div class="decrypt-foot">
         <p class="decrypt-foot-text">
-          <b>This is page 1 of a real 5-page report.</b> Want one for any competitor of yours?
+          <b>Real 5-page report on Allbirds.</b> Download it free — or run one on your own competitor for $9.
         </p>
+        <a href="/free-report" target="_blank" class="btn btn-ghost" style="padding:13px 22px;font-size:.92rem;border-radius:11px;">
+          Free download ↓
+        </a>
         <a href="#start" class="btn btn-green" style="padding:13px 22px;font-size:.92rem;border-radius:11px">
           Get yours for $9 →
         </a>
@@ -981,7 +1010,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="proof-item fi"><div class="proof-num">30<span>s</span></div><div class="proof-lbl">Average report time</div></div>
     <div class="proof-item fi"><div class="proof-num">5</div><div class="proof-lbl">Pages per report</div></div>
     <div class="proof-item fi"><div class="proof-num"><span>$</span>9</div><div class="proof-lbl">One-time, no sub</div></div>
-    <div class="proof-item fi"><div class="proof-num">Most</div><div class="proof-lbl">Shopify stores supported</div></div>
+    <div class="proof-item fi"><div class="proof-num" style="font-size:1.4rem">Any</div><div class="proof-lbl">public Shopify store</div></div>
   </div>
 </div>
 
@@ -992,8 +1021,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="wrap">
     <div class="section-center fi">
       <div class="sec-label">How it works</div>
-      <h2>Paste. Pay. Download.</h2>
-      <p class="sec-sub">No dashboard. No spreadsheets. No account. Just one URL and your PDF.</p>
+      <h2>Paste. Pay. Read.</h2>
+      <p class="sec-sub">No dashboard. No spreadsheets. No account. Just one URL and your report.</p>
     </div>
     <div class="steps">
       <div class="step fi">
@@ -1008,8 +1037,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
       <div class="step fi">
         <div class="step-n">03</div>
-        <h3>Download your PDF instantly</h3>
-        <p>The full 5-page strategy report is generated and delivered the second checkout completes. No email queue, no waiting.</p>
+        <h3>Your report opens instantly</h3>
+        <p>The moment payment clears, your 5-page report opens right in your browser. Read it there, download it, or share it — works on any device.</p>
       </div>
     </div>
   </div>
@@ -1022,8 +1051,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="wrap">
     <div class="section-center fi">
       <div class="sec-label">What you'll uncover</div>
-      <h2>The stuff they thought<br>was hidden.</h2>
-      <p class="sec-sub">Every Shopify store leaks strategic data through its public catalog. StoreScout reads that data and translates it into a readable report.</p>
+      <h2>What their public catalog<br>reveals about their strategy.</h2>
+      <p class="sec-sub">Every Shopify store publishes its full product catalog — prices, launches, discounts, all of it. StoreScout reads that data and turns it into a clear competitive brief in 30 seconds.</p>
     </div>
     <div class="discover">
       <div class="disc fi">
@@ -1038,8 +1067,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
       <div class="disc fi">
         <div class="disc-icon">🚀</div>
-        <h3>Their launch cadence & velocity</h3>
-        <p>How often they ship new products, at what price points, and whether they're accelerating, stagnant, or quietly slowing down.</p>
+        <h3>What they just launched</h3>
+        <p>Their newest products by date — with prices and vendor. See exactly what they're betting on right now, before it shows up in your market.</p>
+      </div>
+      <div class="disc fi">
+        <div class="disc-icon">🏭</div>
+        <h3>Brand or dropshipper?</h3>
+        <p>Vendor diversity analysis tells you instantly — single DTC brand, owned sub-lines, curated boutique, or a wide-vendor aggregator. Changes how you compete.</p>
+      </div>
+      <div class="disc fi">
+        <div class="disc-icon">🔖</div>
+        <h3>Their internal category signals</h3>
+        <p>Top tags across their catalog reveal how they merchandise — bundles, gifting, seasonal pushes, bestsellers — the stuff they don't put on their homepage.</p>
       </div>
       <div class="disc fi">
         <div class="disc-icon">🎯</div>
@@ -1104,38 +1143,43 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="faq-list">
 
       <div class="faq-item">
-        <button class="faq-q">Which Shopify stores work with StoreScout?<span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>Most stores running on Shopify that haven't restricted their public product catalog endpoint. Some stores block or disable this endpoint — we check compatibility before you pay, so if your target store isn't supported, you won't be charged.</p></div>
-      </div>
-
-      <div class="faq-item">
         <button class="faq-q">Is this a subscription? Will I be charged again?<span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>No — StoreScout is a one-time $9 payment per report. There is no subscription, no auto-renewal, and no account to manage. You pay once, get your PDF, and that's it. You can order additional reports for other stores whenever you like.</p></div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">How is the report generated? Is the data accurate?<span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>StoreScout reads the publicly available product catalog from the Shopify store's /products.json endpoint — the same data anyone could access manually, but processed and analyzed automatically. The data is real, current, and pulled at the time you order. It does not include traffic, revenue, or ad data.</p></div>
+        <div class="faq-a"><p>No — StoreScout is a one-time $9 payment per report. There is no subscription, no auto-renewal, and no account to manage. You pay once, get your report, and that's it. You can order additional reports for other stores whenever you like.</p></div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">How fast is delivery?<span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>Instant. Reports are generated in under 30 seconds. As soon as your payment goes through, your PDF is ready to download — no email queues, no waiting, no manual processing.</p></div>
+        <div class="faq-a"><p>Instant. Reports are generated in under 30 seconds. The moment payment clears, your report opens right in your browser — no email queue, no waiting, no manual processing.</p></div>
       </div>
 
       <div class="faq-item">
-        <button class="faq-q">What exactly is in the 5-page report?<span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>Page 1: Overview metrics and competitive positioning scores. Page 2: Pricing architecture and discount strategy. Page 3: Launch timeline, velocity, and expansion patterns. Page 4: Top products — most expensive and most discounted. Page 5: Data coverage and methodology notes. Tap the tabs in the live preview above to see every page.</p></div>
+        <button class="faq-q">Can I view the report on my phone?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Yes — the report opens directly in your browser the moment payment clears. No app needed, no file to hunt for. Read it right there, download it to save, or share it with your team. Works on iPhone and Android.</p></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">What exactly is in the report?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Pricing architecture (min, median, P25/P75, dominant price bands). Discount strategy (what % is on sale, how deep, average markdown). Launch timeline — how many products they've added in the last 7, 30, 90, and 180 days, at what velocity, and at what price. Their newest products by date. Vendor diversity — whether they're a single DTC brand or a multi-vendor aggregator. Top tags across their catalog. Competitive positioning scores for market position, promo intensity, launch velocity, and catalog complexity. Use the live preview above to see every section.</p></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">Which Shopify stores work with StoreScout?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Any Shopify store that hasn't restricted its public product catalog. We verify compatibility before you pay — if the store can't be analyzed, you'll be told upfront and won't be charged.</p></div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">Is this data publicly available? Is it legal?<span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>Yes. StoreScout only uses the public /products.json endpoint that Shopify exposes by default on all standard stores. This is the same data that anyone with a browser can access. We don't scrape private pages, bypass authentication, or access any data that isn't publicly available.</p></div>
+        <div class="faq-a"><p>Yes. StoreScout only reads the public product catalog that Shopify exposes by default on every standard store. It's the same data anyone with a browser can access — we just process it automatically. No private pages, no authentication bypass, no data that isn't already public.</p></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">How is the data collected? Is it accurate?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>StoreScout reads the store's public /products.json endpoint at the moment you order — so the data is current, not cached. It covers pricing, discounts, product dates, vendor names, and tags. It does not include traffic, revenue, ad spend, or conversion data, which aren't publicly accessible.</p></div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">What if my target store isn't supported?<span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>We check compatibility before you reach checkout. If the store isn't accessible or doesn't return usable data, you'll be told upfront and won't be able to proceed to payment. You will not be charged for a report we can't generate.</p></div>
+        <div class="faq-a"><p>We check before you reach checkout. If the store blocks catalog access or isn't on Shopify, you'll see a clear message and won't be able to proceed to payment. You will not be charged for a report we can't generate.</p></div>
       </div>
 
     </div>
@@ -1149,8 +1193,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="wrap">
     <div class="final-cta-box fi">
       <div class="sec-label" style="justify-content:center;display:flex">Start now</div>
-      <h2>Stop guessing.<br>Start <em style="font-style:normal;color:var(--green)">knowing</em>.</h2>
-      <p>One Shopify URL. One $9 charge. One instant 5-page strategy report. Then move.</p>
+      <h2>Your competitor has a strategy.<br>Now you can <em style="font-style:normal;color:var(--green)">read it</em>.</h2>
+      <p>One URL. $9. A complete competitive brief on any Shopify store — pricing, discounts, launches, brand type — ready in 30 seconds.</p>
       <a href="#start" class="btn btn-green" style="padding:18px 40px;font-size:1.05rem">
         Analyze Any Store for $9 →
       </a>
@@ -1377,6 +1421,28 @@ function scheduleCheck(){
 }
 storeUrl.addEventListener("input",scheduleCheck);
 storeUrl.addEventListener("paste",()=>setTimeout(scheduleCheck,0));
+
+// Paste button — clipboard API with fallback
+const pasteBtn = document.getElementById('pasteBtn');
+if(pasteBtn){
+  pasteBtn.addEventListener('click', async () => {
+    try{
+      const text = await navigator.clipboard.readText();
+      if(text && text.trim()){
+        storeUrl.value = text.trim();
+        scheduleCheck();
+        pasteBtn.textContent = '✅ Pasted — checking store…';
+        setTimeout(()=>{ pasteBtn.textContent = '📋 Paste store URL from clipboard'; }, 3000);
+      }
+    }catch(e){
+      // clipboard permission denied or unavailable — just focus the input
+      storeUrl.focus();
+      pasteBtn.textContent = 'Tap the URL field and paste manually';
+      setTimeout(()=>{ pasteBtn.textContent = '📋 Paste store URL from clipboard'; }, 3000);
+    }
+  });
+}
+
 btn.disabled=true;
 setHelp(null,"Paste any Shopify store URL to check compatibility.");
 

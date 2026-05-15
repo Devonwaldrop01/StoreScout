@@ -8,7 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 from playwright.sync_api import sync_playwright
 
 
-def render_report_html(insights: Dict[str, Any], templates_dir: Path) -> str:
+def render_report_html(insights: Dict[str, Any], templates_dir: Path, is_free_report: bool = False) -> str:
     env = Environment(loader=FileSystemLoader(str(templates_dir)), autoescape=True)
     template = env.get_template("report_template.html")
 
@@ -27,28 +27,36 @@ def render_report_html(insights: Dict[str, Any], templates_dir: Path) -> str:
         "positioning": insights.get("positioning", {}),
         "confidence_notes": insights.get("confidence_notes", []),
         "lists": insights.get("lists", {}),
-
-        # Keep this ONLY if your template still uses discounted_vs_full_price from comparisons
         "comparisons": insights.get("comparisons", {}),
-
-        # ✅ NEW: make launch_timeline definitely available to the template
         "launch_timeline": insights.get("launch_timeline", {}) or insights.get("launch", {}) or {},
+        "vendor_analysis": insights.get("vendor_analysis", {}),
+        "tag_analysis": insights.get("tag_analysis", {}),
+        "is_free_report": is_free_report,
     }
 
     return template.render(**ctx)
 
 
 
-def html_to_pdf(html: str, out_path: Path, brand_name: str = "StoreScout") -> None:
+def html_to_pdf(html: str, out_path: Path, brand_name: str = "StoreScout", is_free_report: bool = False) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    footer_template = f"""
-    <div style="font-size:9px; width:100%; padding:0 18mm; color:#666;
-                display:flex; justify-content:space-between;">
-      <div>{brand_name}</div>
-      <div>Page <span class="pageNumber"></span> / <span class="totalPages"></span></div>
-    </div>
-    """
+    if is_free_report:
+        footer_template = """
+        <div style="font-size:9px; width:100%; padding:0 18mm; color:#666;
+                    display:flex; justify-content:space-between;">
+          <div style="color:#a3f000;font-weight:700;">FREE SAMPLE · getstorescout.com · $9 per report</div>
+          <div>Page <span class="pageNumber"></span> / <span class="totalPages"></span></div>
+        </div>
+        """
+    else:
+        footer_template = f"""
+        <div style="font-size:9px; width:100%; padding:0 18mm; color:#666;
+                    display:flex; justify-content:space-between;">
+          <div>{brand_name}</div>
+          <div>Page <span class="pageNumber"></span> / <span class="totalPages"></span></div>
+        </div>
+        """
 
     with sync_playwright() as p:
         # Chromium launch can be slow the first time on a machine. These flags are harmless and
