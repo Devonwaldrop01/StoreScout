@@ -328,10 +328,131 @@
     .launch-snap .card-grid { margin-bottom: 0; }
     .launch-snap .metric-value { font-size: 15pt; }
     .launch-inline-note { font-size: 8pt; color: var(--muted); margin-top: 6pt; }
+
+    /* -------- Free sample banner -------- */
+    .free-banner {
+      background: rgba(163, 240, 0, 0.12);
+      border-bottom: 1px solid rgba(163, 240, 0, 0.3);
+      padding: 6pt 18mm;
+      margin: 0 -18mm;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8pt;
+    }
+    .free-banner-label {
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #a3f000;
+    }
+    .free-banner-cta {
+      font-size: 7.5pt;
+      font-weight: 600;
+      color: rgba(255,255,255,0.75);
+    }
+    .free-banner-cta b { color: #a3f000; }
+
+    /* -------- Closing CTA page -------- */
+    .cta-page {
+      break-before: page;
+      margin: -18mm;
+      padding: 0;
+      min-height: 100vh;
+      background: linear-gradient(150deg, #0f1e36 0%, #1a2f4a 50%, #0f1e36 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-page::before {
+      content: '';
+      position: absolute;
+      top: -100pt;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 400pt;
+      height: 400pt;
+      background: radial-gradient(circle, rgba(163,240,0,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .cta-page-inner {
+      position: relative;
+      z-index: 1;
+      padding: 48pt 40pt;
+      max-width: 480pt;
+    }
+    .cta-page-tag {
+      display: inline-block;
+      font-size: 7.5pt;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #a3f000;
+      border: 1px solid rgba(163,240,0,0.35);
+      background: rgba(163,240,0,0.08);
+      padding: 4pt 12pt;
+      border-radius: 999pt;
+      margin-bottom: 20pt;
+    }
+    .cta-page h1 {
+      font-size: 26pt;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      color: #ffffff;
+      margin-bottom: 14pt;
+    }
+    .cta-page h1 em {
+      font-style: normal;
+      color: #a3f000;
+    }
+    .cta-page-signals {
+      font-size: 8.5pt;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.03em;
+      margin-bottom: 28pt;
+      line-height: 1.8;
+    }
+    .cta-page-divider {
+      width: 40pt;
+      height: 1.5pt;
+      background: rgba(163,240,0,0.4);
+      margin: 0 auto 28pt;
+      border-radius: 2pt;
+    }
+    .cta-page-question {
+      font-size: 13pt;
+      font-weight: 700;
+      color: rgba(255,255,255,0.9);
+      line-height: 1.4;
+      margin-bottom: 28pt;
+      letter-spacing: -0.02em;
+    }
+    .cta-page-url {
+      font-size: 22pt;
+      font-weight: 800;
+      color: #a3f000;
+      letter-spacing: -0.03em;
+      margin-bottom: 10pt;
+    }
+    .cta-page-price {
+      font-size: 9.5pt;
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
   </style>
 </head>
 
 <body>
+  {# Free report flag #}
+  {% set is_free_report = is_free_report if is_free_report is defined else false %}
+
   {# Defensive defaults #}
   {% set positioning = positioning or {} %}
   {% set comparisons = comparisons or {} %}
@@ -360,6 +481,13 @@
   {% set price_pos = (launch.get('price_positioning') or {}) %}
   {% set monthly = (launch.get('monthly_distribution') or {}) %}
   {% set peak_months = (monthly.get('peak_months') or []) %}
+
+  {% if is_free_report %}
+  <div class="free-banner">
+    <span class="free-banner-label">⬇ Free Sample Report</span>
+    <span class="free-banner-cta">Get this for any competitor → <b>getstorescout.com</b> · $9</span>
+  </div>
+  {% endif %}
 
   <div class="report-header">
     <div class="header-content">
@@ -745,7 +873,7 @@
       <span class="section-badge">Notable Items</span>
     </div>
 
-    <div class="card-grid-2">
+    <div class="card-grid-2 mb-md">
       <div>
         <h3>Most Expensive (Top 5)</h3>
         <table>
@@ -772,6 +900,97 @@
         </table>
       </div>
     </div>
+
+    {% set newest = lists.get('newest_products') or [] %}
+    {% if newest %}
+    <div style="margin-top: 14pt;">
+      <h3>Newest Launches (Last Added)</h3>
+      <table>
+        <tr>
+          <th>Product</th>
+          <th>Vendor</th>
+          <th class="text-right">Price</th>
+          <th class="text-right">Added</th>
+        </tr>
+        {% for p in newest[:8] %}
+          <tr>
+            <td><a href="{{ p.product_url }}" class="product-link">{{ p.title }}</a></td>
+            <td class="text-muted">{{ p.vendor or '—' }}</td>
+            <td class="text-right">{% if p.price_min is not none %}${{ '%.2f'|format(p.price_min) }}{% else %}—{% endif %}</td>
+            <td class="text-right text-muted">{{ (p.created_at or '')[:10] or '—' }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endif %}
+  </div>
+
+  {% set vendor_analysis = vendor_analysis or {} %}
+  {% set tag_analysis = tag_analysis or {} %}
+
+  <div class="section">
+    <div class="section-header">
+      <h2>Catalog Intelligence</h2>
+      <span class="section-badge">Brand &amp; Category Signals</span>
+    </div>
+
+    <div class="card-grid-2">
+
+      {# ── Vendor Diversity ── #}
+      <div>
+        <h3>Vendor Diversity</h3>
+
+        {% if vendor_analysis.get('brand_type') %}
+        <div style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8pt; padding: 12pt; margin-bottom: 12pt;">
+          <div style="font-size: 15pt; font-weight: 700; color: var(--ink); margin-bottom: 4pt;">
+            {{ vendor_analysis.get('brand_type') }}
+          </div>
+          <div style="font-size: 8pt; color: var(--muted); line-height: 1.4;">
+            {{ vendor_analysis.get('brand_note') }}
+          </div>
+        </div>
+        {% endif %}
+
+        {% set top_vendors = vendor_analysis.get('top_vendors') or [] %}
+        {% if top_vendors %}
+        <table>
+          <tr><th>Vendor</th><th class="text-right">Products</th><th class="text-right">Share</th></tr>
+          {% for v in top_vendors[:8] %}
+            <tr>
+              <td>{{ v.vendor }}</td>
+              <td class="text-right">{{ v.count }}</td>
+              <td class="text-right text-muted">{{ v.pct }}%</td>
+            </tr>
+          {% endfor %}
+        </table>
+        {% endif %}
+      </div>
+
+      {# ── Tag Frequency ── #}
+      <div>
+        <h3>Top Tags</h3>
+
+        {% set top_tags = tag_analysis.get('top_tags') or [] %}
+        {% if top_tags %}
+        <div style="font-size: 8pt; color: var(--muted); margin-bottom: 10pt;">
+          {{ tag_analysis.get('total_unique', 0) }} unique tags · {{ tag_analysis.get('coverage_pct', 0) }}% of products tagged
+        </div>
+        {% set max_tag_count = top_tags[0].count if top_tags else 1 %}
+        {% for t in top_tags %}
+          <div class="bar-row">
+            <div class="bar-label">{{ t.tag }}</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width: {{ (t.count / max_tag_count * 100)|round(1) }}%;"></div>
+            </div>
+            <div class="bar-count">{{ t.count }}</div>
+          </div>
+        {% endfor %}
+        {% else %}
+        <p style="font-size: 8.5pt; color: var(--muted);">No tag data available for this store.</p>
+        {% endif %}
+      </div>
+
+    </div>
   </div>
 
   <div class="confidence-notes avoid-break">
@@ -782,5 +1001,29 @@
       {% endfor %}
     </ul>
   </div>
+  {% if is_free_report %}
+  <div class="cta-page">
+    <div class="cta-page-inner">
+      <div class="cta-page-tag">Free Sample Report</div>
+
+      <h1>You just saw exactly how<br><em>Allbirds</em> competes.</h1>
+
+      <div class="cta-page-signals">
+        Pricing strategy · Discount behavior · Launch velocity<br>
+        Newest products · Vendor structure · Category signals
+      </div>
+
+      <div class="cta-page-divider"></div>
+
+      <p class="cta-page-question">
+        What would you find if you ran this<br>on your actual competitor?
+      </p>
+
+      <div class="cta-page-url">getstorescout.com</div>
+      <div class="cta-page-price">$9 &nbsp;·&nbsp; One report &nbsp;·&nbsp; No subscription &nbsp;·&nbsp; 30 seconds</div>
+    </div>
+  </div>
+  {% endif %}
+
 </body>
 </html>

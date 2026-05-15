@@ -298,6 +298,70 @@ def compute_discount_pct(price_min: Optional[float], compare_at_min: Optional[fl
     if compare_at_min > price_min and compare_at_min > 0:
         return round((compare_at_min - price_min) / compare_at_min * 100.0, 2)
     return None
+def compute_tag_analysis(products: List[Dict[str, Any]]) -> Dict[str, Any]:
+    total = len(products)
+    if not total:
+        return {"coverage_pct": 0, "top_tags": [], "total_unique": 0}
+
+    all_tags: List[str] = []
+    products_with_tags = 0
+
+    for p in products:
+        raw = p.get("tags") or []
+        if isinstance(raw, str):
+            raw = [t.strip() for t in raw.split(",") if t.strip()]
+        tag_list = [t.strip().lower() for t in raw if t and str(t).strip()]
+        if tag_list:
+            products_with_tags += 1
+            all_tags.extend(tag_list)
+
+    if not all_tags:
+        return {"coverage_pct": 0, "top_tags": [], "total_unique": 0}
+
+    tag_counts = Counter(all_tags)
+    top_15 = tag_counts.most_common(15)
+
+    return {
+        "coverage_pct": pct(products_with_tags, total),
+        "total_unique": len(tag_counts),
+        "top_tags": [
+            {"tag": tag, "count": count, "pct": round(pct(count, total), 1)}
+            for tag, count in top_15
+        ],
+    }
+
+
+def compute_vendor_analysis(vendors_counter: Counter, total: int) -> Dict[str, Any]:
+    vendor_count = len(vendors_counter)
+    if vendor_count == 0:
+        return {"brand_type": "Unknown", "brand_note": "", "vendor_count": 0, "top_vendors": []}
+
+    if vendor_count == 1:
+        brand_type = "Single brand / DTC"
+        brand_note = "One vendor across the entire catalog — likely a direct-to-consumer brand."
+    elif vendor_count <= 3:
+        brand_type = "Brand with sub-lines"
+        brand_note = f"{vendor_count} vendors — a brand with owned sub-labels or product lines."
+    elif vendor_count <= 10:
+        brand_type = "Curated multi-brand"
+        brand_note = f"{vendor_count} vendors — curated selection, typical of boutiques or specialty retailers."
+    else:
+        brand_type = "Aggregator / dropshipper"
+        brand_note = f"{vendor_count} unique vendors — wide vendor base suggests dropshipping or large wholesale aggregation."
+
+    top_vendors = [
+        {"vendor": v, "count": c, "pct": round(pct(c, total), 1)}
+        for v, c in vendors_counter.most_common(10)
+    ]
+
+    return {
+        "brand_type": brand_type,
+        "brand_note": brand_note,
+        "vendor_count": vendor_count,
+        "top_vendors": top_vendors,
+    }
+
+
 def analyze_launch_timeline(products: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Analyze product launch patterns and velocity.
@@ -571,6 +635,8 @@ def analyze_products(products: List[Dict[str, Any]]) -> Dict[str, Any]:
     out_stock = [p for p in products if not bool(p.get("available"))]
 
     vendors = Counter((p.get("vendor") or "Unknown").strip() for p in products)
+    vendor_analysis = compute_vendor_analysis(vendors, total)
+    tag_analysis = compute_tag_analysis(products)
 
     prices_all = [safe_float(p.get("price_min")) for p in products]
     prices_pos = [x for x in prices_all if x is not None and x > 0]
@@ -920,6 +986,8 @@ def analyze_products(products: List[Dict[str, Any]]) -> Dict[str, Any]:
             "vendors": dict(vendors),
             "vendor_count": len(vendors),
         },
+        "vendor_analysis": vendor_analysis,
+        "tag_analysis": tag_analysis,
         "pricing": {
             "count": len(prices_pos),
             "min": round(price_min, 2) if price_min is not None else None,
