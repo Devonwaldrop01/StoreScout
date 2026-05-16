@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoreScout Ad — Angle 1: Price Blind (1080×1080)</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    background: #060d18;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ad {
+    width: 1080px;
+    height: 1080px;
+    background: #060d18;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 60px 80px;
+  }
+
+  /* Background glows */
+  .glow-1 {
+    position: absolute;
+    top: -100px; right: -80px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .glow-2 {
+    position: absolute;
+    bottom: 50px; left: -100px;
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, rgba(163,240,0,0.07) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  /* Warning badge — creates pattern interrupt */
+  .warning-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 999px;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fca5a5;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 2;
+  }
+  .warning-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #ef4444;
+    flex-shrink: 0;
+  }
+
+  /* Headline */
+  .headline {
+    font-size: 72px;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.05;
+    text-align: center;
+    max-width: 880px;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  .headline .accent { color: #a3f000; }
+  .headline .dim { color: #4a6080; }
+
+  .sub {
+    font-size: 22px;
+    font-weight: 400;
+    color: #7d92aa;
+    text-align: center;
+    max-width: 700px;
+    line-height: 1.55;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 52px;
+  }
+
+  /* Three pain points */
+  .points {
+    display: flex;
+    gap: 20px;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 52px;
+  }
+  .point {
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 22px 26px;
+    width: 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .point-icon {
+    font-size: 28px;
+    line-height: 1;
+  }
+  .point-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a6080;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+  .point-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.2;
+  }
+  .point-detail {
+    font-size: 13px;
+    color: #4a6080;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .point.green .point-value { color: #a3f000; }
+
+  /* CTA row */
+  .cta-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 32px;
+  }
+  .cta-btn {
+    background: #a3f000;
+    color: #060d18;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    padding: 18px 42px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+  }
+  .cta-note {
+    font-size: 16px;
+    color: #4a6080;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .cta-note strong { color: #d4ffaa; }
+
+  /* Brand footer */
+  .brand-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    z-index: 2;
+  }
+  .brand-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #a3f000;
+  }
+  .brand-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #2a3a50;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="ad">
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
+
+  <!-- Warning badge — pattern interrupt -->
+  <div class="warning-badge">
+    <span class="warning-dot"></span>
+    For Shopify store owners
+  </div>
+
+  <!-- Headline -->
+  <h1 class="headline">
+    You're pricing <span class="dim">blind.</span><br>
+    Your competitor <span class="accent">isn't.</span>
+  </h1>
+
+  <!-- Sub -->
+  <p class="sub">
+    Every Shopify store publishes its pricing, discounts, and newest launches publicly.
+    StoreScout reads it and sends you a clear PDF — in 30 seconds.
+  </p>
+
+  <!-- Three data points (what the report reveals) -->
+  <div class="points">
+    <div class="point green">
+      <div class="point-icon">💰</div>
+      <div class="point-label">Their price range</div>
+      <div class="point-value">P25 → P75</div>
+      <div class="point-detail">Where they actually compete</div>
+    </div>
+    <div class="point">
+      <div class="point-icon">🏷️</div>
+      <div class="point-label">Discount depth</div>
+      <div class="point-value">% on sale</div>
+      <div class="point-detail">How aggressively they mark down</div>
+    </div>
+    <div class="point">
+      <div class="point-icon">🚀</div>
+      <div class="point-label">Newest launches</div>
+      <div class="point-value">Last 30 days</div>
+      <div class="point-detail">What they're betting on right now</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-row">
+    <div class="cta-btn">See their strategy — $9 →</div>
+    <div class="cta-note">
+      One report. One payment.<br>
+      <strong>No subscription. No account.</strong>
+    </div>
+  </div>
+
+  <!-- Brand -->
+  <div class="brand-footer">
+    <span class="brand-dot"></span>
+    <span class="brand-name">StoreScout · getstorescout.com</span>
+  </div>
+</div>
+</body>
+</html>
