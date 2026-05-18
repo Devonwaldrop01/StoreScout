@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoreScout Ad — Angle 3: Before You Launch (1080×1080)</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    background: #060d18;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ad {
+    width: 1080px;
+    height: 1080px;
+    background: #060d18;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    overflow: hidden;
+    padding: 70px 90px 70px 80px;
+  }
+
+  /* Background glows — asymmetric for visual interest */
+  .glow-a {
+    position: absolute; top: -50px; right: 50px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(59,130,246,0.09) 0%, transparent 60%);
+  }
+  .glow-b {
+    position: absolute; bottom: 100px; left: -100px;
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(163,240,0,0.06) 0%, transparent 65%);
+  }
+
+  /* Step label */
+  .step-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #60a5fa;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Main headline — left-aligned, large, punchy */
+  .headline {
+    font-size: 68px;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    max-width: 880px;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 22px;
+  }
+  .headline .accent { color: #a3f000; }
+
+  .sub {
+    font-size: 22px;
+    font-weight: 400;
+    color: #7d92aa;
+    max-width: 720px;
+    line-height: 1.55;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 56px;
+  }
+
+  /* Checklist — what the report covers */
+  .checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 56px;
+  }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .check-mark {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(163,240,0,0.12);
+    border: 1px solid rgba(163,240,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 13px;
+  }
+  .check-text {
+    font-size: 20px;
+    font-weight: 600;
+    color: #c8d8e8;
+    line-height: 1;
+  }
+  .check-text span {
+    color: #a3f000;
+    font-weight: 700;
+  }
+
+  /* Divider */
+  .divider {
+    width: 48px; height: 2px;
+    background: rgba(163,240,0,0.4);
+    border-radius: 2px;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* CTA block */
+  .cta-block {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    position: relative;
+    z-index: 2;
+  }
+  .cta-btn {
+    background: #a3f000;
+    color: #060d18;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    padding: 18px 44px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .cta-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .cta-price {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+  }
+  .cta-price .amount { color: #a3f000; }
+  .cta-meta {
+    font-size: 14px;
+    color: #4a6080;
+    font-weight: 500;
+  }
+
+  /* Brand */
+  .brand {
+    position: absolute;
+    bottom: 36px;
+    right: 80px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 2;
+  }
+  .brand-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #a3f000;
+  }
+  .brand-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e3050;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="ad">
+  <div class="glow-a"></div>
+  <div class="glow-b"></div>
+
+  <!-- Step context -->
+  <div class="step-label">
+    ⚡ Before you price your next product
+  </div>
+
+  <!-- Headline -->
+  <h1 class="headline">
+    Know exactly what<br>
+    your competitor<br>
+    <span class="accent">charges.</span>
+  </h1>
+
+  <!-- Sub -->
+  <p class="sub">
+    Paste any Shopify store URL. Get their full pricing strategy, discount depth,
+    and newest product launches — delivered as a clean PDF in 30 seconds.
+  </p>
+
+  <!-- Checklist -->
+  <div class="checklist">
+    <div class="check-item">
+      <span class="check-mark">✓</span>
+      <span class="check-text">Their <span>price range</span> — min, median, P25/P75</span>
+    </div>
+    <div class="check-item">
+      <span class="check-mark">✓</span>
+      <span class="check-text">How much they <span>discount</span> and how deep</span>
+    </div>
+    <div class="check-item">
+      <span class="check-mark">✓</span>
+      <span class="check-text">What they <span>just launched</span> in the last 30 days</span>
+    </div>
+    <div class="check-item">
+      <span class="check-mark">✓</span>
+      <span class="check-text">Whether they're a <span>brand or dropshipper</span></span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CTA -->
+  <div class="cta-block">
+    <div class="cta-btn">Check their pricing for $9 →</div>
+    <div class="cta-details">
+      <span class="cta-price"><span class="amount">$9</span> once. No subscription.</span>
+      <span class="cta-meta">No account · Instant PDF · Any Shopify store</span>
+    </div>
+  </div>
+
+  <div class="brand">
+    <span class="brand-dot"></span>
+    <span class="brand-text">StoreScout · getstorescout.com</span>
+  </div>
+</div>
+</body>
+</html>
