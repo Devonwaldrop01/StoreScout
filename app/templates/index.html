@@ -514,14 +514,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s ease-in-out infinite;"></span>
       Watch it work — 10 seconds
     </div>
-    <div style="border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 0 60px rgba(163,240,0,.08),0 24px 60px rgba(0,0,0,.4);position:relative;">
+    <div style="border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 0 60px rgba(163,240,0,.08),0 24px 60px rgba(0,0,0,.4);position:relative;cursor:pointer;" id="demoVideoWrap">
       <video
-        autoplay muted loop playsinline
-        style="width:100%;display:block;border-radius:18px;"
-        poster="">
+        id="demoVideo"
+        autoplay muted loop playsinline preload="auto"
+        style="width:100%;display:block;border-radius:18px;">
         <source src="/static/StoreScout%20Demo%20.mp4" type="video/mp4">
       </video>
+      <div id="demoPlayBtn" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,.45);border-radius:18px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(163,240,0,.9);display:flex;align-items:center;justify-content:center;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#060d18"><polygon points="5,3 19,12 5,21"/></svg>
+        </div>
+      </div>
     </div>
+    <script>
+      (function(){
+        var v = document.getElementById('demoVideo');
+        var btn = document.getElementById('demoPlayBtn');
+        var wrap = document.getElementById('demoVideoWrap');
+        var p = v.play();
+        if(p !== undefined){
+          p.catch(function(){
+            btn.style.display = 'flex';
+          });
+        }
+        wrap.addEventListener('click', function(){
+          btn.style.display = 'none';
+          v.play();
+        });
+      })();
+    </script>
     <div style="margin-top:12px;font-size:.78rem;color:var(--muted2);font-weight:500;">
       Real data · Any public Shopify store · Under a minute
     </div>
