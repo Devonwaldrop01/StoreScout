@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>StoreScout — vs Koala Inspector</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1080px; height: 1080px;
+    overflow: hidden;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #05090f;
+  }
+
+  /* ── Subtle grain overlay ── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 99;
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* statement grid rows */
+  .stmt-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 14px;
+    border-bottom: 1px solid rgba(220,38,38,0.06);
+  }
+  .stmt-row:last-child { border-bottom: none; }
+
+  /* feature pill */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(163,240,0,0.06);
+    border: 1px solid rgba(163,240,0,0.15);
+    border-radius: 999px;
+    padding: 5px 13px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: rgba(163,240,0,0.7);
+    white-space: nowrap;
+  }
+  .pill-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: rgba(163,240,0,0.5);
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div style="width:1080px;height:1080px;position:relative;overflow:hidden;background:#05090f;display:flex;flex-direction:column;">
+
+  <!-- ── Ambient glows ── -->
+  <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;">
+    <div style="position:absolute;top:-110px;left:-90px;width:580px;height:580px;background:radial-gradient(circle,rgba(220,38,38,0.12) 0%,transparent 58%);"></div>
+    <div style="position:absolute;bottom:-90px;right:-70px;width:620px;height:620px;background:radial-gradient(circle,rgba(163,240,0,0.10) 0%,transparent 58%);"></div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,0.012) 0%,transparent 70%);"></div>
+  </div>
+
+  <!-- ── HEADER ── -->
+  <div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:26px 52px 0;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="width:9px;height:9px;border-radius:50%;background:#a3f000;box-shadow:0 0 8px rgba(163,240,0,0.5);"></div>
+      <span style="font-size:17px;font-weight:800;color:#fff;letter-spacing:0.01em;">Store<span style="color:#a3f000;">Scout</span></span>
+    </div>
+    <span class="mono" style="font-size:11px;letter-spacing:0.18em;color:#14202e;text-transform:uppercase;">Shopify Competitor Intelligence</span>
+  </div>
+
+  <!-- ── MAIN HEADLINE ── -->
+  <div style="position:relative;z-index:2;text-align:center;padding:18px 52px 0;">
+    <div style="font-size:62px;font-weight:900;letter-spacing:-0.03em;line-height:1;">
+      <span style="color:#ef4444;">$17/month.</span>
+      <span style="color:#4a6070;"> Or </span>
+      <span style="color:#a3f000;">$9 once.</span>
+    </div>
+    <div style="font-size:16px;color:#1e3040;margin-top:9px;font-weight:500;letter-spacing:0.01em;">
+      Koala Inspector charges you forever. StoreScout charges you once.
+    </div>
+  </div>
+
+  <!-- ── DOCUMENTS AREA ── -->
+  <div style="position:relative;z-index:2;flex:1;display:flex;flex-direction:column;padding:16px 52px 0;gap:10px;min-height:0;">
+
+    <!-- ╔══ KOALA STATEMENT ══╗ -->
+    <div style="flex:1;background:rgba(28,6,6,0.75);border:1px solid rgba(220,38,38,0.22);border-radius:16px;padding:18px 24px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;min-height:0;">
+
+      <!-- Watermark -->
+      <div class="mono" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-14deg);font-size:60px;font-weight:700;color:rgba(220,38,38,0.045);letter-spacing:0.15em;white-space:nowrap;pointer-events:none;z-index:0;">NEVER ENDS</div>
+
+      <!-- Statement title row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;">
+        <div>
+          <div class="mono" style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(248,113,113,0.3);margin-bottom:3px;">Monthly Subscription · Statement</div>
+          <div style="font-size:17px;font-weight:800;color:#e0c8c8;letter-spacing:-0.01em;">Koala Inspector — Pro Plan</div>
+        </div>
+        <div style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);border-radius:7px;padding:5px 13px;text-align:right;">
+          <div class="mono" style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(248,113,113,0.35);margin-bottom:2px;">Status</div>
+          <div class="mono" style="font-size:12px;font-weight:700;color:#ef4444;">ONGOING ∞</div>
+        </div>
+      </div>
+
+      <!-- 12-month grid: 2 columns × 6 rows -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid rgba(220,38,38,0.1);border-radius:9px;overflow:hidden;position:relative;z-index:1;flex:1;">
+
+        <!-- Left column: Jan–Jun -->
+        <div style="border-right:1px solid rgba(220,38,38,0.08);">
+          <div class="stmt-row">
+            <span class="mono" style="font-size:11px;color:rgba(248,113,113,0.4);">Jan 2025</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:rgba(248,113,113,0.6);">−$17.00</span>
+          </div>
+          <div class="stmt-row">
+            <span class="mono" style="font-size:11px;color:rgba(248,113,113,0.4);">Feb 2025</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:rgba(248,113,113,0.6);">−$17.00</span>
+          </div>
+          <div class="stmt-row">
+            <span class="mono" style="font-size:11px;color:rgba(248,113,113,0.4);">Mar 2025</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:rgba(248,113,113,0.6);">−$17.00</span>
+          </div>
+          <div class="stmt-row">
+            <span class="mono" style="font-size:11px;color:rgba(248,113,113,0.4);">Apr 2025</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:rgba(248,113,113,0.6);">−$17.00</span>
+          </div>
+          <div class="stmt-row">
+            <span class="mono" style="font-size:11px;color:rgba(248,113,113,0.4);">May 2025</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:rgba(248,113,113,0.6);">−$17.00</span>
+          </div>
+          <div class="stmt-row" style="border-bottom:none;">
+            <span class="mono" style="font-size:11px;color:rgba(248,113,113,0.4);">Jun 2025</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:rgba(248,113,113,0.6);">−$17.00</span>
+          </div>
+        </div>
+
+        <!-- Right column: Jul–Dec -->
+        <div>
+          <div class="stmt-row">
+            <span class="mono" style="font-size:11px;color:rgba(248,113,113,0.4);">Jul 2025</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:rgba(248,113,113,0.6);">−$17.00</span>
+          </div>
+          <div class="stmt-row">
+            <span class="mono" style="font-size:11px;color:rgba(248,113,113,0.4);">Aug 2025</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:rgba(248,113,113,0.6);">−$17.00</span>
+          </div>
+          <div class="stmt-row">
+            <span class="mono" style="font-size:11px;color:rgba(248,113,113,0.4);">Sep 2025</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:rgba(248,113,113,0.6);">−$17.00</span>
+          </div>
+          <div class="stmt-row">
+            <span class="mono" style="font-size:11px;color:rgba(248,113,113,0.4);">Oct 2025</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:rgba(248,113,113,0.6);">−$17.00</span>
+          </div>
+          <div class="stmt-row">
+            <span class="mono" style="font-size:11px;color:rgba(248,113,113,0.4);">Nov 2025</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:rgba(248,113,113,0.6);">−$17.00</span>
+          </div>
+          <div class="stmt-row" style="border-bottom:none;">
+            <span class="mono" style="font-size:11px;color:rgba(248,113,113,0.4);">Dec 2025</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:rgba(248,113,113,0.6);">−$17.00</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Annual total row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:9px;padding:10px 16px;position:relative;z-index:1;">
+        <div>
+          <div class="mono" style="font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(248,113,113,0.4);">Annual Total · Repeats Every Year</div>
+          <div style="font-size:12.5px;color:rgba(248,113,113,0.3);margin-top:2px;">You'll be charged again in January 2026.</div>
+        </div>
+        <div style="font-size:50px;font-weight:900;color:#ef4444;letter-spacing:-0.03em;line-height:1;">$204</div>
+      </div>
+
+    </div>
+
+    <!-- ── OR DIVIDER ── -->
+    <div style="display:flex;align-items:center;gap:14px;flex-shrink:0;position:relative;z-index:2;">
+      <div style="flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(255,255,255,0.05));"></div>
+      <div style="background:#0b1620;border:1px solid #182430;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <span class="mono" style="font-size:11px;font-weight:700;color:#243444;letter-spacing:0.06em;">OR</span>
+      </div>
+      <div style="flex:1;height:1px;background:linear-gradient(to left,transparent,rgba(255,255,255,0.05));"></div>
+    </div>
+
+    <!-- ╔══ STORESCOUT RECEIPT ══╗ -->
+    <div style="flex:1;background:rgba(4,16,7,0.85);border:1px solid rgba(163,240,0,0.28);border-radius:16px;padding:18px 24px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;min-height:0;box-shadow:0 0 60px rgba(163,240,0,0.05),inset 0 1px 0 rgba(163,240,0,0.1);">
+
+      <!-- Top edge highlight -->
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent 10%,rgba(163,240,0,0.25) 50%,transparent 90%);z-index:0;"></div>
+
+      <!-- Receipt title row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;">
+        <div>
+          <div class="mono" style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(163,240,0,0.32);margin-bottom:3px;">One-Time Purchase · No Subscription Ever</div>
+          <div style="font-size:17px;font-weight:800;color:#ffffff;letter-spacing:-0.01em;">Store<span style="color:#a3f000;">Scout</span> — Competitor Intelligence Report</div>
+        </div>
+        <div style="background:rgba(163,240,0,0.09);border:1px solid rgba(163,240,0,0.25);border-radius:7px;padding:5px 13px;text-align:right;">
+          <div class="mono" style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(163,240,0,0.38);margin-bottom:2px;">Status</div>
+          <div class="mono" style="font-size:12px;font-weight:700;color:#a3f000;">PAID ✓</div>
+        </div>
+      </div>
+
+      <!-- Single line item -->
+      <div style="border:1px solid rgba(163,240,0,0.1);border-radius:9px;overflow:hidden;position:relative;z-index:1;flex:1;display:flex;flex-direction:column;">
+
+        <!-- Column headers -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(163,240,0,0.04);border-bottom:1px solid rgba(163,240,0,0.07);">
+          <span class="mono" style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(163,240,0,0.22);">Item</span>
+          <span class="mono" style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(163,240,0,0.22);">Amount</span>
+        </div>
+
+        <!-- The one line item -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 14px;flex:1;">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div class="mono" style="font-size:11px;color:rgba(163,240,0,0.3);padding-top:2px;">01</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#d0e8c8;margin-bottom:5px;">Full Competitor Intelligence Report</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                <span class="pill"><span class="pill-dot"></span>Pricing distribution</span>
+                <span class="pill"><span class="pill-dot"></span>Discount depth</span>
+                <span class="pill"><span class="pill-dot"></span>New launches</span>
+                <span class="pill"><span class="pill-dot"></span>Brand classification</span>
+                <span class="pill"><span class="pill-dot"></span>Full PDF</span>
+                <span class="pill"><span class="pill-dot"></span>Any browser</span>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:32px;font-weight:900;color:#a3f000;letter-spacing:-0.02em;flex-shrink:0;padding-left:20px;">$9.00</div>
+        </div>
+
+      </div>
+
+      <!-- Total line -->
+      <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(163,240,0,0.06);border:1px solid rgba(163,240,0,0.2);border-radius:9px;padding:10px 16px;position:relative;z-index:1;">
+        <div>
+          <div class="mono" style="font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(163,240,0,0.38);">Total Cost · Forever · Ever</div>
+          <div style="font-size:12.5px;color:rgba(163,240,0,0.28);margin-top:2px;">You will never be charged again.</div>
+        </div>
+        <div style="font-size:50px;font-weight:900;color:#a3f000;letter-spacing:-0.03em;line-height:1;text-shadow:0 0 40px rgba(163,240,0,0.25);">$9</div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:12px 52px 22px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:7px;height:7px;border-radius:50%;background:#a3f000;"></div>
+      <span style="font-size:14px;font-weight:700;color:#ffffff;">Store<span style="color:#a3f000;">Scout</span></span>
+      <span style="font-size:13px;color:#162028;font-weight:500;">· getstorescout.com</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <span style="font-size:13px;color:#1a2a38;font-weight:500;">Any Shopify store. <strong style="color:#243444;">30 seconds.</strong></span>
+      <div style="background:#a3f000;color:#05090f;font-size:17px;font-weight:900;padding:13px 28px;border-radius:10px;cursor:pointer;white-space:nowrap;letter-spacing:-0.01em;">Try it — $9 →</div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
