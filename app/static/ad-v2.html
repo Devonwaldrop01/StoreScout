@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>StoreScout — V2</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1080px; height: 1080px;
+    overflow: hidden;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #07090f;
+  }
+</style>
+</head>
+<body>
+<div style="width:1080px;height:1080px;background:#07090f;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:52px 80px 44px;">
+
+  <!-- ── Glow behind the number ── -->
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);width:560px;height:560px;background:radial-gradient(circle,rgba(163,240,0,0.055) 0%,transparent 62%);pointer-events:none;z-index:0;"></div>
+  <!-- Subtle warm tint bottom -->
+  <div style="position:absolute;bottom:-60px;left:50%;transform:translateX(-50%);width:700px;height:300px;background:radial-gradient(ellipse,rgba(163,240,0,0.03) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+
+  <!-- ── BRAND TAG (understated) ── -->
+  <div style="position:relative;z-index:2;display:flex;align-items:center;gap:6px;opacity:0.35;">
+    <div style="width:6px;height:6px;border-radius:50%;background:#a3f000;"></div>
+    <span style="font-size:12px;font-weight:700;color:#ffffff;letter-spacing:0.08em;text-transform:uppercase;">StoreScout</span>
+  </div>
+
+  <!-- ── TENSION HOOK ── -->
+  <div style="position:relative;z-index:2;text-align:center;">
+    <div style="font-size:28px;font-weight:700;color:rgba(255,255,255,0.55);line-height:1.35;letter-spacing:-0.01em;">
+      You're pricing against discounts<br>you don't know exist.
+    </div>
+  </div>
+
+  <!-- ── THE NUMBER ── -->
+  <div style="position:relative;z-index:2;text-align:center;">
+    <div style="font-size:230px;font-weight:900;color:#ffffff;letter-spacing:-0.05em;line-height:0.85;">34%</div>
+    <div style="font-size:16px;font-weight:500;color:rgba(255,255,255,0.22);margin-top:16px;letter-spacing:0.02em;">
+      of their catalog is on sale right now
+    </div>
+  </div>
+
+  <!-- ── DIVIDER ── -->
+  <div style="width:48px;height:1.5px;background:rgba(163,240,0,0.3);border-radius:2px;position:relative;z-index:2;"></div>
+
+  <!-- ── IMPLICATION ── -->
+  <div style="position:relative;z-index:2;text-align:center;">
+    <div style="font-size:46px;font-weight:900;color:#a3f000;letter-spacing:-0.025em;line-height:1.1;">
+      Go full price.<br>Own the premium lane.
+    </div>
+  </div>
+
+  <!-- ── FOOTER: proof + CTA ── -->
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;">
+    <!-- Proof -->
+    <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.18);letter-spacing:0.03em;">
+      847 products analyzed &nbsp;·&nbsp; median discount 28% &nbsp;·&nbsp; any Shopify store &nbsp;·&nbsp; 30 seconds
+    </div>
+    <!-- CTA -->
+    <div style="background:#a3f000;color:#07090f;font-size:19px;font-weight:900;padding:16px 48px;border-radius:12px;letter-spacing:-0.01em;box-shadow:0 0 40px rgba(163,240,0,0.18);">
+      See their strategy — $9 →
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
