@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>StoreScout — Find a Winning Product</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,800;1,900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body {
@@ -21,41 +21,44 @@
     pointer-events: none; z-index: 99;
   }
 
-  /* Category row hover feel */
-  .cat-row {
-    display: flex;
+  /* Table row styling */
+  .launch-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
     align-items: center;
-    justify-content: space-between;
-    padding: 13px 18px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    position: relative;
+    padding: 11px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.045);
+    gap: 16px;
   }
-  .cat-row:last-child { border-bottom: none; }
-  .cat-row.hot::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: #a3f000;
-    border-radius: 0 2px 2px 0;
+  .launch-row:last-child { border-bottom: none; }
+  .launch-row.newest { background: rgba(163,240,0,0.04); }
+
+  /* Tag bar */
+  .tag-bar-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 999px;
+    height: 5px;
+    flex: 1;
+    overflow: hidden;
+  }
+  .tag-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(to right, rgba(163,240,0,0.5), rgba(163,240,0,0.25));
   }
 
-  /* Pulse on the live dot */
+  /* Live pulse */
   @keyframes pulse {
-    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(163,240,0,0.5); }
-    50%       { opacity: 0.7; box-shadow: 0 0 0 5px rgba(163,240,0,0); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(163,240,0,0.5); }
+    50%       { box-shadow: 0 0 0 4px rgba(163,240,0,0); }
   }
   .live-dot { animation: pulse 2.4s ease-in-out infinite; }
 
-  /* Slide up on mount */
   @keyframes rise {
-    from { opacity: 0; transform: translateY(16px); }
+    from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .rise-1 { animation: rise 0.55s cubic-bezier(0.22,1,0.36,1) both 0.05s; }
-  .rise-2 { animation: rise 0.55s cubic-bezier(0.22,1,0.36,1) both 0.15s; }
-  .rise-3 { animation: rise 0.55s cubic-bezier(0.22,1,0.36,1) both 0.25s; }
-  .rise-4 { animation: rise 0.55s cubic-bezier(0.22,1,0.36,1) both 0.35s; }
+  .rise { animation: rise 0.5s cubic-bezier(0.22,1,0.36,1) both; }
 </style>
 </head>
 <body>
@@ -63,18 +66,14 @@
 
   <!-- ── Glows ── -->
   <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;">
-    <!-- Main warm-green bloom top-center -->
-    <div style="position:absolute;top:-180px;left:50%;transform:translateX(-50%);width:720px;height:720px;background:radial-gradient(circle,rgba(163,240,0,0.08) 0%,transparent 58%);"></div>
-    <!-- Blue hint bottom-left -->
-    <div style="position:absolute;bottom:-60px;left:-60px;width:440px;height:440px;background:radial-gradient(circle,rgba(59,130,246,0.07) 0%,transparent 65%);"></div>
-    <!-- Warm accent bottom-right -->
-    <div style="position:absolute;bottom:80px;right:-40px;width:360px;height:360px;background:radial-gradient(circle,rgba(251,191,36,0.05) 0%,transparent 65%);"></div>
+    <div style="position:absolute;top:-160px;left:50%;transform:translateX(-50%);width:680px;height:680px;background:radial-gradient(circle,rgba(163,240,0,0.08) 0%,transparent 58%);"></div>
+    <div style="position:absolute;bottom:-80px;right:-60px;width:400px;height:400px;background:radial-gradient(circle,rgba(59,130,246,0.06) 0%,transparent 65%);"></div>
   </div>
 
   <!-- ── HEADER ── -->
   <div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:26px 52px 0;">
     <div style="display:flex;align-items:center;gap:8px;">
-      <div class="live-dot" style="width:9px;height:9px;border-radius:50%;background:#a3f000;"></div>
+      <div class="live-dot" style="width:9px;height:9px;border-radius:50%;background:#a3f000;flex-shrink:0;"></div>
       <span style="font-size:17px;font-weight:800;color:#fff;">Store<span style="color:#a3f000;">Scout</span></span>
     </div>
     <div style="background:rgba(163,240,0,0.07);border:1px solid rgba(163,240,0,0.14);border-radius:999px;padding:5px 16px;">
@@ -83,152 +82,153 @@
   </div>
 
   <!-- ── HEADLINE ── -->
-  <div style="position:relative;z-index:2;padding:20px 52px 0;">
-    <!-- Eyebrow -->
-    <div style="display:inline-flex;align-items:center;gap:7px;margin-bottom:12px;">
-      <span style="font-size:13px;font-weight:700;color:#2d4460;letter-spacing:0.08em;text-transform:uppercase;">Stop guessing. Start knowing.</span>
+  <div style="position:relative;z-index:2;padding:18px 52px 0;">
+    <div style="font-size:63px;font-weight:900;letter-spacing:-0.03em;line-height:0.97;color:#ffffff;">
+      Find a winning<br>product <span style="color:#a3f000;font-style:italic;">fast.</span>
     </div>
-    <!-- Main headline -->
-    <div style="font-size:66px;font-weight:900;letter-spacing:-0.03em;line-height:0.97;color:#ffffff;">
-      Find a winning<br>
-      product <span style="color:#a3f000;font-style:italic;">fast.</span>
-    </div>
-    <div style="font-size:17px;color:#2e4558;font-weight:500;line-height:1.55;margin-top:13px;max-width:740px;">
-      See what top Shopify stores are actively betting on — their newest launches,
-      hottest categories, and the exact price points that are working.
-      <strong style="color:#3d5870;">Any store. 30 seconds.</strong>
+    <div style="font-size:16.5px;color:#2e4558;font-weight:500;line-height:1.5;margin-top:11px;">
+      See the exact products your competitor just launched — names, prices, dates.
+      <strong style="color:#3a5568;">Any Shopify store. 30 seconds.</strong>
     </div>
   </div>
 
-  <!-- ── LAUNCH BOARD CARD ── -->
-  <div class="rise-1" style="position:relative;z-index:2;flex:1;margin:18px 52px 0;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;min-height:0;">
+  <!-- ── MAIN CARD: Newest Launches table ── -->
+  <div class="rise" style="position:relative;z-index:2;flex:1;margin:16px 52px 0;background:rgba(255,255,255,0.026);border:1px solid rgba(255,255,255,0.07);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;min-height:0;animation-delay:0.05s;">
 
-    <!-- Card top highlight -->
-    <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent 10%,rgba(163,240,0,0.3) 50%,transparent 90%);z-index:1;"></div>
+    <!-- Top edge shimmer -->
+    <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent 10%,rgba(163,240,0,0.28) 50%,transparent 90%);z-index:1;"></div>
 
     <!-- Card header -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
       <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:28px;height:28px;background:rgba(163,240,0,0.1);border:1px solid rgba(163,240,0,0.18);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;">🔍</div>
+        <div style="width:7px;height:7px;border-radius:50%;background:#a3f000;"></div>
         <div>
-          <div style="font-size:14px;font-weight:700;color:#ffffff;">gymshark.com</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#2a3c52;letter-spacing:0.08em;">847 products · analyzed 12 seconds ago</div>
+          <span style="font-size:13.5px;font-weight:700;color:#ffffff;">gymshark.com</span>
+          <span style="font-size:11px;color:#1e3040;margin-left:8px;font-family:'JetBrains Mono',monospace;">847 products</span>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.18);border-radius:6px;padding:4px 11px;">
-          <span style="font-size:11px;font-weight:700;color:#60a5fa;">Single brand / DTC</span>
+        <div style="background:rgba(163,240,0,0.09);border:1px solid rgba(163,240,0,0.18);border-radius:6px;padding:4px 12px;">
+          <span style="font-size:11.5px;font-weight:800;color:#a3f000;">14 new this month</span>
         </div>
-        <div style="background:rgba(163,240,0,0.1);border:1px solid rgba(163,240,0,0.2);border-radius:6px;padding:4px 11px;">
-          <span style="font-size:11px;font-weight:700;color:#a3f000;">14 new this month</span>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 12px;">
+          <span style="font-size:11px;font-weight:600;color:#2a3c52;">velocity: 14/mo ↑</span>
         </div>
       </div>
     </div>
 
-    <!-- Section label -->
-    <div style="padding:12px 22px 8px;flex-shrink:0;">
-      <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;color:#1e3040;letter-spacing:0.2em;text-transform:uppercase;">New launch categories — last 30 days</span>
+    <!-- Column headers -->
+    <div style="display:grid;grid-template-columns:1fr auto auto;align-items:center;padding:8px 20px;gap:16px;border-bottom:1px solid rgba(255,255,255,0.04);flex-shrink:0;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#1a2e40;">Product</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#1a2e40;text-align:right;min-width:60px;">Price</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#1a2e40;text-align:right;min-width:90px;">Added</span>
     </div>
 
-    <!-- Category rows -->
+    <!-- Launch rows — these match the actual PDF "Newest Launches" table -->
     <div style="flex:1;display:flex;flex-direction:column;justify-content:space-evenly;min-height:0;">
 
-      <!-- HOT category -->
-      <div class="cat-row hot">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:36px;height:36px;background:rgba(163,240,0,0.1);border:1px solid rgba(163,240,0,0.2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">👜</div>
-          <div>
-            <div style="font-size:16px;font-weight:800;color:#ffffff;">Accessories</div>
-            <div style="font-size:12px;color:#2a3c52;margin-top:1px;">6 new SKUs added · avg $34 · range $19–$58</div>
-          </div>
+      <div class="launch-row newest">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#ffffff;">Speed Training Shorts</div>
+          <div style="font-size:11px;color:#2a3c52;margin-top:1px;font-family:'JetBrains Mono',monospace;">Gymshark</div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-          <div style="background:rgba(163,240,0,0.1);border:1px solid rgba(163,240,0,0.22);border-radius:6px;padding:4px 10px;display:flex;align-items:center;gap:5px;">
-            <span style="font-size:11px;">🔥</span>
-            <span style="font-size:11px;font-weight:800;color:#a3f000;letter-spacing:0.04em;">TRENDING</span>
-          </div>
-          <div style="font-size:22px;font-weight:900;color:#a3f000;letter-spacing:-0.02em;min-width:44px;text-align:right;">+6</div>
-        </div>
+        <div style="font-size:15px;font-weight:800;color:#a3f000;text-align:right;min-width:60px;">$40</div>
+        <div style="font-size:11.5px;color:#1e3040;text-align:right;min-width:90px;font-family:'JetBrains Mono',monospace;">2 days ago</div>
       </div>
 
-      <div class="cat-row">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:36px;height:36px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">👟</div>
-          <div>
-            <div style="font-size:16px;font-weight:800;color:#d0d8e0;">Footwear</div>
-            <div style="font-size:12px;color:#243444;margin-top:1px;">4 new SKUs added · avg $89 · range $65–$120</div>
-          </div>
+      <div class="launch-row newest">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#ffffff;">Apex Seamless Sports Bra</div>
+          <div style="font-size:11px;color:#2a3c52;margin-top:1px;font-family:'JetBrains Mono',monospace;">Gymshark</div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 10px;">
-            <span style="font-size:11px;font-weight:700;color:#3a5060;">↗ growing</span>
-          </div>
-          <div style="font-size:22px;font-weight:900;color:#4a6070;letter-spacing:-0.02em;min-width:44px;text-align:right;">+4</div>
-        </div>
+        <div style="font-size:15px;font-weight:800;color:#a3f000;text-align:right;min-width:60px;">$35</div>
+        <div style="font-size:11.5px;color:#1e3040;text-align:right;min-width:90px;font-family:'JetBrains Mono',monospace;">2 days ago</div>
       </div>
 
-      <div class="cat-row">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:36px;height:36px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🧢</div>
-          <div>
-            <div style="font-size:16px;font-weight:800;color:#d0d8e0;">Headwear</div>
-            <div style="font-size:12px;color:#243444;margin-top:1px;">3 new SKUs added · avg $28 · range $19–$42</div>
-          </div>
+      <div class="launch-row">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#c8d8e4;">Crest Oversized Hoodie</div>
+          <div style="font-size:11px;color:#243444;margin-top:1px;font-family:'JetBrains Mono',monospace;">Gymshark</div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 10px;">
-            <span style="font-size:11px;font-weight:700;color:#3a5060;">→ steady</span>
-          </div>
-          <div style="font-size:22px;font-weight:900;color:#4a6070;letter-spacing:-0.02em;min-width:44px;text-align:right;">+3</div>
-        </div>
+        <div style="font-size:15px;font-weight:700;color:#8aacbe;text-align:right;min-width:60px;">$65</div>
+        <div style="font-size:11.5px;color:#1a2a38;text-align:right;min-width:90px;font-family:'JetBrains Mono',monospace;">5 days ago</div>
       </div>
 
-      <div class="cat-row">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:36px;height:36px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🩱</div>
-          <div>
-            <div style="font-size:16px;font-weight:800;color:#d0d8e0;">Activewear</div>
-            <div style="font-size:12px;color:#243444;margin-top:1px;">1 new SKU added · avg $52 · range $52–$52</div>
-          </div>
+      <div class="launch-row">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#c8d8e4;">Training Headband — 3pk</div>
+          <div style="font-size:11px;color:#243444;margin-top:1px;font-family:'JetBrains Mono',monospace;">Gymshark</div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 10px;">
-            <span style="font-size:11px;font-weight:700;color:#3a5060;">↘ slowing</span>
-          </div>
-          <div style="font-size:22px;font-weight:900;color:#4a6070;letter-spacing:-0.02em;min-width:44px;text-align:right;">+1</div>
+        <div style="font-size:15px;font-weight:700;color:#8aacbe;text-align:right;min-width:60px;">$16</div>
+        <div style="font-size:11.5px;color:#1a2a38;text-align:right;min-width:90px;font-family:'JetBrains Mono',monospace;">9 days ago</div>
+      </div>
+
+      <div class="launch-row">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#c8d8e4;">Legacy Wrist Wraps</div>
+          <div style="font-size:11px;color:#243444;margin-top:1px;font-family:'JetBrains Mono',monospace;">Gymshark</div>
         </div>
+        <div style="font-size:15px;font-weight:700;color:#8aacbe;text-align:right;min-width:60px;">$19</div>
+        <div style="font-size:11.5px;color:#1a2a38;text-align:right;min-width:90px;font-family:'JetBrains Mono',monospace;">13 days ago</div>
+      </div>
+
+      <div class="launch-row">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#c8d8e4;">Energy+ Seamless Leggings</div>
+          <div style="font-size:11px;color:#243444;margin-top:1px;font-family:'JetBrains Mono',monospace;">Gymshark</div>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:#8aacbe;text-align:right;min-width:60px;">$55</div>
+        <div style="font-size:11.5px;color:#1a2a38;text-align:right;min-width:90px;font-family:'JetBrains Mono',monospace;">19 days ago</div>
       </div>
 
     </div>
 
-    <!-- Card insight strip -->
-    <div style="border-top:1px solid rgba(255,255,255,0.05);padding:13px 22px;display:flex;align-items:center;justify-content:space-between;background:rgba(163,240,0,0.03);flex-shrink:0;">
-      <div style="display:flex;align-items:center;gap:6px;">
-        <span style="font-size:14px;">💡</span>
-        <span style="font-size:13.5px;font-weight:600;color:#8ab090;line-height:1.4;">
-          <strong style="color:#c8e0c0;">Accessories are their current bet.</strong> 6 new SKUs at a $19 entry — the lowest price they've launched in 90 days.
-        </span>
+    <!-- Card footer: top tags strip -->
+    <div style="border-top:1px solid rgba(255,255,255,0.05);padding:12px 20px;display:flex;align-items:center;gap:16px;background:rgba(255,255,255,0.015);flex-shrink:0;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#1a2e40;flex-shrink:0;">Top tags</span>
+      <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">
+        <!-- Tag bars with labels — matches actual top_tags output -->
+        <div style="display:flex;align-items:center;gap:5px;flex:1.0;">
+          <span style="font-size:11px;font-weight:600;color:#3a5468;white-space:nowrap;">gym</span>
+          <div class="tag-bar-track"><div class="tag-bar-fill" style="width:100%;"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;flex:0.8;">
+          <span style="font-size:11px;font-weight:600;color:#3a5468;white-space:nowrap;">mens</span>
+          <div class="tag-bar-track"><div class="tag-bar-fill" style="width:80%;"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;flex:0.65;">
+          <span style="font-size:11px;font-weight:600;color:#3a5468;white-space:nowrap;">shorts</span>
+          <div class="tag-bar-track"><div class="tag-bar-fill" style="width:65%;"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;flex:0.55;">
+          <span style="font-size:11px;font-weight:600;color:#3a5468;white-space:nowrap;">womens</span>
+          <div class="tag-bar-track"><div class="tag-bar-fill" style="width:55%;"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;flex:0.45;">
+          <span style="font-size:11px;font-weight:600;color:#3a5468;white-space:nowrap;">new-in</span>
+          <div class="tag-bar-track"><div class="tag-bar-fill" style="width:45%;"></div></div>
+        </div>
       </div>
-      <div style="flex-shrink:0;margin-left:18px;text-align:right;">
-        <div style="font-size:10px;font-weight:600;color:#1e3040;font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;text-transform:uppercase;">Entry price</div>
-        <div style="font-size:28px;font-weight:900;color:#a3f000;letter-spacing:-0.02em;line-height:1;">$19</div>
+      <div style="flex-shrink:0;text-align:right;">
+        <div style="font-size:9px;font-weight:600;color:#1a2e40;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;">new median</div>
+        <div style="font-size:20px;font-weight:900;color:#a3f000;letter-spacing:-0.02em;line-height:1.1;">$34 <span style="font-size:12px;font-weight:600;color:#2a4458;">−18% vs catalog</span></div>
       </div>
     </div>
 
   </div>
 
   <!-- ── FOOTER ── -->
-  <div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:14px 52px 22px;">
+  <div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:12px 52px 22px;">
     <div>
-      <div style="font-size:13.5px;color:#1e3040;font-weight:500;">Run on any public Shopify store. Instant PDF.</div>
-      <div style="font-size:12px;color:#12202a;margin-top:2px;font-family:'JetBrains Mono',monospace;">getstorescout.com</div>
+      <div style="font-size:13px;color:#1e3040;font-weight:500;">Any public Shopify store. Full PDF report.</div>
+      <div style="font-size:11px;color:#121e28;margin-top:2px;font-family:'JetBrains Mono',monospace;">getstorescout.com</div>
     </div>
     <div style="display:flex;align-items:center;gap:14px;">
       <div style="text-align:right;">
         <div style="font-size:20px;font-weight:900;color:#ffffff;letter-spacing:-0.02em;">$9 <span style="font-size:13px;font-weight:600;color:#243444;">one-time</span></div>
-        <div style="font-size:12px;color:#182430;font-weight:500;">No subscription. No account.</div>
+        <div style="font-size:12px;color:#162030;font-weight:500;">No subscription. No account.</div>
       </div>
-      <div style="background:#a3f000;color:#07090f;font-size:17px;font-weight:900;padding:14px 30px;border-radius:11px;white-space:nowrap;letter-spacing:-0.01em;box-shadow:0 0 30px rgba(163,240,0,0.2);">
+      <div style="background:#a3f000;color:#07090f;font-size:17px;font-weight:900;padding:14px 30px;border-radius:11px;white-space:nowrap;letter-spacing:-0.01em;box-shadow:0 0 28px rgba(163,240,0,0.2);">
         Find products →
       </div>
     </div>
