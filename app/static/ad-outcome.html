@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>StoreScout — Outcome Ad</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1080px; height: 1080px;
+    overflow: hidden;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #060c18;
+  }
+
+  /* Subtle grain */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 99;
+  }
+
+  /* Card shimmer edge */
+  .card-shimmer {
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(to right, transparent 15%, rgba(163,240,0,0.35) 50%, transparent 85%);
+  }
+
+  /* Stagger animation for cards */
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card-1 { animation: rise 0.5s ease both 0.05s; }
+  .card-2 { animation: rise 0.5s ease both 0.15s; }
+  .card-3 { animation: rise 0.5s ease both 0.25s; }
+  .card-4 { animation: rise 0.5s ease both 0.35s; }
+</style>
+</head>
+<body>
+<div style="width:1080px;height:1080px;background:#060c18;position:relative;overflow:hidden;display:flex;flex-direction:column;">
+
+  <!-- ── Glows ── -->
+  <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;">
+    <div style="position:absolute;top:-140px;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(163,240,0,0.07) 0%,transparent 60%);"></div>
+    <div style="position:absolute;bottom:-100px;left:-80px;width:420px;height:420px;background:radial-gradient(circle,rgba(59,130,246,0.07) 0%,transparent 65%);"></div>
+    <div style="position:absolute;bottom:-60px;right:-60px;width:380px;height:380px;background:radial-gradient(circle,rgba(163,240,0,0.06) 0%,transparent 65%);"></div>
+  </div>
+
+  <!-- ── HEADER ── -->
+  <div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:28px 52px 0;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="width:9px;height:9px;border-radius:50%;background:#a3f000;box-shadow:0 0 10px rgba(163,240,0,0.6);"></div>
+      <span style="font-size:17px;font-weight:800;color:#fff;">Store<span style="color:#a3f000;">Scout</span></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;background:rgba(163,240,0,0.07);border:1px solid rgba(163,240,0,0.14);border-radius:999px;padding:5px 14px;">
+      <div style="width:5px;height:5px;border-radius:50%;background:#a3f000;"></div>
+      <span style="font-size:12px;font-weight:600;color:rgba(163,240,0,0.65);letter-spacing:0.04em;">For Shopify store owners</span>
+    </div>
+  </div>
+
+  <!-- ── HEADLINE BLOCK ── -->
+  <div style="position:relative;z-index:2;text-align:center;padding:22px 60px 0;">
+    <div style="font-size:64px;font-weight:900;letter-spacing:-0.03em;line-height:1.0;color:#ffffff;">
+      Price with <span style="color:#a3f000;font-style:italic;">confidence,</span><br>not guesswork.
+    </div>
+    <div style="font-size:17.5px;color:#3d5568;margin-top:12px;font-weight:500;line-height:1.5;">
+      In 30 seconds, StoreScout reads any Shopify competitor and tells you<br>exactly what you need to know before your next pricing decision.
+    </div>
+  </div>
+
+  <!-- ── 2×2 INSIGHT CARDS ── -->
+  <div style="position:relative;z-index:2;flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;padding:20px 52px 0;min-height:0;">
+
+    <!-- Card 1: Entry Price -->
+    <div class="card-1" style="background:rgba(255,255,255,0.028);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:26px 28px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;">
+      <div class="card-shimmer"></div>
+      <!-- Label + icon row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:12px;font-weight:700;color:#2e4558;letter-spacing:0.1em;text-transform:uppercase;">Entry Price Point</span>
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(163,240,0,0.08);border:1px solid rgba(163,240,0,0.14);display:flex;align-items:center;justify-content:center;font-size:18px;">🏷️</div>
+      </div>
+      <!-- Big stat -->
+      <div>
+        <div style="font-size:88px;font-weight:900;color:#ffffff;letter-spacing:-0.04em;line-height:0.9;margin-bottom:12px;">$16</div>
+        <div style="font-size:12px;color:#2a3c4e;font-weight:500;">where they hook first-time buyers</div>
+      </div>
+      <!-- Implication -->
+      <div style="background:rgba(163,240,0,0.06);border-left:3px solid rgba(163,240,0,0.4);border-radius:0 8px 8px 0;padding:10px 14px;">
+        <span style="font-size:14.5px;font-weight:700;color:#a3f000;line-height:1.35;">Price at $14.99 and you own the entry point.</span>
+      </div>
+    </div>
+
+    <!-- Card 2: Discount Depth -->
+    <div class="card-2" style="background:rgba(255,255,255,0.028);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:26px 28px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;">
+      <div class="card-shimmer"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:12px;font-weight:700;color:#2e4558;letter-spacing:0.1em;text-transform:uppercase;">Catalog on Sale Now</span>
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(163,240,0,0.08);border:1px solid rgba(163,240,0,0.14);display:flex;align-items:center;justify-content:center;font-size:18px;">📉</div>
+      </div>
+      <div>
+        <div style="font-size:88px;font-weight:900;color:#ffffff;letter-spacing:-0.04em;line-height:0.9;margin-bottom:12px;">34%</div>
+        <div style="font-size:12px;color:#2a3c4e;font-weight:500;">of their products are actively discounted</div>
+      </div>
+      <div style="background:rgba(163,240,0,0.06);border-left:3px solid rgba(163,240,0,0.4);border-radius:0 8px 8px 0;padding:10px 14px;">
+        <span style="font-size:14.5px;font-weight:700;color:#a3f000;line-height:1.35;">Their margin is squeezed. Full-price positioning is yours.</span>
+      </div>
+    </div>
+
+    <!-- Card 3: New Launches -->
+    <div class="card-3" style="background:rgba(255,255,255,0.028);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:26px 28px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;">
+      <div class="card-shimmer"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:12px;font-weight:700;color:#2e4558;letter-spacing:0.1em;text-transform:uppercase;">New Products This Month</span>
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(163,240,0,0.08);border:1px solid rgba(163,240,0,0.14);display:flex;align-items:center;justify-content:center;font-size:18px;">🚀</div>
+      </div>
+      <div>
+        <div style="font-size:88px;font-weight:900;color:#ffffff;letter-spacing:-0.04em;line-height:0.9;margin-bottom:12px;">14</div>
+        <div style="font-size:12px;color:#2a3c4e;font-weight:500;">new SKUs launched in the last 30 days</div>
+      </div>
+      <div style="background:rgba(163,240,0,0.06);border-left:3px solid rgba(163,240,0,0.4);border-radius:0 8px 8px 0;padding:10px 14px;">
+        <span style="font-size:14.5px;font-weight:700;color:#a3f000;line-height:1.35;">Accessories is their current bet. Now you know before it hits.</span>
+      </div>
+    </div>
+
+    <!-- Card 4: Average Price -->
+    <div class="card-4" style="background:rgba(255,255,255,0.028);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:26px 28px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;">
+      <div class="card-shimmer"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:12px;font-weight:700;color:#2e4558;letter-spacing:0.1em;text-transform:uppercase;">Average Selling Price</span>
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(163,240,0,0.08);border:1px solid rgba(163,240,0,0.14);display:flex;align-items:center;justify-content:center;font-size:18px;">💰</div>
+      </div>
+      <div>
+        <div style="font-size:88px;font-weight:900;color:#a3f000;letter-spacing:-0.04em;line-height:0.9;margin-bottom:12px;">$52</div>
+        <div style="font-size:12px;color:#2a3c4e;font-weight:500;">their median across the full catalog</div>
+      </div>
+      <div style="background:rgba(163,240,0,0.06);border-left:3px solid rgba(163,240,0,0.4);border-radius:0 8px 8px 0;padding:10px 14px;">
+        <span style="font-size:14.5px;font-weight:700;color:#a3f000;line-height:1.35;">Price above $60 or below $45 — avoid direct collision.</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:14px 52px 24px;">
+    <div>
+      <div style="font-size:14px;color:#1e3040;font-weight:500;">Any public Shopify store. <strong style="color:#2a4055;">30 seconds.</strong></div>
+      <div style="font-size:13px;color:#14222e;margin-top:2px;">getstorescout.com</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="text-align:right;">
+        <div style="font-size:22px;font-weight:900;color:#ffffff;letter-spacing:-0.02em;">$9 <span style="font-size:14px;font-weight:600;color:#2a3c4e;">one-time</span></div>
+        <div style="font-size:12px;color:#1e2e3a;font-weight:500;">No subscription. No account.</div>
+      </div>
+      <div style="background:#a3f000;color:#060c18;font-size:18px;font-weight:900;padding:14px 30px;border-radius:11px;white-space:nowrap;letter-spacing:-0.01em;box-shadow:0 0 28px rgba(163,240,0,0.22);">
+        Get the report →
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
