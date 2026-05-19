@@ -12,59 +12,173 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     background: #07090f;
   }
+
+  /* ── Dot grid ── */
+  .dot-grid {
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    gap: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .dot::after {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.07);
+    display: block;
+  }
+  .dot.sale::after {
+    background: rgba(239,68,68,0.65);
+    box-shadow: 0 0 6px rgba(239,68,68,0.35);
+  }
+
+  /* ── Partial-fill number (the 34% is "colored in") ── */
+  .big-num-wrap {
+    position: relative;
+    display: inline-block;
+    line-height: 1;
+  }
+  .big-num-base {
+    font-size: 248px;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    color: rgba(255,255,255,0.08);
+    user-select: none;
+  }
+  .big-num-fill {
+    position: absolute;
+    inset: 0;
+    font-size: 248px;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    color: #ffffff;
+    clip-path: inset(0 60% 0 0); /* reveals ~40% from left ≈ "34" portion */
+    user-select: none;
+  }
+  .big-num-fill-accent {
+    position: absolute;
+    inset: 0;
+    font-size: 248px;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    color: #ef4444;
+    clip-path: inset(0 60% 0 0);
+    opacity: 0.82;
+    mix-blend-mode: screen;
+    user-select: none;
+  }
 </style>
 </head>
 <body>
-<div style="width:1080px;height:1080px;background:#07090f;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:52px 80px 44px;">
+<div style="width:1080px;height:1080px;background:#07090f;position:relative;overflow:hidden;">
 
-  <!-- ── Glow behind the number ── -->
-  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);width:560px;height:560px;background:radial-gradient(circle,rgba(163,240,0,0.055) 0%,transparent 62%);pointer-events:none;z-index:0;"></div>
-  <!-- Subtle warm tint bottom -->
-  <div style="position:absolute;bottom:-60px;left:50%;transform:translateX(-50%);width:700px;height:300px;background:radial-gradient(ellipse,rgba(163,240,0,0.03) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
-
-  <!-- ── BRAND TAG (understated) ── -->
-  <div style="position:relative;z-index:2;display:flex;align-items:center;gap:6px;opacity:0.35;">
-    <div style="width:6px;height:6px;border-radius:50%;background:#a3f000;"></div>
-    <span style="font-size:12px;font-weight:700;color:#ffffff;letter-spacing:0.08em;text-transform:uppercase;">StoreScout</span>
+  <!-- ── FULL-BLEED DOT FIELD (background layer) ── -->
+  <div style="position:absolute;inset:0;z-index:0;" id="dot-bg">
+    <div class="dot-grid" id="grid"></div>
   </div>
 
-  <!-- ── TENSION HOOK ── -->
-  <div style="position:relative;z-index:2;text-align:center;">
-    <div style="font-size:28px;font-weight:700;color:rgba(255,255,255,0.55);line-height:1.35;letter-spacing:-0.01em;">
-      You're pricing against discounts<br>you don't know exist.
-    </div>
+  <!-- ── GLOWS ── -->
+  <div style="position:absolute;inset:0;pointer-events:none;z-index:1;">
+    <!-- Red glow — sits behind the number, represents "sale" products -->
+    <div style="position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);width:620px;height:420px;background:radial-gradient(ellipse,rgba(239,68,68,0.10) 0%,transparent 65%);"></div>
+    <!-- Green glow bottom — implication zone -->
+    <div style="position:absolute;bottom:-40px;left:50%;transform:translateX(-50%);width:700px;height:360px;background:radial-gradient(ellipse,rgba(163,240,0,0.07) 0%,transparent 65%);"></div>
+    <!-- Dark vignette to keep content readable -->
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 85% 85% at 50% 50%,transparent 30%,rgba(7,9,15,0.65) 100%);"></div>
   </div>
 
-  <!-- ── THE NUMBER ── -->
-  <div style="position:relative;z-index:2;text-align:center;">
-    <div style="font-size:230px;font-weight:900;color:#ffffff;letter-spacing:-0.05em;line-height:0.85;">34%</div>
-    <div style="font-size:16px;font-weight:500;color:rgba(255,255,255,0.22);margin-top:16px;letter-spacing:0.02em;">
-      of their catalog is on sale right now
+  <!-- ── CONTENT ── -->
+  <div style="position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:48px 80px 44px;">
+
+    <!-- Brand + context tag -->
+    <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+      <div style="display:flex;align-items:center;gap:7px;opacity:0.4;">
+        <div style="width:6px;height:6px;border-radius:50%;background:#a3f000;"></div>
+        <span style="font-size:12px;font-weight:700;color:#fff;letter-spacing:0.08em;text-transform:uppercase;">StoreScout</span>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.18);letter-spacing:0.04em;">
+        competitor.com · analyzed now
+      </div>
     </div>
+
+    <!-- Tension hook -->
+    <div style="text-align:center;">
+      <div style="font-size:26px;font-weight:700;color:rgba(255,255,255,0.5);line-height:1.4;letter-spacing:-0.01em;">
+        You're pricing against discounts<br>you don't know exist.
+      </div>
+    </div>
+
+    <!-- THE NUMBER — partial-fill treatment -->
+    <div style="text-align:center;position:relative;">
+      <div class="big-num-wrap">
+        <div class="big-num-base">34%</div>
+        <div class="big-num-fill">34%</div>
+        <div class="big-num-fill-accent">34%</div>
+      </div>
+      <div style="font-size:15px;font-weight:500;color:rgba(255,255,255,0.22);margin-top:10px;letter-spacing:0.03em;">
+        of their catalog · on sale · right now
+      </div>
+    </div>
+
+    <!-- Divider + legend -->
+    <div style="display:flex;align-items:center;gap:24px;width:100%;justify-content:center;">
+      <div style="display:flex;align-items:center;gap:7px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:rgba(239,68,68,0.7);"></div>
+        <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.3);">On sale</span>
+      </div>
+      <div style="width:32px;height:1px;background:rgba(255,255,255,0.1);"></div>
+      <div style="display:flex;align-items:center;gap:7px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.12);"></div>
+        <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.2);">Full price</span>
+      </div>
+    </div>
+
+    <!-- Implication -->
+    <div style="text-align:center;">
+      <div style="font-size:50px;font-weight:900;color:#a3f000;letter-spacing:-0.03em;line-height:1.05;">
+        Go full price.<br>Own the premium lane.
+      </div>
+    </div>
+
+    <!-- Proof + CTA -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;">
+      <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.17);letter-spacing:0.03em;">
+        847 products analyzed &nbsp;·&nbsp; median discount 28% &nbsp;·&nbsp; any Shopify store &nbsp;·&nbsp; 30 seconds
+      </div>
+      <div style="background:#a3f000;color:#07090f;font-size:19px;font-weight:900;padding:16px 52px;border-radius:12px;letter-spacing:-0.01em;box-shadow:0 0 40px rgba(163,240,0,0.2);">
+        See their strategy — $9 →
+      </div>
+    </div>
+
   </div>
-
-  <!-- ── DIVIDER ── -->
-  <div style="width:48px;height:1.5px;background:rgba(163,240,0,0.3);border-radius:2px;position:relative;z-index:2;"></div>
-
-  <!-- ── IMPLICATION ── -->
-  <div style="position:relative;z-index:2;text-align:center;">
-    <div style="font-size:46px;font-weight:900;color:#a3f000;letter-spacing:-0.025em;line-height:1.1;">
-      Go full price.<br>Own the premium lane.
-    </div>
-  </div>
-
-  <!-- ── FOOTER: proof + CTA ── -->
-  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;">
-    <!-- Proof -->
-    <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.18);letter-spacing:0.03em;">
-      847 products analyzed &nbsp;·&nbsp; median discount 28% &nbsp;·&nbsp; any Shopify store &nbsp;·&nbsp; 30 seconds
-    </div>
-    <!-- CTA -->
-    <div style="background:#a3f000;color:#07090f;font-size:19px;font-weight:900;padding:16px 48px;border-radius:12px;letter-spacing:-0.01em;box-shadow:0 0 40px rgba(163,240,0,0.18);">
-      See their strategy — $9 →
-    </div>
-  </div>
-
 </div>
+
+<script>
+  // Build dot grid: 20 cols × 20 rows = 400 dots
+  // 34% = 136 red dots, distributed evenly (not clustered)
+  const grid = document.getElementById('grid');
+  const total = 400;
+  const saleCount = Math.round(total * 0.34); // 136
+
+  // Generate indices, distribute evenly using modular spacing
+  const saleSet = new Set();
+  const step = total / saleCount;
+  for (let i = 0; i < saleCount; i++) {
+    saleSet.add(Math.round(i * step));
+  }
+
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (saleSet.has(i) ? ' sale' : '');
+    grid.appendChild(d);
+  }
+</script>
 </body>
 </html>
