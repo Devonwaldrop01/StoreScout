@@ -3,7 +3,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from fastapi import FastAPI, Form, HTTPException, Request, Body,Query
+from jinja2 import Environment, FileSystemLoader
+from fastapi import FastAPI, Form, HTTPException, Request, Body, Query
 from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 import os
@@ -257,6 +258,93 @@ def landing_page():
     article_path = TEMPLATES_DIR / "index.html"
     return HTMLResponse(article_path.read_text(encoding="utf-8"))
     
+
+
+@app.get("/preview", response_class=HTMLResponse)
+def preview(store_url: str = Query(..., min_length=3)):
+    try:
+        base = normalize_store_url(store_url)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid store URL")
+
+    try:
+        raw_products = fetch_products_shopify(base, max_products=500)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Could not fetch store: {e}")
+
+    if not raw_products:
+        raise HTTPException(status_code=400, detail="No products found. Store may not be Shopify or blocks /products.json.")
+
+    normalized = [normalize_product(p, base) for p in raw_products]
+    ins = analyze_products(normalized)
+
+    from urllib.parse import urlparse
+    from datetime import datetime, timezone
+    hostname = urlparse(base).hostname or base
+
+    catalog   = ins.get("catalog", {})
+    pricing   = ins.get("pricing", {})
+    discounts = ins.get("discounts", {})
+    launch    = ins.get("launch_timeline", {}) or {}
+    tag_ana   = ins.get("tag_analysis", {}) or {}
+    vend_ana  = ins.get("vendor_analysis", {}) or {}
+
+    total_products = catalog.get("total_products", len(normalized))
+    promo_rate     = round(discounts.get("discounted_pct") or 0)
+    median_price   = round(pricing.get("median") or 0)
+    new_30d        = (launch.get("launch_counts") or {}).get("30d", {}).get("count", 0) if isinstance((launch.get("launch_counts") or {}).get("30d"), dict) else (launch.get("launch_counts") or {}).get("30d", 0)
+    entry_price    = round(pricing.get("min") or 0)
+    price_max      = round(pricing.get("max") or 0)
+    p25            = round(pricing.get("p25") or 0)
+    p75            = round(pricing.get("p75") or 0)
+    median_discount = round(discounts.get("median_discount_pct") or 0)
+    vendor_count   = catalog.get("vendor_count", 0)
+    top_vendor_pct = 0
+    top_vendors = vend_ana.get("top_vendors") or []
+    if top_vendors:
+        top_vendor_pct = round(top_vendors[0].get("pct") or 0)
+    tag_unique     = tag_ana.get("total_unique", 0)
+    top_tag_pct    = 0
+    top_tags = tag_ana.get("top_tags") or []
+    if top_tags:
+        top_tag_pct = round(top_tags[0].get("pct") or 0)
+
+    # Build newest products list (up to 4) with days_ago
+    now = datetime.now(timezone.utc)
+    from app.services.analyze import parse_dt
+    dated = []
+    for p in normalized:
+        dt = parse_dt(p.get("created_at"))
+        if dt:
+            dated.append({"title": p.get("title", "Product"), "dt": dt})
+    dated.sort(key=lambda x: x["dt"], reverse=True)
+    newest_products = [
+        {"title": d["title"], "days_ago": max(0, (now - d["dt"]).days)}
+        for d in dated[:4]
+    ]
+
+    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)), autoescape=True)
+    template = env.get_template("preview.html")
+    html = template.render(
+        hostname=hostname,
+        store_url=base,
+        product_count=len(normalized),
+        total_products=total_products,
+        promo_rate=promo_rate,
+        median_price=median_price,
+        new_30d=new_30d,
+        entry_price=entry_price,
+        price_max=price_max,
+        p25=p25,
+        p75=p75,
+        median_discount=median_discount,
+        vendor_count=vendor_count,
+        top_vendor_pct=top_vendor_pct,
+        tag_unique=tag_unique,
+        top_tag_pct=top_tag_pct,
+        newest_products=newest_products,
+    )
+    return HTMLResponse(html)
 
 
 @app.post("/generate")

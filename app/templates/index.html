@@ -1319,20 +1319,8 @@ form.addEventListener("submit",async(e)=>{
   const raw=(storeUrl.value||"").trim(), base=normalizeUrl(raw);
   if(!base){ btn.disabled=true; setHelp("bad","Please enter a valid store link before continuing."); return; }
   if(!lastOkBase||lastChecked!==base){ await checkStoreNow(); if(!lastOkBase) return; }
-  try{
-    btn.disabled=true; spinner.style.display="block"; setStatus("Starting checkout…","info");
-    const fd=new FormData(); fd.append("store_url",lastOkBase);
-    const res=await fetch("/buy",{method:"POST",body:fd});
-    if(!res.ok){
-      let detail="Could not start checkout.";
-      try{ const j=await res.json(); if(j&&(j.detail||j.error)) detail=j.detail||j.error; }catch(_){}
-      setStatus(detail,"error"); btn.disabled=false; return;
-    }
-    const j=await res.json().catch(()=>({}));
-    if(j&&j.url){ window.location.href=j.url; return; }
-    setStatus("Checkout didn't return a redirect link.","error"); btn.disabled=false;
-  }catch(err){ setStatus("Network error. Please try again.","error"); btn.disabled=false; }
-  finally{ spinner.style.display="none"; }
+  btn.disabled=true; spinner.style.display="block"; setStatus("Building your preview…","info");
+  window.location.href=`/preview?store_url=${encodeURIComponent(lastOkBase)}`;
 });
 </script>
 </body>
