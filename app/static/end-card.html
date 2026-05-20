@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>StoreScout End Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1080px; height: 1920px;
+    overflow: hidden;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #060d18;
+  }
+
+  /* ── Dot grid background ── */
+  .dot-grid {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+    z-index: 0;
+  }
+
+  /* ── Glows ── */
+  .glows {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  }
+  .glow-top {
+    position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+    width: 900px; height: 900px;
+    background: radial-gradient(circle, rgba(163,240,0,.11) 0%, transparent 60%);
+  }
+  .glow-mid {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(59,130,246,.08) 0%, transparent 60%);
+  }
+  .glow-bottom {
+    position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 600px;
+    background: radial-gradient(ellipse, rgba(163,240,0,.07) 0%, transparent 60%);
+  }
+
+  /* ── Vignette ── */
+  .vignette {
+    position: absolute; inset: 0; z-index: 2;
+    background: radial-gradient(ellipse 90% 90% at 50% 50%, transparent 40%, rgba(6,13,24,.7) 100%);
+  }
+
+  /* ── Content ── */
+  .content {
+    position: relative; z-index: 3;
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 0 80px;
+  }
+
+  /* Top eyebrow */
+  .eyebrow {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 64px;
+  }
+  .eyebrow-line {
+    width: 48px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(163,240,0,.5));
+  }
+  .eyebrow-line.r {
+    background: linear-gradient(90deg, rgba(163,240,0,.5), transparent);
+  }
+  .eyebrow-text {
+    font-size: 22px; font-weight: 700; color: rgba(163,240,0,.6);
+    letter-spacing: .14em; text-transform: uppercase;
+  }
+
+  /* Logo */
+  .logo-row {
+    display: flex; align-items: center; gap: 24px;
+    margin-bottom: 52px;
+  }
+  .logo-text {
+    font-size: 88px; font-weight: 900; letter-spacing: -.05em; line-height: 1;
+  }
+  .logo-text .s1 { color: #3b82f6; }
+  .logo-text .s2 { color: #2563eb; }
+
+  /* Main headline */
+  .headline {
+    font-size: 52px; font-weight: 900;
+    letter-spacing: -.03em; line-height: 1.15;
+    text-align: center; color: #fff;
+    margin-bottom: 28px; max-width: 860px;
+  }
+  .headline em { color: #a3f000; font-style: italic; }
+
+  /* Sub */
+  .sub {
+    font-size: 30px; font-weight: 500;
+    color: rgba(255,255,255,.3); text-align: center;
+    line-height: 1.5; margin-bottom: 72px; max-width: 700px;
+  }
+
+  /* Price CTA */
+  .cta-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+    margin-bottom: 72px;
+  }
+  .cta-btn {
+    background: #a3f000; color: #060d18;
+    font-size: 48px; font-weight: 900; letter-spacing: -.02em;
+    padding: 28px 88px; border-radius: 999px;
+    box-shadow: 0 0 100px rgba(163,240,0,.35), 0 0 40px rgba(163,240,0,.2);
+  }
+  .cta-sub {
+    font-size: 24px; font-weight: 600;
+    color: rgba(255,255,255,.2); letter-spacing: .03em;
+  }
+
+  /* Divider */
+  .divider {
+    width: 100%; max-width: 560px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+    margin-bottom: 48px;
+  }
+
+  /* URL */
+  .url-row {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 0;
+  }
+  .url-dot { width: 8px; height: 8px; border-radius: 50%; background: #a3f000; opacity: .5; }
+  .url {
+    font-size: 36px; font-weight: 700;
+    color: rgba(255,255,255,.25); letter-spacing: .02em;
+  }
+
+  /* Bottom trust pills */
+  .trust-row {
+    position: absolute; bottom: 110px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .trust-pill {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 999px; padding: 12px 28px;
+    font-size: 22px; font-weight: 600;
+    color: rgba(255,255,255,.2);
+  }
+  .trust-sep { color: rgba(255,255,255,.1); font-size: 22px; }
+
+  /* Corner marks */
+  .corner {
+    position: absolute; width: 32px; height: 32px;
+    border-color: rgba(163,240,0,.2); border-style: solid;
+  }
+  .corner.tl { top: 48px; left: 48px; border-width: 2px 0 0 2px; }
+  .corner.tr { top: 48px; right: 48px; border-width: 2px 2px 0 0; }
+  .corner.bl { bottom: 48px; left: 48px; border-width: 0 0 2px 2px; }
+  .corner.br { bottom: 48px; right: 48px; border-width: 0 2px 2px 0; }
+</style>
+</head>
+<body>
+
+<div class="dot-grid"></div>
+<div class="glows">
+  <div class="glow-top"></div>
+  <div class="glow-mid"></div>
+  <div class="glow-bottom"></div>
+</div>
+<div class="vignette"></div>
+
+<!-- Corner marks -->
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
+
+<div class="content">
+
+  <div class="eyebrow">
+    <div class="eyebrow-line"></div>
+    <div class="eyebrow-text">Shopify Intelligence</div>
+    <div class="eyebrow-line r"></div>
+  </div>
+
+  <div class="logo-row">
+    <svg width="96" height="96" viewBox="0 0 100 100" fill="none">
+      <path d="M30 35L30 80C30 85 32 88 37 88L63 88C68 88 70 85 70 80L70 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <path d="M25 35L75 35L72 42L28 42Z" fill="#2463EB"/>
+      <path d="M38 35L38 28C38 22 42 18 50 18C58 18 62 22 62 28L62 35" stroke="#2463EB" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <circle cx="65" cy="55" r="18" fill="#1E40AF" opacity=".9"/>
+      <circle cx="65" cy="55" r="12" fill="white" opacity=".3"/>
+      <path d="M78 68L88 78" stroke="#1E40AF" stroke-width="5" stroke-linecap="round"/>
+    </svg>
+    <div class="logo-text"><span class="s1">Store</span><span class="s2">Scout</span></div>
+  </div>
+
+  <div class="headline">See <em>exactly</em> what any<br>Shopify competitor is doing.</div>
+
+  <div class="sub">Pricing strategy · Discount patterns<br>New launches · All in 30 seconds.</div>
+
+  <div class="cta-wrap">
+    <div class="cta-btn">Get started — $9 →</div>
+    <div class="cta-sub">One time · No subscription · Instant PDF</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="url-row">
+    <div class="url-dot"></div>
+    <div class="url">getstorescout.com</div>
+    <div class="url-dot"></div>
+  </div>
+
+  <div class="trust-row">
+    <div class="trust-pill">🔒 Stripe</div>
+    <div class="trust-sep">·</div>
+    <div class="trust-pill">⚡ Under a minute</div>
+    <div class="trust-sep">·</div>
+    <div class="trust-pill">📄 PDF report</div>
+  </div>
+
+</div>
+</body>
+</html>
