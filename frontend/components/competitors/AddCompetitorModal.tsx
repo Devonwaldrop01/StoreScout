@@ -24,7 +24,7 @@ export function AddCompetitorModal({ onClose, onAdded }: Props) {
     setStoreStatus("idle");
     try {
       const res = await fetch(
-        `/check_store?store_url=${encodeURIComponent(value.trim())}`
+        `/api/check_store?store_url=${encodeURIComponent(value.trim())}`
       );
       const data = await res.json();
       setStoreStatus(data.ok ? "ok" : "error");
