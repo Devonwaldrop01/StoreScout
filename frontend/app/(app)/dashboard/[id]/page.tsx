@@ -86,25 +86,31 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const [tab, setTab] = useState<Tab>("overview");
   const [rescanning, setRescanning] = useState(false);
 
+  const [scanPending, setScanPending] = useState(true);
+
   useEffect(() => {
     async function load() {
       try {
-        const [snapRes, changesRes] = await Promise.all([
-          api.latestSnapshot(id),
-          api.changes(id, 20),
-        ]);
+        const snapRes = await api.latestSnapshot(id);
         setSnapshot(snapRes.data);
+        setScanPending(false);
+      } catch {
+        // 404 = scan not done yet, keep polling fast
+      }
+      // Load changes separately — don't let a 500 here block snapshot display
+      try {
+        const changesRes = await api.changes(id, 20);
         setChanges(changesRes.data);
       } catch {
-        // snapshot may not exist yet
-      } finally {
-        setLoading(false);
+        // changes table may be empty or erroring — non-fatal
       }
+      setLoading(false);
     }
     load();
-    const interval = setInterval(load, 15000);
+    // Poll fast (3s) while scan is pending, slow (15s) once data loaded
+    const interval = setInterval(load, scanPending ? 3000 : 15000);
     return () => clearInterval(interval);
-  }, [id]);
+  }, [id, scanPending]);
 
   useEffect(() => {
     if (tab === "ai" && !aiSummary) {

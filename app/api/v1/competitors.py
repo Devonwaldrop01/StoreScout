@@ -246,6 +246,6 @@ def get_ai_summary(competitor_id: str, user_id: str = Depends(get_current_user_i
 
 
 def _assert_owner(db, competitor_id: str, user_id: str):
-    result = db.table("competitors").select("user_id").eq("id", competitor_id).single().execute()
-    if not result.data or result.data["user_id"] != user_id:
+    result = db.table("competitors").select("user_id").eq("id", competitor_id).maybe_single().execute()
+    if not result or not result.data or result.data["user_id"] != user_id:
         raise HTTPException(status_code=404, detail="Not found")
