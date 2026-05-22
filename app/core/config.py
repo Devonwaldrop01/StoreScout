@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     # Redis / Celery
     redis_url: str = "redis://localhost:6379/0"
 
+    # Internal service communication (worker → web service for outbound fetches)
+    api_internal_url: str = "http://localhost:10000"
+    internal_secret: str = "dev-internal-secret"
+
     # Anthropic
     anthropic_api_key: str = ""
 
