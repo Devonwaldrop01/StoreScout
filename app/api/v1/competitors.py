@@ -12,7 +12,6 @@ from pydantic import BaseModel, field_validator
 from app.core.auth import get_current_user_id
 from app.core.config import get_settings
 from app.core.database import get_supabase
-from app.services.fetch import check_store
 
 router = APIRouter(prefix="/competitors", tags=["competitors"])
 
@@ -91,23 +90,12 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_curren
     if dupe.data:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Competitor already tracked")
 
-    # Validate the store is accessible (reuse existing check_store logic)
-    try:
-        probe = check_store(body.store_url)
-        if not probe.get("ok"):
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Store not accessible or not a Shopify store")
-        base_url = probe.get("base_url", body.store_url)
-    except HTTPException:
-        raise
-    except Exception:
-        base_url = body.store_url
-
-    hostname = urlparse(base_url).netloc
+    hostname = urlparse(body.store_url).netloc
     now = datetime.now(timezone.utc)
 
     row = db.table("competitors").insert({
         "user_id": user_id,
-        "store_url": base_url,
+        "store_url": body.store_url,
         "hostname": hostname,
         "display_name": body.display_name,
         "scan_status": "pending",
