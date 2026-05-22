@@ -1,6 +1,7 @@
 from __future__ import annotations
 from celery import Celery
 from celery.schedules import crontab
+import ssl
 import sys
 import os
 
@@ -24,12 +25,15 @@ celery = Celery(
     ],
 )
 
+_ssl_config = {"ssl_cert_reqs": ssl.CERT_NONE} if settings.redis_url.startswith("rediss://") else None
+
 celery.conf.update(
     task_serializer="json",
     accept_content=["json"],
     result_serializer="json",
     timezone="UTC",
     enable_utc=True,
+    **({"broker_use_ssl": _ssl_config, "redis_backend_use_ssl": _ssl_config} if _ssl_config else {}),
     task_routes={
         "app.tasks.alerts.*": {"queue": "priority"},
         "app.tasks.scan.manual_rescan": {"queue": "priority"},
