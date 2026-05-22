@@ -41,22 +41,21 @@ def scan_competitor(self, competitor_id: str) -> dict:
         store_url = competitor["store_url"]
         tier = (competitor.get("user_profiles") or {}).get("tier", "free")
 
-        # Skip-if-unchanged optimization: probe first product updated_at
+        # Skip-if-unchanged optimization: only probe if a previous snapshot exists
         try:
-            probe = fetch_products_shopify(store_url, max_products=1)
-            if probe:
-                latest_updated = probe[0].get("updated_at", "")
-                last_snap = db.table("scan_snapshots")\
-                    .select("snapshot_data")\
-                    .eq("competitor_id", competitor_id)\
-                    .order("scanned_at", desc=True)\
-                    .limit(1)\
-                    .execute()
-                if last_snap.data:
+            last_snap = db.table("scan_snapshots")\
+                .select("snapshot_data")\
+                .eq("competitor_id", competitor_id)\
+                .order("scanned_at", desc=True)\
+                .limit(1)\
+                .execute()
+            if last_snap.data:
+                probe = fetch_products_shopify(store_url, max_products=1)
+                if probe:
+                    latest_updated = probe[0].get("updated_at", "")
                     prev_data = last_snap.data[0]["snapshot_data"]
                     prev_newest = (prev_data.get("lists") or {}).get("recently_updated", [])
                     if prev_newest and prev_newest[0].get("updated_at") == latest_updated:
-                        # Nothing changed — skip full fetch
                         interval_h = _interval_for_tier(tier)
                         next_scan = datetime.now(timezone.utc) + timedelta(hours=interval_h)
                         db.table("competitors").update({
@@ -66,7 +65,7 @@ def scan_competitor(self, competitor_id: str) -> dict:
                         }).eq("id", competitor_id).execute()
                         return {"status": "unchanged"}
         except Exception:
-            pass  # Skip optimization on any probe error — proceed with full fetch
+            pass  # Skip optimization on any error — proceed with full fetch
 
         # Full fetch + analyze
         raw = fetch_products_shopify(store_url)
@@ -121,16 +120,19 @@ def scan_competitor(self, competitor_id: str) -> dict:
 
     except Exception as exc:
         logger.error(f"Scan failed for {competitor_id}: {exc}")
+        err_str = str(exc)
+        # 403 = store blocked this IP — retrying just makes it worse
+        is_permanent = "403" in err_str or "Forbidden" in err_str
         retry_count = self.request.retries
-        if retry_count >= self.max_retries:
+        if is_permanent or retry_count >= self.max_retries:
             db.table("competitors").update({
                 "scan_status": "error",
-                "error_message": str(exc)[:500],
+                "error_message": err_str[:500],
             }).eq("id", competitor_id).execute()
         else:
             db.table("competitors").update({"scan_status": "pending"}).eq("id", competitor_id).execute()
             raise self.retry(exc=exc, countdown=30 * (2 ** retry_count))
-        return {"status": "error", "reason": str(exc)}
+        return {"status": "error", "reason": err_str}
 
 
 @celery.task(name="app.tasks.scan.manual_rescan")
