@@ -84,6 +84,10 @@ services:
         sync: false
       - key: PUBLIC_BASE_URL
         sync: false
+      - key: API_INTERNAL_URL
+        sync: false
+      - key: INTERNAL_SECRET
+        sync: false
       - key: FREE_SCAN_INTERVAL_HOURS
         value: "168"
       - key: PRO_SCAN_INTERVAL_HOURS
