@@ -93,7 +93,10 @@ def check_store(store_url: str) -> Dict[str, Any]:
                     if "products" in data:
                         return {"ok": True, "base_url": str(r.url).split("/products.json")[0]}
                 elif r.status_code == 403:
-                    return {"ok": False, "error": "blocked"}
+                    # 403 from /products.json is characteristic of a Shopify store with
+                    # bot-protection on the probe endpoint. The actual scan (with full
+                    # headers and pagination) may still succeed. Allow the user to add it.
+                    return {"ok": True, "base_url": candidate, "restricted": True}
             except Exception:
                 continue
 
