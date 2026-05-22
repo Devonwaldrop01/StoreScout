@@ -1,6 +1,7 @@
 from __future__ import annotations
 import logging
 import time
+import traceback
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
@@ -39,51 +40,127 @@ def _enforce_domain_rate_limit(hostname: str) -> None:
         pass  # Redis unavailable — skip rate limiting
 
 
+def _classify_failure(status: int, content_type: str, body_preview: str) -> str:
+    """Return a human-readable failure category for logging."""
+    if "text/html" in content_type:
+        return "HTML_RETURNED_INSTEAD_OF_JSON"
+    if status == 403:
+        return "AUTH_BLOCKED_403"
+    if status == 429:
+        return "RATE_LIMITED_429"
+    if status == 404:
+        return "NOT_FOUND_404"
+    if status == 200 and "application/json" not in content_type:
+        return f"NON_JSON_CONTENT_TYPE_{content_type!r}"
+    if status != 200:
+        return f"NON_200_STATUS_{status}"
+    return "UNKNOWN"
+
+
 def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -> List[Dict[str, Any]]:
     products: List[Dict[str, Any]] = []
     hostname = urlparse(store_url).netloc
 
+    logger.info("[FETCH START] store_url=%r max_products=%r ua=%r",
+                store_url, max_products, DEFAULT_HEADERS["User-Agent"])
+
     _enforce_domain_rate_limit(hostname)
 
-    # Match the proven-working PDF version: limit=250, 10 pages.
     page_limit = min(250, max_products) if max_products is not None else 250
     MAX_PAGES = 10
 
-    with httpx.Client(timeout=25.0, headers=_headers(), follow_redirects=True) as client:
-        for page in range(1, MAX_PAGES + 1):
-            url = f"{store_url.rstrip('/')}/products.json?limit={page_limit}&page={page}"
-            r = client.get(url)
-            ct = r.headers.get("content-type", "")
+    try:
+        with httpx.Client(timeout=25.0, headers=_headers(), follow_redirects=True) as client:
+            for page in range(1, MAX_PAGES + 1):
+                url = f"{store_url.rstrip('/')}/products.json?limit={page_limit}&page={page}"
+                logger.info("[FETCH REQUEST] page=%d url=%r", page, url)
 
-            if r.status_code != 200:
-                logger.warning(
-                    "fetch %s page=%s -> status=%s ct=%s final_url=%s body=%r",
-                    store_url, page, r.status_code, ct, str(r.url), r.text[:200],
+                try:
+                    t0 = time.monotonic()
+                    r = client.get(url)
+                    elapsed_ms = int((time.monotonic() - t0) * 1000)
+                except httpx.TimeoutException as exc:
+                    logger.error(
+                        "[FETCH TIMEOUT] page=%d url=%r elapsed_ms=%d exc=%s\n%s",
+                        page, url, int((time.monotonic() - t0) * 1000),
+                        exc, traceback.format_exc(),
+                    )
+                    break
+                except httpx.ConnectError as exc:
+                    logger.error(
+                        "[FETCH CONNECT_ERROR] page=%d url=%r exc=%s\n%s",
+                        page, url, exc, traceback.format_exc(),
+                    )
+                    break
+                except Exception as exc:
+                    logger.error(
+                        "[FETCH EXCEPTION] page=%d url=%r exc=%s\n%s",
+                        page, url, exc, traceback.format_exc(),
+                    )
+                    break
+
+                status = r.status_code
+                ct = r.headers.get("content-type", "")
+                final_url = str(r.url)
+                body_preview = r.text[:500]
+
+                logger.info(
+                    "[FETCH RESPONSE] page=%d status=%d ct=%r final_url=%r elapsed_ms=%d",
+                    page, status, ct, final_url, elapsed_ms,
                 )
-                if r.status_code == 429:
-                    time.sleep(min(int(r.headers.get("retry-after", "10")), 30))
-                break
 
-            if "application/json" not in ct:
-                logger.warning(
-                    "fetch %s page=%s -> non-JSON ct=%s final_url=%s body=%r",
-                    store_url, page, ct, str(r.url), r.text[:200],
-                )
-                break
+                if status != 200 or "application/json" not in ct:
+                    category = _classify_failure(status, ct, body_preview)
+                    logger.warning(
+                        "[FETCH FAILURE] page=%d category=%s status=%d ct=%r "
+                        "final_url=%r body_preview=%r",
+                        page, category, status, ct, final_url, body_preview,
+                    )
+                    if status == 429:
+                        retry_after = int(r.headers.get("retry-after", "10"))
+                        logger.info("[FETCH RATE_LIMIT] retry-after=%ds", retry_after)
+                        time.sleep(min(retry_after, 30))
+                    break
 
-            data = r.json()
-            batch = data.get("products", [])
-            if not batch:
-                break
+                # JSON parsing
+                try:
+                    data = r.json()
+                except Exception as exc:
+                    logger.error(
+                        "[FETCH JSON_PARSE_ERROR] page=%d url=%r body_preview=%r exc=%s\n%s",
+                        page, url, body_preview, exc, traceback.format_exc(),
+                    )
+                    break
 
-            products.extend(batch)
+                batch = data.get("products", [])
+                if not isinstance(batch, list):
+                    logger.error(
+                        "[FETCH BAD_SHAPE] page=%d url=%r 'products' is %s not list, body=%r",
+                        page, url, type(batch).__name__, body_preview,
+                    )
+                    break
 
-            if max_products is not None and len(products) >= max_products:
-                break
+                logger.info("[FETCH PAGE_OK] page=%d products_on_page=%d total_so_far=%d",
+                            page, len(batch), len(products) + len(batch))
 
-    if not products:
-        logger.warning("fetch %s returned 0 products", store_url)
-    return products[:max_products] if max_products else products
+                if not batch:
+                    logger.info("[FETCH DONE] no more products at page=%d", page)
+                    break
+
+                products.extend(batch)
+
+                if max_products is not None and len(products) >= max_products:
+                    products = products[:max_products]
+                    break
+
+    except Exception as exc:
+        logger.error(
+            "[FETCH OUTER_EXCEPTION] store_url=%r exc=%s\n%s",
+            store_url, exc, traceback.format_exc(),
+        )
+
+    logger.info("[FETCH COMPLETE] store_url=%r total_products=%d", store_url, len(products))
+    return products
 
 
 def check_store(store_url: str) -> Dict[str, Any]:
@@ -102,11 +179,13 @@ def check_store(store_url: str) -> Dict[str, Any]:
         for candidate in candidates:
             try:
                 r = client.get(f"{candidate}/products.json?limit=1")
-                if r.status_code == 200 and "application/json" in r.headers.get("content-type", ""):
+                status = r.status_code
+                ct = r.headers.get("content-type", "")
+                if status == 200 and "application/json" in ct:
                     data = r.json()
                     if "products" in data:
                         return {"ok": True, "base_url": str(r.url).split("/products.json")[0]}
-                elif r.status_code == 403:
+                elif status == 403:
                     # 403 from /products.json is characteristic of a Shopify store with
                     # bot-protection on the probe endpoint. The actual scan (with full
                     # headers and pagination) may still succeed. Allow the user to add it.
