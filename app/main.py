@@ -61,11 +61,33 @@ resend.api_key = RESEND_API_KEY
 app = FastAPI(title="StoreScout")
 
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://getstorescout.com",
+        "https://app.getstorescout.com",
+        "http://localhost:3000",
+        "http://localhost:3001",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-# (optional) if you add static assets later
-# app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+# Mount new v1 API routers
+from app.api.v1.competitors import router as competitors_router
+from app.api.v1.alerts import router as alerts_router
+from app.api.v1.user import router as user_router
+from app.api.v1.webhooks import router as webhooks_router
+
+app.include_router(competitors_router, prefix="/api/v1")
+app.include_router(alerts_router, prefix="/api/v1")
+app.include_router(user_router, prefix="/api/v1")
+app.include_router(webhooks_router, prefix="/api/v1")
 
 def extract_store_url_from_session(session: dict) -> str | None:
     fields = session.custom_fields or []

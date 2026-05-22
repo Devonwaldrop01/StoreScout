@@ -1,10 +1,19 @@
 fastapi
-uvicorn
+uvicorn[standard]
 httpx
 jinja2
 playwright
 python-multipart
 requests
-dotenv
+python-dotenv
 stripe
 resend
+
+# SaaS additions
+celery[redis]
+redis
+supabase
+python-jose[cryptography]
+anthropic
+pydantic-settings
+flower
