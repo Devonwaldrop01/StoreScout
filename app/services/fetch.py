@@ -5,21 +5,29 @@ import traceback
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
-import httpx
+# curl_cffi impersonates Chrome's exact TLS fingerprint (JA3/JA4), bypassing
+# Cloudflare Bot Management challenges that block Python's default TLS stack.
+# Falls back to httpx for environments where curl_cffi can't be installed.
+try:
+    from curl_cffi.requests import Session as CurlSession
+    _USE_CURL_CFFI = True
+except ImportError:
+    import httpx
+    _USE_CURL_CFFI = False
 
 logger = logging.getLogger(__name__)
 
-# Single static Chrome User-Agent. Must stay consistent with httpx's TLS
-# fingerprint — randomizing across Safari/Firefox UAs creates a UA/TLS
-# mismatch that WAFs flag as a bot and 403.
+# Chrome 120 UA — consistent with the impersonate="chrome120" TLS fingerprint.
 DEFAULT_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/121.0.0.0 Safari/537.36"
+        "Chrome/120.0.0.0 Safari/537.36"
     ),
     "Accept": "application/json",
 }
+
+IMPERSONATE = "chrome120"
 
 
 def _headers() -> dict:
@@ -61,8 +69,10 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
     products: List[Dict[str, Any]] = []
     hostname = urlparse(store_url).netloc
 
-    logger.info("[FETCH START] store_url=%r max_products=%r ua=%r",
-                store_url, max_products, DEFAULT_HEADERS["User-Agent"])
+    logger.info("[FETCH START] store_url=%r max_products=%r backend=%s ua=%r",
+                store_url, max_products,
+                "curl_cffi/" + IMPERSONATE if _USE_CURL_CFFI else "httpx",
+                DEFAULT_HEADERS["User-Agent"])
 
     _enforce_domain_rate_limit(hostname)
 
@@ -70,32 +80,30 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
     MAX_PAGES = 10
 
     try:
-        with httpx.Client(timeout=25.0, headers=_headers(), follow_redirects=True) as client:
+        if _USE_CURL_CFFI:
+            _make_client = lambda: CurlSession(impersonate=IMPERSONATE, headers=_headers())
+        else:
+            _make_client = lambda: httpx.Client(timeout=25.0, headers=_headers(), follow_redirects=True)
+
+        with _make_client() as client:
             for page in range(1, MAX_PAGES + 1):
                 url = f"{store_url.rstrip('/')}/products.json?limit={page_limit}&page={page}"
                 logger.info("[FETCH REQUEST] page=%d url=%r", page, url)
 
+                t0 = time.monotonic()
                 try:
-                    t0 = time.monotonic()
-                    r = client.get(url)
+                    if _USE_CURL_CFFI:
+                        r = client.get(url, timeout=25, allow_redirects=True)
+                    else:
+                        r = client.get(url)
                     elapsed_ms = int((time.monotonic() - t0) * 1000)
-                except httpx.TimeoutException as exc:
-                    logger.error(
-                        "[FETCH TIMEOUT] page=%d url=%r elapsed_ms=%d exc=%s\n%s",
-                        page, url, int((time.monotonic() - t0) * 1000),
-                        exc, traceback.format_exc(),
-                    )
-                    break
-                except httpx.ConnectError as exc:
-                    logger.error(
-                        "[FETCH CONNECT_ERROR] page=%d url=%r exc=%s\n%s",
-                        page, url, exc, traceback.format_exc(),
-                    )
-                    break
                 except Exception as exc:
+                    elapsed_ms = int((time.monotonic() - t0) * 1000)
+                    exc_type = type(exc).__name__
+                    category = "TIMEOUT" if "timeout" in exc_type.lower() or "timeout" in str(exc).lower() else "CONNECTION_ERROR"
                     logger.error(
-                        "[FETCH EXCEPTION] page=%d url=%r exc=%s\n%s",
-                        page, url, exc, traceback.format_exc(),
+                        "[FETCH %s] page=%d url=%r elapsed_ms=%d exc=%s\n%s",
+                        category, page, url, elapsed_ms, exc, traceback.format_exc(),
                     )
                     break
 
@@ -174,21 +182,28 @@ def check_store(store_url: str) -> Dict[str, Any]:
     else:
         candidates = [f"https://{hostname}", f"https://www.{hostname}"]
 
-    headers = _headers()
-    with httpx.Client(timeout=15.0, headers=headers, follow_redirects=True) as client:
+    if _USE_CURL_CFFI:
+        _make_probe_client = lambda: CurlSession(impersonate=IMPERSONATE, headers=_headers())
+    else:
+        _make_probe_client = lambda: httpx.Client(timeout=15.0, headers=_headers(), follow_redirects=True)
+
+    with _make_probe_client() as client:
         for candidate in candidates:
             try:
-                r = client.get(f"{candidate}/products.json?limit=1")
+                if _USE_CURL_CFFI:
+                    r = client.get(f"{candidate}/products.json?limit=1", timeout=15, allow_redirects=True)
+                else:
+                    r = client.get(f"{candidate}/products.json?limit=1")
                 status = r.status_code
                 ct = r.headers.get("content-type", "")
                 if status == 200 and "application/json" in ct:
                     data = r.json()
                     if "products" in data:
-                        return {"ok": True, "base_url": str(r.url).split("/products.json")[0]}
+                        final = str(r.url) if hasattr(r, "url") else candidate
+                        return {"ok": True, "base_url": final.split("/products.json")[0]}
                 elif status == 403:
-                    # 403 from /products.json is characteristic of a Shopify store with
-                    # bot-protection on the probe endpoint. The actual scan (with full
-                    # headers and pagination) may still succeed. Allow the user to add it.
+                    # 403 here may mean bot-protection on the probe; the full scan with
+                    # curl_cffi TLS impersonation may still succeed.
                     return {"ok": True, "base_url": candidate, "restricted": True}
             except Exception:
                 continue
