@@ -1,0 +1,116 @@
+services:
+  # ── FastAPI Web Service (existing + extended) ─────────────────
+  - type: web
+    name: storescout-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    plan: starter
+    healthCheckPath: /
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PLAYWRIGHT_BROWSERS_PATH
+        value: /ms-playwright
+      # ── Copy these from your .env ──
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_ID
+        sync: false
+      - key: STRIPE_PRO_PRICE_ID
+        sync: false
+      - key: STRIPE_AGENCY_PRICE_ID
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: FREE_MAX_COMPETITORS
+        value: "1"
+      - key: PRO_MAX_COMPETITORS
+        value: "10"
+      - key: AGENCY_MAX_COMPETITORS
+        value: "50"
+      - key: FREE_SCAN_INTERVAL_HOURS
+        value: "168"
+      - key: PRO_SCAN_INTERVAL_HOURS
+        value: "24"
+      - key: AGENCY_SCAN_INTERVAL_HOURS
+        value: "12"
+
+  # ── Celery Worker (background job processor) ──────────────────
+  - type: worker
+    name: storescout-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: celery -A app.tasks.celery_app.celery worker --loglevel=info -Q default,priority --concurrency=2
+    plan: starter
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PLAYWRIGHT_BROWSERS_PATH
+        value: /ms-playwright
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: FREE_SCAN_INTERVAL_HOURS
+        value: "168"
+      - key: PRO_SCAN_INTERVAL_HOURS
+        value: "24"
+      - key: AGENCY_SCAN_INTERVAL_HOURS
+        value: "12"
+      - key: FREE_MAX_COMPETITORS
+        value: "1"
+      - key: PRO_MAX_COMPETITORS
+        value: "10"
+      - key: AGENCY_MAX_COMPETITORS
+        value: "50"
+
+  # ── Celery Beat Scheduler (periodic task trigger) ─────────────
+  - type: worker
+    name: storescout-scheduler
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: celery -A app.tasks.celery_app.celery beat --loglevel=info
+    plan: starter
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: REDIS_URL
+        sync: false
