@@ -33,8 +33,8 @@ def scan_competitor(self, competitor_id: str) -> dict:
 
     try:
         # Fetch competitor record
-        result = db.table("competitors").select("*, user_profiles(tier)").eq("id", competitor_id).single().execute()
-        competitor = result.data
+        result = db.table("competitors").select("*, user_profiles(tier)").eq("id", competitor_id).maybe_single().execute()
+        competitor = result.data if result else None
         if not competitor:
             return {"status": "error", "reason": "competitor_not_found"}
 
