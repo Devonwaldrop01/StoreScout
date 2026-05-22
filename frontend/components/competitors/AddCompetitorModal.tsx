@@ -23,8 +23,9 @@ export function AddCompetitorModal({ onClose, onAdded }: Props) {
     setChecking(true);
     setStoreStatus("idle");
     try {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "";
       const res = await fetch(
-        `/check_store?store_url=${encodeURIComponent(value.trim())}`
+        `${apiBase}/check_store?store_url=${encodeURIComponent(value.trim())}`
       );
       const data = await res.json();
       setStoreStatus(data.ok ? "ok" : "error");
