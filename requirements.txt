@@ -1,6 +1,7 @@
 fastapi
 uvicorn[standard]
 httpx
+curl-cffi
 jinja2
 playwright
 python-multipart
