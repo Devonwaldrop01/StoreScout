@@ -195,7 +195,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
           style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
         >
           <p style={{ color: "var(--muted)" }}>
-            Scan in progress — check back in a minute.
+            Scan in progress — usually takes about 20 seconds.
           </p>
         </div>
       ) : (
