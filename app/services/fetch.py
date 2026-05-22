@@ -1,30 +1,29 @@
 from __future__ import annotations
-import random
 import time
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
 import httpx
 
-# Rotate user-agent pool to reduce fingerprinting
-_USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15",
-]
+# Single static Chrome User-Agent. Must stay consistent with httpx's TLS
+# fingerprint — randomizing across Safari/Firefox UAs creates a UA/TLS
+# mismatch that WAFs flag as a bot and 403.
+DEFAULT_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/121.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/json",
+}
 
 
 def _headers() -> dict:
-    return {
-        "User-Agent": random.choice(_USER_AGENTS),
-        "Accept": "application/json",
-    }
+    return dict(DEFAULT_HEADERS)
 
 
 def _enforce_domain_rate_limit(hostname: str) -> None:
-    """Enforce 10-second minimum between requests to the same domain using Redis if available."""
+    """Enforce a brief gap between requests to the same domain using Redis if available."""
     try:
         from app.core.config import get_settings
         import redis as redis_lib
@@ -43,10 +42,9 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
 
     _enforce_domain_rate_limit(hostname)
 
-    # Use the exact limit needed for probes; use 50 for full fetches to avoid WAF triggers
-    # (limit=250 is the canonical scraper signature; limit=50 is closer to normal browsing)
-    page_limit = min(50, max_products) if max_products is not None else 50
-    MAX_PAGES = 60  # 60 × 50 = 3,000 products max
+    # Match the proven-working PDF version: limit=250, 10 pages.
+    page_limit = min(250, max_products) if max_products is not None else 250
+    MAX_PAGES = 10
 
     with httpx.Client(timeout=25.0, headers=_headers(), follow_redirects=True) as client:
         for page in range(1, MAX_PAGES + 1):
