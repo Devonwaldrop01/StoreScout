@@ -39,17 +39,17 @@ def _enforce_domain_rate_limit(hostname: str) -> None:
 
 def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -> List[Dict[str, Any]]:
     products: List[Dict[str, Any]] = []
-    page = 1
-    MAX_PAGES = 10
     hostname = urlparse(store_url).netloc
 
     _enforce_domain_rate_limit(hostname)
 
-    # Use the exact limit needed for probes; default 250 for full fetches
-    page_limit = min(250, max_products) if max_products is not None else 250
+    # Use the exact limit needed for probes; use 50 for full fetches to avoid WAF triggers
+    # (limit=250 is the canonical scraper signature; limit=50 is closer to normal browsing)
+    page_limit = min(50, max_products) if max_products is not None else 50
+    MAX_PAGES = 60  # 60 × 50 = 3,000 products max
 
     with httpx.Client(timeout=25.0, headers=_headers(), follow_redirects=True) as client:
-        while page <= MAX_PAGES:
+        for page in range(1, MAX_PAGES + 1):
             url = f"{store_url.rstrip('/')}/products.json?limit={page_limit}&page={page}"
             r = client.get(url)
             ct = r.headers.get("content-type", "")
@@ -70,8 +70,6 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
 
             if max_products is not None and len(products) >= max_products:
                 break
-
-            page += 1
 
     return products[:max_products] if max_products else products
 
