@@ -21,7 +21,11 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
 
-    const { data, error: err } = await supabase.auth.signUp({ email, password });
+    const { data, error: err } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    });
     if (err) {
       setError(err.message);
       setLoading(false);
@@ -31,7 +35,7 @@ export default function SignupPage() {
     // If email confirmation is disabled in Supabase (dev mode), session is immediate
     if (data.session) {
       await userApi.provision().catch(() => {});
-      router.push("/dashboard");
+      router.push("/onboarding");
     } else {
       setDone(true);
       setLoading(false);
@@ -45,7 +49,7 @@ export default function SignupPage() {
           <CheckCircle2 className="w-12 h-12 mx-auto mb-4 text-green-400" />
           <h2 className="text-xl font-bold mb-2" style={{ color: "var(--text)" }}>Check your email</h2>
           <p style={{ color: "var(--muted)" }}>
-            We&apos;ve sent a confirmation link to <strong>{email}</strong>. Click it to activate your account.
+            We&apos;ve sent a confirmation link to <strong>{email}</strong>. Click it to activate your account and set up your first competitor.
           </p>
         </div>
       </div>
