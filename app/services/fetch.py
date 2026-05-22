@@ -39,26 +39,51 @@ def _enforce_domain_rate_limit(hostname: str) -> None:
 
 def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -> List[Dict[str, Any]]:
     products: List[Dict[str, Any]] = []
-    page = 1
-    MAX_PAGES = 10
     hostname = urlparse(store_url).netloc
 
     _enforce_domain_rate_limit(hostname)
 
+    # Try page sizes in descending order; some stores block limit=250 as anti-scraping
+    page_sizes = [250, 100, 50] if max_products is None else [min(250, max_products)]
+
+    chosen_limit: Optional[int] = None
+    for candidate_limit in page_sizes:
+        probe_url = f"{store_url.rstrip('/')}/products.json?limit={candidate_limit}&page=1"
+        with httpx.Client(timeout=25.0, headers=_headers(), follow_redirects=True) as probe_client:
+            try:
+                pr = probe_client.get(probe_url)
+                if pr.status_code == 200 and "application/json" in pr.headers.get("content-type", ""):
+                    data = pr.json()
+                    batch = data.get("products", [])
+                    products.extend(batch)
+                    if not batch or (max_products is not None and len(products) >= max_products):
+                        return products[:max_products] if max_products else products
+                    chosen_limit = candidate_limit
+                    break
+                elif pr.status_code == 429:
+                    time.sleep(min(int(pr.headers.get("retry-after", "10")), 30))
+                    break
+                # 403/404/other — try smaller limit
+            except Exception:
+                break
+
+    if chosen_limit is None:
+        return products  # nothing worked on page 1
+
+    # Continue paginating from page 2 onward with chosen_limit
+    page = 2
+    MAX_PAGES = 10
     with httpx.Client(timeout=25.0, headers=_headers(), follow_redirects=True) as client:
         while page <= MAX_PAGES:
-            url = f"{store_url.rstrip('/')}/products.json?limit=250&page={page}"
+            url = f"{store_url.rstrip('/')}/products.json?limit={chosen_limit}&page={page}"
             r = client.get(url)
             ct = r.headers.get("content-type", "")
             if "application/json" not in ct:
                 break
             if r.status_code == 429:
-                retry_after = int(r.headers.get("retry-after", "10"))
-                time.sleep(min(retry_after, 30))
+                time.sleep(min(int(r.headers.get("retry-after", "10")), 30))
                 break
-            if r.status_code in (403, 404):
-                break
-            if r.status_code != 200:
+            if r.status_code in (403, 404) or r.status_code != 200:
                 break
 
             data = r.json()
@@ -69,12 +94,11 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
             products.extend(batch)
 
             if max_products is not None and len(products) >= max_products:
-                products = products[:max_products]
                 break
 
             page += 1
 
-    return products
+    return products[:max_products] if max_products else products
 
 
 def check_store(store_url: str) -> Dict[str, Any]:
