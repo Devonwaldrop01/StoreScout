@@ -1,9 +1,12 @@
 from __future__ import annotations
+import logging
 import time
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
 import httpx
+
+logger = logging.getLogger(__name__)
 
 # Single static Chrome User-Agent. Must stay consistent with httpx's TLS
 # fingerprint — randomizing across Safari/Firefox UAs creates a UA/TLS
@@ -51,12 +54,21 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
             url = f"{store_url.rstrip('/')}/products.json?limit={page_limit}&page={page}"
             r = client.get(url)
             ct = r.headers.get("content-type", "")
+
+            if r.status_code != 200:
+                logger.warning(
+                    "fetch %s page=%s -> status=%s ct=%s final_url=%s body=%r",
+                    store_url, page, r.status_code, ct, str(r.url), r.text[:200],
+                )
+                if r.status_code == 429:
+                    time.sleep(min(int(r.headers.get("retry-after", "10")), 30))
+                break
+
             if "application/json" not in ct:
-                break
-            if r.status_code == 429:
-                time.sleep(min(int(r.headers.get("retry-after", "10")), 30))
-                break
-            if r.status_code in (403, 404) or r.status_code != 200:
+                logger.warning(
+                    "fetch %s page=%s -> non-JSON ct=%s final_url=%s body=%r",
+                    store_url, page, ct, str(r.url), r.text[:200],
+                )
                 break
 
             data = r.json()
@@ -69,6 +81,8 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
             if max_products is not None and len(products) >= max_products:
                 break
 
+    if not products:
+        logger.warning("fetch %s returned 0 products", store_url)
     return products[:max_products] if max_products else products
 
 
