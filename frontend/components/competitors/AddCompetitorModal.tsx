@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Search, AlertCircle, CheckCircle2 } from "lucide-react";
+import { X, Search, AlertCircle, CheckCircle2, AlertTriangle } from "lucide-react";
 import { competitors as api, type Competitor } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +15,7 @@ export function AddCompetitorModal({ onClose, onAdded }: Props) {
   const [displayName, setDisplayName] = useState("");
   const [checking, setChecking] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [storeStatus, setStoreStatus] = useState<"idle" | "ok" | "error">("idle");
+  const [storeStatus, setStoreStatus] = useState<"idle" | "ok" | "restricted" | "error">("idle");
   const [error, setError] = useState("");
 
   async function checkStore(value: string) {
@@ -27,8 +27,16 @@ export function AddCompetitorModal({ onClose, onAdded }: Props) {
         `/api/check_store?store_url=${encodeURIComponent(value.trim())}`
       );
       const data = await res.json();
-      setStoreStatus(data.ok ? "ok" : "error");
-      setError(data.ok ? "" : (data.reason || "Store not accessible"));
+      if (data.ok && data.restricted) {
+        setStoreStatus("restricted");
+        setError("");
+      } else if (data.ok) {
+        setStoreStatus("ok");
+        setError("");
+      } else {
+        setStoreStatus("error");
+        setError(data.reason || "Doesn't look like a Shopify store");
+      }
     } catch {
       setStoreStatus("error");
       setError("Network error checking store");
@@ -99,7 +107,7 @@ export function AddCompetitorModal({ onClose, onAdded }: Props) {
                 className="w-full px-4 py-3 rounded-xl text-sm font-mono pr-10 outline-none transition-all"
                 style={{
                   background: "var(--bg3)",
-                  border: `1px solid ${storeStatus === "ok" ? "#22c55e" : storeStatus === "error" ? "#f87171" : "var(--border)"}`,
+                  border: `1px solid ${storeStatus === "ok" ? "#22c55e" : storeStatus === "error" ? "#f87171" : storeStatus === "restricted" ? "#facc15" : "var(--border)"}`,
                   color: "var(--text)",
                 }}
                 autoFocus
@@ -109,14 +117,18 @@ export function AddCompetitorModal({ onClose, onAdded }: Props) {
                   <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--blue)" }} />
                 )}
                 {!checking && storeStatus === "ok" && <CheckCircle2 className="w-4 h-4 text-green-400" />}
+                {!checking && storeStatus === "restricted" && <AlertTriangle className="w-4 h-4 text-yellow-400" />}
                 {!checking && storeStatus === "error" && <AlertCircle className="w-4 h-4 text-red-400" />}
               </div>
             </div>
             {storeStatus === "ok" && (
               <p className="text-xs mt-1 text-green-400">✓ Shopify store detected — ready to scan</p>
             )}
+            {storeStatus === "restricted" && (
+              <p className="text-xs mt-1 text-yellow-400">This store restricts public access — we&apos;ll still attempt to scan it</p>
+            )}
             {storeStatus === "error" && (
-              <p className="text-xs mt-1 text-red-400">{error || "Store not accessible"}</p>
+              <p className="text-xs mt-1 text-red-400">{error || "Doesn&apos;t look like a Shopify store"}</p>
             )}
           </div>
 
@@ -150,10 +162,10 @@ export function AddCompetitorModal({ onClose, onAdded }: Props) {
 
           <button
             type="submit"
-            disabled={submitting || !url.trim() || storeStatus === "error"}
+            disabled={submitting || !url.trim() || storeStatus === "error" || checking}
             className={cn(
               "w-full flex items-center justify-center gap-2 font-semibold py-3 rounded-xl transition-all",
-              (submitting || !url.trim() || storeStatus === "error") ? "opacity-50 cursor-not-allowed" : "hover:brightness-110"
+              (submitting || !url.trim() || storeStatus === "error" || checking) ? "opacity-50 cursor-not-allowed" : "hover:brightness-110"
             )}
             style={{ background: "var(--green)", color: "#060d18" }}
           >
