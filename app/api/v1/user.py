@@ -22,8 +22,8 @@ class UpdatePrefsRequest(BaseModel):
 def get_subscription(user_id: str = Depends(get_current_user_id)):
     db = get_supabase()
     settings = get_settings()
-    user = db.table("user_profiles").select("*").eq("id", user_id).single().execute()
-    if not user.data:
+    user = db.table("user_profiles").select("*").eq("id", user_id).maybe_single().execute()
+    if not user or not user.data:
         raise HTTPException(404, "User not found")
 
     tier = user.data.get("tier", "free")

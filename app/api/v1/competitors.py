@@ -1,7 +1,10 @@
 from __future__ import annotations
+import logging
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 from urllib.parse import urlparse
+
+logger = logging.getLogger(__name__)
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, field_validator
@@ -54,9 +57,21 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_curren
     db = get_supabase()
     settings = get_settings()
 
-    # Check tier limits
-    user = db.table("user_profiles").select("tier").eq("id", user_id).single().execute()
-    tier = (user.data or {}).get("tier", "free")
+    # Check tier limits — auto-provision if profile missing (handles users who skipped onboarding)
+    user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
+    if not user or not user.data:
+        try:
+            db.table("user_profiles").insert({
+                "id": user_id,
+                "email": "",
+                "tier": "free",
+                "max_competitors": settings.free_max_competitors,
+                "scan_interval_hours": settings.free_scan_interval_hours,
+                "subscription_status": "inactive",
+            }).execute()
+        except Exception:
+            pass  # already exists (race condition) or RLS blocked — fall through with free defaults
+    tier = (user.data or {}).get("tier", "free") if user else "free"
     limits = _tier_limits(tier)
 
     existing = db.table("competitors").select("id").eq("user_id", user_id).eq("is_active", True).execute()
@@ -101,9 +116,12 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_curren
 
     competitor_id = row.data[0]["id"]
 
-    # Trigger immediate scan
-    from app.tasks.scan import scan_competitor
-    scan_competitor.delay(competitor_id)
+    # Trigger immediate scan — non-fatal if Celery is unreachable
+    try:
+        from app.tasks.scan import scan_competitor
+        scan_competitor.delay(competitor_id)
+    except Exception as exc:
+        logger.warning("Could not enqueue initial scan for %s: %s", competitor_id, exc)
 
     return {"data": row.data[0]}
 
@@ -169,8 +187,8 @@ def list_snapshots(
     _assert_owner(db, competitor_id, user_id)
 
     # History is a paid feature
-    user = db.table("user_profiles").select("tier").eq("id", user_id).single().execute()
-    tier = (user.data or {}).get("tier", "free")
+    user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
+    tier = (user.data or {}).get("tier", "free") if user else "free"
     if tier == "free":
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
@@ -217,8 +235,8 @@ def get_ai_summary(competitor_id: str, user_id: str = Depends(get_current_user_i
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
 
-    user = db.table("user_profiles").select("tier").eq("id", user_id).single().execute()
-    tier = (user.data or {}).get("tier", "free")
+    user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
+    tier = (user.data or {}).get("tier", "free") if user else "free"
     if tier == "free":
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
