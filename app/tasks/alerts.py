@@ -36,10 +36,22 @@ def send_change_alert(user_id: str, competitor_id: str, change_ids: List[str]) -
     if _within_cooldown(db, user_id, competitor_id):
         return {"status": "cooldown"}
 
-    # Fetch user prefs and email
+    # Fetch user prefs and tier
     user = db.table("user_profiles").select("email, tier").eq("id", user_id).maybe_single().execute()
     if not user.data or user.data.get("tier", "free") == "free":
         return {"status": "no_alerts_free_tier"}
+
+    # user_profiles.email may be "" from auto-provisioning — get real email from Auth
+    email = (user.data.get("email") or "").strip()
+    if not email:
+        try:
+            auth_user = db.auth.admin.get_user_by_id(user_id)
+            email = (auth_user.user.email or "").strip() if auth_user.user else ""
+        except Exception as exc:
+            logger.warning("Could not fetch auth email for user %s: %s", user_id, exc)
+    if not email:
+        logger.error("No email found for user %s — cannot send alert", user_id)
+        return {"status": "no_email"}
 
     prefs = db.table("notification_prefs").select("*").eq("user_id", user_id).maybe_single().execute()
     prefs_data = prefs.data or {}
@@ -127,7 +139,7 @@ def send_change_alert(user_id: str, competitor_id: str, change_ids: List[str]) -
         resend.api_key = settings.resend_api_key
         resend.Emails.send({
             "from": settings.resend_from,
-            "to": user.data["email"],
+            "to": email,
             "subject": subject,
             "html": email_html,
         })
