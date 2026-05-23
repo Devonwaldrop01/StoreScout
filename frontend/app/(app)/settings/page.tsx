@@ -2,10 +2,10 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { user as userApi, billing, myStore as myStoreApi, type UserSubscription, type NotificationPrefs, type Competitor } from "@/lib/api";
+import { user as userApi, billing, myStore as myStoreApi, team as teamApi, type UserSubscription, type NotificationPrefs, type Competitor, type TeamMember } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import UpgradeModal from "@/components/UpgradeModal";
-import { Store, Hash, Globe } from "lucide-react";
+import { Store, Hash, Globe, Users, X, Loader2 } from "lucide-react";
 
 // Inner component uses useSearchParams — must be inside <Suspense>
 function SettingsContent() {
@@ -25,6 +25,11 @@ function SettingsContent() {
   const [testingWebhook, setTestingWebhook] = useState(false);
   const [slackTestResult, setSlackTestResult] = useState<"ok" | "error" | null>(null);
   const [webhookTestResult, setWebhookTestResult] = useState<"ok" | "error" | null>(null);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviting, setInviting] = useState(false);
+  const [inviteError, setInviteError] = useState("");
+  const [inviteSent, setInviteSent] = useState(false);
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -35,6 +40,7 @@ function SettingsContent() {
       setWebhookUrl(r.data.webhook_url || "");
     }).catch(() => {});
     myStoreApi.get().then((r) => setStore(r.data)).catch(() => {});
+    teamApi.members().then((r) => setTeamMembers(r.data)).catch(() => {});
 
     if (searchParams.get("upgraded") === "1") {
       setTimeout(() => {
@@ -126,6 +132,32 @@ function SettingsContent() {
   async function handleRemoveStore() {
     await myStoreApi.remove().catch(() => {});
     setStore(null);
+  }
+
+  async function handleInvite() {
+    if (!inviteEmail.trim()) return;
+    setInviting(true);
+    setInviteError("");
+    setInviteSent(false);
+    try {
+      await teamApi.invite(inviteEmail.trim());
+      setInviteSent(true);
+      setInviteEmail("");
+      const { data } = await teamApi.members();
+      setTeamMembers(data);
+      setTimeout(() => setInviteSent(false), 4000);
+    } catch (err: unknown) {
+      const e = err as { data?: { detail?: string } };
+      setInviteError(e?.data?.detail || "Could not send invite.");
+    } finally {
+      setInviting(false);
+    }
+  }
+
+  async function handleRemoveMember(id: string) {
+    if (!confirm("Remove this team member? They will lose access immediately.")) return;
+    await teamApi.remove(id).catch(() => {});
+    setTeamMembers((prev) => prev.filter((m) => m.id !== id));
   }
 
   const tierBadgeStyle: Record<string, { bg: string; color: string }> = {
@@ -412,6 +444,82 @@ function SettingsContent() {
             )}
           </div>
         </section>
+
+        {/* Team seats — Agency only */}
+        {subscription?.tier === "agency" && (
+          <section
+            className="rounded-2xl p-6"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4" style={{ color: "#60a5fa" }} />
+                <h2 className="font-semibold" style={{ color: "var(--text)" }}>Team seats</h2>
+              </div>
+              <span className="text-xs font-mono" style={{ color: "var(--muted)" }}>
+                {teamMembers.length} / 2 used
+              </span>
+            </div>
+            <p className="text-sm mb-5" style={{ color: "var(--muted)" }}>
+              Invite up to 2 team members to access your competitor dashboards. They can view all data but cannot delete competitors or manage billing.
+            </p>
+
+            {/* Current members */}
+            {teamMembers.length > 0 && (
+              <div className="space-y-2 mb-5">
+                {teamMembers.map((m) => (
+                  <div
+                    key={m.id}
+                    className="flex items-center justify-between gap-3 rounded-xl px-4 py-3"
+                    style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+                  >
+                    <div>
+                      <p className="text-sm font-medium" style={{ color: "var(--text)" }}>{m.invited_email}</p>
+                      <p className="text-xs mt-0.5 capitalize" style={{ color: m.status === "active" ? "#4ade80" : "var(--muted)" }}>
+                        {m.status === "active" ? "Active" : "Invite pending"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleRemoveMember(m.id)}
+                      className="p-1.5 rounded-lg transition-colors hover:bg-red-500/10"
+                      style={{ color: "#f87171" }}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Invite form */}
+            {teamMembers.length < 2 && (
+              <div>
+                <div className="flex gap-2">
+                  <input
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleInvite()}
+                    placeholder="teammate@company.com"
+                    type="email"
+                    className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none"
+                    style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                  />
+                  <button
+                    onClick={handleInvite}
+                    disabled={inviting || !inviteEmail.trim()}
+                    className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-50 flex items-center gap-2"
+                    style={{ background: "#60a5fa", color: "#060d18" }}
+                  >
+                    {inviting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                    {inviting ? "Sending…" : "Invite"}
+                  </button>
+                </div>
+                {inviteError && <p className="text-xs mt-2" style={{ color: "#f87171" }}>{inviteError}</p>}
+                {inviteSent && <p className="text-xs mt-2" style={{ color: "#4ade80" }}>✓ Invite sent</p>}
+              </div>
+            )}
+          </section>
+        )}
       </div>
 
       <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="general" />

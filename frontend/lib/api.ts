@@ -63,6 +63,25 @@ export const competitors = {
     apiFetch<{ data: { suggestions: DiscoverySuggestion[] } }>("/competitors/discover"),
 };
 
+// ── Team ──────────────────────────────────────────────────────
+export const team = {
+  members: () => apiFetch<{ data: TeamMember[] }>("/team/members"),
+  invite: (email: string) =>
+    apiFetch<{ status: string }>("/team/invite", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
+  remove: (memberId: string) =>
+    apiFetch<void>(`/team/members/${memberId}`, { method: "DELETE" }),
+  getInvite: (token: string) =>
+    apiFetch<{ data: InviteDetails }>(`/team/invite/${token}`),
+  accept: (token: string) =>
+    apiFetch<{ status: string }>("/team/accept", {
+      method: "POST",
+      body: JSON.stringify({ token }),
+    }),
+};
+
 // ── Public Reports ────────────────────────────────────────────
 export const reports = {
   get: (snapshotId: string) =>
@@ -410,6 +429,19 @@ export interface PublicReport {
     catalog_complexity?: Record<string, unknown>;
   };
   takeaways: string[];
+}
+
+export interface TeamMember {
+  id: string;
+  invited_email: string;
+  status: "pending" | "active" | "removed";
+  invited_at: string;
+  accepted_at?: string | null;
+}
+
+export interface InviteDetails {
+  invited_email: string;
+  owner_email: string;
 }
 
 export interface DiscoverySuggestion {

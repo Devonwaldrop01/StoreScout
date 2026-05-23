@@ -82,6 +82,7 @@ from app.api.v1.internal import router as internal_router
 from app.api.v1.billing import router as billing_router
 from app.api.v1.my_store import router as my_store_router
 from app.api.v1.reports import router as reports_router
+from app.api.v1.team import router as team_router
 
 app.include_router(competitors_router, prefix="/api/v1")
 app.include_router(alerts_router, prefix="/api/v1")
@@ -91,6 +92,7 @@ app.include_router(internal_router, prefix="/api/v1")
 app.include_router(billing_router, prefix="/api/v1")
 app.include_router(my_store_router, prefix="/api/v1")
 app.include_router(reports_router, prefix="/api/v1")
+app.include_router(team_router, prefix="/api/v1")
 
 def extract_store_url_from_session(session: dict) -> str | None:
     fields = session.custom_fields or []

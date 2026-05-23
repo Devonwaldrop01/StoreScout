@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, field_validator
 
-from app.core.auth import get_current_user_id
+from app.core.auth import get_current_user_id, get_effective_user_id
 from app.core.config import get_settings
 from app.core.database import get_supabase
 
@@ -49,14 +49,14 @@ def _tier_limits(tier: str) -> dict:
 
 
 @router.get("")
-def list_competitors(user_id: str = Depends(get_current_user_id)):
+def list_competitors(user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
     result = db.table("competitors").select("*").eq("user_id", user_id).eq("is_my_store", False).order("created_at", desc=True).execute()
     return {"data": result.data or []}
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_current_user_id)):
+def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
     settings = get_settings()
 
@@ -122,7 +122,7 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_curren
 def update_competitor(
     competitor_id: str,
     body: UpdateCompetitorRequest,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_effective_user_id),
 ):
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
@@ -141,7 +141,7 @@ def delete_competitor(competitor_id: str, user_id: str = Depends(get_current_use
 
 
 @router.post("/{competitor_id}/rescan")
-def manual_rescan(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+def manual_rescan(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
 
@@ -155,7 +155,7 @@ def manual_rescan(competitor_id: str, user_id: str = Depends(get_current_user_id
 
 
 @router.get("/{competitor_id}/snapshots/latest")
-def get_latest_snapshot(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+def get_latest_snapshot(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
     result = db.table("scan_snapshots")\
@@ -173,7 +173,7 @@ def get_latest_snapshot(competitor_id: str, user_id: str = Depends(get_current_u
 def list_snapshots(
     competitor_id: str,
     limit: int = 30,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_effective_user_id),
 ):
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
@@ -206,7 +206,7 @@ def get_changes(
     competitor_id: str,
     limit: int = 50,
     change_type: Optional[str] = None,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_effective_user_id),
 ):
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
@@ -223,7 +223,7 @@ def get_changes(
 
 
 @router.get("/{competitor_id}/ai-summary")
-def get_ai_summary(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+def get_ai_summary(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
 
@@ -250,7 +250,7 @@ def get_ai_summary(competitor_id: str, user_id: str = Depends(get_current_user_i
 
 
 @router.get("/{competitor_id}/winning-products")
-def get_winning_products(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+def get_winning_products(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """
     Winning-product analysis. Free tier sees the #1 product (score visible, the
     'why' locked) plus a locked count. Pro/Agency see the full ranked list,
@@ -303,7 +303,7 @@ def get_winning_products(competitor_id: str, user_id: str = Depends(get_current_
 
 
 @router.get("/{competitor_id}/gaps")
-def get_gaps(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+def get_gaps(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """
     Gap analysis. Free tier sees the top 2 gap titles (detail locked) plus a
     locked count. Pro/Agency see every gap with full detail and metrics.
@@ -340,7 +340,7 @@ def get_gaps(competitor_id: str, user_id: str = Depends(get_current_user_id)):
 
 
 @router.get("/{competitor_id}/store-profile")
-def get_store_profile(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+def get_store_profile(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """
     Brand intelligence from extended scraping (collections, pages, blogs).
     Free tier: top-level signals only (collection count, key boolean flags).
@@ -385,7 +385,7 @@ def get_store_profile(competitor_id: str, user_id: str = Depends(get_current_use
 
 
 @router.get("/{competitor_id}/comparison")
-def get_comparison(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+def get_comparison(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """
     Head-to-head: the user's own store vs this competitor. Requires the user to
     have set their store. Free tier sees the diagnosis (verdicts + insights);
@@ -441,7 +441,7 @@ def get_comparison(competitor_id: str, user_id: str = Depends(get_current_user_i
 
 
 @router.get("/{competitor_id}/quick-wins")
-def get_quick_wins(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+def get_quick_wins(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """
     Rule-based action cards from the latest snapshot.
     Free tier: 1 card visible + locked_count.  Pro/Agency: all cards.
@@ -472,7 +472,7 @@ def get_quick_wins(competitor_id: str, user_id: str = Depends(get_current_user_i
 
 
 @router.get("/{competitor_id}/price-history")
-def get_price_history(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+def get_price_history(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """
     Time-series of median_price and promo_rate across scans.
     Free: last 2 data points + locked flag.  Pro: 90 days.  Agency: unlimited.
@@ -520,7 +520,7 @@ def get_price_history(competitor_id: str, user_id: str = Depends(get_current_use
 
 
 @router.get("/{competitor_id}/brief")
-def get_brief(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+def get_brief(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """Latest Intelligence Brief for this competitor (available to all tiers)."""
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
@@ -539,7 +539,7 @@ def get_brief(competitor_id: str, user_id: str = Depends(get_current_user_id)):
 
 
 @router.get("/{competitor_id}/export/products.csv")
-def export_products_csv(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+def export_products_csv(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """Download a CSV of the competitor's latest product catalog. Pro/Agency only."""
     import csv, io
     from fastapi.responses import Response
@@ -593,7 +593,7 @@ def export_products_csv(competitor_id: str, user_id: str = Depends(get_current_u
 
 
 @router.get("/discover")
-def discover_similar(user_id: str = Depends(get_current_user_id)):
+def discover_similar(user_id: str = Depends(get_effective_user_id)):
     """
     Suggest similar Shopify stores to track based on tag/vendor overlap
     with the user's currently tracked competitors.
