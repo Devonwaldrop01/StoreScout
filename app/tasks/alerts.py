@@ -1,8 +1,10 @@
 from __future__ import annotations
+import json
 import logging
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 
+import requests
 import resend
 
 from .celery_app import celery
@@ -149,6 +151,101 @@ def _build_alert_html(hostname: str, subject: str, n: int, change_list: list,
 </body></html>"""
 
 
+def _send_slack_webhook(url: str, hostname: str, subject: str, change_list: list,
+                        interpretation: Optional[str], dashboard_url: str, severity: str) -> None:
+    """Post a Slack Block Kit message to an incoming webhook URL. Non-fatal."""
+    sev_emoji = {"critical": "🚨", "warning": "⚠️", "info": "ℹ️"}.get(severity, "ℹ️")
+
+    change_lines = []
+    for c in change_list[:5]:
+        ct = c.get("change_type", "")
+        title = (c.get("product_title") or ct.replace("_", " ").title())[:50]
+        ov = c.get("old_value") or {}
+        nv = c.get("new_value") or {}
+        delta = c.get("delta_pct")
+        if ct == "price_change" and delta is not None:
+            change_lines.append(f"• *{title}*: ${ov.get('price','?')} → ${nv.get('price','?')} ({delta:+.0f}%)")
+        elif ct == "new_product":
+            price = nv.get("price_min")
+            change_lines.append(f"• *{title}*: New product{f' · ${price}' if price else ''}")
+        elif ct in ("discount_start", "discount_end"):
+            change_lines.append(f"• *{title}*: {ov.get('discounted_pct',0):.0f}% → {nv.get('discounted_pct',0):.0f}% of catalog discounted")
+        else:
+            change_lines.append(f"• *{title}*")
+
+    if len(change_list) > 5:
+        change_lines.append(f"_…and {len(change_list) - 5} more_")
+
+    blocks = [
+        {
+            "type": "header",
+            "text": {"type": "plain_text", "text": f"{sev_emoji} {subject}", "emoji": True},
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": "\n".join(change_lines) or "_No details_"},
+        },
+    ]
+    if interpretation:
+        blocks.append({
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": f"*What this likely means:*\n{interpretation}"},
+        })
+    blocks.append({
+        "type": "actions",
+        "elements": [{
+            "type": "button",
+            "text": {"type": "plain_text", "text": "View Dashboard", "emoji": True},
+            "url": dashboard_url,
+            "style": "primary",
+        }],
+    })
+
+    try:
+        resp = requests.post(url, json={"text": subject, "blocks": blocks}, timeout=10)
+        if not resp.ok:
+            logger.warning("Slack webhook returned %s: %s", resp.status_code, resp.text[:200])
+    except Exception as exc:
+        logger.warning("Slack webhook failed (non-fatal): %s", exc)
+
+
+def _send_generic_webhook(url: str, hostname: str, competitor_id: str,
+                          change_list: list, severity: str, dashboard_url: str) -> None:
+    """POST a clean JSON payload to a user-configured webhook URL. Non-fatal."""
+    def _format_change(c: dict) -> dict:
+        ct = c.get("change_type", "")
+        ov = c.get("old_value") or {}
+        nv = c.get("new_value") or {}
+        return {
+            "type": ct,
+            "severity": c.get("severity", "info"),
+            "product": c.get("product_title") or ct,
+            "product_url": c.get("product_url"),
+            "old_price": ov.get("price"),
+            "new_price": nv.get("price"),
+            "delta_pct": c.get("delta_pct"),
+        }
+
+    payload = {
+        "event": "competitor_alert",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "hostname": hostname,
+        "competitor_id": competitor_id,
+        "severity": severity,
+        "changes_count": len(change_list),
+        "dashboard_url": dashboard_url,
+        "changes": [_format_change(c) for c in change_list[:20]],
+    }
+
+    try:
+        resp = requests.post(url, json=payload, timeout=10,
+                             headers={"Content-Type": "application/json", "User-Agent": "StoreScout/1.0"})
+        if not resp.ok:
+            logger.warning("Generic webhook returned %s: %s", resp.status_code, resp.text[:200])
+    except Exception as exc:
+        logger.warning("Generic webhook failed (non-fatal): %s", exc)
+
+
 def _resolve_email(db, user_id: str) -> Optional[str]:
     """Return the user's email, falling back to Auth admin API if user_profiles.email is blank."""
     user = db.table("user_profiles").select("email, tier").eq("id", user_id).maybe_single().execute()
@@ -246,6 +343,21 @@ def send_change_alert(self, user_id: str, competitor_id: str, change_ids: List[s
 
         # Mark changes as alerted — this is also what _within_cooldown checks
         db.table("change_events").update({"alert_sent": True}).in_("id", change_ids).execute()
+
+        # Fire webhooks (non-fatal, run after marking to avoid duplicate emails on retry)
+        overall_severity = "critical" if any(c["severity"] == "critical" for c in change_list) \
+            else "warning" if any(c["severity"] == "warning" for c in change_list) else "info"
+
+        if prefs_data.get("slack_enabled") and prefs_data.get("slack_webhook_url"):
+            _send_slack_webhook(
+                prefs_data["slack_webhook_url"], hostname, subject,
+                change_list, interpretation, dashboard_url, overall_severity,
+            )
+        if prefs_data.get("webhook_enabled") and prefs_data.get("webhook_url"):
+            _send_generic_webhook(
+                prefs_data["webhook_url"], hostname, competitor_id,
+                change_list, overall_severity, dashboard_url,
+            )
 
         return {"status": "sent"}
     except Exception as exc:
