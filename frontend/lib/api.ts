@@ -58,6 +58,13 @@ export const competitors = {
     apiFetch<{ data: PriceHistoryResponse }>(`/competitors/${id}/price-history`),
   brief: (id: string) =>
     apiFetch<{ data: BriefData }>(`/competitors/${id}/brief`),
+  exportCsvUrl: (id: string) => `${API_BASE}/competitors/${id}/export/products.csv`,
+};
+
+// ── Public Reports ────────────────────────────────────────────
+export const reports = {
+  get: (snapshotId: string) =>
+    apiFetch<{ data: PublicReport }>(`/reports/${snapshotId}`),
 };
 
 // ── My Store ──────────────────────────────────────────────────
@@ -368,4 +375,28 @@ export interface NotificationPrefs {
   email_discount_changes: boolean;
   email_weekly_digest: boolean;
   digest_day: string;
+}
+
+export interface PublicReport {
+  snapshot_id: string;
+  scanned_at: string;
+  hostname: string;
+  product_count?: number;
+  pricing: {
+    median?: number;
+    min?: number;
+    max?: number;
+    p25?: number;
+    p75?: number;
+    bucket_counts: Record<string, number>;
+  };
+  discounts: { discounted_pct?: number; avg_discount_pct?: number };
+  launch: { new_30d?: number; new_90d?: number };
+  positioning: {
+    market_position?: Record<string, unknown>;
+    promo_intensity?: Record<string, unknown>;
+    launch_velocity?: Record<string, unknown>;
+    catalog_complexity?: Record<string, unknown>;
+  };
+  takeaways: string[];
 }

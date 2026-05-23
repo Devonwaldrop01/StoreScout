@@ -537,6 +537,60 @@ def get_brief(competitor_id: str, user_id: str = Depends(get_current_user_id)):
     return {"data": result.data[0]}
 
 
+@router.get("/{competitor_id}/export/products.csv")
+def export_products_csv(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+    """Download a CSV of the competitor's latest product catalog. Pro/Agency only."""
+    import csv, io
+    from fastapi.responses import Response
+
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    tier = _user_tier(db, user_id)
+    if tier == "free":
+        raise HTTPException(status_code=403, detail={"code": "upgrade_required", "message": "CSV export requires Pro or Agency plan"})
+
+    result = db.table("scan_snapshots")\
+        .select("snapshot_data, scanned_at")\
+        .eq("competitor_id", competitor_id)\
+        .order("scanned_at", desc=True)\
+        .limit(1)\
+        .execute()
+    if not result.data:
+        raise HTTPException(status_code=404, detail="No snapshot found")
+
+    data = result.data[0].get("snapshot_data") or {}
+    hostname = data.get("hostname") or competitor_id
+    product_index = data.get("_product_index") or {}
+
+    output = io.StringIO()
+    writer = csv.DictWriter(
+        output,
+        fieldnames=["title", "handle", "url", "price", "compare_at", "discount_pct", "available"],
+        extrasaction="ignore",
+    )
+    writer.writeheader()
+    for handle, p in product_index.items():
+        price = p.get("price_min") or 0
+        ca = p.get("compare_at_min")
+        disc = round((ca - price) / ca * 100, 1) if ca and ca > price else ""
+        writer.writerow({
+            "title": p.get("title") or "",
+            "handle": handle,
+            "url": p.get("product_url") or "",
+            "price": price,
+            "compare_at": ca or "",
+            "discount_pct": disc,
+            "available": p.get("available", True),
+        })
+
+    safe_hostname = hostname.replace(".", "_").replace("/", "_")
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{safe_hostname}_products.csv"'},
+    )
+
+
 def _user_tier(db, user_id: str) -> str:
     user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
     return (user.data or {}).get("tier", "free") if user else "free"
