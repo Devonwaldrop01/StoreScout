@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus, RefreshCw, TrendingUp, Bell } from "lucide-react";
+import { Plus, RefreshCw, TrendingUp, Bell, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { competitors as api, alerts as alertsApi, type Competitor, type AlertEvent } from "@/lib/api";
+import { competitors as api, alerts as alertsApi, type Competitor, type AlertEvent, type DiscoverySuggestion } from "@/lib/api";
 import { cn, formatRelativeTime, formatPrice, formatDelta, changeTypeIcon, severityColor } from "@/lib/utils";
 import { AddCompetitorModal } from "@/components/competitors/AddCompetitorModal";
+import UpgradeModal from "@/components/UpgradeModal";
 
 // ── Severity helpers ──────────────────────────────────────────────────────────
 
@@ -234,14 +235,105 @@ function SummaryStrip({ alertList }: { alertList: AlertEvent[] }) {
   );
 }
 
+// ── Competitor Discovery ──────────────────────────────────────────────────────
+
+function DiscoverySuggestions({
+  suggestions,
+  onTrack,
+  tracking,
+}: {
+  suggestions: DiscoverySuggestion[];
+  onTrack: (hostname: string) => Promise<void>;
+  tracking: string | null;
+}) {
+  if (suggestions.length === 0) return null;
+
+  return (
+    <div className="mt-8">
+      <div className="flex items-center gap-2 mb-4">
+        <Sparkles className="w-4 h-4" style={{ color: "var(--green)" }} />
+        <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Stores you might want to track</p>
+        <span
+          className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full"
+          style={{ background: "rgba(163,240,0,.12)", color: "var(--green)" }}
+        >
+          Based on your competitors
+        </span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {suggestions.map((s) => (
+          <div
+            key={s.competitor_id}
+            className="rounded-2xl p-4 flex flex-col gap-3"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold truncate" style={{ color: "var(--text)" }}>{s.hostname}</p>
+                {s.market_position && (
+                  <p className="text-xs mt-0.5 capitalize" style={{ color: "var(--muted)" }}>{s.market_position}</p>
+                )}
+              </div>
+              {s.median_price != null && (
+                <span className="text-xs font-mono shrink-0" style={{ color: "var(--muted)" }}>
+                  ~{formatPrice(s.median_price)} med.
+                </span>
+              )}
+            </div>
+
+            {/* Match reason tags */}
+            {s.match_reasons.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {s.match_reasons.map((r) => (
+                  <span
+                    key={r}
+                    className="text-[11px] px-2 py-0.5 rounded-full"
+                    style={{ background: "rgba(163,240,0,.08)", color: "var(--green)", border: "1px solid rgba(163,240,0,.15)" }}
+                  >
+                    {r}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center justify-between mt-auto pt-1">
+              {s.product_count != null && (
+                <span className="text-xs" style={{ color: "var(--muted)" }}>
+                  {s.product_count.toLocaleString()} products
+                </span>
+              )}
+              <button
+                onClick={() => onTrack(s.hostname)}
+                disabled={tracking === s.hostname}
+                className="ml-auto flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all hover:brightness-110 disabled:opacity-50"
+                style={{ background: "var(--green)", color: "#060d18" }}
+              >
+                {tracking === s.hostname ? (
+                  <RefreshCw className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Plus className="w-3 h-3" />
+                )}
+                Track
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
   const [competitorList, setCompetitorList] = useState<Competitor[]>([]);
   const [alertList, setAlertList] = useState<AlertEvent[]>([]);
+  const [suggestions, setSuggestions] = useState<DiscoverySuggestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [alertsLoading, setAlertsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [trackingHostname, setTrackingHostname] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -259,6 +351,13 @@ export default function DashboardPage() {
     finally { setAlertsLoading(false); }
   }, []);
 
+  const loadSuggestions = useCallback(async () => {
+    try {
+      const { data } = await api.discover();
+      setSuggestions(data.suggestions || []);
+    } catch {}
+  }, []);
+
   useEffect(() => {
     load();
     loadAlerts();
@@ -267,9 +366,34 @@ export default function DashboardPage() {
     return () => { clearInterval(competitorInterval); clearInterval(alertsInterval); };
   }, [load, loadAlerts]);
 
+  useEffect(() => {
+    if (!loading && competitorList.length > 0) {
+      loadSuggestions();
+    }
+  }, [loading, competitorList.length, loadSuggestions]);
+
   function handleAdded(competitor: Competitor) {
     setCompetitorList((prev) => [competitor, ...prev]);
+    setSuggestions((prev) => prev.filter((s) => s.hostname !== competitor.hostname));
     setShowModal(false);
+    loadSuggestions();
+  }
+
+  async function handleTrack(hostname: string) {
+    setTrackingHostname(hostname);
+    try {
+      const { data: newComp } = await api.add(`https://${hostname}`);
+      setCompetitorList((prev) => [newComp, ...prev]);
+      setSuggestions((prev) => prev.filter((s) => s.hostname !== hostname));
+      loadSuggestions();
+    } catch (err: unknown) {
+      const e = err as { status?: number };
+      if (e?.status === 403) {
+        setUpgradeOpen(true);
+      }
+    } finally {
+      setTrackingHostname(null);
+    }
   }
 
   if (loading) {
@@ -341,8 +465,20 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Discovery suggestions — below the main grid */}
+      {competitorList.length > 0 && (
+        <DiscoverySuggestions
+          suggestions={suggestions}
+          onTrack={handleTrack}
+          tracking={trackingHostname}
+        />
+      )}
+
       {showModal && (
         <AddCompetitorModal onClose={() => setShowModal(false)} onAdded={handleAdded} />
+      )}
+      {upgradeOpen && (
+        <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="competitor_limit" />
       )}
     </div>
   );

@@ -59,6 +59,8 @@ export const competitors = {
   brief: (id: string) =>
     apiFetch<{ data: BriefData }>(`/competitors/${id}/brief`),
   exportCsvUrl: (id: string) => `${API_BASE}/competitors/${id}/export/products.csv`,
+  discover: () =>
+    apiFetch<{ data: { suggestions: DiscoverySuggestion[] } }>("/competitors/discover"),
 };
 
 // ── Public Reports ────────────────────────────────────────────
@@ -408,4 +410,14 @@ export interface PublicReport {
     catalog_complexity?: Record<string, unknown>;
   };
   takeaways: string[];
+}
+
+export interface DiscoverySuggestion {
+  hostname: string;
+  competitor_id: string;
+  score: number;
+  match_reasons: string[];
+  product_count?: number | null;
+  median_price?: number | null;
+  market_position?: string | null;
 }
