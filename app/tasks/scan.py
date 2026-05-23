@@ -33,7 +33,9 @@ def scan_competitor(self, competitor_id: str) -> dict:
 
         if data.get("status") == "ok" and data.get("snapshot_id"):
             from app.tasks.detect_changes import detect_changes
+            from app.tasks.ai_summaries import generate_brief
             detect_changes.delay(competitor_id, data["snapshot_id"])
+            generate_brief.delay(competitor_id, data["snapshot_id"])
 
         return data
 

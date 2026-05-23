@@ -52,6 +52,10 @@ export const competitors = {
     apiFetch<{ data: StoreProfileResponse }>(`/competitors/${id}/store-profile`),
   comparison: (id: string) =>
     apiFetch<{ data: ComparisonResponse }>(`/competitors/${id}/comparison`),
+  priceHistory: (id: string) =>
+    apiFetch<{ data: PriceHistoryResponse }>(`/competitors/${id}/price-history`),
+  brief: (id: string) =>
+    apiFetch<{ data: BriefData }>(`/competitors/${id}/brief`),
 };
 
 // ── My Store ──────────────────────────────────────────────────
@@ -298,6 +302,33 @@ export interface ComparisonResponse {
   match_strategy?: MatchStrategy;
   locked?: boolean;
   tier?: string;
+}
+
+export interface PriceHistoryPoint {
+  scanned_at: string;
+  median_price: number | null;
+  promo_rate: number | null;
+  product_count: number | null;
+}
+
+export interface PriceHistoryResponse {
+  points: PriceHistoryPoint[];
+  locked: boolean;
+  locked_count: number;
+  tier: string;
+}
+
+export interface BriefCard {
+  type: "signal" | "opportunity" | "watch";
+  headline: string;
+  body: string;
+}
+
+export interface BriefData {
+  id: string;
+  summary_text: string;
+  generated_at: string;
+  model: string;
 }
 
 export interface UserSubscription {

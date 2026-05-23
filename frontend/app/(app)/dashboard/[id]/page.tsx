@@ -7,11 +7,14 @@ import Link from "next/link";
 import { competitors as api, type Snapshot, type ChangeEvent, type AiSummary } from "@/lib/api";
 import { cn, formatRelativeTime, formatPrice, formatPct, formatDelta, changeTypeIcon, severityColor } from "@/lib/utils";
 import { PriceDistributionChart } from "@/components/charts/PriceDistributionChart";
+import { PriceHistoryChart } from "@/components/charts/PriceHistoryChart";
 import { LaunchVelocityChart } from "@/components/charts/LaunchVelocityChart";
 import WinningProductsTab from "@/components/competitors/WinningProductsTab";
 import GapsTab from "@/components/competitors/GapsTab";
 import StoreProfileTab from "@/components/competitors/StoreProfileTab";
 import ComparisonTab from "@/components/competitors/ComparisonTab";
+import { IntelligenceBrief } from "@/components/competitors/IntelligenceBrief";
+import { type BriefData, type BriefCard } from "@/lib/api";
 
 type Tab = "overview" | "compare" | "winning" | "gaps" | "brand" | "pricing" | "launches" | "discounts" | "history" | "ai";
 
@@ -89,8 +92,9 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("overview");
   const [rescanning, setRescanning] = useState(false);
-
   const [scanPending, setScanPending] = useState(true);
+  const [brief, setBrief] = useState<BriefData | null | false>(null);
+  const [briefDismissed, setBriefDismissed] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -122,10 +126,55 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
     }
   }, [tab, aiSummary, id]);
 
+  // Poll for Intelligence Brief once scan is done — brief is generated async via Claude
+  useEffect(() => {
+    if (scanPending || brief !== null || briefDismissed) return;
+    let cancelled = false;
+    let attempts = 0;
+
+    const tryFetch = async () => {
+      if (cancelled || attempts >= 12) {
+        if (!cancelled) setBrief(false);
+        return;
+      }
+      attempts++;
+      try {
+        const r = await api.brief(id);
+        if (cancelled) return;
+        // Check if this specific brief was already dismissed this session
+        const storedId = typeof window !== "undefined"
+          ? sessionStorage.getItem(`brief_${id}`) : null;
+        if (storedId === r.data.id) {
+          setBriefDismissed(true);
+          setBrief(false);
+        } else {
+          setBrief(r.data);
+        }
+      } catch (e: unknown) {
+        const status = (e as { status?: number })?.status;
+        if (status === 404 && !cancelled) {
+          setTimeout(tryFetch, 5000);
+        } else if (!cancelled) {
+          setBrief(false);
+        }
+      }
+    };
+
+    tryFetch();
+    return () => { cancelled = true; };
+  }, [id, scanPending, brief, briefDismissed]);
+
   async function handleRescan() {
     setRescanning(true);
     await api.rescan(id).catch(() => {});
     setTimeout(() => setRescanning(false), 3000);
+  }
+
+  function handleDismissBrief() {
+    if (brief && brief !== false && typeof window !== "undefined") {
+      sessionStorage.setItem(`brief_${id}`, (brief as BriefData).id);
+    }
+    setBriefDismissed(true);
   }
 
   async function handleDelete() {
@@ -212,6 +261,15 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
             Scan in progress — usually takes about 20 seconds.
           </p>
         </div>
+      ) : brief && brief !== false && !briefDismissed ? (
+        <IntelligenceBrief
+          hostname={(snapshot?.snapshot_data as Record<string, unknown>)?.hostname as string || id}
+          cards={(() => {
+            try { return (JSON.parse((brief as BriefData).summary_text) as { cards: BriefCard[] }).cards; }
+            catch { return []; }
+          })()}
+          onDismiss={handleDismissBrief}
+        />
       ) : (
         <>
           {/* Tab nav */}
@@ -329,6 +387,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                 ))}
               </div>
               <PriceDistributionChart pricingData={pricing} />
+              <PriceHistoryChart competitorId={id} />
             </div>
           )}
 

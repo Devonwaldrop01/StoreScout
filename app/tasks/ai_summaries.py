@@ -166,3 +166,114 @@ CHANGES THIS {"WEEK" if summary_type == "weekly" else "SCAN"}:
     }).execute()
 
     return {"status": "ok", "tokens": input_tokens + output_tokens}
+
+
+@celery.task(name="app.tasks.ai_summaries.generate_brief")
+def generate_brief(competitor_id: str, snapshot_id: str) -> dict:
+    """
+    Generate a 3-card Intelligence Brief after every scan.
+    Uses Sonnet for the first scan (high-stakes first impression), Haiku for rescans.
+    JSON output: {"cards": [{"type": "signal"|"opportunity"|"watch", "headline": str, "body": str}]}
+    """
+    import json as _json
+    import re as _re
+
+    settings = get_settings()
+    db = get_supabase()
+
+    comp = db.table("competitors")\
+        .select("hostname, user_id, is_my_store")\
+        .eq("id", competitor_id)\
+        .maybe_single()\
+        .execute()
+    if not comp or not comp.data:
+        return {"status": "not_found"}
+    if comp.data.get("is_my_store"):
+        return {"status": "skipped_my_store"}
+
+    hostname = comp.data["hostname"]
+
+    snap = db.table("scan_snapshots")\
+        .select("snapshot_data")\
+        .eq("id", snapshot_id)\
+        .maybe_single()\
+        .execute()
+    if not snap or not snap.data:
+        return {"status": "no_snapshot"}
+
+    snap_data = snap.data.get("snapshot_data") or {}
+
+    snap_count = db.table("scan_snapshots")\
+        .select("id", count="exact")\
+        .eq("competitor_id", competitor_id)\
+        .execute()
+    is_first_scan = (snap_count.count or 0) == 1
+
+    current_state = _format_snapshot({"snapshot_data": snap_data}, hostname)
+
+    prompt = f"""Analyze this Shopify competitor store and return ONLY valid JSON — no markdown, no preamble, no explanation.
+
+Output this exact structure:
+{{
+  "cards": [
+    {{"type": "signal", "headline": "...", "body": "..."}},
+    {{"type": "opportunity", "headline": "...", "body": "..."}},
+    {{"type": "watch", "headline": "...", "body": "..."}}
+  ]
+}}
+
+Rules:
+- headline: 4-8 words, must include at least one specific number from the data
+- body: 1-2 sentences, specific and actionable
+- signal: most notable thing about this store right now (pricing, discount rate, launch pace)
+- opportunity: the clearest gap or opening a competitor could exploit
+- watch: a trend or signal that bears monitoring
+
+Store data:
+{current_state}"""
+
+    model = "claude-sonnet-4-6" if is_first_scan else "claude-haiku-4-5-20251001"
+
+    try:
+        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+        message = client.messages.create(
+            model=model,
+            max_tokens=600,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw_text = message.content[0].text.strip()
+
+        # Validate JSON — extract if wrapped in markdown fences
+        try:
+            _json.loads(raw_text)
+        except _json.JSONDecodeError:
+            m = _re.search(r'\{.*\}', raw_text, _re.DOTALL)
+            if m:
+                raw_text = m.group()
+                _json.loads(raw_text)  # re-validate
+            else:
+                logger.error("generate_brief: Claude did not return valid JSON: %r", raw_text[:200])
+                return {"status": "error", "reason": "invalid_json"}
+
+    except Exception as exc:
+        logger.error("generate_brief Claude API failed for %s: %s", competitor_id, exc)
+        return {"status": "error", "reason": str(exc)}
+
+    db.table("ai_summaries").insert({
+        "competitor_id": competitor_id,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "model": model,
+        "summary_text": raw_text,
+        "summary_type": "brief",
+        "input_tokens": message.usage.input_tokens,
+        "output_tokens": message.usage.output_tokens,
+    }).execute()
+
+    if is_first_scan:
+        try:
+            from app.tasks.alerts import send_first_scan_email
+            send_first_scan_email.delay(competitor_id)
+        except Exception as exc:
+            logger.warning("Could not enqueue first-scan email for %s: %s", competitor_id, exc)
+
+    return {"status": "ok", "is_first_scan": is_first_scan}
