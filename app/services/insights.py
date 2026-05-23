@@ -211,7 +211,7 @@ def _winning_tags(age, variants, discount, available) -> List[str]:
 _BUCKET_ORDER = ["<$25", "$25–$49", "$50–$99", "$100–$199", "$200–$299", "$300–$499", "$500+"]
 
 
-def analyze_gaps(analysis: Dict[str, Any], products: List[Dict[str, Any]]) -> Dict[str, Any]:
+def analyze_gaps(analysis: Dict[str, Any], products: List[Dict[str, Any]], store_profile: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Surface where a competitor is *not* serving the market — openings a new or
     existing store could move into. Ranked by opportunity strength.
@@ -370,9 +370,136 @@ def analyze_gaps(analysis: Dict[str, Any], products: List[Dict[str, Any]]) -> Di
             "metric": {"thin_tags": [t["tag"] for t in thin[:5]]},
         })
 
+    # ── 6. Collection-based gaps (from extended scraping) ──
+    if store_profile:
+        col = store_profile.get("collection_intel") or {}
+        brand = store_profile.get("brand_signals") or {}
+
+        if not col.get("has_bundles") and total >= 15:
+            gaps.append({
+                "type": "no_bundles",
+                "title": "No bundles or kits collection",
+                "detail": (
+                    "They don't sell product bundles or kits — no collection signals it. Bundles "
+                    "raise average order value without changing acquisition cost. It's a lane they've "
+                    "left open."
+                ),
+                "opportunity": 0.55,
+                "metric": {},
+            })
+
+        if not col.get("has_subscription") and total >= 20:
+            gaps.append({
+                "type": "no_subscription",
+                "title": "No subscription or replenishment tier",
+                "detail": (
+                    "No subscription or replenishment collection is visible. For repeat-purchase "
+                    "products, subscriptions lock in LTV while they're still chasing one-time buyers."
+                ),
+                "opportunity": 0.50,
+                "metric": {},
+            })
+
+        if not brand.get("has_wholesale") and (median_price or 0) >= 30:
+            gaps.append({
+                "type": "no_wholesale",
+                "title": "No B2B or wholesale channel",
+                "detail": (
+                    "No wholesale or B2B page is visible on this store. At their price point, a "
+                    "wholesale channel adds a high-volume revenue stream. If you offer trade pricing, "
+                    "you can pick up buyers they're not even talking to."
+                ),
+                "opportunity": 0.40,
+                "metric": {},
+            })
+
     gaps.sort(key=lambda g: g["opportunity"], reverse=True)
     return {
         "gaps": gaps,
         "total": len(gaps),
         "median_price": median_price,
+    }
+
+
+# ── store profile (extended scraping) ──────────────────────────────────────
+
+def analyze_store_profile(extended_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Produce brand intelligence signals from supplementary Shopify endpoints:
+    collections.json, pages.json, blogs.json, articles.json.
+    """
+    collections = extended_data.get("collections") or []
+    pages = extended_data.get("pages") or []
+    blogs = extended_data.get("blogs") or []
+    articles = extended_data.get("articles") or []
+
+    def _match(items_lower, *terms) -> bool:
+        return any(t in item for t in terms for item in items_lower)
+
+    col_names_lc = [c.get("title", "").lower() for c in collections]
+    col_handles_lc = [c.get("handle", "").lower() for c in collections]
+    col_all_lc = col_names_lc + col_handles_lc
+
+    collection_intel: Dict[str, Any] = {
+        "count": len(collections),
+        "names": [c.get("title", "") for c in collections[:40]],
+        "has_sale": _match(col_all_lc, "sale", "clearance", "outlet"),
+        "has_new_arrivals": _match(col_all_lc, "new arrival", "new-arrival", "just in", "new in", "new-in"),
+        "has_best_sellers": _match(col_all_lc, "best seller", "bestsell", "top seller", "popular", "trending"),
+        "has_bundles": _match(col_all_lc, "bundle", "kit", "set", "combo"),
+        "has_subscription": _match(col_all_lc, "subscription", "subscribe", "replenish"),
+        "has_gift": _match(col_all_lc, "gift"),
+    }
+
+    page_titles_lc = [p.get("title", "").lower() for p in pages]
+    page_handles_lc = [p.get("handle", "").lower() for p in pages]
+    page_all_lc = page_titles_lc + page_handles_lc
+
+    brand_signals: Dict[str, Any] = {
+        "has_wholesale": _match(page_all_lc, "wholesale", "trade", "b2b", "bulk order"),
+        "has_affiliate": _match(page_all_lc, "affiliate", "partner", "refer", "ambassador"),
+        "has_press": _match(page_all_lc, "press", "media", "as seen", "in the press"),
+        "has_sustainability": _match(page_all_lc, "sustainab", "eco-", "eco ", "planet", "environment"),
+        "has_size_guide": _match(page_all_lc, "size guide", "sizing", "size chart"),
+        "has_rewards": _match(page_all_lc, "reward", "loyalty", "points", "vip"),
+        "page_count": len(pages),
+    }
+
+    # Content investment score 0–100
+    blog_count = len(blogs)
+    article_count = len(articles)
+    content_score = 0
+    if blog_count >= 1:
+        content_score += 30
+    if article_count >= 5:
+        content_score += 20
+    if article_count >= 10:
+        content_score += 20
+    if blog_count >= 2:
+        content_score += 15
+    if articles:
+        try:
+            latest = articles[0].get("published_at", "")
+            if latest:
+                pub = _parse_dt(latest)
+                if pub:
+                    age_days = (datetime.now(timezone.utc) - pub).days
+                    if age_days <= 30:
+                        content_score += 15
+                    elif age_days <= 90:
+                        content_score += 8
+        except Exception:
+            pass
+
+    content_intel: Dict[str, Any] = {
+        "blog_count": blog_count,
+        "sampled_article_count": article_count,
+        "content_investment_score": min(100, content_score),
+        "recent_article_titles": [a.get("title", "") for a in articles[:5]],
+    }
+
+    return {
+        "collection_intel": collection_intel,
+        "brand_signals": brand_signals,
+        "content_intel": content_intel,
     }

@@ -335,6 +335,51 @@ def get_gaps(competitor_id: str, user_id: str = Depends(get_current_user_id)):
     return {"data": {"gaps": gaps, "locked": False, "locked_count": 0, "tier": tier}}
 
 
+@router.get("/{competitor_id}/store-profile")
+def get_store_profile(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+    """
+    Brand intelligence from extended scraping (collections, pages, blogs).
+    Free tier: top-level signals only (collection count, key boolean flags).
+    Pro/Agency: full collection names, all brand signals, content intelligence.
+    """
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    tier = _user_tier(db, user_id)
+
+    data = _latest_snapshot_data(db, competitor_id)
+    profile = (data.get("store_profile") or {}) if data else {}
+
+    col = profile.get("collection_intel") or {}
+    brand = profile.get("brand_signals") or {}
+    content = profile.get("content_intel") or {}
+
+    # Free tier: surface key signals, lock the details
+    if tier == "free":
+        return {
+            "data": {
+                "collection_count": col.get("count", 0),
+                "has_sale_collection": col.get("has_sale", False),
+                "has_new_arrivals": col.get("has_new_arrivals", False),
+                "has_best_sellers": col.get("has_best_sellers", False),
+                "has_blog": content.get("blog_count", 0) > 0,
+                "has_wholesale": brand.get("has_wholesale", False),
+                "content_investment_score": content.get("content_investment_score"),
+                "locked": True,
+                "tier": tier,
+            }
+        }
+
+    return {
+        "data": {
+            "collection_intel": col,
+            "brand_signals": brand,
+            "content_intel": content,
+            "locked": False,
+            "tier": tier,
+        }
+    }
+
+
 def _user_tier(db, user_id: str) -> str:
     user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
     return (user.data or {}).get("tier", "free") if user else "free"

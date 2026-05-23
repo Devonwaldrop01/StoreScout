@@ -48,6 +48,8 @@ export const competitors = {
     apiFetch<{ data: WinningProductsResponse }>(`/competitors/${id}/winning-products`),
   gaps: (id: string) =>
     apiFetch<{ data: GapsResponse }>(`/competitors/${id}/gaps`),
+  storeProfile: (id: string) =>
+    apiFetch<{ data: StoreProfileResponse }>(`/competitors/${id}/store-profile`),
 };
 
 // ── Alerts ────────────────────────────────────────────────────
@@ -200,6 +202,51 @@ export interface GapsResponse {
   locked_count: number;
   tier: string;
   median_price?: number;
+}
+
+export interface CollectionIntel {
+  count: number;
+  names: string[];
+  has_sale: boolean;
+  has_new_arrivals: boolean;
+  has_best_sellers: boolean;
+  has_bundles: boolean;
+  has_subscription: boolean;
+  has_gift: boolean;
+}
+
+export interface BrandSignals {
+  has_wholesale: boolean;
+  has_affiliate: boolean;
+  has_press: boolean;
+  has_sustainability: boolean;
+  has_size_guide: boolean;
+  has_rewards: boolean;
+  page_count: number;
+}
+
+export interface ContentIntel {
+  blog_count: number;
+  sampled_article_count: number;
+  content_investment_score: number;
+  recent_article_titles: string[];
+}
+
+export interface StoreProfileResponse {
+  // Free tier flat fields
+  collection_count?: number;
+  has_sale_collection?: boolean;
+  has_new_arrivals?: boolean;
+  has_best_sellers?: boolean;
+  has_blog?: boolean;
+  has_wholesale?: boolean;
+  content_investment_score?: number;
+  // Pro/Agency nested fields
+  collection_intel?: CollectionIntel;
+  brand_signals?: BrandSignals;
+  content_intel?: ContentIntel;
+  locked: boolean;
+  tier: string;
 }
 
 export interface UserSubscription {
