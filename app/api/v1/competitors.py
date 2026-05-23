@@ -439,6 +439,37 @@ def get_comparison(competitor_id: str, user_id: str = Depends(get_current_user_i
     return {"data": result}
 
 
+@router.get("/{competitor_id}/quick-wins")
+def get_quick_wins(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+    """
+    Rule-based action cards from the latest snapshot.
+    Free tier: 1 card visible + locked_count.  Pro/Agency: all cards.
+    """
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    tier = _user_tier(db, user_id)
+
+    data = _latest_snapshot_data(db, competitor_id)
+    if not data:
+        return {"data": {"wins": [], "locked": False, "locked_count": 0, "tier": tier}}
+
+    from app.services.insights import compute_quick_wins
+    wins = compute_quick_wins(data)
+
+    if not wins:
+        return {"data": {"wins": [], "locked": False, "locked_count": 0, "tier": tier}}
+
+    if tier == "free":
+        return {"data": {
+            "wins": wins[:1],
+            "locked": True,
+            "locked_count": max(0, len(wins) - 1),
+            "tier": tier,
+        }}
+
+    return {"data": {"wins": wins, "locked": False, "locked_count": 0, "tier": tier}}
+
+
 @router.get("/{competitor_id}/price-history")
 def get_price_history(competitor_id: str, user_id: str = Depends(get_current_user_id)):
     """

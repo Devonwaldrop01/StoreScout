@@ -52,6 +52,8 @@ export const competitors = {
     apiFetch<{ data: StoreProfileResponse }>(`/competitors/${id}/store-profile`),
   comparison: (id: string) =>
     apiFetch<{ data: ComparisonResponse }>(`/competitors/${id}/comparison`),
+  quickWins: (id: string) =>
+    apiFetch<{ data: QuickWinsResponse }>(`/competitors/${id}/quick-wins`),
   priceHistory: (id: string) =>
     apiFetch<{ data: PriceHistoryResponse }>(`/competitors/${id}/price-history`),
   brief: (id: string) =>
@@ -302,6 +304,20 @@ export interface ComparisonResponse {
   match_strategy?: MatchStrategy;
   locked?: boolean;
   tier?: string;
+}
+
+export interface QuickWin {
+  id: string;
+  type: "opportunity" | "signal" | "watch";
+  headline: string;
+  detail: string;
+}
+
+export interface QuickWinsResponse {
+  wins: QuickWin[];
+  locked: boolean;
+  locked_count: number;
+  tier: string;
 }
 
 export interface PriceHistoryPoint {
