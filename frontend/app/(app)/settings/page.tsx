@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { user as userApi, billing, type UserSubscription, type NotificationPrefs } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import UpgradeModal from "@/components/UpgradeModal";
 
-export default function SettingsPage() {
+// Inner component uses useSearchParams — must be inside <Suspense>
+function SettingsContent() {
   const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [prefs, setPrefs] = useState<NotificationPrefs | null>(null);
   const [saving, setSaving] = useState(false);
@@ -19,9 +20,7 @@ export default function SettingsPage() {
     userApi.subscription().then((r) => setSubscription(r.data)).catch(() => {});
     userApi.prefs().then((r) => setPrefs(r.data)).catch(() => {});
 
-    // Show success banner if returning from Stripe checkout
     if (searchParams.get("upgraded") === "1") {
-      // Reload subscription data after a short delay for webhook to process
       setTimeout(() => {
         userApi.subscription().then((r) => setSubscription(r.data)).catch(() => {});
       }, 2000);
@@ -74,7 +73,6 @@ export default function SettingsPage() {
       )}
 
       <div className="space-y-6 max-w-2xl">
-        {/* Subscription */}
         {subscription && (
           <section
             className="rounded-2xl p-6"
@@ -126,7 +124,6 @@ export default function SettingsPage() {
           </section>
         )}
 
-        {/* Notification preferences */}
         {prefs && (
           <section
             className="rounded-2xl p-6"
@@ -176,5 +173,13 @@ export default function SettingsPage() {
 
       <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="general" />
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={<div style={{ color: "var(--muted)" }} className="p-6">Loading…</div>}>
+      <SettingsContent />
+    </Suspense>
   );
 }
