@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Zap, CheckCircle2, AlertCircle, AlertTriangle, ArrowRight, Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { competitors as competitorsApi } from "@/lib/api";
+import { competitors as competitorsApi, user as userApi } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 // ── Survey option types ───────────────────────────────────────────────────────
@@ -50,6 +50,9 @@ export default function OnboardingPage() {
         router.replace("/auth/login");
         return;
       }
+      // Ensure user profile exists (covers Google OAuth users who skip the signup page)
+      await userApi.provision().catch(() => {});
+
       // If user already has competitors, skip onboarding
       try {
         const result = await competitorsApi.list();
