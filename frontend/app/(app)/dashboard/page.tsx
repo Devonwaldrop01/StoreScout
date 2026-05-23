@@ -283,8 +283,6 @@ export default function DashboardPage() {
     );
   }
 
-  const hasActivity = alertList.length > 0 || alertsLoading;
-
   return (
     <div>
       {/* Header */}
@@ -322,20 +320,18 @@ export default function DashboardPage() {
           </div>
 
           {/* Activity feed — sidebar on desktop */}
-          {hasActivity && (
-            <div className="hidden lg:block w-72 shrink-0">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Recent Activity</p>
-                <Link href="/alerts" className="text-xs hover:underline" style={{ color: "var(--muted)" }}>View all</Link>
-              </div>
-              <ActivityFeed alertList={alertList} alertsLoading={alertsLoading} />
+          <div className="hidden lg:block w-72 shrink-0">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Recent Activity</p>
+              <Link href="/alerts" className="text-xs hover:underline" style={{ color: "var(--muted)" }}>View all</Link>
             </div>
-          )}
+            <ActivityFeed alertList={alertList} alertsLoading={alertsLoading} />
+          </div>
         </div>
       )}
 
       {/* Activity feed — stacked on mobile, below competitors */}
-      {competitorList.length > 0 && hasActivity && (
+      {competitorList.length > 0 && (
         <div className="lg:hidden mt-6">
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Recent Activity</p>
