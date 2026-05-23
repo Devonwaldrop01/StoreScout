@@ -109,6 +109,11 @@ export const user = {
       method: "PUT",
       body: JSON.stringify(prefs),
     }),
+  testWebhook: (type: "slack" | "generic") =>
+    apiFetch<{ status: string; http_status?: number; detail?: string }>("/user/test-webhook", {
+      method: "POST",
+      body: JSON.stringify({ type }),
+    }),
   provision: () =>
     apiFetch<{ status: string }>("/user/provision", { method: "POST" }),
 };
@@ -375,6 +380,10 @@ export interface NotificationPrefs {
   email_discount_changes: boolean;
   email_weekly_digest: boolean;
   digest_day: string;
+  slack_webhook_url?: string;
+  slack_enabled?: boolean;
+  webhook_url?: string;
+  webhook_enabled?: boolean;
 }
 
 export interface PublicReport {

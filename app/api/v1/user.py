@@ -16,6 +16,10 @@ class UpdatePrefsRequest(BaseModel):
     email_discount_changes: Optional[bool] = None
     email_weekly_digest: Optional[bool] = None
     digest_day: Optional[str] = None
+    slack_webhook_url: Optional[str] = None
+    slack_enabled: Optional[bool] = None
+    webhook_url: Optional[str] = None
+    webhook_enabled: Optional[bool] = None
 
 
 @router.get("/subscription")
@@ -66,6 +70,54 @@ def update_prefs(body: UpdatePrefsRequest, user_id: str = Depends(get_current_us
     # Upsert
     db.table("notification_prefs").upsert({"user_id": user_id, **updates}).execute()
     return {"status": "ok"}
+
+
+@router.post("/test-webhook")
+def test_webhook(body: dict, user_id: str = Depends(get_current_user_id)):
+    """
+    Send a sample payload to the user's configured Slack or generic webhook.
+    body: { "type": "slack" | "generic" }
+    """
+    import requests as req
+
+    db = get_supabase()
+    prefs = db.table("notification_prefs").select("slack_webhook_url,webhook_url").eq("user_id", user_id).maybe_single().execute()
+    prefs_data = prefs.data or {}
+    settings = get_settings()
+
+    webhook_type = body.get("type", "generic")
+    sample_dashboard = f"{settings.public_base_url}/dashboard"
+
+    if webhook_type == "slack":
+        url = prefs_data.get("slack_webhook_url") or ""
+        if not url:
+            raise HTTPException(400, "No Slack webhook URL configured")
+        payload = {
+            "text": "✅ StoreScout test — your Slack integration is working!",
+            "blocks": [
+                {"type": "header", "text": {"type": "plain_text", "text": "✅ StoreScout Slack Integration", "emoji": True}},
+                {"type": "section", "text": {"type": "mrkdwn", "text": "This is a test alert from *StoreScout*.\n\nWhen your competitors change prices or launch products, alerts will appear here automatically."}},
+                {"type": "actions", "elements": [{"type": "button", "text": {"type": "plain_text", "text": "View Dashboard"}, "url": sample_dashboard, "style": "primary"}]},
+            ],
+        }
+    else:
+        url = prefs_data.get("webhook_url") or ""
+        if not url:
+            raise HTTPException(400, "No webhook URL configured")
+        payload = {
+            "event": "test",
+            "timestamp": __import__("datetime").datetime.utcnow().isoformat(),
+            "message": "StoreScout webhook integration is working correctly.",
+            "dashboard_url": sample_dashboard,
+        }
+
+    try:
+        resp = req.post(url, json=payload, timeout=10, headers={"User-Agent": "StoreScout/1.0"})
+        if resp.ok:
+            return {"status": "ok", "http_status": resp.status_code}
+        return {"status": "error", "http_status": resp.status_code, "detail": resp.text[:200]}
+    except Exception as exc:
+        raise HTTPException(502, f"Webhook request failed: {exc}")
 
 
 @router.post("/provision")
