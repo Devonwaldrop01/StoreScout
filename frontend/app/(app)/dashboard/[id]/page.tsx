@@ -2,9 +2,10 @@
 
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, RefreshCw, ExternalLink, Trash2, Cpu } from "lucide-react";
+import { ArrowLeft, RefreshCw, Trash2, Cpu, Share2, Check, Download } from "lucide-react";
 import Link from "next/link";
 import { competitors as api, type Snapshot, type ChangeEvent, type AiSummary } from "@/lib/api";
+import { createClient } from "@/lib/supabase/client";
 import { cn, formatRelativeTime, formatPrice, formatPct, formatDelta, changeTypeIcon, severityColor } from "@/lib/utils";
 import { PriceDistributionChart } from "@/components/charts/PriceDistributionChart";
 import { PriceHistoryChart } from "@/components/charts/PriceHistoryChart";
@@ -15,6 +16,7 @@ import StoreProfileTab from "@/components/competitors/StoreProfileTab";
 import ComparisonTab from "@/components/competitors/ComparisonTab";
 import { IntelligenceBrief } from "@/components/competitors/IntelligenceBrief";
 import { QuickWins } from "@/components/competitors/QuickWins";
+import UpgradeModal from "@/components/UpgradeModal";
 import { type BriefData, type BriefCard } from "@/lib/api";
 
 type Tab = "overview" | "compare" | "winning" | "gaps" | "brand" | "pricing" | "launches" | "discounts" | "history" | "ai";
@@ -96,6 +98,9 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const [scanPending, setScanPending] = useState(true);
   const [brief, setBrief] = useState<BriefData | null | false>(null);
   const [briefDismissed, setBriefDismissed] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -178,6 +183,41 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
     setBriefDismissed(true);
   }
 
+  function handleShare() {
+    if (!snapshot) return;
+    const url = `${window.location.origin}/reports/${snapshot.id}`;
+    navigator.clipboard.writeText(url).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  async function handleExportCsv() {
+    setExporting(true);
+    try {
+      const supabase = createClient();
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      const res = await fetch(`/api/v1/competitors/${id}/export/products.csv`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (res.status === 403) {
+        setUpgradeOpen(true);
+        return;
+      }
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const hostname = (snapshot?.snapshot_data as Record<string, unknown>)?.hostname as string || id;
+      a.download = `${hostname.replace(/\./g, "_")}_products.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   async function handleDelete() {
     if (!confirm("Remove this competitor? All history will be deleted.")) return;
     await api.remove(id).catch(() => {});
@@ -235,6 +275,25 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
           )}
         </div>
         <div className="flex items-center gap-2">
+          {snapshot && (
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-xl transition-colors hover:bg-white/10"
+              style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Share2 className="w-3.5 h-3.5" />}
+              {copied ? "Copied!" : "Share"}
+            </button>
+          )}
+          <button
+            onClick={handleExportCsv}
+            disabled={exporting}
+            className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-xl transition-colors hover:bg-white/10 disabled:opacity-50"
+            style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+          >
+            <Download className="w-3.5 h-3.5" />
+            {exporting ? "…" : "CSV"}
+          </button>
           <button
             onClick={handleRescan}
             className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-xl transition-colors hover:bg-white/10"
@@ -478,6 +537,8 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
           )}
         </>
       )}
+
+      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="general" />
     </div>
   );
 }
