@@ -99,7 +99,7 @@ export function PriceHistoryChart({ competitorId }: Props) {
               color: "#eef3fa",
               fontSize: 13,
             }}
-            formatter={(value: number, name: string) =>
+            formatter={(value, name) =>
               name === "median_price" ? [`$${value}`, "Median price"] : [`${value}%`, "Promo rate"]
             }
           />
