@@ -57,6 +57,17 @@ export const alerts = {
     apiFetch<{ status: string }>(`/alerts/${id}/read`, { method: "PUT" }),
 };
 
+// ── Billing ───────────────────────────────────────────────────
+export const billing = {
+  checkout: (plan: string, billingPeriod: "monthly" | "annual" = "monthly") =>
+    apiFetch<{ url: string }>("/billing/checkout", {
+      method: "POST",
+      body: JSON.stringify({ plan, billing: billingPeriod }),
+    }),
+  portal: () =>
+    apiFetch<{ url: string }>("/billing/portal", { method: "POST" }),
+};
+
 // ── User ──────────────────────────────────────────────────────
 export const user = {
   subscription: () => apiFetch<{ data: UserSubscription }>("/user/subscription"),

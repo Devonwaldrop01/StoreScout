@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X, Search, AlertCircle, CheckCircle2, AlertTriangle } from "lucide-react";
 import { competitors as api, type Competitor } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import UpgradeModal from "@/components/UpgradeModal";
 
 interface Props {
   onClose: () => void;
@@ -17,6 +18,7 @@ export function AddCompetitorModal({ onClose, onAdded }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [storeStatus, setStoreStatus] = useState<"idle" | "ok" | "restricted" | "error">("idle");
   const [error, setError] = useState("");
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   async function checkStore(value: string) {
     if (!value.trim()) return;
@@ -68,7 +70,7 @@ export function AddCompetitorModal({ onClose, onAdded }: Props) {
       const apiErr = err as { data?: { detail?: string | { code?: string; limit?: number } } };
       const detail = apiErr?.data?.detail;
       if (typeof detail === "object" && detail?.code === "competitor_limit_reached") {
-        setError(`You've reached your plan's limit of ${detail.limit} competitor${detail.limit === 1 ? "" : "s"}. Upgrade to track more.`);
+        setShowUpgrade(true);
       } else if (typeof detail === "string") {
         setError(detail);
       } else {
@@ -77,6 +79,10 @@ export function AddCompetitorModal({ onClose, onAdded }: Props) {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (showUpgrade) {
+    return <UpgradeModal open={true} onClose={() => setShowUpgrade(false)} trigger="competitor_limit" />;
   }
 
   return (

@@ -1,19 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { user as userApi, type UserSubscription, type NotificationPrefs } from "@/lib/api";
+import { useSearchParams } from "next/navigation";
+import { user as userApi, billing, type UserSubscription, type NotificationPrefs } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import UpgradeModal from "@/components/UpgradeModal";
 
 export default function SettingsPage() {
   const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [prefs, setPrefs] = useState<NotificationPrefs | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     userApi.subscription().then((r) => setSubscription(r.data)).catch(() => {});
     userApi.prefs().then((r) => setPrefs(r.data)).catch(() => {});
-  }, []);
+
+    // Show success banner if returning from Stripe checkout
+    if (searchParams.get("upgraded") === "1") {
+      // Reload subscription data after a short delay for webhook to process
+      setTimeout(() => {
+        userApi.subscription().then((r) => setSubscription(r.data)).catch(() => {});
+      }, 2000);
+    }
+  }, [searchParams]);
 
   async function handleSavePrefs() {
     if (!prefs) return;
@@ -24,20 +37,41 @@ export default function SettingsPage() {
     setTimeout(() => setSaved(false), 2000);
   }
 
+  async function handleManageBilling() {
+    setPortalLoading(true);
+    try {
+      const { url } = await billing.portal();
+      window.location.href = url;
+    } catch {
+      setPortalLoading(false);
+    }
+  }
+
   function toggle(key: keyof NotificationPrefs) {
     if (!prefs) return;
     setPrefs({ ...prefs, [key]: !prefs[key] });
   }
 
-  const tierBadgeStyle = {
+  const tierBadgeStyle: Record<string, { bg: string; color: string }> = {
     free: { bg: "rgba(255,255,255,.06)", color: "var(--muted)" },
     pro: { bg: "rgba(163,240,0,.12)", color: "#a3f000" },
     agency: { bg: "rgba(59,130,246,.12)", color: "#60a5fa" },
   };
 
+  const upgraded = searchParams.get("upgraded") === "1";
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6" style={{ color: "var(--text)" }}>Settings</h1>
+
+      {upgraded && (
+        <div
+          className="mb-6 px-4 py-3 rounded-xl text-sm font-medium"
+          style={{ background: "rgba(163,240,0,.12)", border: "1px solid rgba(163,240,0,.25)", color: "#a3f000" }}
+        >
+          Your plan has been upgraded. Welcome to Pro!
+        </div>
+      )}
 
       <div className="space-y-6 max-w-2xl">
         {/* Subscription */}
@@ -47,7 +81,7 @@ export default function SettingsPage() {
             style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
           >
             <h2 className="font-semibold mb-4" style={{ color: "var(--text)" }}>Your plan</h2>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <span
@@ -56,9 +90,11 @@ export default function SettingsPage() {
                   >
                     {subscription.tier}
                   </span>
-                  <span className="text-sm" style={{ color: "var(--muted)" }}>
-                    {subscription.subscription_status}
-                  </span>
+                  {subscription.subscription_status && subscription.subscription_status !== "inactive" && (
+                    <span className="text-sm" style={{ color: "var(--muted)" }}>
+                      {subscription.subscription_status}
+                    </span>
+                  )}
                 </div>
                 <p className="text-sm" style={{ color: "var(--muted)" }}>
                   {subscription.limits.max_competitors} competitor{subscription.limits.max_competitors !== 1 ? "s" : ""} ·{" "}
@@ -66,15 +102,26 @@ export default function SettingsPage() {
                   {subscription.limits.history_days === 0 ? "No history" : `${subscription.limits.history_days}d history`}
                 </p>
               </div>
-              {subscription.tier === "free" && (
-                <a
-                  href="/pricing"
-                  className="font-semibold text-sm px-4 py-2 rounded-xl transition-all hover:brightness-110"
-                  style={{ background: "#a3f000", color: "#060d18" }}
-                >
-                  Upgrade
-                </a>
-              )}
+              <div className="flex gap-2">
+                {subscription.tier === "free" ? (
+                  <button
+                    onClick={() => setUpgradeOpen(true)}
+                    className="font-semibold text-sm px-4 py-2 rounded-xl transition-all hover:brightness-110"
+                    style={{ background: "#a3f000", color: "#060d18" }}
+                  >
+                    Upgrade
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleManageBilling}
+                    disabled={portalLoading}
+                    className="font-semibold text-sm px-4 py-2 rounded-xl transition-all hover:opacity-80 disabled:opacity-50"
+                    style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
+                  >
+                    {portalLoading ? "Loading…" : "Manage billing"}
+                  </button>
+                )}
+              </div>
             </div>
           </section>
         )}
@@ -102,8 +149,7 @@ export default function SettingsPage() {
                   <button
                     onClick={() => toggle(key)}
                     className={cn(
-                      "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none",
-                      prefs[key] ? "" : "opacity-60"
+                      "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none"
                     )}
                     style={{ background: prefs[key] ? "#a3f000" : "rgba(255,255,255,.12)" }}
                   >
@@ -127,6 +173,8 @@ export default function SettingsPage() {
           </section>
         )}
       </div>
+
+      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="general" />
     </div>
   );
 }
