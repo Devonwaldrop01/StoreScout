@@ -439,6 +439,73 @@ def get_comparison(competitor_id: str, user_id: str = Depends(get_current_user_i
     return {"data": result}
 
 
+@router.get("/{competitor_id}/price-history")
+def get_price_history(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+    """
+    Time-series of median_price and promo_rate across scans.
+    Free: last 2 data points + locked flag.  Pro: 90 days.  Agency: unlimited.
+    """
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    tier = _user_tier(db, user_id)
+    now = datetime.now(timezone.utc)
+
+    if tier == "free":
+        result = db.table("scan_snapshots")\
+            .select("scanned_at, median_price, promo_rate, product_count")\
+            .eq("competitor_id", competitor_id)\
+            .order("scanned_at", desc=True)\
+            .limit(2)\
+            .execute()
+        points = list(reversed(result.data or []))
+        total = db.table("scan_snapshots").select("id", count="exact")\
+            .eq("competitor_id", competitor_id).execute()
+        total_count = total.count or len(points)
+        return {"data": {
+            "points": points,
+            "locked": True,
+            "locked_count": max(0, total_count - 2),
+            "tier": tier,
+        }}
+
+    query = db.table("scan_snapshots")\
+        .select("scanned_at, median_price, promo_rate, product_count")\
+        .eq("competitor_id", competitor_id)\
+        .order("scanned_at", asc=True)\
+        .limit(365)
+
+    if tier == "pro":
+        cutoff = (now - timedelta(days=90)).isoformat()
+        query = query.gte("scanned_at", cutoff)
+
+    result = query.execute()
+    return {"data": {
+        "points": result.data or [],
+        "locked": False,
+        "locked_count": 0,
+        "tier": tier,
+    }}
+
+
+@router.get("/{competitor_id}/brief")
+def get_brief(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+    """Latest Intelligence Brief for this competitor (available to all tiers)."""
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+
+    result = db.table("ai_summaries")\
+        .select("*")\
+        .eq("competitor_id", competitor_id)\
+        .eq("summary_type", "brief")\
+        .order("generated_at", desc=True)\
+        .limit(1)\
+        .execute()
+
+    if not result.data:
+        raise HTTPException(status_code=404, detail="No brief available yet")
+    return {"data": result.data[0]}
+
+
 def _user_tier(db, user_id: str) -> str:
     user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
     return (user.data or {}).get("tier", "free") if user else "free"

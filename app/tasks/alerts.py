@@ -408,3 +408,127 @@ def send_weekly_digest_email(user_id: str) -> dict:
     except Exception as exc:
         logger.error("Weekly digest failed for user %s: %s", user_id, exc)
         return {"status": "error", "reason": str(exc)}
+
+
+# ── First-scan email ──────────────────────────────────────────────────────────
+
+_CARD_COLORS = {
+    "signal": ("#a3f000", "rgba(163,240,0,0.12)", "Most notable signal"),
+    "opportunity": ("#60a5fa", "rgba(96,165,250,0.12)", "Your opening"),
+    "watch": ("#facc15", "rgba(250,204,21,0.12)", "Watch this"),
+}
+
+
+def _build_brief_card_html(card: dict) -> str:
+    ctype = card.get("type", "signal")
+    color, bg, label = _CARD_COLORS.get(ctype, _CARD_COLORS["signal"])
+    headline = card.get("headline", "")
+    body = card.get("body", "")
+    return (
+        f"<div style='background:{bg};border:1px solid {color}30;border-left:3px solid {color};"
+        f"border-radius:12px;padding:16px 18px;margin-bottom:12px'>"
+        f"<div style='font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;"
+        f"color:{color};margin-bottom:6px'>{label}</div>"
+        f"<div style='font-size:14px;font-weight:600;color:#eef3fa;margin-bottom:6px'>{headline}</div>"
+        f"<div style='font-size:13px;color:#8aa0b8;line-height:1.5'>{body}</div>"
+        f"</div>"
+    )
+
+
+@celery.task(name="app.tasks.alerts.send_first_scan_email", queue="priority",
+             bind=True, max_retries=3)
+def send_first_scan_email(self, competitor_id: str) -> dict:
+    """
+    Fires once, 2+ minutes after a competitor's first scan completes.
+    Sends the 3-card Intelligence Brief via email.
+    """
+    import json as _json
+
+    settings = get_settings()
+    db = get_supabase()
+
+    comp = db.table("competitors")\
+        .select("hostname, user_id, is_my_store, product_count")\
+        .eq("id", competitor_id)\
+        .maybe_single()\
+        .execute()
+    if not comp or not comp.data or comp.data.get("is_my_store"):
+        return {"status": "skipped"}
+
+    hostname = comp.data["hostname"]
+    user_id = comp.data["user_id"]
+    product_count = comp.data.get("product_count") or 0
+
+    email = _resolve_email(db, user_id)
+    if not email:
+        return {"status": "no_email"}
+
+    # Fetch the brief
+    brief_res = db.table("ai_summaries")\
+        .select("summary_text")\
+        .eq("competitor_id", competitor_id)\
+        .eq("summary_type", "brief")\
+        .order("generated_at", desc=True)\
+        .limit(1)\
+        .execute()
+
+    if not brief_res.data:
+        if self.request.retries < self.max_retries:
+            raise self.retry(countdown=30 * (2 ** self.request.retries))
+        return {"status": "no_brief_after_retries"}
+
+    try:
+        brief_data = _json.loads(brief_res.data[0]["summary_text"])
+        cards = brief_data.get("cards", [])
+    except Exception:
+        cards = []
+
+    if not cards:
+        return {"status": "empty_cards"}
+
+    cards_html = "".join(_build_brief_card_html(c) for c in cards[:3])
+    dashboard_url = f"{settings.public_base_url}/dashboard/{competitor_id}"
+    product_label = f"{product_count:,} products analyzed · " if product_count else ""
+
+    html = f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#060d18;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px">
+
+    <div style="margin-bottom:28px">
+      <div style="color:#a3f000;font-weight:700;font-size:18px;margin-bottom:16px">StoreScout</div>
+      <h1 style="color:#eef3fa;font-size:22px;font-weight:700;margin:0 0 8px;line-height:1.3">
+        Your first scan of {hostname} is ready
+      </h1>
+      <p style="color:#6b7fa3;font-size:13px;margin:0">{product_label}here's what stood out</p>
+    </div>
+
+    {cards_html}
+
+    <a href="{dashboard_url}"
+       style="display:block;background:#a3f000;color:#060d18;text-decoration:none;
+              text-align:center;padding:14px 24px;border-radius:12px;
+              font-weight:700;font-size:15px;margin-top:24px">
+      View full analysis →
+    </a>
+
+    <p style="color:#2a3a4a;font-size:11px;text-align:center;margin-top:24px">
+      StoreScout &nbsp;·&nbsp;
+      <a href="{settings.public_base_url}/settings" style="color:#2a3a4a">Manage notifications</a>
+    </p>
+  </div>
+</body></html>"""
+
+    try:
+        resend.api_key = settings.resend_api_key
+        resend.Emails.send({
+            "from": settings.resend_from,
+            "to": email,
+            "subject": f"Your first scan of {hostname} is ready",
+            "html": html,
+        })
+        logger.info("First-scan email sent to %s for competitor %s", email, competitor_id)
+        return {"status": "sent"}
+    except Exception as exc:
+        logger.error("First-scan email failed (attempt %d): %s", self.request.retries + 1, exc)
+        raise self.retry(exc=exc, countdown=30 * (2 ** self.request.retries))
