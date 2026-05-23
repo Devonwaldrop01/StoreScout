@@ -37,6 +37,21 @@ def scan_competitor(self, competitor_id: str) -> dict:
             detect_changes.delay(competitor_id, data["snapshot_id"])
             generate_brief.delay(competitor_id, data["snapshot_id"])
 
+            # Detect first scan → trigger onboarding drip sequence
+            snap_count = db.table("scan_snapshots")\
+                .select("id", count="exact")\
+                .eq("competitor_id", competitor_id)\
+                .execute()
+            if (snap_count.count or 0) == 1:
+                comp = db.table("competitors")\
+                    .select("user_id, is_my_store")\
+                    .eq("id", competitor_id)\
+                    .maybe_single()\
+                    .execute()
+                if comp.data and not comp.data.get("is_my_store"):
+                    from app.tasks.drip import schedule_drip_sequence
+                    schedule_drip_sequence(comp.data["user_id"], competitor_id)
+
         return data
 
     except Exception as exc:
