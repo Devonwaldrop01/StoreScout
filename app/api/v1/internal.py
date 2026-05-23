@@ -2,6 +2,7 @@ from __future__ import annotations
 import logging
 import traceback
 from datetime import datetime, timezone, timedelta
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, Header, HTTPException
 
@@ -34,7 +35,7 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
     logger.info("[SCAN %s] loading competitor from DB", competitor_id)
     try:
         result = db.table("competitors")\
-            .select("store_url, user_profiles(tier)")\
+            .select("store_url, hostname, display_name, user_profiles(tier)")\
             .eq("id", competitor_id)\
             .maybe_single()\
             .execute()
@@ -49,6 +50,8 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
     competitor = result.data
     store_url = competitor["store_url"]
     tier = (competitor.get("user_profiles") or {}).get("tier", "free")
+    hostname = competitor.get("hostname") or urlparse(store_url).netloc
+    display_name = competitor.get("display_name") or hostname
     logger.info("[SCAN %s] store_url=%r tier=%r", competitor_id, store_url, tier)
 
     # ── 2. Skip-if-unchanged probe (only when a previous snapshot exists) ───
@@ -171,6 +174,10 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
                      competitor_id, exc, traceback.format_exc())
         insights["winning_products"] = {"products": [], "newest": [], "scored_total": 0}
         insights["gap_analysis"] = {"gaps": [], "total": 0}
+
+    # Stamp hostname/display_name so frontend can render without a separate DB call
+    insights["hostname"] = hostname
+    insights["display_name"] = display_name
 
     # ── 6. Write snapshot ────────────────────────────────────────────────────
     pricing = insights.get("pricing", {})
