@@ -2,9 +2,10 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { user as userApi, billing, type UserSubscription, type NotificationPrefs } from "@/lib/api";
+import { user as userApi, billing, myStore as myStoreApi, type UserSubscription, type NotificationPrefs, type Competitor } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import UpgradeModal from "@/components/UpgradeModal";
+import { Store } from "lucide-react";
 
 // Inner component uses useSearchParams — must be inside <Suspense>
 function SettingsContent() {
@@ -14,11 +15,16 @@ function SettingsContent() {
   const [saved, setSaved] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [store, setStore] = useState<Competitor | null>(null);
+  const [storeUrl, setStoreUrl] = useState("");
+  const [storeSaving, setStoreSaving] = useState(false);
+  const [storeError, setStoreError] = useState("");
   const searchParams = useSearchParams();
 
   useEffect(() => {
     userApi.subscription().then((r) => setSubscription(r.data)).catch(() => {});
     userApi.prefs().then((r) => setPrefs(r.data)).catch(() => {});
+    myStoreApi.get().then((r) => setStore(r.data)).catch(() => {});
 
     if (searchParams.get("upgraded") === "1") {
       setTimeout(() => {
@@ -49,6 +55,25 @@ function SettingsContent() {
   function toggle(key: keyof NotificationPrefs) {
     if (!prefs) return;
     setPrefs({ ...prefs, [key]: !prefs[key] });
+  }
+
+  async function handleSaveStore() {
+    if (!storeUrl.trim()) return;
+    setStoreSaving(true);
+    setStoreError("");
+    try {
+      const { data } = await myStoreApi.set(storeUrl.trim());
+      setStore(data);
+      setStoreUrl("");
+    } catch {
+      setStoreError("Could not add that store. Check the URL and try again.");
+    }
+    setStoreSaving(false);
+  }
+
+  async function handleRemoveStore() {
+    await myStoreApi.remove().catch(() => {});
+    setStore(null);
   }
 
   const tierBadgeStyle: Record<string, { bg: string; color: string }> = {
@@ -123,6 +148,59 @@ function SettingsContent() {
             </div>
           </section>
         )}
+
+        <section
+          className="rounded-2xl p-6"
+          style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <Store className="w-4 h-4" style={{ color: "#a3f000" }} />
+            <h2 className="font-semibold" style={{ color: "var(--text)" }}>Your store</h2>
+          </div>
+          <p className="text-sm mb-4" style={{ color: "var(--muted)" }}>
+            Add your own Shopify store to unlock head-to-head comparisons on every competitor.
+            It doesn&apos;t count against your tracking limit.
+          </p>
+
+          {store ? (
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <p className="text-sm font-medium" style={{ color: "var(--text)" }}>{store.hostname}</p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                  {store.product_count != null ? `${store.product_count} products · ` : ""}
+                  {store.scan_status === "done" ? "Scanned" : store.scan_status === "error" ? "Scan failed" : "Scanning…"}
+                </p>
+              </div>
+              <button
+                onClick={handleRemoveStore}
+                className="font-semibold text-sm px-4 py-2 rounded-xl transition-all hover:opacity-80"
+                style={{ background: "var(--bg3)", color: "#f87171", border: "1px solid var(--border)" }}
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <input
+                value={storeUrl}
+                onChange={(e) => setStoreUrl(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSaveStore()}
+                placeholder="yourstore.com"
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none"
+                style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+              />
+              <button
+                onClick={handleSaveStore}
+                disabled={storeSaving}
+                className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-60"
+                style={{ background: "#a3f000", color: "#060d18" }}
+              >
+                {storeSaving ? "Adding…" : "Add store"}
+              </button>
+            </div>
+          )}
+          {storeError && <p className="text-xs mt-3" style={{ color: "#f87171" }}>{storeError}</p>}
+        </section>
 
         {prefs && (
           <section

@@ -11,8 +11,9 @@ import { LaunchVelocityChart } from "@/components/charts/LaunchVelocityChart";
 import WinningProductsTab from "@/components/competitors/WinningProductsTab";
 import GapsTab from "@/components/competitors/GapsTab";
 import StoreProfileTab from "@/components/competitors/StoreProfileTab";
+import ComparisonTab from "@/components/competitors/ComparisonTab";
 
-type Tab = "overview" | "winning" | "gaps" | "brand" | "pricing" | "launches" | "discounts" | "history" | "ai";
+type Tab = "overview" | "compare" | "winning" | "gaps" | "brand" | "pricing" | "launches" | "discounts" | "history" | "ai";
 
 function KpiCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
@@ -143,6 +144,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "overview", label: "Overview" },
+    { id: "compare", label: "vs You" },
     { id: "winning", label: "Winning Products" },
     { id: "gaps", label: "Gaps" },
     { id: "brand", label: "Brand" },
@@ -299,6 +301,9 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
               )}
             </div>
           )}
+
+          {/* vs You comparison tab */}
+          {tab === "compare" && <ComparisonTab competitorId={id} />}
 
           {/* Winning Products tab */}
           {tab === "winning" && <WinningProductsTab competitorId={id} />}

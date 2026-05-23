@@ -47,7 +47,7 @@ def _tier_limits(tier: str) -> dict:
 @router.get("")
 def list_competitors(user_id: str = Depends(get_current_user_id)):
     db = get_supabase()
-    result = db.table("competitors").select("*").eq("user_id", user_id).order("created_at", desc=True).execute()
+    result = db.table("competitors").select("*").eq("user_id", user_id).eq("is_my_store", False).order("created_at", desc=True).execute()
     return {"data": result.data or []}
 
 
@@ -73,7 +73,7 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_curren
     tier = (user.data or {}).get("tier", "free") if user else "free"
     limits = _tier_limits(tier)
 
-    existing = db.table("competitors").select("id").eq("user_id", user_id).eq("is_active", True).execute()
+    existing = db.table("competitors").select("id").eq("user_id", user_id).eq("is_active", True).eq("is_my_store", False).execute()
     if len(existing.data or []) >= limits["max_competitors"]:
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
@@ -378,6 +378,62 @@ def get_store_profile(competitor_id: str, user_id: str = Depends(get_current_use
             "tier": tier,
         }
     }
+
+
+@router.get("/{competitor_id}/comparison")
+def get_comparison(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+    """
+    Head-to-head: the user's own store vs this competitor. Requires the user to
+    have set their store. Free tier sees the diagnosis (verdicts + insights);
+    action items and the match strategy are Pro.
+    """
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    tier = _user_tier(db, user_id)
+
+    # Find the user's own store
+    my = db.table("competitors")\
+        .select("id, hostname")\
+        .eq("user_id", user_id)\
+        .eq("is_my_store", True)\
+        .maybe_single()\
+        .execute()
+    if not my or not my.data:
+        return {"data": {"has_store": False}}
+
+    my_data = _latest_snapshot_data(db, my.data["id"])
+    their_data = _latest_snapshot_data(db, competitor_id)
+    if not my_data:
+        return {"data": {"has_store": True, "ready": False, "reason": "my_store_scanning"}}
+    if not their_data:
+        return {"data": {"has_store": True, "ready": False, "reason": "competitor_scanning"}}
+
+    their = db.table("competitors").select("hostname").eq("id", competitor_id).single().execute()
+    their_hostname = (their.data or {}).get("hostname", "them")
+
+    from app.services.insights import compare_stores
+    result = compare_stores(my_data, their_data, my.data["hostname"], their_hostname)
+    result["ready"] = True
+
+    # Tier gate: free sees diagnosis, Pro gets prescription
+    if tier == "free":
+        for d in result.get("dimensions", []):
+            d["action"] = None
+            d["action_locked"] = True
+        ms = result.get("match_strategy") or {}
+        result["match_strategy"] = {
+            "is_newcomer": ms.get("is_newcomer", False),
+            "narrative": None,
+            "match_these": [],
+            "own_these": [],
+            "locked": True,
+        }
+        result["locked"] = True
+    else:
+        result["locked"] = False
+
+    result["tier"] = tier
+    return {"data": result}
 
 
 def _user_tier(db, user_id: str) -> str:

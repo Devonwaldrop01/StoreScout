@@ -50,6 +50,19 @@ export const competitors = {
     apiFetch<{ data: GapsResponse }>(`/competitors/${id}/gaps`),
   storeProfile: (id: string) =>
     apiFetch<{ data: StoreProfileResponse }>(`/competitors/${id}/store-profile`),
+  comparison: (id: string) =>
+    apiFetch<{ data: ComparisonResponse }>(`/competitors/${id}/comparison`),
+};
+
+// ── My Store ──────────────────────────────────────────────────
+export const myStore = {
+  get: () => apiFetch<{ data: Competitor | null }>("/my-store"),
+  set: (store_url: string, display_name?: string) =>
+    apiFetch<{ data: Competitor }>("/my-store", {
+      method: "POST",
+      body: JSON.stringify({ store_url, display_name }),
+    }),
+  remove: () => apiFetch<void>("/my-store", { method: "DELETE" }),
 };
 
 // ── Alerts ────────────────────────────────────────────────────
@@ -247,6 +260,44 @@ export interface StoreProfileResponse {
   content_intel?: ContentIntel;
   locked: boolean;
   tier: string;
+}
+
+export type ComparisonVerdict = "winning" | "losing" | "matched" | "neutral";
+
+export interface ComparisonDimension {
+  key: string;
+  label: string;
+  verdict: ComparisonVerdict;
+  your_value: string;
+  their_value: string;
+  insight: string;
+  action?: string | null;
+  action_locked?: boolean;
+}
+
+export interface MatchStrategy {
+  is_newcomer: boolean;
+  narrative?: string | null;
+  match_these: string[];
+  own_these: string[];
+  locked?: boolean;
+}
+
+export interface ComparisonResponse {
+  has_store: boolean;
+  ready?: boolean;
+  reason?: string;
+  my_hostname?: string;
+  their_hostname?: string;
+  overall?: {
+    verdict: string;
+    summary: string;
+    score: { winning: number; losing: number; matched: number; neutral: number };
+  };
+  dimensions?: ComparisonDimension[];
+  match_strategy?: MatchStrategy;
+  locked?: boolean;
+  tier?: string;
 }
 
 export interface UserSubscription {

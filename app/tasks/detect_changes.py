@@ -184,8 +184,9 @@ def detect_changes(competitor_id: str, snapshot_id: str) -> dict:
     logger.info("[DETECT %s] inserted %d change_events", competitor_id, len(inserted_ids))
 
     if inserted_ids:
-        comp = db.table("competitors").select("user_id").eq("id", competitor_id).maybe_single().execute()
-        if comp and comp.data:
+        comp = db.table("competitors").select("user_id, is_my_store").eq("id", competitor_id).maybe_single().execute()
+        # Don't email users about changes to their own store — only competitors.
+        if comp and comp.data and not comp.data.get("is_my_store"):
             from app.tasks.alerts import send_change_alert
             send_change_alert.apply_async(
                 args=[comp.data["user_id"], competitor_id, inserted_ids],

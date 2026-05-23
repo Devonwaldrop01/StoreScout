@@ -503,3 +503,208 @@ def analyze_store_profile(extended_data: Dict[str, Any]) -> Dict[str, Any]:
         "brand_signals": brand_signals,
         "content_intel": content_intel,
     }
+
+
+# ── My Store comparison ─────────────────────────────────────────────────────
+#
+# Compares the user's own store against a competitor. The philosophy (from
+# product direction): a smaller/newer store usually can't win head-on, so the
+# output frames *matching* the table stakes and *owning a lane* the competitor
+# ignores — not just "you're losing, beat them." Verdicts give the honest
+# diagnosis; actions + match_strategy are the prescription.
+
+def _fmt_price(v: Optional[float]) -> str:
+    f = _safe_float(v)
+    if f is None:
+        return "—"
+    return f"${f:.0f}" if f >= 10 else f"${f:.2f}"
+
+
+def _pct_diff(mine: Optional[float], theirs: Optional[float]) -> Optional[float]:
+    m, t = _safe_float(mine), _safe_float(theirs)
+    if m is None or t is None or t == 0:
+        return None
+    return (m - t) / t * 100.0
+
+
+def compare_stores(mine: Dict[str, Any], theirs: Dict[str, Any],
+                   my_hostname: str = "your store",
+                   their_hostname: str = "them") -> Dict[str, Any]:
+    """
+    Build a head-to-head comparison from two snapshot_data dicts.
+    Returns overall verdict, per-dimension diagnosis + action, and a
+    newcomer-aware match strategy.
+    """
+    my_cat = mine.get("catalog") or {}
+    th_cat = theirs.get("catalog") or {}
+    my_pr = mine.get("pricing") or {}
+    th_pr = theirs.get("pricing") or {}
+    my_disc = mine.get("discounts") or {}
+    th_disc = theirs.get("discounts") or {}
+    my_launch = (mine.get("launch_timeline") or {}).get("velocity") or {}
+    th_launch = (theirs.get("launch_timeline") or {}).get("velocity") or {}
+    my_prof = mine.get("store_profile") or {}
+    th_prof = theirs.get("store_profile") or {}
+
+    my_total = my_cat.get("total_products") or 0
+    th_total = th_cat.get("total_products") or 0
+    is_newcomer = my_total < 25 or (th_total and my_total < th_total * 0.4)
+
+    dims: List[Dict[str, Any]] = []
+    score = {"winning": 0, "losing": 0, "matched": 0, "neutral": 0}
+
+    def add(key, label, verdict, your_value, their_value, insight, action):
+        score[verdict] = score.get(verdict, 0) + 1
+        dims.append({
+            "key": key, "label": label, "verdict": verdict,
+            "your_value": your_value, "their_value": their_value,
+            "insight": insight, "action": action,
+        })
+
+    # ── 1. Price positioning ──
+    my_med, th_med = my_pr.get("median"), th_pr.get("median")
+    diff = _pct_diff(my_med, th_med)
+    if diff is not None:
+        yv, tv = _fmt_price(my_med), _fmt_price(th_med)
+        if diff <= -15:
+            add("price", "Price positioning", "neutral", yv, tv,
+                f"Your median is {abs(diff):.0f}% below {their_hostname}. You're the value option — a real, defensible position.",
+                "Own 'better value for the money' in your copy and PDP. Watch margin: cheaper only wins if you still profit per order.")
+        elif diff >= 15:
+            add("price", "Price positioning", "neutral", yv, tv,
+                f"You're priced {diff:.0f}% above {their_hostname}. Premium positioning only holds if the customer can see why.",
+                "Justify the gap with story, materials, service, or guarantee. If you can't, you'll lose price-shoppers to them.")
+        else:
+            add("price", "Price positioning", "matched", yv, tv,
+                f"You're within {abs(diff):.0f}% of their median — competing head-on on price.",
+                "Head-to-head on price is the hardest place for a smaller store. Differentiate on something other than price.")
+
+    # ── 2. Catalog breadth ──
+    if th_total:
+        if my_total >= th_total * 1.2:
+            add("catalog", "Catalog breadth", "winning", str(my_total), str(th_total),
+                f"You list {my_total} products vs their {th_total} — wider selection.",
+                "Breadth is a strength, but make sure your best sellers aren't buried. Merchandise a tight 'best of' collection.")
+        elif my_total >= th_total * 0.7:
+            add("catalog", "Catalog breadth", "matched", str(my_total), str(th_total),
+                f"Comparable range — {my_total} vs {th_total} products.",
+                "Range is matched, so the catalog isn't your edge. Win on curation, content, or service instead.")
+        else:
+            add("catalog", "Catalog breadth", "neutral", str(my_total), str(th_total),
+                f"They carry {th_total} products to your {my_total}. Don't try to match their breadth.",
+                "Go deep, not wide. Own one category completely rather than spreading thin across many.")
+
+    # ── 3. Discount posture ──
+    my_dp, th_dp = my_disc.get("discounted_pct"), th_disc.get("discounted_pct")
+    if my_dp is not None and th_dp is not None:
+        yv, tv = f"{my_dp:.0f}%", f"{th_dp:.0f}%"
+        if th_dp - my_dp >= 15:
+            add("discount", "Discount posture", "winning", yv, tv,
+                f"They discount {th_dp:.0f}% of their catalog; you hold price ({my_dp:.0f}%). You read as the premium pick.",
+                "Lean into full-price confidence. Avoid racing them to the bottom — let them train their customers to wait for sales.")
+        elif my_dp - th_dp >= 15:
+            add("discount", "Discount posture", "losing", yv, tv,
+                f"You're more promotional — {my_dp:.0f}% of your catalog is discounted vs their {th_dp:.0f}%.",
+                "Heavy discounting trains buyers to wait. Shift to fewer, time-boxed promos and protect your full-price perception.")
+        else:
+            add("discount", "Discount posture", "matched", yv, tv,
+                f"Similar promo intensity — {my_dp:.0f}% vs {th_dp:.0f}%.",
+                "Neither of you owns the value or premium lane on discounting. Pick one deliberately.")
+
+    # ── 4. Launch velocity ──
+    my_v, th_v = my_launch.get("last_30d"), th_launch.get("last_30d")
+    if my_v is not None and th_v is not None:
+        yv, tv = f"{my_v}/mo", f"{th_v}/mo"
+        if th_v > 0 and my_v < th_v * 0.5:
+            add("launch", "Launch velocity", "losing", yv, tv,
+                f"They're launching ~{th_v}/month to your ~{my_v}. They look fresher to repeat visitors.",
+                "Don't match their volume — pick a cadence you can sustain (e.g. one drop every 2 weeks) and market each launch hard.")
+        elif my_v > th_v * 1.5:
+            add("launch", "Launch velocity", "winning", yv, tv,
+                f"You're launching faster — ~{my_v}/month vs their ~{th_v}.",
+                "Fresh catalog is an edge with trend-driven buyers. Keep it up, but don't sacrifice winners for novelty.")
+        else:
+            add("launch", "Launch velocity", "matched", yv, tv,
+                f"Comparable launch cadence — ~{my_v}/mo vs ~{th_v}/mo.",
+                "Launch pace is matched. Compete on which launches land, not how many.")
+
+    # ── 5. Price-band white space ──
+    my_b = ((my_pr.get("price_buckets") or {}).get("buckets")) or {}
+    th_b = ((th_pr.get("price_buckets") or {}).get("buckets")) or {}
+    if th_b and th_total:
+        # band they concentrate in but you barely touch
+        their_dom = max(th_b.items(), key=lambda kv: kv[1]) if th_b else None
+        if their_dom:
+            band, cnt = their_dom
+            their_share = cnt / th_total * 100
+            my_in_band = my_b.get(band, 0)
+            my_share = (my_in_band / my_total * 100) if my_total else 0
+            if their_share >= 30 and my_share < 10:
+                add("price_band", "Price-band coverage", "neutral", f"{my_share:.0f}% in {band}", f"{their_share:.0f}% in {band}",
+                    f"They concentrate {their_share:.0f}% of their catalog in {band}; you have almost nothing there.",
+                    f"That's where their volume is. Either bring a sharper offer into {band}, or deliberately skip it and own a band they ignore.")
+
+    # ── 6. Channel / brand gaps ──
+    my_col = my_prof.get("collection_intel") or {}
+    th_col = th_prof.get("collection_intel") or {}
+    th_brand = th_prof.get("brand_signals") or {}
+    my_brand = my_prof.get("brand_signals") or {}
+    channel_gaps = []
+    if th_col.get("has_bundles") and not my_col.get("has_bundles"):
+        channel_gaps.append("bundles/kits (they raise AOV with these, you don't)")
+    if th_col.get("has_subscription") and not my_col.get("has_subscription"):
+        channel_gaps.append("a subscription option (recurring revenue you're leaving on the table)")
+    if th_brand.get("has_wholesale") and not my_brand.get("has_wholesale"):
+        channel_gaps.append("a wholesale/B2B channel")
+    if channel_gaps:
+        add("channels", "Channels & offers", "losing", "missing", "present",
+            f"They run {len(channel_gaps)} offer type{'s' if len(channel_gaps) != 1 else ''} you don't: " + "; ".join(channel_gaps) + ".",
+            "Each of these is revenue mechanics you can copy without competing on product. Bundles are the fastest to add.")
+    elif (my_col.get("has_bundles") or my_col.get("has_subscription")) and not (th_col.get("has_bundles") or th_col.get("has_subscription")):
+        add("channels", "Channels & offers", "winning", "present", "missing",
+            "You offer bundles/subscriptions they don't — a structural AOV/LTV edge.",
+            "Promote these harder. They're advantages competitors can't match overnight.")
+
+    # ── Overall ──
+    wins, losses = score["winning"], score["losing"]
+    if wins > losses + 1:
+        verdict = "You're ahead overall"
+    elif losses > wins + 1:
+        verdict = "You're behind overall"
+    else:
+        verdict = "It's close"
+    summary = (
+        f"Across {len(dims)} dimensions, you win {wins}, lose {losses}, and match {score['matched']}. "
+        + ("As the smaller store, focus on matching their table stakes and owning a lane they ignore — not beating them everywhere."
+           if is_newcomer else
+           "You're at comparable scale — the comparison below shows exactly where to press and where to defend.")
+    )
+
+    # ── Match strategy (the newcomer-focused prescription) ──
+    match_these = [d["label"].lower() for d in dims if d["verdict"] in ("losing", "matched")][:3]
+    own_these = [d["label"].lower() for d in dims if d["verdict"] in ("winning", "neutral")][:3]
+    if is_newcomer:
+        narrative = (
+            f"You don't need to out-do {their_hostname} across the board — that's the trap most new stores fall into. "
+            f"Match them on the basics customers expect (so you're not visibly behind), then pour your energy into the "
+            f"one or two areas where you can genuinely be different. Pick a lane and own it."
+        )
+    else:
+        narrative = (
+            f"You're operating at similar scale to {their_hostname}. Defend the dimensions where you're ahead, shore up "
+            f"the ones where you're behind before they widen the gap, and look for one move you can make before they do."
+        )
+
+    return {
+        "has_store": True,
+        "my_hostname": my_hostname,
+        "their_hostname": their_hostname,
+        "overall": {"verdict": verdict, "summary": summary, "score": score},
+        "dimensions": dims,
+        "match_strategy": {
+            "is_newcomer": bool(is_newcomer),
+            "match_these": match_these,
+            "own_these": own_these,
+            "narrative": narrative,
+        },
+    }

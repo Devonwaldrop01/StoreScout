@@ -19,8 +19,9 @@ def list_alerts(
 ):
     db = get_supabase()
 
-    # Get all competitor IDs for this user
-    comps = db.table("competitors").select("id, hostname").eq("user_id", user_id).execute()
+    # Get all competitor IDs for this user (exclude their own store — they know
+    # their own changes; alerts are about competitors)
+    comps = db.table("competitors").select("id, hostname").eq("user_id", user_id).eq("is_my_store", False).execute()
     comp_ids = [c["id"] for c in (comps.data or [])]
     hostname_map = {c["id"]: c["hostname"] for c in (comps.data or [])}
 
@@ -61,7 +62,7 @@ def mark_read(change_id: str, user_id: str = Depends(get_current_user_id)):
 @router.get("/unread-count")
 def unread_count(user_id: str = Depends(get_current_user_id)):
     db = get_supabase()
-    comps = db.table("competitors").select("id").eq("user_id", user_id).execute()
+    comps = db.table("competitors").select("id").eq("user_id", user_id).eq("is_my_store", False).execute()
     comp_ids = [c["id"] for c in (comps.data or [])]
     if not comp_ids:
         return {"count": 0}
