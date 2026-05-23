@@ -69,6 +69,24 @@ def get_current_user_id(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 
+def get_effective_user_id(user_id: str = Depends(get_current_user_id)) -> str:
+    """For active team members: return the owner's user_id so they share competitor access."""
+    from app.core.database import get_supabase
+    db = get_supabase()
+    try:
+        member = db.table("team_members")\
+            .select("owner_id")\
+            .eq("member_id", user_id)\
+            .eq("status", "active")\
+            .maybe_single()\
+            .execute()
+        if member and member.data:
+            return member.data["owner_id"]
+    except Exception:
+        pass
+    return user_id
+
+
 def maybe_current_user_id(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
 ) -> Optional[str]:

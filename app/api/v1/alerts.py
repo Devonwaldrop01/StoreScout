@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from app.core.auth import get_current_user_id
+from app.core.auth import get_current_user_id, get_effective_user_id
 from app.core.database import get_supabase
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
@@ -15,7 +15,7 @@ def list_alerts(
     limit: int = 50,
     change_type: Optional[str] = None,
     severity: Optional[str] = None,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_effective_user_id),
 ):
     db = get_supabase()
 
@@ -60,7 +60,7 @@ def mark_read(change_id: str, user_id: str = Depends(get_current_user_id)):
 
 
 @router.get("/unread-count")
-def unread_count(user_id: str = Depends(get_current_user_id)):
+def unread_count(user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
     comps = db.table("competitors").select("id").eq("user_id", user_id).eq("is_my_store", False).execute()
     comp_ids = [c["id"] for c in (comps.data or [])]
