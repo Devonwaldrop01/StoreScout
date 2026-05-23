@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     stripe_price_id: str = ""
     stripe_pro_price_id: str = ""
     stripe_agency_price_id: str = ""
+    stripe_pro_annual_price_id: str = ""
+    stripe_agency_annual_price_id: str = ""
 
     # Email
     resend_api_key: str = ""
