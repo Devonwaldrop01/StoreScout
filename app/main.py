@@ -126,75 +126,19 @@ def normalize_store_url(url: str) -> str:
     return url.rstrip("/")
 
 @app.get("/check_store")
-def check_store(store_url: str = Query(..., min_length=3)):
-    """
-    Server-side probe to confirm Shopify /products.json is accessible.
-    Tries both apex and www variants because many stores only expose products.json on one host.
-    """
+def check_store_endpoint(store_url: str = Query(..., min_length=3)):
+    """Probe whether a URL is an accessible Shopify store using curl_cffi (Chrome TLS fingerprint)."""
     try:
         base = normalize_store_url(store_url)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    def probe(candidate_base: str):
-        probe_url = f"{candidate_base}/products.json?limit=1"
-        try:
-            r = requests.get(
-                probe_url,
-                timeout=10,
-                headers={"User-Agent": "StoreScoutBot/1.0 (+https://storescout)"},
-            )
-        except requests.RequestException:
-            return {"ok": False, "reason": "Network error reaching store", "status": None}
+    try:
+        from app.services.fetch import check_store as _check_store
+    except ImportError:
+        from fetch import check_store as _check_store  # type: ignore
 
-        if r.status_code != 200:
-          if r.status_code == 404:
-              msg = "This domain doesn’t expose /products.json (try the non-www or www version)."
-          elif r.status_code == 403:
-              msg = "This store blocks automated access to /products.json (HTTP 403)."
-          else:
-              msg = f"/products.json returned HTTP {r.status_code}"
-          return {"ok": False, "reason": msg, "status": r.status_code}
-
-
-        try:
-            data = r.json()
-        except Exception:
-            return {"ok": False, "reason": "/products.json did not return JSON (blocked or not Shopify)", "status": r.status_code}
-
-        prods = data.get("products")
-        if not isinstance(prods, list):
-            return {"ok": False, "reason": "Unexpected /products.json shape (likely blocked or not Shopify)", "status": r.status_code}
-
-        return {"ok": True, "products_sample": len(prods)}
-
-    # Build fallback candidates: typed host + alternate www/apex
-    parsed = urlparse(base)
-    host = parsed.hostname or ""
-    scheme = parsed.scheme or "https"
-
-    candidates = [base]
-
-    if host.startswith("www."):
-        alt_host = host.replace("www.", "", 1)
-        candidates.append(f"{scheme}://{alt_host}")
-    else:
-        candidates.append(f"{scheme}://www.{host}")
-
-    # Try candidates in order; return the first that works
-    attempts = []
-    for c in candidates:
-        result = probe(c)
-        attempts.append({"base_url": c, **result})
-        if result.get("ok"):
-            return {"ok": True, "base_url": c, "products_sample": result.get("products_sample", 0), "attempts": attempts}
-
-    # None worked
-    return {
-        "ok": False,
-        "reason": attempts[0].get("reason") or "Store does not expose /products.json",
-        "attempts": attempts,
-    }
+    return _check_store(base)
 
 
 
