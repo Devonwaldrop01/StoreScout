@@ -245,6 +245,113 @@ def get_ai_summary(competitor_id: str, user_id: str = Depends(get_current_user_i
     return {"data": result.data[0]}
 
 
+@router.get("/{competitor_id}/winning-products")
+def get_winning_products(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+    """
+    Winning-product analysis. Free tier sees the #1 product (score visible, the
+    'why' locked) plus a locked count. Pro/Agency see the full ranked list,
+    signal breakdowns, reasons, and the newest-products list.
+    """
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    tier = _user_tier(db, user_id)
+
+    data = _latest_snapshot_data(db, competitor_id)
+    wp = (data.get("winning_products") or {}) if data else {}
+    products = wp.get("products") or []
+    newest = wp.get("newest") or []
+
+    if not products:
+        return {"data": {"products": [], "newest": [], "locked": tier == "free", "locked_count": 0, "tier": tier}}
+
+    if tier == "free":
+        top = products[0]
+        teaser = {
+            "title": top.get("title"),
+            "product_url": top.get("product_url"),
+            "price_min": top.get("price_min"),
+            "image": top.get("image"),
+            "score": top.get("score"),
+            # 'why' is locked
+            "reason": None,
+            "signal_tags": [],
+            "locked": True,
+        }
+        return {
+            "data": {
+                "products": [teaser],
+                "newest": [],
+                "locked": True,
+                "locked_count": max(0, len(products) - 1),
+                "tier": tier,
+            }
+        }
+
+    return {
+        "data": {
+            "products": products,
+            "newest": newest,
+            "locked": False,
+            "locked_count": 0,
+            "tier": tier,
+        }
+    }
+
+
+@router.get("/{competitor_id}/gaps")
+def get_gaps(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+    """
+    Gap analysis. Free tier sees the top 2 gap titles (detail locked) plus a
+    locked count. Pro/Agency see every gap with full detail and metrics.
+    """
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    tier = _user_tier(db, user_id)
+
+    data = _latest_snapshot_data(db, competitor_id)
+    ga = (data.get("gap_analysis") or {}) if data else {}
+    gaps = ga.get("gaps") or []
+
+    if not gaps:
+        return {"data": {"gaps": [], "locked": tier == "free", "locked_count": 0, "tier": tier}}
+
+    if tier == "free":
+        teasers = [{
+            "type": g.get("type"),
+            "title": g.get("title"),
+            "detail": None,  # locked
+            "opportunity": g.get("opportunity"),
+            "locked": True,
+        } for g in gaps[:2]]
+        return {
+            "data": {
+                "gaps": teasers,
+                "locked": True,
+                "locked_count": max(0, len(gaps) - 2),
+                "tier": tier,
+            }
+        }
+
+    return {"data": {"gaps": gaps, "locked": False, "locked_count": 0, "tier": tier}}
+
+
+def _user_tier(db, user_id: str) -> str:
+    user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
+    return (user.data or {}).get("tier", "free") if user else "free"
+
+
+def _latest_snapshot_data(db, competitor_id: str) -> Optional[dict]:
+    result = db.table("scan_snapshots")\
+        .select("snapshot_data")\
+        .eq("competitor_id", competitor_id)\
+        .order("scanned_at", desc=True)\
+        .limit(1)\
+        .execute()
+    if not result.data:
+        return None
+    return result.data[0].get("snapshot_data") or {}
+
+
 def _assert_owner(db, competitor_id: str, user_id: str):
     result = db.table("competitors").select("user_id").eq("id", competitor_id).maybe_single().execute()
     if not result or not result.data or result.data["user_id"] != user_id:

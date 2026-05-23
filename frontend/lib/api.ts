@@ -44,6 +44,10 @@ export const competitors = {
     ),
   aiSummary: (id: string) =>
     apiFetch<{ data: AiSummary }>(`/competitors/${id}/ai-summary`),
+  winningProducts: (id: string) =>
+    apiFetch<{ data: WinningProductsResponse }>(`/competitors/${id}/winning-products`),
+  gaps: (id: string) =>
+    apiFetch<{ data: GapsResponse }>(`/competitors/${id}/gaps`),
 };
 
 // ── Alerts ────────────────────────────────────────────────────
@@ -143,6 +147,59 @@ export interface AiSummary {
   model: string;
   summary_text: string;
   summary_type: string;
+}
+
+export interface WinningProduct {
+  title?: string;
+  product_url?: string;
+  handle?: string;
+  price_min?: number;
+  image?: string | null;
+  score: number;
+  signals?: Record<string, number>;
+  age_days?: number | null;
+  variants_count?: number;
+  discounted?: boolean;
+  discount_pct?: number | null;
+  available?: boolean;
+  reason?: string | null;
+  signal_tags?: string[];
+  locked?: boolean;
+}
+
+export interface NewestProduct {
+  title?: string;
+  product_url?: string;
+  price_min?: number;
+  image?: string | null;
+  age_days?: number;
+  variants_count?: number;
+  available?: boolean;
+}
+
+export interface WinningProductsResponse {
+  products: WinningProduct[];
+  newest: NewestProduct[];
+  locked: boolean;
+  locked_count: number;
+  tier: string;
+}
+
+export interface Gap {
+  type: string;
+  title: string;
+  detail?: string | null;
+  opportunity?: number;
+  metric?: Record<string, unknown>;
+  locked?: boolean;
+}
+
+export interface GapsResponse {
+  gaps: Gap[];
+  locked: boolean;
+  locked_count: number;
+  tier: string;
+  median_price?: number;
 }
 
 export interface UserSubscription {

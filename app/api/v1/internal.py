@@ -137,6 +137,22 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
         if p.get("handle")
     }
 
+    # Stage 1 intelligence — winning products + gap analysis, computed from the
+    # full normalized catalog and stored in the snapshot for tier-gated serving.
+    try:
+        from app.services.insights import score_winning_products, analyze_gaps
+        insights["winning_products"] = score_winning_products(normalized)
+        insights["gap_analysis"] = analyze_gaps(insights, normalized)
+        logger.info("[SCAN %s] insights: %d winning products, %d gaps",
+                    competitor_id,
+                    insights["winning_products"].get("scored_total", 0),
+                    insights["gap_analysis"].get("total", 0))
+    except Exception as exc:
+        logger.error("[SCAN %s] insights computation failed (non-fatal): %s\n%s",
+                     competitor_id, exc, traceback.format_exc())
+        insights["winning_products"] = {"products": [], "newest": [], "scored_total": 0}
+        insights["gap_analysis"] = {"gaps": [], "total": 0}
+
     # ── 6. Write snapshot ────────────────────────────────────────────────────
     pricing = insights.get("pricing", {})
     discounts = insights.get("discounts", {})

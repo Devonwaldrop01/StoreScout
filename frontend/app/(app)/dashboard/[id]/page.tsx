@@ -8,8 +8,10 @@ import { competitors as api, type Snapshot, type ChangeEvent, type AiSummary } f
 import { cn, formatRelativeTime, formatPrice, formatPct, formatDelta, changeTypeIcon, severityColor } from "@/lib/utils";
 import { PriceDistributionChart } from "@/components/charts/PriceDistributionChart";
 import { LaunchVelocityChart } from "@/components/charts/LaunchVelocityChart";
+import WinningProductsTab from "@/components/competitors/WinningProductsTab";
+import GapsTab from "@/components/competitors/GapsTab";
 
-type Tab = "overview" | "pricing" | "launches" | "discounts" | "history" | "ai";
+type Tab = "overview" | "winning" | "gaps" | "pricing" | "launches" | "discounts" | "history" | "ai";
 
 function KpiCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
@@ -140,6 +142,8 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "overview", label: "Overview" },
+    { id: "winning", label: "Winning Products" },
+    { id: "gaps", label: "Gaps" },
     { id: "pricing", label: "Pricing" },
     { id: "launches", label: "Launches" },
     { id: "discounts", label: "Discounts" },
@@ -293,6 +297,12 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
               )}
             </div>
           )}
+
+          {/* Winning Products tab */}
+          {tab === "winning" && <WinningProductsTab competitorId={id} />}
+
+          {/* Gaps tab */}
+          {tab === "gaps" && <GapsTab competitorId={id} />}
 
           {/* Pricing tab */}
           {tab === "pricing" && (
