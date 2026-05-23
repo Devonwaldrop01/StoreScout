@@ -123,6 +123,20 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
         _mark_error(db, competitor_id, f"analyze exception: {exc}")
         return {"status": "error", "reason": f"analyze exception: {exc}"}
 
+    # Compact per-product index so detect_changes can diff the full catalog.
+    # Keyed by handle; stores only the fields needed for change detection.
+    insights["_product_index"] = {
+        p["handle"]: {
+            "title": p.get("title"),
+            "product_url": p.get("product_url"),
+            "price_min": p.get("price_min"),
+            "compare_at_min": p.get("compare_at_min"),
+            "available": p.get("available"),
+        }
+        for p in normalized
+        if p.get("handle")
+    }
+
     # ── 6. Write snapshot ────────────────────────────────────────────────────
     pricing = insights.get("pricing", {})
     discounts = insights.get("discounts", {})

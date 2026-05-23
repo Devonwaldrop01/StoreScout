@@ -16,11 +16,13 @@ ALERT_COOLDOWN_HOURS = 4
 
 
 def _within_cooldown(db, user_id: str, competitor_id: str) -> bool:
+    """Return True if an alert email was already sent for this competitor within the cooldown window."""
     cutoff = (datetime.now(timezone.utc) - timedelta(hours=ALERT_COOLDOWN_HOURS)).isoformat()
-    result = db.table("alert_email_log").select("id")\
-        .eq("user_id", user_id)\
+    result = db.table("change_events")\
+        .select("id")\
         .eq("competitor_id", competitor_id)\
-        .gte("sent_at", cutoff)\
+        .eq("alert_sent", True)\
+        .gte("detected_at", cutoff)\
         .limit(1)\
         .execute()
     return bool(result.data)
@@ -35,7 +37,7 @@ def send_change_alert(user_id: str, competitor_id: str, change_ids: List[str]) -
         return {"status": "cooldown"}
 
     # Fetch user prefs and email
-    user = db.table("user_profiles").select("email, tier").eq("id", user_id).single().execute()
+    user = db.table("user_profiles").select("email, tier").eq("id", user_id).maybe_single().execute()
     if not user.data or user.data.get("tier", "free") == "free":
         return {"status": "no_alerts_free_tier"}
 
@@ -44,7 +46,7 @@ def send_change_alert(user_id: str, competitor_id: str, change_ids: List[str]) -
     if not prefs_data.get("email_price_changes", True):
         return {"status": "alerts_disabled"}
 
-    competitor = db.table("competitors").select("hostname, store_url").eq("id", competitor_id).single().execute()
+    competitor = db.table("competitors").select("hostname, store_url").eq("id", competitor_id).maybe_single().execute()
     if not competitor.data:
         return {"status": "competitor_not_found"}
 
@@ -130,14 +132,7 @@ def send_change_alert(user_id: str, competitor_id: str, change_ids: List[str]) -
             "html": email_html,
         })
 
-        # Log send to enforce cooldown
-        db.table("alert_email_log").insert({
-            "user_id": user_id,
-            "competitor_id": competitor_id,
-            "sent_at": datetime.now(timezone.utc).isoformat(),
-        }).execute()
-
-        # Mark changes as alerted
+        # Mark changes as alerted — this is also what _within_cooldown checks
         db.table("change_events").update({"alert_sent": True}).in_("id", change_ids).execute()
 
         return {"status": "sent"}
