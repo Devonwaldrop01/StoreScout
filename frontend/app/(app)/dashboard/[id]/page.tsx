@@ -14,6 +14,7 @@ import GapsTab from "@/components/competitors/GapsTab";
 import StoreProfileTab from "@/components/competitors/StoreProfileTab";
 import ComparisonTab from "@/components/competitors/ComparisonTab";
 import { IntelligenceBrief } from "@/components/competitors/IntelligenceBrief";
+import { QuickWins } from "@/components/competitors/QuickWins";
 import { type BriefData, type BriefCard } from "@/lib/api";
 
 type Tab = "overview" | "compare" | "winning" | "gaps" | "brand" | "pricing" | "launches" | "discounts" | "history" | "ai";
@@ -305,6 +306,8 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   value={((launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? "—").toString()}
                 />
               </div>
+
+              <QuickWins competitorId={id} />
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[

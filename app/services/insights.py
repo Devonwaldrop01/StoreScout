@@ -719,3 +719,99 @@ def compare_stores(mine: Dict[str, Any], theirs: Dict[str, Any],
             "narrative": narrative,
         },
     }
+
+
+def compute_quick_wins(snapshot_data: dict) -> list:
+    """
+    Rule-based action cards derived from a single snapshot.
+    No LLM cost — deterministic logic only.
+    Returns up to 4 wins ordered by actionability.
+    """
+    wins = []
+    catalog  = snapshot_data.get("catalog")  or {}
+    pricing  = snapshot_data.get("pricing")  or {}
+    discounts = snapshot_data.get("discounts") or {}
+    launch   = snapshot_data.get("launch_timeline") or {}
+
+    total           = catalog.get("total_products") or 0
+    median          = float(pricing.get("median") or 0)
+    discounted_pct  = float(discounts.get("discounted_pct") or 0)
+    oos_pct         = float(catalog.get("out_of_stock_pct") or 0)
+    oos_count       = catalog.get("out_of_stock_count") or 0
+
+    launch_counts = launch.get("launch_counts") or {}
+    last_30d  = (launch_counts.get("30d")  or {}).get("count") or 0
+    last_90d  = (launch_counts.get("90d")  or {}).get("count") or 0
+    avg_mo_90 = round(last_90d / 3, 1) if last_90d else 0
+
+    vel = launch.get("velocity") or {}
+    vel_30d = float(vel.get("last_30d") or 0)
+    vel_90d = float(vel.get("last_90d") or 0)
+
+    buckets   = (pricing.get("price_buckets") or {}).get("buckets") or {}
+    under_25  = buckets.get("<$25") or 0
+
+    # 1. Low-end gap (sparse entry tier vs. strong median)
+    if total > 0 and median >= 30 and under_25 < max(10, int(total * 0.04)):
+        wins.append({
+            "id": "low_end_gap",
+            "type": "opportunity",
+            "headline": f"Only {under_25} products under $25",
+            "detail": (
+                f"Their catalog is anchored at ${int(median)} median with almost nothing "
+                f"entry-level. If you sell under $25 you face near-zero direct competition from them."
+            ),
+        })
+
+    # 2. Discount dependence — don't race them on price
+    if discounted_pct >= 40:
+        wins.append({
+            "id": "discount_dependence",
+            "type": "signal",
+            "headline": f"{discounted_pct:.0f}% of catalog discounted — don't race them on price",
+            "detail": (
+                "Their customers are conditioned to wait for sales. "
+                "Competing on discounts will only compress your margins. "
+                "Win on product freshness and full-price positioning instead."
+            ),
+        })
+
+    # 3. Stalled launch pace
+    if vel_90d > 0 and vel_30d < vel_90d * 0.4 and last_30d <= 3:
+        wins.append({
+            "id": "stalled_launches",
+            "type": "opportunity",
+            "headline": f"Only {last_30d} new product{'s' if last_30d != 1 else ''} launched this month",
+            "detail": (
+                f"Recent pace ({last_30d}/month) is well below their 3-month average "
+                f"({avg_mo_90}/month). Any launch you make now competes against a stale catalog."
+            ),
+        })
+
+    # 4. Accelerating launch velocity — watch signal
+    if vel_90d > 0 and vel_30d > vel_90d * 1.8 and last_30d >= 8:
+        ratio = round(vel_30d / vel_90d, 1)
+        wins.append({
+            "id": "launch_surge",
+            "type": "watch",
+            "headline": f"{last_30d} launches this month — {ratio}× their average",
+            "detail": (
+                "Something is accelerating. A new collection or category push is likely underway. "
+                "Watch what they're launching and whether it opens or closes a gap for you."
+            ),
+        })
+
+    # 5. Stock gap — unfulfilled demand
+    if total >= 20 and oos_pct >= 30:
+        wins.append({
+            "id": "stock_gap",
+            "type": "opportunity",
+            "headline": f"{oos_pct:.0f}% of their catalog is out of stock",
+            "detail": (
+                f"About {oos_count} products are unavailable. "
+                "That's demand they can't fulfil right now. "
+                "If you carry overlap categories, push visibility while they're stocked out."
+            ),
+        })
+
+    return wins[:4]

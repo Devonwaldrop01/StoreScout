@@ -13,6 +13,141 @@ logger = logging.getLogger(__name__)
 
 ALERT_COOLDOWN_HOURS = 4
 
+_SEVERITY_STYLES = {
+    "critical": ("#f87171", "rgba(248,113,113,.15)", "CRITICAL"),
+    "warning":  ("#facc15", "rgba(250,204,21,.15)",  "WARNING"),
+    "info":     ("#60a5fa", "rgba(96,165,250,.15)",   "INFO"),
+}
+
+
+def _interpret_changes(hostname: str, change_list: list, settings) -> Optional[str]:
+    """1-2 sentence Claude Haiku interpretation of a batch of changes. Non-fatal if it fails."""
+    try:
+        import anthropic
+        price_drops = [c for c in change_list if c["change_type"] == "price_change"
+                       and (c.get("delta_pct") or 0) < 0]
+        new_products = [c for c in change_list if c["change_type"] == "new_product"]
+        critical = any(c["severity"] == "critical" for c in change_list)
+
+        lines = []
+        if critical and price_drops:
+            avg_drop = sum(abs(c.get("delta_pct") or 0) for c in price_drops) / len(price_drops)
+            lines.append(f"Flash sale: {len(price_drops)} products dropped avg {avg_drop:.0f}%")
+        elif price_drops:
+            avg_drop = sum(abs(c.get("delta_pct") or 0) for c in price_drops) / len(price_drops)
+            lines.append(f"{len(price_drops)} price drops averaging -{avg_drop:.0f}%")
+        if new_products:
+            lines.append(f"{len(new_products)} new products launched")
+        for c in change_list[:3]:
+            if c["change_type"] == "price_change":
+                ov = c.get("old_value") or {}
+                nv = c.get("new_value") or {}
+                lines.append(f"  - {(c.get('product_title') or '?')[:40]}: "
+                              f"${ov.get('price','?')} → ${nv.get('price','?')}")
+
+        prompt = (
+            f"Shopify competitor intelligence. {hostname} just triggered alerts.\n\n"
+            f"Changes:\n" + "\n".join(lines) + "\n\n"
+            "Write 1-2 sentences: what does this pattern likely signal about their strategy? "
+            "Be specific, direct, no filler."
+        )
+        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+        msg = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=150,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return msg.content[0].text.strip()
+    except Exception as exc:
+        logger.warning("Alert interpretation failed (non-fatal): %s", exc)
+        return None
+
+
+def _build_alert_html(hostname: str, subject: str, n: int, change_list: list,
+                      interpretation: Optional[str], dashboard_url: str, settings) -> str:
+    sev = "info"
+    if any(c["severity"] == "critical" for c in change_list):
+        sev = "critical"
+    elif any(c["severity"] == "warning" for c in change_list):
+        sev = "warning"
+    sev_color, sev_bg, sev_label = _SEVERITY_STYLES[sev]
+
+    _icon = {"price_change_down": "↓", "price_change_up": "↑",
+             "new_product": "+", "product_removed": "−",
+             "discount_start": "Sale", "discount_end": "↑", "availability_change": "Stock"}
+
+    rows_html = ""
+    for c in change_list[:10]:
+        c_sev = c.get("severity", "info")
+        c_color = _SEVERITY_STYLES.get(c_sev, _SEVERITY_STYLES["info"])[0]
+        ct = c["change_type"]
+        if ct == "price_change":
+            icon = "↓" if (c.get("delta_pct") or 0) < 0 else "↑"
+        else:
+            icon = _icon.get(ct, "·")
+        title = (c.get("product_title") or ct.replace("_", " ").title())[:55]
+        ov = c.get("old_value") or {}
+        nv = c.get("new_value") or {}
+        if ct == "price_change":
+            delta = c.get("delta_pct") or 0
+            detail = f"${ov.get('price','?')} → ${nv.get('price','?')} ({delta:+.0f}%)"
+        elif ct == "new_product":
+            p = nv.get("price_min")
+            detail = f"${p}" if p else ""
+        elif ct in ("discount_start", "discount_end"):
+            detail = f"{ov.get('discounted_pct',0):.0f}% → {nv.get('discounted_pct',0):.0f}% of catalog"
+        else:
+            detail = ""
+        rows_html += (
+            f"<tr>"
+            f"<td style='padding:8px 0;border-bottom:1px solid #1e3a5f'>"
+            f"<span style='color:{c_color};font-weight:700;font-size:12px;margin-right:8px'>{icon}</span>"
+            f"<span style='color:#c8d8f0;font-size:13px'>{title}</span></td>"
+            f"<td style='padding:8px 0;border-bottom:1px solid #1e3a5f;color:#8aa0b8;"
+            f"font-size:12px;text-align:right'>{detail}</td>"
+            f"</tr>"
+        )
+
+    interp_block = ""
+    if interpretation:
+        interp_block = (
+            f"<div style='background:rgba(163,240,0,.08);border:1px solid rgba(163,240,0,.2);"
+            f"border-left:3px solid #a3f000;border-radius:8px;padding:14px 16px;margin-bottom:20px'>"
+            f"<div style='font-size:10px;font-weight:700;text-transform:uppercase;"
+            f"letter-spacing:.05em;color:#a3f000;margin-bottom:6px'>What this likely means</div>"
+            f"<p style='color:#c8d8f0;font-size:13px;line-height:1.5;margin:0'>{interpretation}</p>"
+            f"</div>"
+        )
+
+    return f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#060d18;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<div style="max-width:560px;margin:0 auto;padding:32px 16px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <span style="color:#a3f000;font-weight:700;font-size:16px">StoreScout</span>
+    <span style="background:{sev_bg};color:{sev_color};border:1px solid {sev_color}40;
+           padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">{sev_label}</span>
+  </div>
+  <h1 style="color:#eef3fa;font-size:20px;font-weight:700;margin:0 0 6px;line-height:1.3">{subject}</h1>
+  <p style="color:#6b7fa3;font-size:13px;margin:0 0 20px">
+    {n} change{'s' if n != 1 else ''} detected at {hostname}
+  </p>
+  {interp_block}
+  <div style="background:#0e1d35;border:1px solid #1e3a5f;border-radius:12px;padding:16px 20px;margin-bottom:20px">
+    <table style="width:100%;border-collapse:collapse">{rows_html}</table>
+  </div>
+  <a href="{dashboard_url}"
+     style="display:block;background:#a3f000;color:#060d18;text-decoration:none;
+            text-align:center;padding:14px 24px;border-radius:12px;font-weight:700;font-size:15px">
+    View full dashboard →
+  </a>
+  <p style="color:#2a3a4a;font-size:11px;text-align:center;margin-top:24px">
+    StoreScout &nbsp;·&nbsp;
+    <a href="{settings.public_base_url}/settings" style="color:#2a3a4a">Manage notifications</a>
+  </p>
+</div>
+</body></html>"""
+
 
 def _resolve_email(db, user_id: str) -> Optional[str]:
     """Return the user's email, falling back to Auth admin API if user_profiles.email is blank."""
@@ -95,50 +230,10 @@ def send_change_alert(self, user_id: str, competitor_id: str, change_ids: List[s
         else:
             subject = f"Competitor update at {hostname} ({n} changes)"
 
-    # Build HTML email body
-    change_rows = ""
-    for c in change_list[:10]:
-        icon = {"price_change": "📉" if (c.get("delta_pct") or 0) < 0 else "📈",
-                "new_product": "🆕",
-                "product_removed": "🗑️",
-                "discount_start": "🏷️",
-                "discount_end": "✅",
-                "availability_change": "📦"}.get(c["change_type"], "•")
-        title = c.get("product_title") or c["change_type"].replace("_", " ").title()
-        old_v = c.get("old_value") or {}
-        new_v = c.get("new_value") or {}
-        detail = ""
-        if c["change_type"] == "price_change":
-            delta = c.get("delta_pct", 0) or 0
-            detail = f"${old_v.get('price', '?')} → ${new_v.get('price', '?')} ({delta:+.1f}%)"
-        elif c["change_type"] == "new_product":
-            price = (new_v.get("price_min") or "")
-            detail = f"${price}" if price else ""
-        elif c["change_type"] in ("discount_start", "discount_end"):
-            detail = f"{old_v.get('discounted_pct', 0):.0f}% → {new_v.get('discounted_pct', 0):.0f}% of catalog discounted"
-        change_rows += f"<tr><td style='padding:8px 0;border-bottom:1px solid #eee'>{icon} {title}</td><td style='padding:8px 0;border-bottom:1px solid #eee;color:#666'>{detail}</td></tr>"
-
     dashboard_url = f"{settings.public_base_url}/dashboard/{competitor_id}"
-    email_html = f"""
-<div style="font-family:sans-serif;max-width:560px;margin:0 auto">
-  <div style="background:#0a1628;padding:24px 32px;border-radius:12px 12px 0 0">
-    <h2 style="color:#a3f000;margin:0;font-size:18px">StoreScout Alert</h2>
-  </div>
-  <div style="background:#fff;padding:32px;border:1px solid #eee;border-top:none;border-radius:0 0 12px 12px">
-    <h3 style="margin:0 0 8px">{subject}</h3>
-    <p style="color:#666;margin:0 0 24px">We detected {n} change{'s' if n > 1 else ''} at <strong>{hostname}</strong></p>
-    <table style="width:100%;border-collapse:collapse">{change_rows}</table>
-    <div style="margin-top:24px">
-      <a href="{dashboard_url}" style="background:#a3f000;color:#0a1628;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">
-        View full dashboard →
-      </a>
-    </div>
-    <p style="color:#999;font-size:12px;margin-top:24px">
-      <a href="{settings.public_base_url}/settings" style="color:#999">Manage notification preferences</a>
-    </p>
-  </div>
-</div>
-"""
+    interpretation = _interpret_changes(hostname, change_list, settings)
+    email_html = _build_alert_html(hostname, subject, n, change_list,
+                                   interpretation, dashboard_url, settings)
 
     try:
         resend.api_key = settings.resend_api_key
