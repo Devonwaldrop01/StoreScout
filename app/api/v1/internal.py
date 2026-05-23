@@ -137,6 +137,41 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
         if p.get("handle")
     }
 
+    # ── 5b. Extended scraping (collections, pages, blogs) ───────────────────
+    store_profile: dict = {}
+    try:
+        from app.services.fetch import fetch_extended_data
+        from app.services.insights import analyze_store_profile
+        extended = fetch_extended_data(store_url)
+        store_profile = analyze_store_profile(extended)
+        insights["store_profile"] = store_profile
+        logger.info("[SCAN %s] extended: collections=%d pages=%d blogs=%d articles=%d",
+                    competitor_id,
+                    len(extended.get("collections", [])),
+                    len(extended.get("pages", [])),
+                    len(extended.get("blogs", [])),
+                    len(extended.get("articles", [])))
+    except Exception as exc:
+        logger.error("[SCAN %s] extended scraping failed (non-fatal): %s\n%s",
+                     competitor_id, exc, traceback.format_exc())
+        insights["store_profile"] = {}
+
+    # Stage 1 intelligence — winning products + gap analysis, computed from the
+    # full normalized catalog and stored in the snapshot for tier-gated serving.
+    try:
+        from app.services.insights import score_winning_products, analyze_gaps
+        insights["winning_products"] = score_winning_products(normalized)
+        insights["gap_analysis"] = analyze_gaps(insights, normalized, store_profile=store_profile or None)
+        logger.info("[SCAN %s] insights: %d winning products, %d gaps",
+                    competitor_id,
+                    insights["winning_products"].get("scored_total", 0),
+                    insights["gap_analysis"].get("total", 0))
+    except Exception as exc:
+        logger.error("[SCAN %s] insights computation failed (non-fatal): %s\n%s",
+                     competitor_id, exc, traceback.format_exc())
+        insights["winning_products"] = {"products": [], "newest": [], "scored_total": 0}
+        insights["gap_analysis"] = {"gaps": [], "total": 0}
+
     # ── 6. Write snapshot ────────────────────────────────────────────────────
     pricing = insights.get("pricing", {})
     discounts = insights.get("discounts", {})

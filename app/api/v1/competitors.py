@@ -27,7 +27,10 @@ class AddCompetitorRequest(BaseModel):
         if not v.startswith("http"):
             v = "https://" + v
         parsed = urlparse(v)
-        return f"https://{parsed.netloc.rstrip('/')}"
+        netloc = parsed.netloc.rstrip("/")
+        if netloc.startswith("www."):
+            netloc = netloc[4:]
+        return f"https://{netloc}"
 
 
 class UpdateCompetitorRequest(BaseModel):
@@ -47,7 +50,7 @@ def _tier_limits(tier: str) -> dict:
 @router.get("")
 def list_competitors(user_id: str = Depends(get_current_user_id)):
     db = get_supabase()
-    result = db.table("competitors").select("*").eq("user_id", user_id).order("created_at", desc=True).execute()
+    result = db.table("competitors").select("*").eq("user_id", user_id).eq("is_my_store", False).order("created_at", desc=True).execute()
     return {"data": result.data or []}
 
 
@@ -73,7 +76,7 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_curren
     tier = (user.data or {}).get("tier", "free") if user else "free"
     limits = _tier_limits(tier)
 
-    existing = db.table("competitors").select("id").eq("user_id", user_id).eq("is_active", True).execute()
+    existing = db.table("competitors").select("id").eq("user_id", user_id).eq("is_active", True).eq("is_my_store", False).execute()
     if len(existing.data or []) >= limits["max_competitors"]:
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
@@ -243,6 +246,214 @@ def get_ai_summary(competitor_id: str, user_id: str = Depends(get_current_user_i
         generate_weekly_summary.delay(competitor_id, "weekly")
         raise HTTPException(status_code=202, detail="Summary being generated — check back in 30 seconds")
     return {"data": result.data[0]}
+
+
+@router.get("/{competitor_id}/winning-products")
+def get_winning_products(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+    """
+    Winning-product analysis. Free tier sees the #1 product (score visible, the
+    'why' locked) plus a locked count. Pro/Agency see the full ranked list,
+    signal breakdowns, reasons, and the newest-products list.
+    """
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    tier = _user_tier(db, user_id)
+
+    data = _latest_snapshot_data(db, competitor_id)
+    wp = (data.get("winning_products") or {}) if data else {}
+    products = wp.get("products") or []
+    newest = wp.get("newest") or []
+
+    if not products:
+        return {"data": {"products": [], "newest": [], "locked": tier == "free", "locked_count": 0, "tier": tier}}
+
+    if tier == "free":
+        top = products[0]
+        teaser = {
+            "title": top.get("title"),
+            "product_url": top.get("product_url"),
+            "price_min": top.get("price_min"),
+            "image": top.get("image"),
+            "score": top.get("score"),
+            # 'why' is locked
+            "reason": None,
+            "signal_tags": [],
+            "locked": True,
+        }
+        return {
+            "data": {
+                "products": [teaser],
+                "newest": [],
+                "locked": True,
+                "locked_count": max(0, len(products) - 1),
+                "tier": tier,
+            }
+        }
+
+    return {
+        "data": {
+            "products": products,
+            "newest": newest,
+            "locked": False,
+            "locked_count": 0,
+            "tier": tier,
+        }
+    }
+
+
+@router.get("/{competitor_id}/gaps")
+def get_gaps(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+    """
+    Gap analysis. Free tier sees the top 2 gap titles (detail locked) plus a
+    locked count. Pro/Agency see every gap with full detail and metrics.
+    """
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    tier = _user_tier(db, user_id)
+
+    data = _latest_snapshot_data(db, competitor_id)
+    ga = (data.get("gap_analysis") or {}) if data else {}
+    gaps = ga.get("gaps") or []
+
+    if not gaps:
+        return {"data": {"gaps": [], "locked": tier == "free", "locked_count": 0, "tier": tier}}
+
+    if tier == "free":
+        teasers = [{
+            "type": g.get("type"),
+            "title": g.get("title"),
+            "detail": None,  # locked
+            "opportunity": g.get("opportunity"),
+            "locked": True,
+        } for g in gaps[:2]]
+        return {
+            "data": {
+                "gaps": teasers,
+                "locked": True,
+                "locked_count": max(0, len(gaps) - 2),
+                "tier": tier,
+            }
+        }
+
+    return {"data": {"gaps": gaps, "locked": False, "locked_count": 0, "tier": tier}}
+
+
+@router.get("/{competitor_id}/store-profile")
+def get_store_profile(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+    """
+    Brand intelligence from extended scraping (collections, pages, blogs).
+    Free tier: top-level signals only (collection count, key boolean flags).
+    Pro/Agency: full collection names, all brand signals, content intelligence.
+    """
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    tier = _user_tier(db, user_id)
+
+    data = _latest_snapshot_data(db, competitor_id)
+    profile = (data.get("store_profile") or {}) if data else {}
+
+    col = profile.get("collection_intel") or {}
+    brand = profile.get("brand_signals") or {}
+    content = profile.get("content_intel") or {}
+
+    # Free tier: surface key signals, lock the details
+    if tier == "free":
+        return {
+            "data": {
+                "collection_count": col.get("count", 0),
+                "has_sale_collection": col.get("has_sale", False),
+                "has_new_arrivals": col.get("has_new_arrivals", False),
+                "has_best_sellers": col.get("has_best_sellers", False),
+                "has_blog": content.get("blog_count", 0) > 0,
+                "has_wholesale": brand.get("has_wholesale", False),
+                "content_investment_score": content.get("content_investment_score"),
+                "locked": True,
+                "tier": tier,
+            }
+        }
+
+    return {
+        "data": {
+            "collection_intel": col,
+            "brand_signals": brand,
+            "content_intel": content,
+            "locked": False,
+            "tier": tier,
+        }
+    }
+
+
+@router.get("/{competitor_id}/comparison")
+def get_comparison(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+    """
+    Head-to-head: the user's own store vs this competitor. Requires the user to
+    have set their store. Free tier sees the diagnosis (verdicts + insights);
+    action items and the match strategy are Pro.
+    """
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    tier = _user_tier(db, user_id)
+
+    # Find the user's own store
+    my = db.table("competitors")\
+        .select("id, hostname")\
+        .eq("user_id", user_id)\
+        .eq("is_my_store", True)\
+        .maybe_single()\
+        .execute()
+    if not my or not my.data:
+        return {"data": {"has_store": False}}
+
+    my_data = _latest_snapshot_data(db, my.data["id"])
+    their_data = _latest_snapshot_data(db, competitor_id)
+    if not my_data:
+        return {"data": {"has_store": True, "ready": False, "reason": "my_store_scanning"}}
+    if not their_data:
+        return {"data": {"has_store": True, "ready": False, "reason": "competitor_scanning"}}
+
+    their = db.table("competitors").select("hostname").eq("id", competitor_id).single().execute()
+    their_hostname = (their.data or {}).get("hostname", "them")
+
+    from app.services.insights import compare_stores
+    result = compare_stores(my_data, their_data, my.data["hostname"], their_hostname)
+    result["ready"] = True
+
+    # Tier gate: free sees diagnosis, Pro gets prescription
+    if tier == "free":
+        for d in result.get("dimensions", []):
+            d["action"] = None
+            d["action_locked"] = True
+        ms = result.get("match_strategy") or {}
+        result["match_strategy"] = {
+            "is_newcomer": ms.get("is_newcomer", False),
+            "narrative": None,
+            "match_these": [],
+            "own_these": [],
+            "locked": True,
+        }
+        result["locked"] = True
+    else:
+        result["locked"] = False
+
+    result["tier"] = tier
+    return {"data": result}
+
+
+def _user_tier(db, user_id: str) -> str:
+    user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
+    return (user.data or {}).get("tier", "free") if user else "free"
+
+
+def _latest_snapshot_data(db, competitor_id: str) -> Optional[dict]:
+    result = db.table("scan_snapshots")\
+        .select("snapshot_data")\
+        .eq("competitor_id", competitor_id)\
+        .order("scanned_at", desc=True)\
+        .limit(1)\
+        .execute()
+    if not result.data:
+        return None
+    return result.data[0].get("snapshot_data") or {}
 
 
 def _assert_owner(db, competitor_id: str, user_id: str):

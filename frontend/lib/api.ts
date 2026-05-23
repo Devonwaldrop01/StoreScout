@@ -44,6 +44,25 @@ export const competitors = {
     ),
   aiSummary: (id: string) =>
     apiFetch<{ data: AiSummary }>(`/competitors/${id}/ai-summary`),
+  winningProducts: (id: string) =>
+    apiFetch<{ data: WinningProductsResponse }>(`/competitors/${id}/winning-products`),
+  gaps: (id: string) =>
+    apiFetch<{ data: GapsResponse }>(`/competitors/${id}/gaps`),
+  storeProfile: (id: string) =>
+    apiFetch<{ data: StoreProfileResponse }>(`/competitors/${id}/store-profile`),
+  comparison: (id: string) =>
+    apiFetch<{ data: ComparisonResponse }>(`/competitors/${id}/comparison`),
+};
+
+// ── My Store ──────────────────────────────────────────────────
+export const myStore = {
+  get: () => apiFetch<{ data: Competitor | null }>("/my-store"),
+  set: (store_url: string, display_name?: string) =>
+    apiFetch<{ data: Competitor }>("/my-store", {
+      method: "POST",
+      body: JSON.stringify({ store_url, display_name }),
+    }),
+  remove: () => apiFetch<void>("/my-store", { method: "DELETE" }),
 };
 
 // ── Alerts ────────────────────────────────────────────────────
@@ -143,6 +162,142 @@ export interface AiSummary {
   model: string;
   summary_text: string;
   summary_type: string;
+}
+
+export interface WinningProduct {
+  title?: string;
+  product_url?: string;
+  handle?: string;
+  price_min?: number;
+  image?: string | null;
+  score: number;
+  signals?: Record<string, number>;
+  age_days?: number | null;
+  variants_count?: number;
+  discounted?: boolean;
+  discount_pct?: number | null;
+  available?: boolean;
+  reason?: string | null;
+  signal_tags?: string[];
+  locked?: boolean;
+}
+
+export interface NewestProduct {
+  title?: string;
+  product_url?: string;
+  price_min?: number;
+  image?: string | null;
+  age_days?: number;
+  variants_count?: number;
+  available?: boolean;
+}
+
+export interface WinningProductsResponse {
+  products: WinningProduct[];
+  newest: NewestProduct[];
+  locked: boolean;
+  locked_count: number;
+  tier: string;
+}
+
+export interface Gap {
+  type: string;
+  title: string;
+  detail?: string | null;
+  opportunity?: number;
+  metric?: Record<string, unknown>;
+  locked?: boolean;
+}
+
+export interface GapsResponse {
+  gaps: Gap[];
+  locked: boolean;
+  locked_count: number;
+  tier: string;
+  median_price?: number;
+}
+
+export interface CollectionIntel {
+  count: number;
+  names: string[];
+  has_sale: boolean;
+  has_new_arrivals: boolean;
+  has_best_sellers: boolean;
+  has_bundles: boolean;
+  has_subscription: boolean;
+  has_gift: boolean;
+}
+
+export interface BrandSignals {
+  has_wholesale: boolean;
+  has_affiliate: boolean;
+  has_press: boolean;
+  has_sustainability: boolean;
+  has_size_guide: boolean;
+  has_rewards: boolean;
+  page_count: number;
+}
+
+export interface ContentIntel {
+  blog_count: number;
+  sampled_article_count: number;
+  content_investment_score: number;
+  recent_article_titles: string[];
+}
+
+export interface StoreProfileResponse {
+  // Free tier flat fields
+  collection_count?: number;
+  has_sale_collection?: boolean;
+  has_new_arrivals?: boolean;
+  has_best_sellers?: boolean;
+  has_blog?: boolean;
+  has_wholesale?: boolean;
+  content_investment_score?: number;
+  // Pro/Agency nested fields
+  collection_intel?: CollectionIntel;
+  brand_signals?: BrandSignals;
+  content_intel?: ContentIntel;
+  locked: boolean;
+  tier: string;
+}
+
+export type ComparisonVerdict = "winning" | "losing" | "matched" | "neutral";
+
+export interface ComparisonDimension {
+  key: string;
+  label: string;
+  verdict: ComparisonVerdict;
+  your_value: string;
+  their_value: string;
+  insight: string;
+  action?: string | null;
+  action_locked?: boolean;
+}
+
+export interface MatchStrategy {
+  is_newcomer: boolean;
+  narrative?: string | null;
+  match_these: string[];
+  own_these: string[];
+  locked?: boolean;
+}
+
+export interface ComparisonResponse {
+  has_store: boolean;
+  ready?: boolean;
+  reason?: string;
+  my_hostname?: string;
+  their_hostname?: string;
+  overall?: {
+    verdict: string;
+    summary: string;
+    score: { winning: number; losing: number; matched: number; neutral: number };
+  };
+  dimensions?: ComparisonDimension[];
+  match_strategy?: MatchStrategy;
+  locked?: boolean;
+  tier?: string;
 }
 
 export interface UserSubscription {

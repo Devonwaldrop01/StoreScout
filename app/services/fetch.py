@@ -171,6 +171,67 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
     return products
 
 
+def fetch_extended_data(store_url: str) -> Dict[str, Any]:
+    """
+    Fetch supplementary public Shopify endpoints: collections, pages, blogs, articles.
+    All requests are non-fatal — partial results are returned on any failure.
+    Called after the main products fetch so the domain rate-limit key is already set.
+    """
+    base = store_url.rstrip("/")
+    hostname = urlparse(store_url).netloc
+    result: Dict[str, Any] = {
+        "collections": [],
+        "pages": [],
+        "blogs": [],
+        "articles": [],
+        "meta": {"collections_ok": False, "pages_ok": False, "blogs_ok": False, "articles_ok": False},
+    }
+
+    def _get_json(client, url: str, list_key: str):
+        time.sleep(1.5)  # polite inter-request gap on same domain
+        try:
+            if _USE_CURL_CFFI:
+                r = client.get(url, timeout=15, allow_redirects=True)
+            else:
+                r = client.get(url)
+            if r.status_code == 200 and "application/json" in r.headers.get("content-type", ""):
+                data = r.json()
+                items = data.get(list_key, [])
+                logger.info("[EXT_FETCH] %s: %d items", list_key, len(items))
+                return True, items
+            logger.info("[EXT_FETCH] %s: status=%d (skipped)", list_key, r.status_code)
+        except Exception as exc:
+            logger.warning("[EXT_FETCH] %s failed (non-fatal): %s", list_key, exc)
+        return False, []
+
+    if _USE_CURL_CFFI:
+        _make_client = lambda: CurlSession(impersonate=IMPERSONATE, headers=_headers())
+    else:
+        _make_client = lambda: httpx.Client(timeout=15.0, headers=_headers(), follow_redirects=True)
+
+    with _make_client() as client:
+        ok, items = _get_json(client, f"{base}/collections.json?limit=250", "collections")
+        result["collections"] = items
+        result["meta"]["collections_ok"] = ok
+
+        ok, items = _get_json(client, f"{base}/pages.json?limit=250", "pages")
+        result["pages"] = items
+        result["meta"]["pages_ok"] = ok
+
+        ok, items = _get_json(client, f"{base}/blogs.json", "blogs")
+        result["blogs"] = items
+        result["meta"]["blogs_ok"] = ok
+
+        if result["blogs"]:
+            blog_id = result["blogs"][0].get("id")
+            if blog_id:
+                ok, items = _get_json(client, f"{base}/blogs/{blog_id}/articles.json?limit=10", "articles")
+                result["articles"] = items
+                result["meta"]["articles_ok"] = ok
+
+    return result
+
+
 def check_store(store_url: str) -> Dict[str, Any]:
     """Probe whether a URL is an accessible Shopify store. Returns {ok, base_url} or {ok: False, error}."""
     candidates = []
