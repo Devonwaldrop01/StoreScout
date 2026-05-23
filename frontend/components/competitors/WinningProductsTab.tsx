@@ -54,7 +54,11 @@ function WinningRow({ product, rank }: { product: WinningProduct; rank: number }
           )}
         </div>
         <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
-          {formatPrice(product.price_min)} · {product.reason}
+          {formatPrice(product.price_min)}
+          {product.locked
+            ? <span style={{ color: "#a3f000", marginLeft: 4 }}>· Upgrade to see why it&apos;s winning</span>
+            : product.reason ? ` · ${product.reason}` : null
+          }
         </p>
         {product.signal_tags && product.signal_tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-1.5">

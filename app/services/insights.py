@@ -12,6 +12,7 @@ Honest-signal philosophy: we cannot see sales numbers. Everything here is a
 """
 from __future__ import annotations
 
+import re as _re
 from collections import Counter
 from datetime import datetime, timezone
 from statistics import median
@@ -433,8 +434,18 @@ def analyze_store_profile(extended_data: Dict[str, Any]) -> Dict[str, Any]:
     blogs = extended_data.get("blogs") or []
     articles = extended_data.get("articles") or []
 
+    def _match_term(item: str, term: str) -> bool:
+        # Prefix patterns (e.g. "sustainab", "eco-") — keep as substring
+        if term.endswith(("-", " ")):
+            return term.rstrip("- ") in item
+        # Multi-word phrases / hyphenated — substring is correct
+        if " " in term or "-" in term:
+            return term in item
+        # Single clean words — word boundary to avoid "sale" → "wholesale"
+        return bool(_re.search(r"\b" + _re.escape(term) + r"\b", item))
+
     def _match(items_lower, *terms) -> bool:
-        return any(t in item for t in terms for item in items_lower)
+        return any(_match_term(item, t) for t in terms for item in items_lower)
 
     col_names_lc = [c.get("title", "").lower() for c in collections]
     col_handles_lc = [c.get("handle", "").lower() for c in collections]

@@ -60,7 +60,10 @@ export default function GapsTab({ competitorId }: { competitorId: string }) {
   if (!data || data.gaps.length === 0) {
     return (
       <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <p style={{ color: "var(--muted)" }}>No clear gaps detected for this store yet. Check back after the next scan.</p>
+        <p style={{ color: "var(--muted)" }}>
+          No major gaps detected. Their catalog covers price bands evenly, inventory is
+          well-stocked, and their launch pace is consistent — no obvious openings from the current snapshot.
+        </p>
       </div>
     );
   }

@@ -27,7 +27,10 @@ class AddCompetitorRequest(BaseModel):
         if not v.startswith("http"):
             v = "https://" + v
         parsed = urlparse(v)
-        return f"https://{parsed.netloc.rstrip('/')}"
+        netloc = parsed.netloc.rstrip("/")
+        if netloc.startswith("www."):
+            netloc = netloc[4:]
+        return f"https://{netloc}"
 
 
 class UpdateCompetitorRequest(BaseModel):
