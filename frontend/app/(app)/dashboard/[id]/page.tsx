@@ -171,7 +171,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   }
 
   function handleDismissBrief() {
-    if (brief && brief !== false && typeof window !== "undefined") {
+    if (brief && typeof window !== "undefined") {
       sessionStorage.setItem(`brief_${id}`, (brief as BriefData).id);
     }
     setBriefDismissed(true);
@@ -261,7 +261,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
             Scan in progress — usually takes about 20 seconds.
           </p>
         </div>
-      ) : brief && brief !== false && !briefDismissed ? (
+      ) : brief && !briefDismissed ? (
         <IntelligenceBrief
           hostname={(snapshot?.snapshot_data as Record<string, unknown>)?.hostname as string || id}
           cards={(() => {
