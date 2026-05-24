@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Zap, Building2, Check } from "lucide-react";
+import { X, Zap, Building2, Check, AlertCircle } from "lucide-react";
 import { billing } from "@/lib/api";
 
 interface Props {
@@ -239,7 +239,10 @@ export default function UpgradeModal({ open, onClose, trigger = "general" }: Pro
         </div>
 
         {error && (
-          <p className="text-sm text-red-400 text-center mt-4">{error}</p>
+          <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm mt-4" style={{ background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.2)", color: "#f87171" }}>
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            {error}
+          </div>
         )}
 
         {/* Footer */}

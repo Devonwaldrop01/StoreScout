@@ -94,11 +94,20 @@ function SettingsContent() {
       if (data.user?.email) setUserEmail(data.user.email);
     });
 
-    // Re-fetch subscription after Stripe redirect
+    // Poll for tier update after Stripe redirect (webhook may take a few seconds)
     if (searchParams.get("upgraded") === "1") {
-      setTimeout(() => {
-        userApi.subscription().then((r) => setSubscription(r.data)).catch(() => {});
-      }, 2000);
+      let attempts = 0;
+      const poll = () => {
+        attempts++;
+        userApi.subscription()
+          .then((r) => {
+            setSubscription(r.data);
+            const isPaid = ["pro", "agency", "developer"].includes(r.data.tier ?? "");
+            if (!isPaid && attempts < 6) setTimeout(poll, 2000);
+          })
+          .catch(() => { if (attempts < 6) setTimeout(poll, 2000); });
+      };
+      setTimeout(poll, 1500);
     }
   }, [searchParams, supabase]);
 
