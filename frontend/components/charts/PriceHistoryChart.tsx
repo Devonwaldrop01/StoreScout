@@ -29,7 +29,7 @@ export function PriceHistoryChart({ competitorId }: Props) {
     return <div className="h-64 rounded-2xl animate-pulse" style={{ background: "var(--bg-card)" }} />;
   }
 
-  if (!data || data.points.length < 2) {
+  if (!data || !data.points || data.points.length < 2) {
     return (
       <div
         className="rounded-2xl p-8 text-center"
