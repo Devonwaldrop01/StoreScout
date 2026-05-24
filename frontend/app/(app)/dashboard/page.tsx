@@ -1,14 +1,29 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus, RefreshCw, TrendingUp, Bell, Sparkles, ArrowRight, Activity } from "lucide-react";
+import {
+  Plus, RefreshCw, TrendingUp, Bell, Sparkles, ArrowRight,
+  Activity, Package, Zap, Clock,
+} from "lucide-react";
 import Link from "next/link";
+import { BarChart, Bar, XAxis, ResponsiveContainer, Cell } from "recharts";
 import { competitors as api, alerts as alertsApi, type Competitor, type AlertEvent, type DiscoverySuggestion } from "@/lib/api";
-import { cn, formatRelativeTime, formatPrice, formatDelta, changeTypeIcon, severityColor } from "@/lib/utils";
+import { cn, formatRelativeTime, formatPrice, formatDelta, changeTypeIcon } from "@/lib/utils";
 import { AddCompetitorModal } from "@/components/competitors/AddCompetitorModal";
 import UpgradeModal from "@/components/UpgradeModal";
 
-// ── Per-competitor change counts (computed from loaded alerts) ────────────
+// ── Helpers ───────────────────────────────────────────────────────────────
+
+function formatNextScan(dateStr: string | undefined): string {
+  if (!dateStr) return "pending";
+  const ms = new Date(dateStr).getTime() - Date.now();
+  if (ms < 0) return "soon";
+  const hours = Math.floor(ms / (1000 * 60 * 60));
+  const days = Math.floor(hours / 24);
+  if (days > 0) return `${days}d ${hours % 24}h`;
+  if (hours > 0) return `${hours}h`;
+  return "< 1h";
+}
 
 function computeDeltas(alertList: AlertEvent[], competitorId: string) {
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
@@ -21,6 +36,254 @@ function computeDeltas(alertList: AlertEvent[], competitorId: string) {
     criticals: recent.filter((a) => a.severity === "critical").length,
     total: recent.length,
   };
+}
+
+// ── Stats bar ─────────────────────────────────────────────────────────────
+
+function StatsBar({
+  competitorList, alertList,
+}: {
+  competitorList: Competitor[];
+  alertList: AlertEvent[];
+}) {
+  const totalProducts = competitorList.reduce((s, c) => s + (c.product_count || 0), 0);
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const changesThisWeek = alertList.filter((a) => new Date(a.detected_at).getTime() > weekAgo).length;
+  const criticals = alertList.filter(
+    (a) => a.severity === "critical" && new Date(a.detected_at).getTime() > weekAgo
+  ).length;
+
+  const nextScanDate = competitorList
+    .filter((c) => c.next_scan_at)
+    .map((c) => new Date(c.next_scan_at!).getTime())
+    .sort((a, b) => a - b)[0];
+  const nextScanLabel = nextScanDate ? formatNextScan(new Date(nextScanDate).toISOString()) : null;
+
+  const stats = [
+    {
+      icon: Package,
+      label: "Products tracked",
+      value: totalProducts.toLocaleString(),
+      color: "var(--blue)",
+    },
+    {
+      icon: Activity,
+      label: "Changes this week",
+      value: changesThisWeek.toString(),
+      color: changesThisWeek > 0 ? "var(--accent)" : "var(--muted)",
+      highlight: changesThisWeek > 0,
+    },
+    {
+      icon: Zap,
+      label: criticals > 0 ? "Critical alerts" : "All clear",
+      value: criticals > 0 ? criticals.toString() : "✓",
+      color: criticals > 0 ? "var(--red)" : "var(--emerald)",
+    },
+    ...(nextScanLabel
+      ? [{
+          icon: Clock,
+          label: "Next scan",
+          value: nextScanLabel,
+          color: "var(--muted)",
+        }]
+      : []),
+  ];
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-7">
+      {stats.map(({ icon: Icon, label, value, color, highlight }) => (
+        <div
+          key={label}
+          className="rounded-2xl px-4 py-3.5 flex items-center gap-3"
+          style={{
+            background: highlight ? "rgba(168,255,0,.05)" : "var(--bg3)",
+            border: highlight ? "1px solid rgba(168,255,0,.18)" : "1px solid var(--border)",
+          }}
+        >
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+            style={{ background: `${color}18` }}
+          >
+            <Icon className="w-4 h-4" style={{ color }} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-lg font-bold font-mono leading-none" style={{ color: "var(--text)" }}>
+              {value}
+            </p>
+            <p className="text-[11px] mt-0.5 truncate" style={{ color: "var(--muted)" }}>{label}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Weekly activity mini chart ────────────────────────────────────────────
+
+function WeeklyActivityChart({ alertList }: { alertList: AlertEvent[] }) {
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    const dayLabel = d.toLocaleDateString("en-US", { weekday: "short" });
+    const dateStr = d.toDateString();
+    const count = alertList.filter(
+      (a) => new Date(a.detected_at).toDateString() === dateStr
+    ).length;
+    return { day: dayLabel, count, isToday: i === 6 };
+  });
+
+  const hasActivity = days.some((d) => d.count > 0);
+
+  return (
+    <div
+      className="rounded-2xl px-4 pt-4 pb-2 mb-4"
+      style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>
+          7-day change activity
+        </p>
+        {!hasActivity && (
+          <span className="text-[11px]" style={{ color: "var(--muted)" }}>All quiet</span>
+        )}
+      </div>
+      <ResponsiveContainer width="100%" height={52}>
+        <BarChart data={days} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+          <XAxis
+            dataKey="day"
+            tick={{ fill: "#5a6a82", fontSize: 9 }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <Bar dataKey="count" radius={[3, 3, 0, 0]}>
+            {days.map((entry, index) => (
+              <Cell
+                key={index}
+                fill={
+                  entry.count === 0
+                    ? "rgba(255,255,255,.06)"
+                    : entry.isToday
+                    ? "#a8ff00"
+                    : "rgba(96,165,250,.6)"
+                }
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+// ── Watch list ────────────────────────────────────────────────────────────
+
+function WatchList({ competitorList }: { competitorList: Competitor[] }) {
+  return (
+    <div
+      className="rounded-2xl overflow-hidden mb-4"
+      style={{ border: "1px solid var(--border)" }}
+    >
+      <div
+        className="px-4 py-3 flex items-center gap-2"
+        style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
+      >
+        <span
+          className="w-1.5 h-1.5 rounded-full animate-pulse"
+          style={{ background: "var(--emerald)" }}
+        />
+        <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>Watching</p>
+      </div>
+      <div style={{ background: "var(--bg-card)" }}>
+        {competitorList.map((c) => {
+          const scanDot = {
+            scanning: { color: "var(--accent)", label: "Scanning now" },
+            done: { color: "var(--emerald)", label: `Next: ${formatNextScan(c.next_scan_at)}` },
+            pending: { color: "var(--muted)", label: "Queued" },
+            error: { color: "var(--red)", label: "Error" },
+          }[c.scan_status] ?? { color: "var(--muted)", label: "Unknown" };
+
+          return (
+            <Link
+              key={c.id}
+              href={`/dashboard/${c.id}`}
+              className="flex items-center justify-between px-4 py-3 border-b hover:bg-white/[0.02] transition-colors last:border-0"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <div className="min-w-0">
+                <p className="text-xs font-semibold truncate" style={{ color: "var(--text)" }}>
+                  {c.display_name || c.hostname}
+                </p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span
+                    className={cn("w-1.5 h-1.5 rounded-full shrink-0", c.scan_status === "scanning" && "animate-pulse")}
+                    style={{ background: scanDot.color }}
+                  />
+                  <span className="text-[11px]" style={{ color: "var(--muted)" }}>{scanDot.label}</span>
+                </div>
+              </div>
+              {c.product_count != null && (
+                <span className="text-xs font-mono shrink-0 ml-2" style={{ color: "var(--muted)" }}>
+                  {c.product_count.toLocaleString()}
+                </span>
+              )}
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Spotlight alert ───────────────────────────────────────────────────────
+
+function SpotlightAlert({ alertList }: { alertList: AlertEvent[] }) {
+  const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+  const spotlight = alertList
+    .filter((a) => new Date(a.detected_at).getTime() > dayAgo)
+    .sort((a, b) => {
+      const sev = { critical: 3, warning: 2, info: 1 } as Record<string, number>;
+      return (sev[b.severity] ?? 0) - (sev[a.severity] ?? 0);
+    })[0];
+
+  if (!spotlight || spotlight.severity === "info") return null;
+
+  const old_v = spotlight.old_value || {};
+  const new_v = spotlight.new_value || {};
+  let detail = "";
+  if (spotlight.change_type === "price_change" && spotlight.delta_pct != null) {
+    detail = `${formatPrice(old_v.price as number)} → ${formatPrice(new_v.price as number)} (${formatDelta(spotlight.delta_pct)})`;
+  }
+
+  const borderColor = spotlight.severity === "critical" ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)";
+  const bg = spotlight.severity === "critical" ? "rgba(239,68,68,.05)" : "rgba(245,158,11,.05)";
+  const accentColor = spotlight.severity === "critical" ? "var(--red)" : "var(--amber)";
+
+  return (
+    <Link
+      href={`/dashboard/${spotlight.competitor_id}`}
+      className="block rounded-2xl p-4 mb-4 transition-all hover:brightness-105"
+      style={{ background: bg, border: `1px solid ${borderColor}` }}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <span
+          className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
+          style={{ background: `${accentColor}20`, color: accentColor }}
+        >
+          {spotlight.severity === "critical" ? "⚡ Critical" : "⚠ Warning"}
+        </span>
+        <span className="text-[11px] ml-auto" style={{ color: "var(--muted)" }}>
+          {formatRelativeTime(spotlight.detected_at)}
+        </span>
+      </div>
+      <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text)" }}>
+        {spotlight.product_title || spotlight.change_type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+      </p>
+      {detail && (
+        <p className="text-xs font-mono mt-1" style={{ color: accentColor }}>{detail}</p>
+      )}
+      <p className="text-[11px] mt-1.5" style={{ color: "var(--muted)" }}>{spotlight.hostname}</p>
+    </Link>
+  );
 }
 
 // ── Scan status ───────────────────────────────────────────────────────────
@@ -67,12 +330,12 @@ function CompetitorCard({ competitor, alertList }: { competitor: Competitor; ale
     <Link
       href={`/dashboard/${competitor.id}`}
       className={cn(
-        "block rounded-2xl border p-6 transition-all group card-lift fade-up",
+        "block rounded-2xl border p-5 transition-all group card-lift fade-up",
         isScanning && "scan-shimmer"
       )}
       style={{ background: "var(--bg3)", borderColor: "var(--border)" }}
     >
-      {/* Top row: title + scan badge */}
+      {/* Top row */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="min-w-0">
           <h3 className="font-bold text-base leading-tight truncate" style={{ color: "var(--text)" }}>
@@ -87,10 +350,10 @@ function CompetitorCard({ competitor, alertList }: { competitor: Competitor; ale
         <ScanDot status={competitor.scan_status} />
       </div>
 
-      {/* Row 1: product count + median price */}
-      <div className="flex items-center gap-4 mb-2">
+      {/* Metrics row */}
+      <div className="flex items-center gap-4 mb-3">
         <div className="flex items-baseline gap-1.5">
-          <span className="text-xl font-bold font-mono" style={{ color: "var(--text)" }}>
+          <span className="text-2xl font-bold font-mono" style={{ color: "var(--text)" }}>
             {competitor.product_count?.toLocaleString() ?? "—"}
           </span>
           <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>products</span>
@@ -108,17 +371,25 @@ function CompetitorCard({ competitor, alertList }: { competitor: Competitor; ale
         )}
       </div>
 
-      {/* Row 2: promo rate */}
+      {/* Promo rate bar */}
       {promoRate != null && promoRate > 0 && (
         <div className="mb-3">
-          <span className="text-xs font-semibold" style={{ color: "var(--amber)" }}>
-            {Math.round(promoRate * 100)}% on promo
-          </span>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold" style={{ color: "var(--amber)" }}>
+              {Math.round(promoRate * 100)}% on promo
+            </span>
+          </div>
+          <div className="h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,.06)" }}>
+            <div
+              className="h-full rounded-full"
+              style={{ width: `${Math.round(promoRate * 100)}%`, background: "var(--amber)" }}
+            />
+          </div>
         </div>
       )}
 
-      {/* Delta badges — this week's activity */}
-      <div className="flex items-center gap-2 flex-wrap min-h-[24px] mt-3">
+      {/* Delta badges */}
+      <div className="flex items-center gap-2 flex-wrap min-h-[22px] mt-3">
         {deltas.priceDrops > 0 && (
           <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(96,165,250,.12)", color: "var(--blue)" }}>
             ↓ {deltas.priceDrops} price drop{deltas.priceDrops !== 1 ? "s" : ""}
@@ -126,7 +397,7 @@ function CompetitorCard({ competitor, alertList }: { competitor: Competitor; ale
         )}
         {deltas.newProducts > 0 && (
           <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)" }}>
-            + {deltas.newProducts} new
+            +{deltas.newProducts} new
           </span>
         )}
         {deltas.criticals > 0 && (
@@ -137,8 +408,6 @@ function CompetitorCard({ competitor, alertList }: { competitor: Competitor; ale
         {deltas.total === 0 && competitor.scan_status === "done" && (
           <span className="text-[11px]" style={{ color: "var(--muted)" }}>No changes this week</span>
         )}
-
-        {/* Rescan button — visible on hover */}
         <button
           onClick={handleRescan}
           className="ml-auto flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all opacity-0 group-hover:opacity-100 hover:bg-white/10"
@@ -149,7 +418,7 @@ function CompetitorCard({ competitor, alertList }: { competitor: Competitor; ale
         </button>
       </div>
 
-      {/* Bottom: last scan time */}
+      {/* Last scan */}
       <p className="text-[11px] mt-3 pt-3" style={{ color: "var(--muted)", borderTop: "1px solid var(--border)" }}>
         {competitor.last_scanned_at
           ? `Last scanned ${formatRelativeTime(competitor.last_scanned_at)}`
@@ -188,62 +457,14 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
   );
 }
 
-// ── Live summary strip ────────────────────────────────────────────────────
-
-function SummaryStrip({ alertList }: { alertList: AlertEvent[] }) {
-  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const recent = alertList.filter((a) => new Date(a.detected_at).getTime() > weekAgo);
-  if (recent.length === 0) return null;
-
-  const priceDrops  = recent.filter((a) => a.change_type === "price_change" && (a.delta_pct ?? 0) < 0).length;
-  const newProducts = recent.filter((a) => a.change_type === "new_product").length;
-  const criticals   = recent.filter((a) => a.severity === "critical").length;
-
-  return (
-    <div
-      className="flex items-center gap-3 flex-wrap rounded-xl px-4 py-3 mb-6 fade-up"
-      style={{ background: "rgba(168,255,0,.05)", border: "1px solid rgba(168,255,0,.14)" }}
-    >
-      {/* Live pulse */}
-      <div className="flex items-center gap-2 shrink-0">
-        <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--accent)" }} />
-        <span className="text-xs font-bold" style={{ color: "var(--accent)" }}>
-          {recent.length} change{recent.length !== 1 ? "s" : ""} this week
-        </span>
-      </div>
-      <span className="hidden sm:block w-px h-4" style={{ background: "rgba(168,255,0,.2)" }} />
-      <div className="flex flex-wrap gap-2">
-        {priceDrops > 0 && (
-          <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: "rgba(96,165,250,.1)", color: "var(--blue)" }}>
-            ↓ {priceDrops} price drop{priceDrops !== 1 ? "s" : ""}
-          </span>
-        )}
-        {newProducts > 0 && (
-          <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)" }}>
-            + {newProducts} new product{newProducts !== 1 ? "s" : ""}
-          </span>
-        )}
-        {criticals > 0 && (
-          <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: "rgba(239,68,68,.1)", color: "var(--red)" }}>
-            ⚠ {criticals} critical
-          </span>
-        )}
-      </div>
-      <Link href="/alerts" className="ml-auto text-xs font-medium flex items-center gap-1 hover:opacity-80 transition-opacity shrink-0" style={{ color: "var(--accent)" }}>
-        See all <ArrowRight className="w-3 h-3" />
-      </Link>
-    </div>
-  );
-}
-
-// ── Activity feed (right column) ──────────────────────────────────────────
+// ── Activity feed ─────────────────────────────────────────────────────────
 
 function ActivityFeed({ alertList, alertsLoading }: { alertList: AlertEvent[]; alertsLoading: boolean }) {
   if (alertsLoading) {
     return (
       <div className="space-y-2">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-16 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-14 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />
         ))}
       </div>
     );
@@ -251,11 +472,11 @@ function ActivityFeed({ alertList, alertsLoading }: { alertList: AlertEvent[]; a
 
   if (alertList.length === 0) {
     return (
-      <div className="rounded-2xl p-6 text-center" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
-        <Bell className="w-7 h-7 mx-auto mb-3" style={{ color: "var(--muted)", opacity: 0.4 }} />
-        <p className="text-sm font-medium" style={{ color: "var(--muted)" }}>No changes yet</p>
-        <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--muted)" }}>
-          Activity appears here when competitors change prices, launch products, or run discounts.
+      <div className="rounded-2xl p-5 text-center" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+        <Bell className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--muted)", opacity: 0.35 }} />
+        <p className="text-xs font-medium mb-1" style={{ color: "var(--muted)" }}>No changes yet</p>
+        <p className="text-[11px] leading-relaxed" style={{ color: "var(--muted)", opacity: 0.7 }}>
+          We&apos;ll alert you here the moment a competitor moves.
         </p>
       </div>
     );
@@ -263,27 +484,26 @@ function ActivityFeed({ alertList, alertsLoading }: { alertList: AlertEvent[]; a
 
   return (
     <div className="space-y-1.5">
-      {alertList.map((alert, i) => {
+      {alertList.slice(0, 15).map((alert, i) => {
         const icon = changeTypeIcon(alert.change_type);
         const old_v = alert.old_value || {};
         const new_v = alert.new_value || {};
-
         let detail = "";
         if (alert.change_type === "price_change" && alert.delta_pct != null) {
           detail = `${formatPrice(old_v.price as number)} → ${formatPrice(new_v.price as number)} (${formatDelta(alert.delta_pct)})`;
         } else if (alert.change_type === "new_product" && new_v.price_min) {
           detail = `$${new_v.price_min}`;
-        } else if (alert.change_type === "discount_start" || alert.change_type === "discount_end") {
-          detail = `${formatDelta(alert.delta_pct || 0)} catalog promo`;
         }
-
-        const severityDot = { critical: "var(--red)", warning: "var(--amber)", info: "var(--muted)" }[alert.severity] || "var(--muted)";
+        const severityDot = { critical: "var(--red)", warning: "var(--amber)", info: "var(--muted)" }[alert.severity] ?? "var(--muted)";
 
         return (
           <Link
             key={alert.id}
             href={`/dashboard/${alert.competitor_id}`}
-            className={cn("flex items-start gap-3 rounded-xl p-3 transition-colors hover:bg-white/[0.03]", `fade-up-${Math.min(i + 1, 5)}`)}
+            className={cn(
+              "flex items-start gap-3 rounded-xl p-3 transition-colors hover:bg-white/[0.03]",
+              `fade-up-${Math.min(i + 1, 5)}`
+            )}
             style={{ border: "1px solid var(--border)", background: "var(--bg3)" }}
           >
             <span className="text-sm leading-none mt-0.5 shrink-0">{icon}</span>
@@ -354,7 +574,6 @@ function DiscoverySuggestions({
                 </span>
               )}
             </div>
-
             {s.match_reasons.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {s.match_reasons.map((r) => (
@@ -368,7 +587,6 @@ function DiscoverySuggestions({
                 ))}
               </div>
             )}
-
             <div className="flex items-center justify-between mt-auto pt-1">
               {s.product_count != null && (
                 <span className="text-xs" style={{ color: "var(--muted)" }}>
@@ -465,20 +683,25 @@ export default function DashboardPage() {
     }
   }
 
-  // ── Skeleton ──
+  // Skeleton
   if (loading) {
     return (
       <div>
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-7">
           <div className="space-y-2">
             <div className="h-7 w-36 rounded-lg animate-pulse" style={{ background: "var(--bg3)" }} />
             <div className="h-4 w-24 rounded-lg animate-pulse" style={{ background: "var(--bg3)" }} />
           </div>
           <div className="h-9 w-32 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />
         </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-7">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-16 rounded-2xl animate-pulse" style={{ background: "var(--bg3)" }} />
+          ))}
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-40 rounded-2xl animate-pulse" style={{ background: "var(--bg3)" }} />
+          {[1, 2].map((i) => (
+            <div key={i} className="h-44 rounded-2xl animate-pulse" style={{ background: "var(--bg3)" }} />
           ))}
         </div>
       </div>
@@ -488,13 +711,13 @@ export default function DashboardPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-7">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>Dashboard</h1>
           <p className="text-sm mt-0.5" style={{ color: "var(--muted)" }}>
             {competitorList.length === 0
               ? "No competitors tracked yet"
-              : `${competitorList.length} store${competitorList.length !== 1 ? "s" : ""} tracked`}
+              : `Monitoring ${competitorList.length} store${competitorList.length !== 1 ? "s" : ""}`}
           </p>
         </div>
         <button
@@ -507,14 +730,17 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {/* Summary strip */}
-      {!alertsLoading && <SummaryStrip alertList={alertList} />}
+      {/* Stats bar — always visible */}
+      {competitorList.length > 0 && !alertsLoading && (
+        <StatsBar competitorList={competitorList} alertList={alertList} />
+      )}
 
       {competitorList.length === 0 ? (
         <EmptyState onAdd={() => setShowModal(true)} />
       ) : (
         <div className="flex gap-6 items-start">
-          {/* Competitor grid */}
+
+          {/* ── Left: competitor grid ── */}
           <div className="flex-1 min-w-0">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {competitorList.map((c) => (
@@ -529,29 +755,50 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* Activity feed — right column on desktop */}
+          {/* ── Right: intelligence feed (desktop) ── */}
           <div className="hidden lg:block w-72 shrink-0">
+            {/* Header */}
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4" style={{ color: "var(--muted)" }} />
-                <p className="text-sm font-bold" style={{ color: "var(--text)" }}>Recent Activity</p>
+                <Activity className="w-4 h-4" style={{ color: "var(--accent)" }} />
+                <p className="text-sm font-bold" style={{ color: "var(--text)" }}>Change Feed</p>
               </div>
-              <Link href="/alerts" className="text-xs font-medium flex items-center gap-1 hover:opacity-80" style={{ color: "var(--accent)" }}>
+              <Link
+                href="/alerts"
+                className="text-xs font-medium flex items-center gap-1 hover:opacity-80"
+                style={{ color: "var(--accent)" }}
+              >
                 View all <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
-            <ActivityFeed alertList={alertList} alertsLoading={alertsLoading} />
+
+            {/* 7-day activity chart */}
+            {!alertsLoading && <WeeklyActivityChart alertList={alertList} />}
+
+            {/* Spotlight alert */}
+            {!alertsLoading && <SpotlightAlert alertList={alertList} />}
+
+            {/* Watch list */}
+            <WatchList competitorList={competitorList} />
+
+            {/* Recent changes */}
+            {!alertsLoading && alertList.length > 0 && (
+              <ActivityFeed alertList={alertList} alertsLoading={alertsLoading} />
+            )}
           </div>
         </div>
       )}
 
-      {/* Activity — mobile (stacked below) */}
+      {/* ── Mobile: stacked feed below ── */}
       {competitorList.length > 0 && (
-        <div className="lg:hidden mt-8">
+        <div className="lg:hidden mt-8 space-y-4">
+          {!alertsLoading && <WeeklyActivityChart alertList={alertList} />}
+          {!alertsLoading && <SpotlightAlert alertList={alertList} />}
+          <WatchList competitorList={competitorList} />
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4" style={{ color: "var(--muted)" }} />
-              <p className="text-sm font-bold" style={{ color: "var(--text)" }}>Recent Activity</p>
+              <Activity className="w-4 h-4" style={{ color: "var(--accent)" }} />
+              <p className="text-sm font-bold" style={{ color: "var(--text)" }}>Change Feed</p>
             </div>
             <Link href="/alerts" className="text-xs font-medium flex items-center gap-1 hover:opacity-80" style={{ color: "var(--accent)" }}>
               View all <ArrowRight className="w-3 h-3" />
