@@ -43,7 +43,9 @@ export const competitors = {
       `/competitors/${id}/changes?limit=${limit}${changeType ? `&change_type=${changeType}` : ""}`
     ),
   aiSummary: (id: string) =>
-    apiFetch<{ data: AiSummary }>(`/competitors/${id}/ai-summary`),
+    apiFetch<{ data: AiSummary | null; status: "ok" | "generating" }>(`/competitors/${id}/ai-summary`),
+  regenerateSummary: (id: string) =>
+    apiFetch<{ status: string }>(`/competitors/${id}/ai-summary/regenerate`, { method: "POST" }),
   winningProducts: (id: string) =>
     apiFetch<{ data: WinningProductsResponse }>(`/competitors/${id}/winning-products`),
   gaps: (id: string) =>

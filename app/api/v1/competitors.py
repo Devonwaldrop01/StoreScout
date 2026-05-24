@@ -242,11 +242,26 @@ def get_ai_summary(competitor_id: str, user_id: str = Depends(get_effective_user
         .limit(1)\
         .execute()
     if not result.data:
-        # Trigger async generation and return 202
         from app.tasks.ai_summaries import generate_weekly_summary
         generate_weekly_summary.delay(competitor_id, "weekly")
-        raise HTTPException(status_code=202, detail="Summary being generated — check back in 30 seconds")
-    return {"data": result.data[0]}
+        return {"data": None, "status": "generating"}
+    return {"data": result.data[0], "status": "ok"}
+
+
+@router.post("/{competitor_id}/ai-summary/regenerate")
+def regenerate_ai_summary(competitor_id: str, user_id: str = Depends(get_current_user_id)):
+    """Trigger a fresh AI summary generation on demand (Pro/Agency only)."""
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+
+    user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
+    tier = (user.data or {}).get("tier", "free") if user else "free"
+    if tier == "free":
+        raise HTTPException(status_code=402, detail={"code": "ai_summary_locked"})
+
+    from app.tasks.ai_summaries import generate_weekly_summary
+    generate_weekly_summary.delay(competitor_id, "weekly")
+    return {"status": "triggered"}
 
 
 @router.get("/{competitor_id}/winning-products")

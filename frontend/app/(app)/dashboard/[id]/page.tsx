@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft, RefreshCw, Trash2, Share2, Check, Download,
@@ -254,6 +254,9 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const [snapshot,       setSnapshot]       = useState<Snapshot | null>(null);
   const [changes,        setChanges]        = useState<ChangeEvent[]>([]);
   const [aiSummary,      setAiSummary]      = useState<AiSummary | null>(null);
+  const [aiStatus,       setAiStatus]       = useState<"idle" | "loading" | "generating" | "error">("idle");
+  const aiPollRef    = useRef<ReturnType<typeof setInterval> | null>(null);
+  const aiPollCount  = useRef(0);
   const [loading,        setLoading]        = useState(true);
   const [tab,            setTab]            = useState<Tab>("overview");
   const [catalogSub,     setCatalogSub]     = useState<CatalogSub>("winning");
@@ -289,11 +292,49 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
     return () => clearInterval(interval);
   }, [id, scanPending]);
 
+  // Fetch AI summary when landing on the AI insights sub-tab
   useEffect(() => {
-    if (tab === "intelligence" && intelSub === "ai" && !aiSummary && !isFree) {
-      api.aiSummary(id).then((r) => setAiSummary(r.data)).catch(() => {});
+    if (tab !== "intelligence" || intelSub !== "ai" || isFree || aiStatus !== "idle") return;
+    setAiStatus("loading");
+    api.aiSummary(id)
+      .then((r) => {
+        if (r.status === "generating") {
+          setAiStatus("generating");
+        } else if (r.data) {
+          setAiSummary(r.data);
+          setAiStatus("idle");
+        } else {
+          setAiStatus("error");
+        }
+      })
+      .catch(() => setAiStatus("error"));
+  }, [tab, intelSub, isFree, id, aiStatus]);
+
+  // Poll every 8 s while Claude is generating; give up after 15 attempts (~2 min)
+  useEffect(() => {
+    if (aiStatus !== "generating") {
+      if (aiPollRef.current) clearInterval(aiPollRef.current);
+      aiPollCount.current = 0;
+      return;
     }
-  }, [tab, intelSub, aiSummary, id, isFree]);
+    aiPollCount.current = 0;
+    aiPollRef.current = setInterval(async () => {
+      aiPollCount.current += 1;
+      if (aiPollCount.current > 15) {
+        setAiStatus("error");
+        clearInterval(aiPollRef.current!);
+        return;
+      }
+      try {
+        const r = await api.aiSummary(id);
+        if (r.status !== "generating" && r.data) {
+          setAiSummary(r.data);
+          setAiStatus("idle");
+        }
+      } catch { /* keep polling */ }
+    }, 8000);
+    return () => { if (aiPollRef.current) clearInterval(aiPollRef.current); };
+  }, [aiStatus, id]);
 
   useEffect(() => {
     if (scanPending || brief !== null || briefDismissed) return;
@@ -357,6 +398,14 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
     } finally {
       setExporting(false);
     }
+  }
+
+  async function handleRegenerate() {
+    if (aiPollRef.current) clearInterval(aiPollRef.current);
+    setAiSummary(null);
+    setAiStatus("generating");
+    aiPollCount.current = 0;
+    await api.regenerateSummary(id).catch(() => {});
   }
 
   async function handleDelete() {
@@ -873,21 +922,51 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           </div>
                         </div>
 
-                      ) : !aiSummary ? (
+                      ) : aiStatus === "error" ? (
+                        <div
+                          className="rounded-2xl p-8 text-center"
+                          style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+                        >
+                          <p className="text-sm font-semibold mb-2" style={{ color: "var(--text)" }}>Couldn&apos;t generate analysis</p>
+                          <p className="text-xs mb-4" style={{ color: "var(--muted)" }}>This can happen if Celery workers aren&apos;t running. Try again in a moment.</p>
+                          <button
+                            onClick={() => setAiStatus("idle")}
+                            className="text-xs font-bold px-4 py-2 rounded-xl transition-all hover:brightness-110"
+                            style={{ background: "var(--accent)", color: "#0a0a0f" }}
+                          >
+                            Try again
+                          </button>
+                        </div>
+                      ) : (aiStatus === "loading" || aiStatus === "generating") ? (
                         <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-                          <div className="flex items-center gap-2 mb-6">
-                            <Sparkles className="w-5 h-5" style={{ color: "var(--accent)" }} />
-                            <h3 className="font-semibold" style={{ color: "var(--text)" }}>AI Strategic Summary</h3>
+                          <div className="flex items-center gap-3 mb-5">
+                            <div
+                              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                              style={{ background: "rgba(168,255,0,.1)", border: "1px solid rgba(168,255,0,.15)" }}
+                            >
+                              <Sparkles className="w-4 h-4 animate-pulse" style={{ color: "var(--accent)" }} />
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                                {aiStatus === "loading" ? "Loading intelligence brief…" : `Analyzing ${hostname}…`}
+                              </p>
+                              <p className="text-xs" style={{ color: "var(--muted)" }}>
+                                {aiStatus === "generating" ? "Claude is reviewing their pricing, launch patterns, and competitive positioning" : "Checking for existing analysis"}
+                              </p>
+                            </div>
                           </div>
                           <div className="space-y-3">
-                            {[100, 80, 90, 65, 75].map((w, i) => (
+                            {[100, 82, 91, 67, 76].map((w, i) => (
                               <div key={i} className="h-3.5 rounded-full animate-pulse" style={{ background: "rgba(255,255,255,.06)", width: `${w}%` }} />
                             ))}
                           </div>
-                          <p className="text-xs mt-4" style={{ color: "var(--muted)" }}>Generating your AI brief…</p>
+                          {aiStatus === "generating" && (
+                            <p className="text-xs mt-4" style={{ color: "var(--muted)", opacity: 0.6 }}>Usually takes 20–30 seconds</p>
+                          )}
                         </div>
 
                       ) : (() => {
+                        if (!aiSummary) return null;
                         const parsed = parseSummaryText(aiSummary.summary_text);
                         const CARD_CONFIG: Record<string, { color: string; bg: string; border: string; label: string }> = {
                           signal:      { color: "#a8ff00", bg: "rgba(168,255,0,.07)",  border: "rgba(168,255,0,.18)",  label: "Most notable signal" },
@@ -899,7 +978,16 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                             <div className="flex items-center gap-2">
                               <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
                               <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>AI Strategic Summary</h3>
-                              <p className="text-xs ml-auto" style={{ color: "var(--muted)" }}>{formatRelativeTime(aiSummary.generated_at)}</p>
+                              <p className="text-xs" style={{ color: "var(--muted)" }}>{formatRelativeTime(aiSummary.generated_at)}</p>
+                              <button
+                                onClick={handleRegenerate}
+                                className="ml-auto flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg transition-all hover:bg-white/5"
+                                style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+                                title="Regenerate analysis"
+                              >
+                                <RefreshCw className="w-3 h-3" />
+                                Refresh
+                              </button>
                             </div>
                             {parsed.type === "cards" ? (
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
