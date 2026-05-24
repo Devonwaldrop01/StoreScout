@@ -771,6 +771,14 @@ export default function LandingPage() {
         </div>
       </div>
 
+      {/* ── PeerPush badge ──────────────────────────────────────────────────── */}
+      <div className="flex justify-center pb-12">
+        <a href="https://peerpush.net/p/storescout" target="_blank" rel="noopener" style={{ width: 230 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="https://peerpush.net/p/storescout/badge.png" alt="StoreScout on PeerPush" style={{ width: 230 }} />
+        </a>
+      </div>
+
       {/* ── Footer ──────────────────────────────────────────────────────────── */}
       <footer className="border-t" style={{ borderColor: "var(--border)" }}>
         <div className="max-w-5xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
