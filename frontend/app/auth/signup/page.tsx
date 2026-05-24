@@ -27,6 +27,7 @@ export default function SignupPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -71,12 +72,81 @@ export default function SignupPage() {
 
   if (done) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--bg)" }}>
-        <div className="text-center max-w-sm">
-          <CheckCircle2 className="w-12 h-12 mx-auto mb-4 text-green-400" />
-          <h2 className="text-xl font-bold mb-2" style={{ color: "var(--text)" }}>Check your email</h2>
+      <div
+        className="relative min-h-screen flex items-center justify-center p-4"
+        style={{ background: "var(--bg)" }}
+      >
+        {/* Ambient glows */}
+        <div
+          className="fixed pointer-events-none"
+          style={{
+            top: "-80px",
+            left: "-80px",
+            width: "400px",
+            height: "400px",
+            borderRadius: "50%",
+            background: "rgba(168,255,0,.06)",
+            filter: "blur(80px)",
+            zIndex: 0,
+          }}
+        />
+        <div
+          className="fixed pointer-events-none"
+          style={{
+            top: "-60px",
+            right: "-60px",
+            width: "300px",
+            height: "300px",
+            borderRadius: "50%",
+            background: "rgba(96,165,250,.04)",
+            filter: "blur(80px)",
+            zIndex: 0,
+          }}
+        />
+        <div
+          className="fixed pointer-events-none"
+          style={{
+            bottom: "-80px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "350px",
+            height: "350px",
+            borderRadius: "50%",
+            background: "rgba(167,139,250,.04)",
+            filter: "blur(80px)",
+            zIndex: 0,
+          }}
+        />
+
+        <div
+          className="relative text-center max-w-sm w-full rounded-2xl p-10"
+          style={{
+            zIndex: 1,
+            background: "var(--bg2)",
+            border: "1px solid var(--border)",
+            boxShadow: "0 24px 80px rgba(0,0,0,.5)",
+          }}
+        >
+          <div
+            className="mx-auto mb-5 flex items-center justify-center"
+            style={{
+              width: "56px",
+              height: "56px",
+              borderRadius: "50%",
+              background: "rgba(168,255,0,.1)",
+            }}
+          >
+            <CheckCircle2
+              style={{ width: "28px", height: "28px", color: "var(--accent)" }}
+            />
+          </div>
+          <h2 className="text-xl font-bold mb-2" style={{ color: "var(--text)" }}>
+            Check your email
+          </h2>
           <p style={{ color: "var(--muted)" }}>
-            We&apos;ve sent a confirmation link to <strong>{email}</strong>. Click it to activate your account and set up your first competitor.
+            We&apos;ve sent a confirmation link to{" "}
+            <strong style={{ color: "var(--text)" }}>{email}</strong>. Click it to
+            activate your account and set up your first competitor.
           </p>
         </div>
       </div>
@@ -90,44 +160,136 @@ export default function SignupPage() {
     "No credit card required",
   ];
 
+  const inputStyle = (field: string) => ({
+    background: "var(--bg3)",
+    border: `1px solid ${focusedField === field ? "rgba(168,255,0,.4)" : "var(--border)"}`,
+    color: "var(--text)",
+    boxShadow: focusedField === field ? "0 0 0 3px rgba(168,255,0,.08)" : "none",
+    outline: "none",
+    transition: "border-color 0.15s, box-shadow 0.15s",
+  });
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--bg)" }}>
-      <div className="w-full max-w-sm">
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <Zap className="w-6 h-6" style={{ color: "#a3f000" }} />
+    <div
+      className="relative min-h-screen flex items-center justify-center p-4"
+      style={{ background: "var(--bg)" }}
+    >
+      {/* Ambient glows */}
+      <div
+        className="fixed pointer-events-none"
+        style={{
+          top: "-80px",
+          left: "-80px",
+          width: "400px",
+          height: "400px",
+          borderRadius: "50%",
+          background: "rgba(168,255,0,.06)",
+          filter: "blur(80px)",
+          zIndex: 0,
+        }}
+      />
+      <div
+        className="fixed pointer-events-none"
+        style={{
+          top: "-60px",
+          right: "-60px",
+          width: "300px",
+          height: "300px",
+          borderRadius: "50%",
+          background: "rgba(96,165,250,.04)",
+          filter: "blur(80px)",
+          zIndex: 0,
+        }}
+      />
+      <div
+        className="fixed pointer-events-none"
+        style={{
+          bottom: "-80px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "350px",
+          height: "350px",
+          borderRadius: "50%",
+          background: "rgba(167,139,250,.04)",
+          filter: "blur(80px)",
+          zIndex: 0,
+        }}
+      />
+
+      {/* Content */}
+      <div className="relative w-full max-w-sm" style={{ zIndex: 1 }}>
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-3 mb-5">
+          <div
+            style={{
+              width: "32px",
+              height: "32px",
+              borderRadius: "12px",
+              background: "var(--accent)",
+              boxShadow: "0 0 20px rgba(168,255,0,.4)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <Zap style={{ width: "16px", height: "16px", color: "#0a0a0f" }} />
+          </div>
           <span className="text-xl font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
         </div>
 
-        <div className="rounded-2xl p-7" style={{ background: "var(--bg2)", border: "1px solid var(--border)" }}>
-          <h1 className="text-xl font-bold mb-1 text-center" style={{ color: "var(--text)" }}>Start for free</h1>
-          <p className="text-sm text-center mb-5" style={{ color: "var(--muted)" }}>No credit card required</p>
+        {/* Feature list — outside the card, between logo and card */}
+        <ul className="grid grid-cols-2 gap-x-6 gap-y-2 mb-5 px-1">
+          {features.map((f) => (
+            <li key={f} className="flex items-center gap-1.5">
+              <span className="text-xs font-bold" style={{ color: "var(--accent)" }}>✓</span>
+              <span className="text-xs" style={{ color: "var(--muted)" }}>{f}</span>
+            </li>
+          ))}
+        </ul>
 
-          <ul className="grid grid-cols-2 gap-2 mb-6">
-            {features.map((f) => (
-              <li key={f} className="flex items-center gap-1.5 text-xs" style={{ color: "#a3f000" }}>
-                <span>✓</span>
-                <span style={{ color: "var(--muted)" }}>{f}</span>
-              </li>
-            ))}
-          </ul>
+        {/* Card */}
+        <div
+          className="rounded-2xl p-7"
+          style={{
+            background: "var(--bg2)",
+            border: "1px solid var(--border)",
+            boxShadow: "0 24px 80px rgba(0,0,0,.5)",
+          }}
+        >
+          <h1 className="text-2xl font-bold mb-1 text-center" style={{ color: "var(--text)" }}>
+            Start free
+          </h1>
+          <p className="text-xs text-center mb-6" style={{ color: "var(--muted)" }}>
+            No credit card required · Cancel anytime
+          </p>
 
           {/* Google */}
           <button
             type="button"
             onClick={handleGoogleSignup}
             disabled={googleLoading || loading}
-            className="w-full flex items-center justify-center gap-3 py-3 rounded-xl font-medium text-sm mb-4 transition-all hover:opacity-90 disabled:opacity-50"
-            style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+            className="w-full flex items-center justify-center gap-3 py-3 rounded-xl font-medium text-sm mb-4 transition-all disabled:opacity-50"
+            style={{
+              background: "var(--bg3)",
+              border: "1px solid var(--border)",
+              color: "var(--text)",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,.06)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "var(--bg3)")}
           >
             {googleLoading ? (
-              <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--muted)" }} />
+              <div
+                className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin"
+                style={{ borderColor: "var(--muted)" }}
+              />
             ) : (
               <GoogleIcon />
             )}
             Continue with Google
           </button>
 
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-5">
             <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
             <span className="text-xs" style={{ color: "var(--muted)" }}>or</span>
             <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
@@ -135,19 +297,25 @@ export default function SignupPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--muted)" }}>Email</label>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--muted)" }}>
+                Email
+              </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@yourstore.com"
-                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                className="w-full px-4 py-3 rounded-xl text-sm"
+                style={inputStyle("email")}
+                onFocus={() => setFocusedField("email")}
+                onBlur={() => setFocusedField(null)}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--muted)" }}>Password</label>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--muted)" }}>
+                Password
+              </label>
               <input
                 type="password"
                 value={password}
@@ -155,8 +323,10 @@ export default function SignupPage() {
                 required
                 minLength={8}
                 placeholder="Min. 8 characters"
-                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                className="w-full px-4 py-3 rounded-xl text-sm"
+                style={inputStyle("password")}
+                onFocus={() => setFocusedField("password")}
+                onBlur={() => setFocusedField(null)}
               />
             </div>
 
@@ -167,8 +337,8 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full font-semibold py-3 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
-              style={{ background: "#a3f000", color: "#060d18" }}
+              className="w-full font-bold py-3 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
+              style={{ background: "var(--accent)", color: "#0a0a0f" }}
             >
               {loading ? "Creating account…" : "Create free account"}
             </button>
@@ -176,7 +346,7 @@ export default function SignupPage() {
 
           <p className="text-sm text-center mt-5" style={{ color: "var(--muted)" }}>
             Already have an account?{" "}
-            <Link href="/auth/login" className="hover:underline" style={{ color: "#a3f000" }}>
+            <Link href="/auth/login" className="hover:underline" style={{ color: "var(--accent)" }}>
               Sign in
             </Link>
           </p>

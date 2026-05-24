@@ -25,6 +25,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -55,34 +56,126 @@ export default function LoginPage() {
     // On success, browser redirects to Google — no further action needed here
   }
 
+  const inputStyle = (field: string) => ({
+    background: "var(--bg3)",
+    border: `1px solid ${focusedField === field ? "rgba(168,255,0,.4)" : "var(--border)"}`,
+    color: "var(--text)",
+    boxShadow: focusedField === field ? "0 0 0 3px rgba(168,255,0,.08)" : "none",
+    outline: "none",
+    transition: "border-color 0.15s, box-shadow 0.15s",
+  });
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--bg)" }}>
-      <div className="w-full max-w-sm">
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <Zap className="w-6 h-6" style={{ color: "#a3f000" }} />
+    <div
+      className="relative min-h-screen flex items-center justify-center p-4"
+      style={{ background: "var(--bg)" }}
+    >
+      {/* Ambient glows */}
+      <div
+        className="fixed pointer-events-none"
+        style={{
+          top: "-80px",
+          left: "-80px",
+          width: "400px",
+          height: "400px",
+          borderRadius: "50%",
+          background: "rgba(168,255,0,.06)",
+          filter: "blur(80px)",
+          zIndex: 0,
+        }}
+      />
+      <div
+        className="fixed pointer-events-none"
+        style={{
+          top: "-60px",
+          right: "-60px",
+          width: "300px",
+          height: "300px",
+          borderRadius: "50%",
+          background: "rgba(96,165,250,.04)",
+          filter: "blur(80px)",
+          zIndex: 0,
+        }}
+      />
+      <div
+        className="fixed pointer-events-none"
+        style={{
+          bottom: "-80px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "350px",
+          height: "350px",
+          borderRadius: "50%",
+          background: "rgba(167,139,250,.04)",
+          filter: "blur(80px)",
+          zIndex: 0,
+        }}
+      />
+
+      {/* Content */}
+      <div className="relative w-full max-w-sm" style={{ zIndex: 1 }}>
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <div
+            style={{
+              width: "32px",
+              height: "32px",
+              borderRadius: "12px",
+              background: "var(--accent)",
+              boxShadow: "0 0 20px rgba(168,255,0,.4)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <Zap style={{ width: "16px", height: "16px", color: "#0a0a0f" }} />
+          </div>
           <span className="text-xl font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
         </div>
 
-        <div className="rounded-2xl p-7" style={{ background: "var(--bg2)", border: "1px solid var(--border)" }}>
-          <h1 className="text-xl font-bold mb-6 text-center" style={{ color: "var(--text)" }}>Welcome back</h1>
+        {/* Card */}
+        <div
+          className="rounded-2xl p-7"
+          style={{
+            background: "var(--bg2)",
+            border: "1px solid var(--border)",
+            boxShadow: "0 24px 80px rgba(0,0,0,.5)",
+          }}
+        >
+          <h1 className="text-2xl font-bold mb-1 text-center" style={{ color: "var(--text)" }}>
+            Welcome back
+          </h1>
+          <p className="text-sm text-center mb-6" style={{ color: "var(--muted)" }}>
+            Sign in to your account
+          </p>
 
           {/* Google */}
           <button
             type="button"
             onClick={handleGoogleLogin}
             disabled={googleLoading || loading}
-            className="w-full flex items-center justify-center gap-3 py-3 rounded-xl font-medium text-sm mb-4 transition-all hover:opacity-90 disabled:opacity-50"
-            style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+            className="w-full flex items-center justify-center gap-3 py-3 rounded-xl font-medium text-sm mb-4 transition-all disabled:opacity-50"
+            style={{
+              background: "var(--bg3)",
+              border: "1px solid var(--border)",
+              color: "var(--text)",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,.06)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "var(--bg3)")}
           >
             {googleLoading ? (
-              <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--muted)" }} />
+              <div
+                className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin"
+                style={{ borderColor: "var(--muted)" }}
+              />
             ) : (
               <GoogleIcon />
             )}
             Continue with Google
           </button>
 
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-5">
             <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
             <span className="text-xs" style={{ color: "var(--muted)" }}>or</span>
             <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
@@ -90,20 +183,30 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--muted)" }}>Email</label>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--muted)" }}>
+                Email
+              </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                className="w-full px-4 py-3 rounded-xl text-sm"
+                style={inputStyle("email")}
+                onFocus={() => setFocusedField("email")}
+                onBlur={() => setFocusedField(null)}
               />
             </div>
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-sm font-medium" style={{ color: "var(--muted)" }}>Password</label>
-                <Link href="/auth/forgot-password" className="text-xs hover:underline" style={{ color: "var(--muted)" }}>
+                <label className="text-sm font-medium" style={{ color: "var(--muted)" }}>
+                  Password
+                </label>
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-xs hover:underline"
+                  style={{ color: "var(--accent)" }}
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -112,8 +215,10 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                className="w-full px-4 py-3 rounded-xl text-sm"
+                style={inputStyle("password")}
+                onFocus={() => setFocusedField("password")}
+                onBlur={() => setFocusedField(null)}
               />
             </div>
 
@@ -124,8 +229,8 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full font-semibold py-3 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
-              style={{ background: "#a3f000", color: "#060d18" }}
+              className="w-full font-bold py-3 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
+              style={{ background: "var(--accent)", color: "#0a0a0f" }}
             >
               {loading ? "Signing in…" : "Sign in"}
             </button>
@@ -133,7 +238,7 @@ export default function LoginPage() {
 
           <p className="text-sm text-center mt-5" style={{ color: "var(--muted)" }}>
             Don&apos;t have an account?{" "}
-            <Link href="/auth/signup" className="hover:underline" style={{ color: "#a3f000" }}>
+            <Link href="/auth/signup" className="hover:underline" style={{ color: "var(--accent)" }}>
               Sign up free
             </Link>
           </p>
