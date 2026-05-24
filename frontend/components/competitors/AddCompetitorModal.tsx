@@ -9,10 +9,11 @@ import UpgradeModal from "@/components/UpgradeModal";
 interface Props {
   onClose: () => void;
   onAdded: (c: Competitor) => void;
+  initialUrl?: string;
 }
 
-export function AddCompetitorModal({ onClose, onAdded }: Props) {
-  const [url, setUrl] = useState("");
+export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
+  const [url, setUrl] = useState(initialUrl ?? "");
   const [displayName, setDisplayName] = useState("");
   const [checking, setChecking] = useState(false);
   const [submitting, setSubmitting] = useState(false);

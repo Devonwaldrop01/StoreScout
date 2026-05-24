@@ -446,6 +446,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [alertsLoading, setAlertsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [addPrefilledUrl, setAddPrefilledUrl] = useState("");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [trackingHostname, setTrackingHostname] = useState<string | null>(null);
 
@@ -454,6 +455,13 @@ export default function DashboardPage() {
     const plan = searchParams.get("upgrade");
     if (plan === "pro" || plan === "agency") {
       setUpgradeOpen(true);
+      router.replace("/dashboard");
+    }
+    // ?add=hostname — pre-open Add Competitor modal (from shareable report CTA)
+    const addHostname = searchParams.get("add");
+    if (addHostname) {
+      setAddPrefilledUrl(`https://${addHostname}`);
+      setShowModal(true);
       router.replace("/dashboard");
     }
   }, [searchParams, router]);
@@ -671,7 +679,13 @@ export default function DashboardPage() {
         </>
       )}
 
-      {showModal && <AddCompetitorModal onClose={() => setShowModal(false)} onAdded={handleAdded} />}
+      {showModal && (
+        <AddCompetitorModal
+          onClose={() => { setShowModal(false); setAddPrefilledUrl(""); }}
+          onAdded={handleAdded}
+          initialUrl={addPrefilledUrl || undefined}
+        />
+      )}
       {upgradeOpen && <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="competitor_limit" />}
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Zap, CheckCircle2, AlertCircle, AlertTriangle, ArrowRight,
   Search, TrendingDown, Bell, Package, Sparkles,
@@ -166,6 +166,7 @@ const STEP_LABELS: Record<Step, string> = {
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
 
   const [authChecked, setAuthChecked] = useState(false);
@@ -210,6 +211,14 @@ export default function OnboardingPage() {
         const result = await competitorsApi.list();
         if ((result.data || []).length > 0) { router.replace("/dashboard"); return; }
       } catch {}
+      // Pre-fill competitor URL if coming from a shared report
+      const prefilledCompetitor = searchParams.get("competitor");
+      if (prefilledCompetitor) {
+        const normalized = prefilledCompetitor.startsWith("http")
+          ? prefilledCompetitor
+          : `https://${prefilledCompetitor}`;
+        setUrl(normalized);
+      }
       setAuthChecked(true);
     }
     check();

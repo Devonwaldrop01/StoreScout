@@ -447,6 +447,9 @@ export interface PublicReport {
     catalog_complexity?: Record<string, unknown>;
   };
   takeaways: string[];
+  ai_brief?: {
+    cards?: { type: "signal" | "opportunity" | "watch"; headline: string; body: string }[];
+  } | null;
 }
 
 export interface ApiKey {
