@@ -163,6 +163,8 @@ export interface Competitor {
   scan_status: "pending" | "scanning" | "done" | "error";
   error_message?: string;
   product_count?: number;
+  promo_rate?: number;
+  snapshot_data?: Record<string, unknown>;
   created_at: string;
 }
 

@@ -2,9 +2,9 @@
 
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, RefreshCw, Trash2, Cpu, Share2, Check, Download } from "lucide-react";
+import { ArrowLeft, RefreshCw, Trash2, Cpu, Share2, Check, Download, Sparkles, Lock, TrendingUp, TrendingDown, Zap } from "lucide-react";
 import Link from "next/link";
-import { competitors as api, type Snapshot, type ChangeEvent, type AiSummary } from "@/lib/api";
+import { competitors as api, user as userApi, type Snapshot, type ChangeEvent, type AiSummary } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
 import { cn, formatRelativeTime, formatPrice, formatPct, formatDelta, changeTypeIcon, severityColor } from "@/lib/utils";
 import { PriceDistributionChart } from "@/components/charts/PriceDistributionChart";
@@ -21,41 +21,44 @@ import { type BriefData, type BriefCard } from "@/lib/api";
 
 type Tab = "overview" | "compare" | "winning" | "gaps" | "brand" | "pricing" | "launches" | "discounts" | "history" | "ai";
 
-function KpiCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function KpiCard({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: string }) {
   return (
     <div
-      className="rounded-2xl p-4 space-y-1"
-      style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+      className="rounded-2xl p-5"
+      style={{
+        background: "var(--bg-card)",
+        border: "1px solid var(--border)",
+        borderTop: accent ? `2px solid ${accent}` : "1px solid var(--border)",
+      }}
     >
-      <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--muted)" }}>{label}</p>
       <p className="text-2xl font-bold font-mono" style={{ color: "var(--text)" }}>{value}</p>
-      {sub && <p className="text-xs" style={{ color: "var(--muted)" }}>{sub}</p>}
+      {sub && <p className="text-xs mt-1.5" style={{ color: "var(--muted)" }}>{sub}</p>}
     </div>
   );
 }
 
-function PositioningScore({ label, score, scoreLabel }: { label: string; score: number; scoreLabel: string }) {
-  const color = score < 34 ? "#22d3ee" : score < 67 ? "#a3f000" : "#f87171";
+function SignalBadge({ label, scoreLabel, score }: { label: string; scoreLabel: string; score: number }) {
+  const color = score < 34 ? "var(--cyan)" : score < 67 ? "var(--accent)" : "var(--red)";
+  const bg = score < 34 ? "rgba(34,211,238,.1)" : score < 67 ? "rgba(168,255,0,.1)" : "rgba(239,68,68,.1)";
   return (
     <div
-      className="rounded-xl p-4"
+      className="flex items-center justify-between px-4 py-3 rounded-xl"
       style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
     >
-      <p className="text-xs mb-2" style={{ color: "var(--muted)" }}>{label}</p>
-      <div className="flex items-center justify-between mb-2">
-        <span className="font-semibold text-sm" style={{ color }}>{scoreLabel}</span>
-        <span className="text-xs font-mono" style={{ color: "var(--muted)" }}>{score}/100</span>
-      </div>
-      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,.08)" }}>
-        <div className="h-full rounded-full transition-all" style={{ width: `${score}%`, background: color }} />
-      </div>
+      <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>{label}</span>
+      <span
+        className="text-xs font-bold px-2.5 py-1 rounded-full"
+        style={{ color, background: bg }}
+      >
+        {scoreLabel}
+      </span>
     </div>
   );
 }
 
 function ChangeRow({ change }: { change: ChangeEvent }) {
   const icon = changeTypeIcon(change.change_type);
-  const colorClass = severityColor(change.severity);
   const old_v = change.old_value || {};
   const new_v = change.new_value || {};
   let detail = "";
@@ -66,24 +69,34 @@ function ChangeRow({ change }: { change: ChangeEvent }) {
   } else if (change.change_type === "discount_start" || change.change_type === "discount_end") {
     detail = `${formatPct(old_v.discounted_pct as number)} → ${formatPct(new_v.discounted_pct as number)} of catalog`;
   }
-
+  const borderColor = change.severity === "critical" ? "var(--red)" : change.severity === "warning" ? "var(--amber)" : "transparent";
   return (
     <div
-      className="flex items-start gap-3 py-3 border-b"
-      style={{ borderColor: "var(--border)" }}
+      className="flex items-start gap-3 py-3 pl-3 border-b"
+      style={{ borderColor: "var(--border)", borderLeft: `3px solid ${borderColor}`, marginLeft: "-1px" }}
     >
-      <span className="text-lg leading-none mt-0.5">{icon}</span>
+      <span className="text-base leading-none mt-0.5 shrink-0">{icon}</span>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium truncate" style={{ color: "var(--text)" }}>
           {change.product_title || change.change_type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
         </p>
-        {detail && <p className={cn("text-xs font-mono mt-0.5", colorClass)}>{detail}</p>}
+        {detail && <p className="text-xs font-mono mt-0.5" style={{ color: change.delta_pct != null && change.delta_pct < 0 ? "var(--red)" : "var(--emerald)" }}>{detail}</p>}
       </div>
       <p className="text-xs shrink-0" style={{ color: "var(--muted)" }}>
         {formatRelativeTime(change.detected_at)}
       </p>
     </div>
   );
+}
+
+function parseSummaryText(text: string): { type: "cards"; cards: BriefCard[] } | { type: "text"; text: string } {
+  try {
+    const parsed = JSON.parse(text) as { cards?: BriefCard[] };
+    if (parsed.cards && Array.isArray(parsed.cards)) {
+      return { type: "cards", cards: parsed.cards };
+    }
+  } catch {}
+  return { type: "text", text };
 }
 
 export default function CompetitorDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -101,6 +114,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [tier, setTier] = useState<string>("free");
 
   useEffect(() => {
     async function load() {
@@ -119,6 +133,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
         // changes table may be empty or erroring — non-fatal
       }
       setLoading(false);
+      userApi.subscription().then((r) => setTier(r.data.tier)).catch(() => {});
     }
     load();
     // Poll fast (3s) while scan is pending, slow (15s) once data loaded
@@ -127,10 +142,10 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   }, [id, scanPending]);
 
   useEffect(() => {
-    if (tab === "ai" && !aiSummary) {
+    if (tab === "ai" && !aiSummary && tier !== "free") {
       api.aiSummary(id).then((r) => setAiSummary(r.data)).catch(() => {});
     }
-  }, [tab, aiSummary, id]);
+  }, [tab, aiSummary, id, tier]);
 
   // Poll for Intelligence Brief once scan is done — brief is generated async via Claude
   useEffect(() => {
@@ -377,25 +392,26 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
           {tab === "overview" && (
             <div className="space-y-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <KpiCard label="Products" value={(catalog.total_products as number)?.toLocaleString() ?? "—"} />
-                <KpiCard label="Median Price" value={formatPrice(pricing.median as number)} />
-                <KpiCard label="Promo Rate" value={formatPct(discounts.discounted_pct as number)} />
+                <KpiCard label="Products" value={(catalog.total_products as number)?.toLocaleString() ?? "—"} accent="var(--blue)" />
+                <KpiCard label="Median Price" value={formatPrice(pricing.median as number)} accent="var(--accent)" />
+                <KpiCard label="Promo Rate" value={formatPct(discounts.discounted_pct as number)} accent="var(--amber)" />
                 <KpiCard
                   label="New (30d)"
                   value={((launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? "—").toString()}
+                  accent="var(--emerald)"
                 />
               </div>
 
               <QuickWins competitorId={id} />
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 {[
                   { label: "Market Position", pos: positioning.market_position as Record<string, unknown> },
                   { label: "Promo Intensity", pos: positioning.promo_intensity as Record<string, unknown> },
                   { label: "Launch Velocity", pos: positioning.launch_velocity as Record<string, unknown> },
                   { label: "Catalog Complexity", pos: positioning.catalog_complexity as Record<string, unknown> },
                 ].map(({ label, pos }) => pos ? (
-                  <PositioningScore
+                  <SignalBadge
                     key={label}
                     label={label}
                     score={(pos.score as number) ?? 50}
@@ -407,13 +423,19 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
               {takeaways.length > 0 && (
                 <div
                   className="rounded-2xl p-5"
-                  style={{ background: "rgba(59,130,246,.08)", border: "1px solid rgba(59,130,246,.2)" }}
+                  style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
                 >
-                  <h3 className="font-semibold mb-3 text-sm" style={{ color: "#93c5fd" }}>Key insights</h3>
-                  <ul className="space-y-2">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
+                    <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Key insights</h3>
+                  </div>
+                  <ul className="space-y-3">
                     {takeaways.map((t, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "#bfdbfe" }}>
-                        <span className="mt-1 w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
+                      <li key={i} className="flex items-start gap-3 text-sm leading-snug" style={{ color: "var(--text-2)" }}>
+                        <span
+                          className="mt-1.5 w-1 h-1 rounded-full shrink-0"
+                          style={{ background: "var(--accent)" }}
+                        />
                         {t}
                       </li>
                     ))}
@@ -423,20 +445,27 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
               {changes.length > 0 && (
                 <div
-                  className="rounded-2xl p-5"
-                  style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+                  className="rounded-2xl overflow-hidden"
+                  style={{ border: "1px solid var(--border)" }}
                 >
-                  <h3 className="font-semibold mb-3 text-sm" style={{ color: "var(--text)" }}>Recent changes</h3>
-                  {changes.slice(0, 5).map((c) => <ChangeRow key={c.id} change={c} />)}
-                  {changes.length > 5 && (
-                    <button
-                      onClick={() => setTab("history")}
-                      className="mt-3 text-sm hover:underline"
-                      style={{ color: "var(--blue)" }}
-                    >
-                      View all {changes.length} changes →
-                    </button>
-                  )}
+                  <div
+                    className="flex items-center justify-between px-5 py-3.5"
+                    style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
+                  >
+                    <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Recent changes</h3>
+                    {changes.length > 5 && (
+                      <button
+                        onClick={() => setTab("history")}
+                        className="text-xs font-medium hover:underline"
+                        style={{ color: "var(--accent)" }}
+                      >
+                        View all {changes.length} →
+                      </button>
+                    )}
+                  </div>
+                  <div className="px-5" style={{ background: "var(--bg-card)" }}>
+                    {changes.slice(0, 5).map((c) => <ChangeRow key={c.id} change={c} />)}
+                  </div>
                 </div>
               )}
             </div>
@@ -492,16 +521,54 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
           {/* Discounts tab */}
           {tab === "discounts" && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  ["Discounted", formatPct(discounts.discounted_pct as number)],
-                  ["Avg Discount", formatPct(discounts.avg_discount_pct as number)],
-                  ["Median Discount", formatPct(discounts.median_discount_pct as number)],
-                  ["Max Discount", formatPct(discounts.max_discount_pct as number)],
-                ].map(([label, value]) => (
-                  <KpiCard key={label} label={label} value={value} />
-                ))}
+            <div className="space-y-5">
+              {/* Visual gauge for promo rate */}
+              <div
+                className="rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-6"
+                style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+              >
+                {/* SVG arc gauge */}
+                <div className="shrink-0 relative w-32 h-20">
+                  {(() => {
+                    const pct = Math.min(100, Math.max(0, (discounts.discounted_pct as number) || 0));
+                    const radius = 48;
+                    const cx = 64;
+                    const cy = 64;
+                    const startAngle = Math.PI;
+                    const endAngle = 2 * Math.PI;
+                    const filled = startAngle + (endAngle - startAngle) * (pct / 100);
+                    const toXY = (a: number) => ({ x: cx + radius * Math.cos(a), y: cy + radius * Math.sin(a) });
+                    const s = toXY(startAngle);
+                    const e = toXY(endAngle - 0.001);
+                    const f = toXY(filled);
+                    const largeArc = (endAngle - startAngle) * (pct / 100) > Math.PI ? 1 : 0;
+                    const trackPath = `M ${s.x} ${s.y} A ${radius} ${radius} 0 1 1 ${e.x} ${e.y}`;
+                    const fillPath = `M ${s.x} ${s.y} A ${radius} ${radius} 0 ${largeArc} 1 ${f.x} ${f.y}`;
+                    const color = pct > 50 ? "#f59e0b" : pct > 25 ? "#a8ff00" : "#22d3ee";
+                    return (
+                      <svg viewBox="0 0 128 70" className="w-full h-full">
+                        <path d={trackPath} fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="10" strokeLinecap="round" />
+                        {pct > 0 && <path d={fillPath} fill="none" stroke={color} strokeWidth="10" strokeLinecap="round" />}
+                        <text x={cx} y={cy - 2} textAnchor="middle" fontSize="20" fontWeight="bold" fill="var(--text)" fontFamily="monospace">
+                          {Math.round(pct)}%
+                        </text>
+                        <text x={cx} y={cy + 16} textAnchor="middle" fontSize="9" fill="var(--muted)" fontFamily="system-ui">discounted</text>
+                      </svg>
+                    );
+                  })()}
+                </div>
+                <div className="flex-1 space-y-3 w-full">
+                  {[
+                    ["Avg Discount", formatPct(discounts.avg_discount_pct as number)],
+                    ["Median Discount", formatPct(discounts.median_discount_pct as number)],
+                    ["Max Discount", formatPct(discounts.max_discount_pct as number)],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex items-center justify-between py-2 border-b" style={{ borderColor: "var(--border)" }}>
+                      <span className="text-sm" style={{ color: "var(--muted)" }}>{label}</span>
+                      <span className="text-sm font-bold font-mono" style={{ color: "var(--text)" }}>{value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -509,50 +576,148 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
           {/* History tab */}
           {tab === "history" && (
             <div
-              className="rounded-2xl p-5"
-              style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+              className="rounded-2xl overflow-hidden"
+              style={{ border: "1px solid var(--border)" }}
             >
+              <div
+                className="px-5 py-4"
+                style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
+              >
+                <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>
+                  {changes.length} change{changes.length !== 1 ? "s" : ""} detected
+                </h3>
+              </div>
               {changes.length === 0 ? (
-                <p className="text-sm text-center py-8" style={{ color: "var(--muted)" }}>
-                  No changes detected yet. Check back after the next scan.
-                </p>
+                <div className="px-5 py-12 text-center" style={{ background: "var(--bg-card)" }}>
+                  <p className="text-sm" style={{ color: "var(--muted)" }}>
+                    No changes detected yet. Check back after the next scan.
+                  </p>
+                </div>
               ) : (
-                <>
-                  <h3 className="font-semibold mb-4 text-sm" style={{ color: "var(--text)" }}>
-                    {changes.length} change{changes.length !== 1 ? "s" : ""} detected
-                  </h3>
+                <div className="px-5" style={{ background: "var(--bg-card)" }}>
                   {changes.map((c) => <ChangeRow key={c.id} change={c} />)}
-                </>
+                </div>
               )}
             </div>
           )}
 
           {/* AI Insights tab */}
           {tab === "ai" && (
-            <div
-              className="rounded-2xl p-6"
-              style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <Cpu className="w-5 h-5" style={{ color: "var(--green)" }} />
-                <h3 className="font-semibold" style={{ color: "var(--text)" }}>AI Strategic Summary</h3>
-              </div>
-              {!aiSummary ? (
-                <div className="space-y-2">
-                  <div className="h-4 rounded animate-pulse w-full" style={{ background: "rgba(255,255,255,.06)" }} />
-                  <div className="h-4 rounded animate-pulse w-4/5" style={{ background: "rgba(255,255,255,.06)" }} />
-                  <div className="h-4 rounded animate-pulse w-3/5" style={{ background: "rgba(255,255,255,.06)" }} />
+            <div>
+              {tier === "free" ? (
+                /* Upgrade gate */
+                <div
+                  className="rounded-2xl p-8 text-center relative overflow-hidden"
+                  style={{ background: "var(--bg-card)", border: "1px solid rgba(168,255,0,.2)" }}
+                >
+                  <div
+                    className="absolute -top-16 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl pointer-events-none"
+                    style={{ background: "rgba(168,255,0,.06)" }}
+                  />
+                  <div className="relative">
+                    <div
+                      className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+                      style={{ background: "rgba(168,255,0,.1)", border: "1px solid rgba(168,255,0,.2)" }}
+                    >
+                      <Sparkles className="w-6 h-6" style={{ color: "var(--accent)" }} />
+                    </div>
+                    <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text)" }}>AI Strategic Summary</h3>
+                    <p className="text-sm mb-6 max-w-sm mx-auto leading-relaxed" style={{ color: "var(--muted)" }}>
+                      Get weekly AI-generated insights on {hostname}&apos;s pricing strategy, launch patterns, and competitive positioning.
+                    </p>
+                    {/* Blurred preview */}
+                    <div className="mb-6 text-left rounded-xl p-4 space-y-2 select-none pointer-events-none" style={{ background: "var(--bg3)" }}>
+                      {["44.6% catalog discounted signals aggressive positioning", "Minimal 1 product monthly launch velocity", "Budget positioning with $32 median price"].map((line, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--accent)" }} />
+                          <p className="text-sm blur-sm select-none" style={{ color: "var(--text-2)" }}>{line}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => setUpgradeOpen(true)}
+                      className="font-semibold text-sm px-6 py-3 rounded-xl transition-all hover:brightness-110"
+                      style={{ background: "var(--accent)", color: "#0a0a0f" }}
+                    >
+                      <Zap className="w-4 h-4 inline mr-1.5 -mt-0.5" />
+                      Unlock AI Insights — from $29/mo
+                    </button>
+                  </div>
                 </div>
-              ) : (
-                <>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: "var(--text)" }}>
-                    {aiSummary.summary_text}
-                  </p>
-                  <p className="text-xs mt-4" style={{ color: "var(--muted)" }}>
-                    Generated {formatRelativeTime(aiSummary.generated_at)} · {aiSummary.model}
-                  </p>
-                </>
-              )}
+              ) : !aiSummary ? (
+                /* Loading state */
+                <div
+                  className="rounded-2xl p-6"
+                  style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+                >
+                  <div className="flex items-center gap-2 mb-6">
+                    <Sparkles className="w-5 h-5" style={{ color: "var(--accent)" }} />
+                    <h3 className="font-semibold" style={{ color: "var(--text)" }}>AI Strategic Summary</h3>
+                  </div>
+                  <div className="space-y-3">
+                    {[100, 80, 90, 65, 75].map((w, i) => (
+                      <div key={i} className="h-3.5 rounded-full animate-pulse" style={{ background: "rgba(255,255,255,.06)", width: `${w}%` }} />
+                    ))}
+                  </div>
+                  <p className="text-xs mt-4" style={{ color: "var(--muted)" }}>Generating your AI brief…</p>
+                </div>
+              ) : (() => {
+                /* Render based on format */
+                const parsed = parseSummaryText(aiSummary.summary_text);
+                const CARD_CONFIG: Record<string, { color: string; bg: string; border: string; label: string }> = {
+                  signal:      { color: "#a8ff00", bg: "rgba(168,255,0,.07)",  border: "rgba(168,255,0,.18)",  label: "Most notable signal" },
+                  opportunity: { color: "#60a5fa", bg: "rgba(96,165,250,.07)", border: "rgba(96,165,250,.18)", label: "Your opening" },
+                  watch:       { color: "#f59e0b", bg: "rgba(245,158,11,.07)", border: "rgba(245,158,11,.18)", label: "Watch this" },
+                };
+                return (
+                  <div className="space-y-5">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
+                      <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>AI Strategic Summary</h3>
+                      <p className="text-xs ml-auto" style={{ color: "var(--muted)" }}>
+                        {formatRelativeTime(aiSummary.generated_at)}
+                      </p>
+                    </div>
+                    {parsed.type === "cards" ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {parsed.cards.map((card, i) => {
+                          const cfg = CARD_CONFIG[card.type] ?? CARD_CONFIG.signal;
+                          return (
+                            <div
+                              key={i}
+                              className="rounded-xl p-5"
+                              style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}
+                            >
+                              <span
+                                className="text-[10px] font-bold uppercase tracking-wider block mb-3"
+                                style={{ color: cfg.color }}
+                              >
+                                {cfg.label}
+                              </span>
+                              <h4 className="font-bold text-sm mb-2 leading-snug" style={{ color: "var(--text)" }}>
+                                {card.headline}
+                              </h4>
+                              <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
+                                {card.body}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div
+                        className="rounded-2xl p-5 space-y-4"
+                        style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+                      >
+                        {parsed.text.split(/\n\n+/).filter(Boolean).map((para, i) => (
+                          <p key={i} className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>{para}</p>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-xs" style={{ color: "var(--muted)" }}>{aiSummary.model}</p>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </>
