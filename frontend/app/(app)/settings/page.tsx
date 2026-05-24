@@ -2,10 +2,10 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { user as userApi, billing, myStore as myStoreApi, team as teamApi, type UserSubscription, type NotificationPrefs, type Competitor, type TeamMember } from "@/lib/api";
+import { user as userApi, billing, myStore as myStoreApi, team as teamApi, apiKeys as apiKeysApi, type UserSubscription, type NotificationPrefs, type Competitor, type TeamMember, type ApiKey } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import UpgradeModal from "@/components/UpgradeModal";
-import { Store, Hash, Globe, Users, X, Loader2 } from "lucide-react";
+import { Store, Hash, Globe, Users, X, Loader2, Key, Copy, Check, Terminal } from "lucide-react";
 
 // Inner component uses useSearchParams — must be inside <Suspense>
 function SettingsContent() {
@@ -30,10 +30,20 @@ function SettingsContent() {
   const [inviting, setInviting] = useState(false);
   const [inviteError, setInviteError] = useState("");
   const [inviteSent, setInviteSent] = useState(false);
+  const [keys, setKeys] = useState<ApiKey[]>([]);
+  const [newKeyName, setNewKeyName] = useState("");
+  const [creatingKey, setCreatingKey] = useState(false);
+  const [newKeyPlaintext, setNewKeyPlaintext] = useState("");
+  const [copiedKey, setCopiedKey] = useState(false);
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    userApi.subscription().then((r) => setSubscription(r.data)).catch(() => {});
+    userApi.subscription().then((r) => {
+      setSubscription(r.data);
+      if (["pro", "agency", "developer"].includes(r.data.tier)) {
+        apiKeysApi.list().then((kr) => setKeys(kr.data)).catch(() => {});
+      }
+    }).catch(() => {});
     userApi.prefs().then((r) => {
       setPrefs(r.data);
       setSlackUrl(r.data.slack_webhook_url || "");
@@ -134,6 +144,35 @@ function SettingsContent() {
     setStore(null);
   }
 
+  async function handleCreateKey() {
+    setCreatingKey(true);
+    setNewKeyPlaintext("");
+    try {
+      const { data } = await apiKeysApi.create(newKeyName.trim() || "API key");
+      setNewKeyPlaintext(data.key);
+      setNewKeyName("");
+      const kr = await apiKeysApi.list();
+      setKeys(kr.data);
+    } catch {
+      // swallow — key creation failure is rare
+    } finally {
+      setCreatingKey(false);
+    }
+  }
+
+  async function handleRevokeKey(keyId: string) {
+    if (!confirm("Revoke this API key? Any integrations using it will stop working immediately.")) return;
+    await apiKeysApi.revoke(keyId).catch(() => {});
+    setKeys((prev) => prev.filter((k) => k.id !== keyId));
+  }
+
+  function handleCopyKey() {
+    navigator.clipboard.writeText(newKeyPlaintext).then(() => {
+      setCopiedKey(true);
+      setTimeout(() => setCopiedKey(false), 2000);
+    });
+  }
+
   async function handleInvite() {
     if (!inviteEmail.trim()) return;
     setInviting(true);
@@ -164,7 +203,10 @@ function SettingsContent() {
     free: { bg: "rgba(255,255,255,.06)", color: "var(--muted)" },
     pro: { bg: "rgba(163,240,0,.12)", color: "#a3f000" },
     agency: { bg: "rgba(59,130,246,.12)", color: "#60a5fa" },
+    developer: { bg: "rgba(168,85,247,.12)", color: "#c084fc" },
   };
+
+  const isPaidTier = ["pro", "agency", "developer"].includes(subscription?.tier ?? "");
 
   const upgraded = searchParams.get("upgraded") === "1";
 
@@ -517,6 +559,120 @@ function SettingsContent() {
                 {inviteError && <p className="text-xs mt-2" style={{ color: "#f87171" }}>{inviteError}</p>}
                 {inviteSent && <p className="text-xs mt-2" style={{ color: "#4ade80" }}>✓ Invite sent</p>}
               </div>
+            )}
+          </section>
+        )}
+        {/* API Keys — Pro / Agency / Developer */}
+        {isPaidTier && (
+          <section
+            className="rounded-2xl p-6"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Key className="w-4 h-4" style={{ color: "#c084fc" }} />
+                <h2 className="font-semibold" style={{ color: "var(--text)" }}>API keys</h2>
+              </div>
+              <a
+                href="/api-docs"
+                className="flex items-center gap-1 text-xs font-medium hover:underline"
+                style={{ color: "#c084fc" }}
+              >
+                <Terminal className="w-3 h-3" />
+                API reference →
+              </a>
+            </div>
+            <p className="text-sm mb-5" style={{ color: "var(--muted)" }}>
+              Use API keys to access StoreScout data programmatically.
+              Keys begin with <code className="text-xs font-mono px-1 py-0.5 rounded" style={{ background: "var(--bg3)" }}>sk_live_</code>.
+              Copy your key immediately — it will not be shown again.
+            </p>
+
+            {/* Existing keys */}
+            {keys.length > 0 && (
+              <div className="space-y-2 mb-5">
+                {keys.map((k) => (
+                  <div
+                    key={k.id}
+                    className="flex items-center justify-between gap-3 rounded-xl px-4 py-3"
+                    style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate" style={{ color: "var(--text)" }}>{k.name}</p>
+                      <p className="text-xs font-mono mt-0.5" style={{ color: "var(--muted)" }}>
+                        {k.key_prefix}••••••••
+                        {k.last_used_at
+                          ? ` · Last used ${new Date(k.last_used_at).toLocaleDateString()}`
+                          : " · Never used"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleRevokeKey(k.id)}
+                      className="shrink-0 p-1.5 rounded-lg transition-colors hover:bg-red-500/10"
+                      style={{ color: "#f87171" }}
+                      title="Revoke key"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* New key revealed once */}
+            {newKeyPlaintext && (
+              <div
+                className="mb-5 rounded-xl p-4"
+                style={{ background: "rgba(168,85,247,.08)", border: "1px solid rgba(168,85,247,.25)" }}
+              >
+                <p className="text-xs font-semibold mb-2" style={{ color: "#c084fc" }}>
+                  Your new API key — copy it now, it won&apos;t be shown again
+                </p>
+                <div className="flex items-center gap-2">
+                  <code
+                    className="flex-1 text-xs font-mono px-3 py-2 rounded-lg overflow-x-auto"
+                    style={{ background: "var(--bg3)", color: "var(--text)", display: "block" }}
+                  >
+                    {newKeyPlaintext}
+                  </code>
+                  <button
+                    onClick={handleCopyKey}
+                    className="shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all"
+                    style={{ background: copiedKey ? "rgba(74,222,128,.15)" : "var(--bg3)", color: copiedKey ? "#4ade80" : "var(--muted)", border: "1px solid var(--border)" }}
+                  >
+                    {copiedKey ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copiedKey ? "Copied" : "Copy"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Create form */}
+            {keys.length < 5 && (
+              <div className="flex gap-2">
+                <input
+                  value={newKeyName}
+                  onChange={(e) => setNewKeyName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleCreateKey()}
+                  placeholder="Key name (e.g. Zapier integration)"
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none"
+                  style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                />
+                <button
+                  onClick={handleCreateKey}
+                  disabled={creatingKey}
+                  className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-50 flex items-center gap-2 shrink-0"
+                  style={{ background: "#c084fc", color: "#060d18" }}
+                >
+                  {creatingKey ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
+                  Generate key
+                </button>
+              </div>
+            )}
+            {keys.length >= 5 && (
+              <p className="text-xs" style={{ color: "var(--muted)" }}>
+                Maximum of 5 active keys reached. Revoke one to create a new key.
+              </p>
             )}
           </section>
         )}

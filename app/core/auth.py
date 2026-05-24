@@ -1,4 +1,6 @@
 from __future__ import annotations
+import hashlib
+from datetime import datetime, timezone
 from typing import Optional
 import requests as _requests
 from functools import lru_cache
@@ -9,6 +11,26 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from .config import get_settings
 
 bearer_scheme = HTTPBearer(auto_error=False)
+
+
+def _auth_via_api_key(raw_key: str) -> str:
+    key_hash = hashlib.sha256(raw_key.encode()).hexdigest()
+    from app.core.database import get_supabase
+    db = get_supabase()
+    row = db.table("api_keys").select("id, user_id")\
+        .eq("key_hash", key_hash)\
+        .is_("revoked_at", "null")\
+        .maybe_single()\
+        .execute()
+    if not row or not row.data:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or revoked API key")
+    try:
+        from datetime import datetime, timezone
+        db.table("api_keys").update({"last_used_at": datetime.now(timezone.utc).isoformat()})\
+            .eq("id", row.data["id"]).execute()
+    except Exception:
+        pass
+    return row.data["user_id"]
 
 
 @lru_cache(maxsize=1)
@@ -57,6 +79,8 @@ def get_current_user_id(
     settings = get_settings()
     if not credentials:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing token")
+    if credentials.credentials.startswith("sk_live_"):
+        return _auth_via_api_key(credentials.credentials)
     try:
         payload = _decode_token(credentials.credentials, settings)
         user_id: Optional[str] = payload.get("sub")
