@@ -256,59 +256,77 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
     );
   }
 
+  const hostname = (snapshot?.snapshot_data as Record<string, unknown>)?.hostname as string || id;
+
   return (
     <div>
-      {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <Link href="/dashboard" className="flex items-center gap-1.5 text-sm mb-3 hover:opacity-80 transition-opacity" style={{ color: "var(--muted)" }}>
-            <ArrowLeft className="w-4 h-4" />
-            Back to dashboard
-          </Link>
-          <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>
-            {(snapshot?.snapshot_data as Record<string, unknown>)?.hostname as string || id}
-          </h1>
-          {snapshot && (
-            <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>
-              Last scanned {formatRelativeTime(snapshot.scanned_at)} · {snapshot.product_count?.toLocaleString()} products
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          {snapshot && (
+      {/* Header — gradient strip */}
+      <div
+        className="-mx-4 sm:-mx-6 px-4 sm:px-6 pt-6 pb-5 mb-6 relative overflow-hidden"
+        style={{
+          background: "linear-gradient(135deg, rgba(168,255,0,.05) 0%, transparent 60%)",
+          borderBottom: "1px solid var(--border)",
+        }}
+      >
+        {/* Back link */}
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-1.5 text-xs font-medium mb-4 hover:opacity-80 transition-opacity"
+          style={{ color: "var(--muted)" }}
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          All competitors
+        </Link>
+
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="text-3xl font-bold tracking-tight truncate" style={{ color: "var(--text)" }}>
+              {hostname}
+            </h1>
+            {snapshot && (
+              <p className="text-sm mt-1.5" style={{ color: "var(--muted)" }}>
+                Last scanned {formatRelativeTime(snapshot.scanned_at)}
+                {snapshot.product_count != null && ` · ${snapshot.product_count.toLocaleString()} products`}
+              </p>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {snapshot && (
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl transition-all hover:bg-white/[0.06]"
+                style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+              >
+                {copied ? <Check className="w-3.5 h-3.5" style={{ color: "var(--emerald)" }} /> : <Share2 className="w-3.5 h-3.5" />}
+                {copied ? "Copied" : "Share"}
+              </button>
+            )}
             <button
-              onClick={handleShare}
-              className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-xl transition-colors hover:bg-white/10"
+              onClick={handleExportCsv}
+              disabled={exporting}
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl transition-all hover:bg-white/[0.06] disabled:opacity-50"
               style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Share2 className="w-3.5 h-3.5" />}
-              {copied ? "Copied!" : "Share"}
+              <Download className="w-3.5 h-3.5" />
+              {exporting ? "…" : "CSV"}
             </button>
-          )}
-          <button
-            onClick={handleExportCsv}
-            disabled={exporting}
-            className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-xl transition-colors hover:bg-white/10 disabled:opacity-50"
-            style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
-          >
-            <Download className="w-3.5 h-3.5" />
-            {exporting ? "…" : "CSV"}
-          </button>
-          <button
-            onClick={handleRescan}
-            className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-xl transition-colors hover:bg-white/10"
-            style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
-          >
-            <RefreshCw className={cn("w-3.5 h-3.5", rescanning && "animate-spin")} />
-            Rescan
-          </button>
-          <button
-            onClick={handleDelete}
-            className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-xl transition-colors hover:bg-red-500/10"
-            style={{ color: "#f87171", border: "1px solid rgba(248,113,113,.3)" }}
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+            <button
+              onClick={handleRescan}
+              className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all hover:brightness-110"
+              style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.2)" }}
+            >
+              <RefreshCw className={cn("w-3.5 h-3.5", rescanning && "animate-spin")} />
+              Rescan
+            </button>
+            <button
+              onClick={handleDelete}
+              className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl transition-all hover:bg-red-500/10"
+              style={{ color: "var(--red)", border: "1px solid rgba(239,68,68,.25)" }}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -323,7 +341,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
         </div>
       ) : brief && !briefDismissed ? (
         <IntelligenceBrief
-          hostname={(snapshot?.snapshot_data as Record<string, unknown>)?.hostname as string || id}
+          hostname={hostname}
           cards={(() => {
             try { return (JSON.parse((brief as BriefData).summary_text) as { cards: BriefCard[] }).cards; }
             catch { return []; }
@@ -333,22 +351,24 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
       ) : (
         <>
           {/* Tab nav */}
-          <div className="flex gap-1 mb-6 overflow-x-auto pb-1">
+          <div
+            className="flex gap-0 mb-6 overflow-x-auto border-b"
+            style={{ borderColor: "var(--border)" }}
+          >
             {tabs.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={cn(
-                  "px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors",
-                  tab === t.id ? "text-white" : "hover:bg-white/5"
-                )}
-                style={
-                  tab === t.id
-                    ? { background: "rgba(163,240,0,.12)", color: "var(--green)" }
-                    : { color: "var(--muted)" }
-                }
+                className="relative px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors"
+                style={{ color: tab === t.id ? "var(--accent)" : "var(--muted)" }}
               >
                 {t.label}
+                {tab === t.id && (
+                  <span
+                    className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                    style={{ background: "var(--accent)" }}
+                  />
+                )}
               </button>
             ))}
           </div>
