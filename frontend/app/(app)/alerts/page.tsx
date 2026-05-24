@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { Bell } from "lucide-react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { Bell, RefreshCw, CheckCheck } from "lucide-react";
 import { alerts as alertsApi, type AlertEvent } from "@/lib/api";
 import { groupAlertEvents, generateNarrative } from "@/lib/signals";
 import { SignalFeed } from "@/components/signals/SignalFeed";
 
-// ── Filter definitions ────────────────────────────────────────────────────────
 const FILTERS = [
   { value: "",               label: "All" },
   { value: "price_change",   label: "Price changes" },
@@ -14,44 +13,75 @@ const FILTERS = [
   { value: "discount_start", label: "Discounts" },
 ] as const;
 
+const REFRESH_INTERVAL_MS = 30_000;
+
 function countByType(list: AlertEvent[], value: string): number {
   if (!value) return list.length;
   return list.filter((a) => a.change_type === value).length;
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
 export default function AlertsPage() {
-  const [alertList, setAlertList] = useState<AlertEvent[]>([]);
-  const [loading,   setLoading]   = useState(true);
-  const [filter,    setFilter]    = useState("");
+  const [alertList,    setAlertList]    = useState<AlertEvent[]>([]);
+  const [loading,      setLoading]      = useState(true);
+  const [refreshing,   setRefreshing]   = useState(false);
+  const [filter,       setFilter]       = useState("");
+  const [unreadCount,  setUnreadCount]  = useState(0);
+  const [markingRead,  setMarkingRead]  = useState(false);
+  const markedReadRef = useRef(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
+    else setRefreshing(true);
     try {
       const { data } = await alertsApi.list(200);
       setAlertList(data);
+      // Count unread in the freshly fetched list
+      setUnreadCount(data.filter((a) => !a.read_at).length);
     } catch {
-      // ignore
+      // ignore network errors silently
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  // Initial load + auto-mark-all-read in one shot
+  useEffect(() => {
+    load().then(() => {
+      // Mark all as read once per page visit, non-blocking
+      if (!markedReadRef.current) {
+        markedReadRef.current = true;
+        alertsApi.markAllRead().catch(() => {});
+      }
+    });
+  }, [load]);
+
+  // 30-second silent refresh
+  useEffect(() => {
+    const timer = setInterval(() => load(true), REFRESH_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, [load]);
+
+  async function handleMarkAllRead() {
+    setMarkingRead(true);
+    await alertsApi.markAllRead().catch(() => {});
+    setUnreadCount(0);
+    setAlertList((prev) => prev.map((a) => ({ ...a, read_at: new Date().toISOString() })));
+    setMarkingRead(false);
+  }
 
   const filtered = useMemo(
     () => filter ? alertList.filter((a) => a.change_type === filter) : alertList,
     [alertList, filter],
   );
 
-  const signalGroups = useMemo(() => groupAlertEvents(filtered), [filtered]);
-  const narrative    = useMemo(() => generateNarrative(signalGroups), [signalGroups]);
-
+  const signalGroups   = useMemo(() => groupAlertEvents(filtered), [filtered]);
+  const narrative      = useMemo(() => generateNarrative(signalGroups), [signalGroups]);
   const strategicCount = signalGroups.filter((g) => g.tier === "strategic").length;
 
   return (
     <div className="fade-up">
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold tracking-tight" style={{ color: "var(--text)" }}>
@@ -75,25 +105,58 @@ export default function AlertsPage() {
           )}
         </div>
 
-        {/* Live indicator */}
         <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2" aria-hidden="true">
-            <span
-              className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60"
-              style={{ background: "var(--accent)" }}
-            />
-            <span
-              className="relative inline-flex rounded-full h-2 w-2"
-              style={{ background: "var(--accent)" }}
-            />
-          </span>
-          <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>
-            Live
-          </span>
+          {/* Mark all read — only when there are unread items */}
+          {unreadCount > 0 && (
+            <button
+              onClick={handleMarkAllRead}
+              disabled={markingRead}
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl transition-all hover:opacity-80 disabled:opacity-50"
+              style={{ background: "var(--bg3)", color: "var(--muted)", border: "1px solid var(--border)" }}
+              title={`Mark all ${unreadCount} as read`}
+            >
+              <CheckCheck className="w-3.5 h-3.5" />
+              Mark all read
+              <span
+                className="px-1.5 py-0.5 rounded-full text-[10px] font-bold"
+                style={{ background: "rgba(168,255,0,.15)", color: "var(--accent)" }}
+              >
+                {unreadCount}
+              </span>
+            </button>
+          )}
+
+          {/* Manual refresh */}
+          <button
+            onClick={() => load(true)}
+            disabled={refreshing || loading}
+            className="p-1.5 rounded-xl transition-all hover:bg-white/5 disabled:opacity-40"
+            style={{ color: "var(--muted)" }}
+            title="Refresh"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+          </button>
+
+          {/* Live indicator */}
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2" aria-hidden="true">
+              <span
+                className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60"
+                style={{ background: "var(--accent)" }}
+              />
+              <span
+                className="relative inline-flex rounded-full h-2 w-2"
+                style={{ background: "var(--accent)" }}
+              />
+            </span>
+            <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>
+              Live
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* ── Narrative bar ──────────────────────────────────────────────────── */}
+      {/* ── Narrative bar ────────────────────────────────────────────────────── */}
       {!loading && narrative && (
         <div
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl mb-5 text-xs font-medium fade-up-1"
@@ -103,11 +166,11 @@ export default function AlertsPage() {
             color: strategicCount > 0 ? "var(--red)" : "var(--text-2)",
           }}
         >
-          <span>{narrative}</span>
+          {narrative}
         </div>
       )}
 
-      {/* ── Filter pills ───────────────────────────────────────────────────── */}
+      {/* ── Filter pills ─────────────────────────────────────────────────────── */}
       <div className="flex gap-2 mb-6 flex-wrap fade-up-1">
         {FILTERS.map(({ value, label }) => {
           const active = filter === value;
@@ -120,11 +183,7 @@ export default function AlertsPage() {
               style={
                 active
                   ? { background: "var(--accent)", color: "#0a0a0f" }
-                  : {
-                      background: "var(--bg4)",
-                      color: "var(--muted)",
-                      border: "1px solid var(--border)",
-                    }
+                  : { background: "var(--bg4)", color: "var(--muted)", border: "1px solid var(--border)" }
               }
             >
               {label}
@@ -143,7 +202,7 @@ export default function AlertsPage() {
         })}
       </div>
 
-      {/* ── Body ───────────────────────────────────────────────────────────── */}
+      {/* ── Body ─────────────────────────────────────────────────────────────── */}
       {loading ? (
         <div className="space-y-3 fade-in">
           {[1, 2, 3, 4, 5].map((i) => (

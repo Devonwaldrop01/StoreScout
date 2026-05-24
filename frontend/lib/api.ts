@@ -119,6 +119,8 @@ export const alerts = {
   unreadCount: () => apiFetch<{ count: number }>("/alerts/unread-count"),
   markRead: (id: string) =>
     apiFetch<{ status: string }>(`/alerts/${id}/read`, { method: "PUT" }),
+  markAllRead: () =>
+    apiFetch<{ status: string; marked: number }>("/alerts/mark-all-read", { method: "POST" }),
 };
 
 // ── Billing ───────────────────────────────────────────────────
@@ -205,6 +207,7 @@ export interface ChangeEvent {
 
 export interface AlertEvent extends ChangeEvent {
   hostname: string;
+  read_at?: string | null;
 }
 
 export interface AiSummary {
