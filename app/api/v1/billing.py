@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class CheckoutRequest(BaseModel):
-    plan: str  # "pro" | "agency"
+    plan: str  # "pro" | "agency" | "developer"
     billing: str = "monthly"  # "monthly" | "annual"
 
 
@@ -24,6 +24,8 @@ def _price_id_for_plan(plan: str, billing: str, settings) -> str:
         return settings.stripe_pro_annual_price_id if annual else settings.stripe_pro_price_id
     if plan == "agency":
         return settings.stripe_agency_annual_price_id if annual else settings.stripe_agency_price_id
+    if plan == "developer":
+        return settings.stripe_developer_annual_price_id if annual else settings.stripe_developer_price_id
     raise HTTPException(400, "Invalid plan")
 
 

@@ -63,6 +63,17 @@ export const competitors = {
     apiFetch<{ data: { suggestions: DiscoverySuggestion[] } }>("/competitors/discover"),
 };
 
+// ── API Keys ──────────────────────────────────────────────────
+export const apiKeys = {
+  list: () => apiFetch<{ data: ApiKey[] }>("/api-keys"),
+  create: (name = "API key") =>
+    apiFetch<{ data: { key: string; key_prefix: string; name: string } }>("/api-keys", {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    }),
+  revoke: (keyId: string) => apiFetch<void>(`/api-keys/${keyId}`, { method: "DELETE" }),
+};
+
 // ── Team ──────────────────────────────────────────────────────
 export const team = {
   members: () => apiFetch<{ data: TeamMember[] }>("/team/members"),
@@ -429,6 +440,14 @@ export interface PublicReport {
     catalog_complexity?: Record<string, unknown>;
   };
   takeaways: string[];
+}
+
+export interface ApiKey {
+  id: string;
+  name: string;
+  key_prefix: string;
+  last_used_at?: string | null;
+  created_at: string;
 }
 
 export interface TeamMember {

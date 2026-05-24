@@ -35,6 +35,7 @@ def get_subscription(user_id: str = Depends(get_current_user_id)):
         "free": {"max_competitors": settings.free_max_competitors, "scan_hours": settings.free_scan_interval_hours, "history_days": 0, "ai_digest": False},
         "pro": {"max_competitors": settings.pro_max_competitors, "scan_hours": settings.pro_scan_interval_hours, "history_days": 90, "ai_digest": True},
         "agency": {"max_competitors": settings.agency_max_competitors, "scan_hours": settings.agency_scan_interval_hours, "history_days": 3650, "ai_digest": True},
+        "developer": {"max_competitors": 50, "scan_hours": 12, "history_days": 3650, "ai_digest": True},
     }.get(tier, {"max_competitors": 1, "scan_hours": 168, "history_days": 0, "ai_digest": False})
 
     return {

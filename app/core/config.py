@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     stripe_agency_price_id: str = ""
     stripe_pro_annual_price_id: str = ""
     stripe_agency_annual_price_id: str = ""
+    stripe_developer_price_id: str = ""
+    stripe_developer_annual_price_id: str = ""
+    shopify_api_key: str = ""
+    shopify_api_secret: str = ""
 
     # Email
     resend_api_key: str = ""
