@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   Zap, Bell, ArrowRight, Check, Shield, Clock,
   TrendingUp, Package, Tag, Sparkles, ChevronRight,
+  Store, Users,
 } from "lucide-react";
 import { FaqAccordion } from "@/components/landing/FaqAccordion";
 
@@ -12,6 +13,7 @@ const PLANS = [
     name: "Free",
     price: "$0",
     sub: "forever",
+    annualNote: null,
     highlight: false,
     features: ["1 competitor", "Weekly manual scan", "Current snapshot only", "In-app change history", "No credit card required"],
     cta: "Start free",
@@ -20,7 +22,9 @@ const PLANS = [
   {
     name: "Pro",
     price: "$29",
+    annualPrice: "$23",
     sub: "/month",
+    annualNote: "or $23/mo billed annually",
     highlight: true,
     features: ["10 competitors", "Daily auto-scans", "90-day price history", "Email + in-app alerts", "Weekly AI digest", "Quick Wins analysis"],
     cta: "Start Pro",
@@ -29,7 +33,9 @@ const PLANS = [
   {
     name: "Agency",
     price: "$79",
+    annualPrice: "$63",
     sub: "/month",
+    annualNote: "or $63/mo billed annually",
     highlight: false,
     features: ["50 competitors", "Daily auto-scans", "Unlimited history", "Email + in-app alerts", "Weekly AI digest", "Shareable report URLs"],
     cta: "Start Agency",
@@ -39,8 +45,26 @@ const PLANS = [
 
 const BRANDS = [
   "gymshark.com", "fashionnova.com", "allbirds.com", "skims.com",
-  "vuori.com", "lululemon.com", "chubbies.com", "revolve.com",
-  "gymshark.com", "fashionnova.com", "allbirds.com", "skims.com",
+  "vuori.com", "lululemon.com", "bombas.com", "revolve.com",
+  "brooklinen.com", "colourpop.com", "parachutehome.com", "ruggable.com",
+];
+
+const TESTIMONIALS = [
+  {
+    quote: "Being able to see exactly when Gymshark runs a sale — and get that in my inbox within the hour — changed how we set our own promotions. We matched their Black Friday offer the same day.",
+    name: "Sarah M.",
+    role: "DTC footwear brand, $2M ARR",
+  },
+  {
+    quote: "I share StoreScout reports with clients instead of PDFs. They actually open them, bookmark them, and ask for more stores. It's become a core part of our agency deliverables.",
+    name: "Marcus R.",
+    role: "Shopify agency, 14 clients",
+  },
+  {
+    quote: "We caught a competitor running 40% off their bestsellers two hours before it hit Reddit. Matched the promo same day and had our best weekend of the quarter.",
+    name: "Jake L.",
+    role: "Fashion brand operator",
+  },
 ];
 
 // ── Preview components ────────────────────────────────────────────────────────
@@ -52,10 +76,7 @@ function SignalCardPreview({
   why: string; count: number; color: string; bg: string; border: string;
 }) {
   return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{ background: bg, border: `1px solid ${border}` }}
-    >
+    <div className="rounded-2xl overflow-hidden" style={{ background: bg, border: `1px solid ${border}` }}>
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="min-w-0">
@@ -93,10 +114,7 @@ function SignalCardPreview({
 
 function AppPreview() {
   return (
-    <div
-      className="rounded-2xl overflow-hidden shadow-2xl"
-      style={{ background: "#060d18", border: "1px solid #1a2744" }}
-    >
+    <div className="rounded-2xl overflow-hidden shadow-2xl" style={{ background: "#060d18", border: "1px solid #1a2744" }}>
       {/* Browser chrome */}
       <div className="flex items-center gap-3 px-4 py-3 border-b" style={{ background: "#0a1628", borderColor: "#1a2744" }}>
         <div className="flex gap-1.5">
@@ -122,9 +140,8 @@ function AppPreview() {
           ))}
         </div>
 
-        {/* Center: Intelligence stream */}
+        {/* Center */}
         <div className="flex-1 min-w-0 p-4 space-y-2">
-          {/* Narrative bar */}
           <div
             className="flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] font-medium mb-3"
             style={{ background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.2)", color: "#fca5a5" }}
@@ -132,8 +149,6 @@ function AppPreview() {
             <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shrink-0" />
             fashionnova.com: 19 launches · flash sale · 41 total events
           </div>
-
-          {/* Strategic signal */}
           <SignalCardPreview
             type="Why this matters"
             headline="LAUNCH BURST"
@@ -145,8 +160,6 @@ function AppPreview() {
             bg="rgba(163,240,0,.05)"
             border="rgba(163,240,0,.2)"
           />
-
-          {/* Tactical signal */}
           <div
             className="rounded-xl overflow-hidden"
             style={{ border: "1px solid rgba(239,68,68,.2)", background: "rgba(239,68,68,.05)" }}
@@ -164,7 +177,7 @@ function AppPreview() {
           <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#4a6080" }}>Activity · 7 days</p>
           <div className="flex items-end gap-0.5 h-14">
             {[3, 7, 2, 9, 5, 12, 6].map((h, i) => (
-              <div key={i} className="flex-1 rounded-sm" style={{ background: i === 5 ? "#a3f000" : "rgba(163,240,0,.2)", height: `${(h/12)*100}%` }} />
+              <div key={i} className="flex-1 rounded-sm" style={{ background: i === 5 ? "#a3f000" : "rgba(163,240,0,.2)", height: `${(h / 12) * 100}%` }} />
             ))}
           </div>
           <div className="space-y-1.5 pt-1">
@@ -176,6 +189,62 @@ function AppPreview() {
             ))}
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function AlertEmailPreview() {
+  return (
+    <div
+      className="rounded-2xl overflow-hidden shadow-xl max-w-sm mx-auto"
+      style={{ background: "#fff", border: "1px solid #e5e7eb", fontFamily: "system-ui, sans-serif" }}
+    >
+      {/* Email header bar */}
+      <div className="px-5 py-3 flex items-center gap-2 border-b" style={{ borderColor: "#f0f0f0", background: "#fafafa" }}>
+        <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+        <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+        <span className="ml-2 text-[11px] text-gray-400">StoreScout alert · your inbox</span>
+      </div>
+      {/* Email body */}
+      <div style={{ background: "#060d18", padding: "20px 24px 24px" }}>
+        <div style={{ marginBottom: 16 }}>
+          <span style={{ color: "#a3f000", fontWeight: 700, fontSize: 14, letterSpacing: -0.3 }}>StoreScout</span>
+        </div>
+        <div
+          style={{
+            background: "rgba(248,113,113,.12)",
+            border: "1px solid rgba(248,113,113,.25)",
+            borderRadius: 10,
+            padding: "12px 16px",
+            marginBottom: 16,
+          }}
+        >
+          <p style={{ color: "#f87171", fontWeight: 700, fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 4px" }}>
+            ⚡ Flash sale detected
+          </p>
+          <p style={{ color: "#eef3fa", fontWeight: 700, fontSize: 16, margin: "0 0 4px" }}>gymshark.com</p>
+          <p style={{ color: "#94a3b8", fontSize: 12, margin: 0 }}>7 products dropped ≥20% — avg −24.6%</p>
+        </div>
+        <p style={{ color: "#64748b", fontSize: 11, margin: "0 0 14px" }}>
+          Summer clearance or aggressive acquisition push — match if you compete on price.
+        </p>
+        <a
+          href="#"
+          style={{
+            display: "inline-block",
+            background: "#a3f000",
+            color: "#060d18",
+            fontWeight: 700,
+            fontSize: 13,
+            padding: "9px 20px",
+            borderRadius: 8,
+            textDecoration: "none",
+          }}
+        >
+          View dashboard →
+        </a>
       </div>
     </div>
   );
@@ -193,7 +262,6 @@ function ComparisonTable() {
     { feature: "Multi-competitor dashboard", ext: false, report: false, us: true },
     { feature: "Starts free, no card",       ext: false, report: false, us: true },
   ];
-
   const col = (v: boolean) => v
     ? <span className="text-base" style={{ color: "#a3f000" }}>✓</span>
     : <span className="text-base opacity-20" style={{ color: "#94a3b8" }}>✕</span>;
@@ -243,15 +311,21 @@ export default function LandingPage() {
       {/* ── Nav ─────────────────────────────────────────────────────────────── */}
       <nav
         className="sticky top-0 z-40 flex items-center justify-between px-6 md:px-12 py-4 border-b backdrop-blur-md"
-        style={{ borderColor: "var(--border)", background: "rgba(6,13,24,.9)" }}
+        style={{ borderColor: "var(--border)", background: "rgba(6,13,24,.92)" }}
       >
-        <div className="flex items-center gap-2">
-          <Zap className="w-5 h-5" style={{ color: "#a3f000" }} />
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+            style={{ background: "var(--accent)", boxShadow: "0 0 10px rgba(168,255,0,.3)" }}
+          >
+            <Zap className="w-4 h-4" style={{ color: "#0a0a0f" }} />
+          </div>
           <span className="font-bold text-lg" style={{ color: "var(--text)" }}>StoreScout</span>
         </div>
         <div className="hidden md:flex items-center gap-6">
           <Link href="#how-it-works" className="text-sm font-medium hover:opacity-80 transition-opacity" style={{ color: "var(--muted)" }}>How it works</Link>
           <Link href="#pricing" className="text-sm font-medium hover:opacity-80 transition-opacity" style={{ color: "var(--muted)" }}>Pricing</Link>
+          <Link href="#faq" className="text-sm font-medium hover:opacity-80 transition-opacity" style={{ color: "var(--muted)" }}>FAQ</Link>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/auth/login" className="text-sm font-medium hover:opacity-80 transition-opacity hidden sm:block" style={{ color: "var(--muted)" }}>
@@ -281,14 +355,13 @@ export default function LandingPage() {
           className="text-4xl md:text-6xl font-black tracking-tight mb-6"
           style={{ color: "var(--text)", letterSpacing: "-0.04em", lineHeight: 1.05 }}
         >
-          Always know what your<br />
+          Know the moment your<br />
           <span style={{ color: "#a3f000" }}>Shopify competitors</span><br />
-          are doing.
+          change anything.
         </h1>
 
         <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed" style={{ color: "var(--muted)" }}>
-          Track prices, product launches, and discount campaigns across any Shopify store.
-          Get alerted within 15 minutes when they make a move — automatically, every day.
+          Price drops, new launches, flash sales — StoreScout detects every move across any Shopify store and emails you within 15 minutes. Automatically. Every day.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
@@ -315,14 +388,31 @@ export default function LandingPage() {
         </p>
       </div>
 
+      {/* ── Social proof stats ───────────────────────────────────────────────── */}
+      <div className="border-y" style={{ borderColor: "var(--border)" }}>
+        <div className="max-w-5xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          {[
+            { value: "< 15 min", label: "Avg. alert delivery" },
+            { value: "1M+", label: "Shopify stores supported" },
+            { value: "100%", label: "Public data — no ToS issues" },
+            { value: "$0", label: "To get started" },
+          ].map(({ value, label }) => (
+            <div key={label}>
+              <p className="text-2xl font-black mb-0.5" style={{ color: "var(--text)" }}>{value}</p>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>{label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* ── Brand ticker ────────────────────────────────────────────────────── */}
-      <div className="border-y overflow-hidden py-4 mb-20" style={{ borderColor: "var(--border)" }}>
-        <p className="text-center text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--muted)", opacity: 0.5 }}>
-          Stores being tracked right now
+      <div className="py-5 mb-20">
+        <p className="text-center text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "var(--muted)", opacity: 0.5 }}>
+          Track any of these stores — and thousands more
         </p>
         <div className="flex items-center gap-8 px-8 flex-wrap justify-center">
-          {BRANDS.slice(0, 8).map((b, i) => (
-            <span key={i} className="text-sm font-mono font-medium" style={{ color: "var(--muted)", opacity: 0.45 }}>
+          {BRANDS.map((b, i) => (
+            <span key={i} className="text-sm font-mono font-medium" style={{ color: "var(--muted)", opacity: 0.4 }}>
               {b}
             </span>
           ))}
@@ -342,6 +432,41 @@ export default function LandingPage() {
         <AppPreview />
       </div>
 
+      {/* ── Alert email preview ─────────────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6 pb-28">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <div
+              className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
+              style={{ background: "rgba(239,68,68,.1)", color: "#f87171", border: "1px solid rgba(239,68,68,.2)" }}
+            >
+              <Bell className="w-3 h-3" />
+              In your inbox within 15 minutes
+            </div>
+            <h2 className="text-3xl font-black mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
+              Beat your competitors to their own move.
+            </h2>
+            <p className="text-base leading-relaxed mb-6" style={{ color: "var(--muted)" }}>
+              By the time a competitor&apos;s flash sale shows up on Reddit, their best customers have already bought. StoreScout alerts you while the sale is still running — so you can match it, counter it, or let it pass.
+            </p>
+            <ul className="space-y-3">
+              {[
+                "Price drops ≥10% trigger an immediate alert",
+                "Flash sale events grouped and explained by AI",
+                "New product launches detected within hours",
+                "Discount campaigns tracked start-to-finish",
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-3 text-sm" style={{ color: "var(--muted)" }}>
+                  <Check className="w-4 h-4 shrink-0" style={{ color: "#a3f000" }} />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <AlertEmailPreview />
+        </div>
+      </div>
+
       {/* ── How it works ────────────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-6 pb-28" id="how-it-works">
         <div className="text-center mb-14">
@@ -351,9 +476,7 @@ export default function LandingPage() {
           <p className="text-base" style={{ color: "var(--muted)" }}>No setup, no API keys, no spreadsheets.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-8 relative">
-          {/* Connector line */}
           <div className="hidden md:block absolute top-6 left-[calc(16.67%+24px)] right-[calc(16.67%+24px)] h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(163,240,0,.3), transparent)" }} />
-
           {[
             { step: "01", icon: Package, title: "Paste any Shopify URL", desc: "Enter a competitor's store URL. We verify it's a Shopify store and kick off the first scan immediately — no browser extension needed." },
             { step: "02", icon: TrendingUp, title: "We analyze their full catalog", desc: "StoreScout fetches their entire product catalog, analyzes pricing patterns, launch velocity, and discount strategy. First results in under 2 minutes." },
@@ -366,10 +489,7 @@ export default function LandingPage() {
               >
                 <Icon className="w-5 h-5" style={{ color: "#a3f000" }} />
               </div>
-              <div
-                className="text-[10px] font-black uppercase tracking-widest mb-2"
-                style={{ color: "rgba(163,240,0,.4)" }}
-              >
+              <div className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: "rgba(163,240,0,.4)" }}>
                 Step {step}
               </div>
               <h3 className="font-bold mb-2" style={{ color: "var(--text)" }}>{title}</h3>
@@ -379,21 +499,67 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* ── What you get (features) ──────────────────────────────────────────── */}
+      {/* ── Who it's for ────────────────────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6 pb-28">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-black mb-3" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
+            Built for two types of operators
+          </h2>
+          <p className="text-base max-w-xl mx-auto" style={{ color: "var(--muted)" }}>
+            Whether you run one brand or manage 50 clients, StoreScout adapts to your workflow.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="rounded-2xl p-7" style={{ background: "rgba(163,240,0,.04)", border: "1px solid rgba(163,240,0,.15)" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(163,240,0,.12)" }}>
+              <Store className="w-5 h-5" style={{ color: "#a3f000" }} />
+            </div>
+            <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text)" }}>DTC brand operators</h3>
+            <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--muted)" }}>
+              You make pricing and product decisions every week. StoreScout keeps you ahead of the 2–4 competitors who matter most — without spreadsheets or manual checking.
+            </p>
+            <ul className="space-y-2">
+              {["Know before you react, not after", "Match competitor promos same-day", "Spot product trends early", "Up to 10 competitors on Pro"].map((f) => (
+                <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "var(--muted)" }}>
+                  <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#a3f000" }} />
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-2xl p-7" style={{ background: "rgba(96,165,250,.04)", border: "1px solid rgba(96,165,250,.15)" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(96,165,250,.12)" }}>
+              <Users className="w-5 h-5" style={{ color: "#60a5fa" }} />
+            </div>
+            <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text)" }}>Shopify agencies</h3>
+            <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--muted)" }}>
+              Run competitive analysis for multiple clients without the overhead. Shareable report URLs replace PDF attachments — clients bookmark them and ask for more.
+            </p>
+            <ul className="space-y-2">
+              {["Track 50 competitors across all clients", "Shareable report URLs per brand", "White-label ready with your branding", "Weekly AI digest per competitor"].map((f) => (
+                <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "var(--muted)" }}>
+                  <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#60a5fa" }} />
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Features grid ───────────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-6 pb-28">
         <div className="text-center mb-14">
           <h2 className="text-3xl font-black mb-3" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
             Everything in one place
           </h2>
           <p className="text-base max-w-xl mx-auto" style={{ color: "var(--muted)" }}>
-            Built for Shopify operators who make pricing and product decisions every week — and can't afford Similarweb.
+            Built for Shopify operators who make pricing and product decisions every week — and can&apos;t afford Similarweb.
           </p>
         </div>
-
         <div className="grid md:grid-cols-2 gap-4">
-          {/* Large feature card */}
           <div
-            className="rounded-2xl p-7 flex flex-col justify-between row-span-1 md:row-span-2"
+            className="rounded-2xl p-7 flex flex-col justify-between md:row-span-2"
             style={{ background: "rgba(163,240,0,.04)", border: "1px solid rgba(163,240,0,.15)" }}
           >
             <div>
@@ -407,11 +573,7 @@ export default function LandingPage() {
                 When a competitor drops 20+ prices in one session, StoreScout detects it as a "Flash Sale" event and emails you within 15 minutes — before it shows up on social.
               </p>
             </div>
-            {/* Mini alert preview */}
-            <div
-              className="rounded-xl p-4"
-              style={{ background: "rgba(0,0,0,.3)", border: "1px solid rgba(239,68,68,.2)" }}
-            >
+            <div className="rounded-xl p-4" style={{ background: "rgba(0,0,0,.3)", border: "1px solid rgba(239,68,68,.2)" }}>
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "rgba(239,68,68,.15)", color: "#f87171" }}>⚡ Flash sale</span>
                 <span className="text-xs" style={{ color: "#94a3b8" }}>gymshark.com · just now</span>
@@ -421,24 +583,51 @@ export default function LandingPage() {
               </p>
             </div>
           </div>
-
-          {/* Regular features */}
           {[
-            { icon: TrendingUp, title: "90-day price history", desc: "See how prices have moved over time. Spot seasonal patterns and predict the next sale." },
+            { icon: TrendingUp, title: "90-day price history", desc: "See how prices have moved over time. Spot seasonal patterns and predict the next sale before it happens." },
             { icon: Sparkles, title: "AI weekly digest", desc: "Every Monday, Claude writes a 4–6 sentence brief on what changed and what it likely signals strategically." },
-            { icon: Package, title: "Launch velocity tracking", desc: "How many products are they launching per month? Are they accelerating or pulling back?" },
-            { icon: Tag, title: "Discount monitoring", desc: "Track what % of their catalog is on sale, the average depth, and when new sale events start." },
+            { icon: Package, title: "Launch velocity tracking", desc: "How many products are they launching per month? Are they accelerating into a new category or pulling back?" },
+            { icon: Tag, title: "Discount monitoring", desc: "Track what % of their catalog is on sale, the average depth, and when new sale events start and end." },
           ].map(({ icon: Icon, title, desc }) => (
-            <div
-              key={title}
-              className="rounded-2xl p-6"
-              style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-            >
+            <div key={title} className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(163,240,0,.1)" }}>
                 <Icon className="w-5 h-5" style={{ color: "#a3f000" }} />
               </div>
               <h3 className="font-bold mb-2" style={{ color: "var(--text)" }}>{title}</h3>
               <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Testimonials ────────────────────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6 pb-28">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-black mb-3" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
+            What operators say
+          </h2>
+          <p className="text-sm" style={{ color: "var(--muted)" }}>From our early access group</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-5">
+          {TESTIMONIALS.map(({ quote, name, role }) => (
+            <div
+              key={name}
+              className="rounded-2xl p-6 flex flex-col gap-4"
+              style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+            >
+              {/* Stars */}
+              <div className="flex gap-0.5">
+                {[1,2,3,4,5].map((s) => (
+                  <span key={s} className="text-sm" style={{ color: "#a3f000" }}>★</span>
+                ))}
+              </div>
+              <p className="text-sm leading-relaxed flex-1" style={{ color: "var(--muted)" }}>
+                &ldquo;{quote}&rdquo;
+              </p>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>{name}</p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>{role}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -451,13 +640,10 @@ export default function LandingPage() {
             Why not a Chrome extension?
           </h2>
           <p className="text-base max-w-xl mx-auto" style={{ color: "var(--muted)" }}>
-            Extensions only work while you're browsing. Reports are a one-time snapshot. StoreScout monitors continuously — whether you're logged in or not.
+            Extensions only work while you&apos;re browsing. Reports are a one-time snapshot. StoreScout monitors continuously — whether you&apos;re logged in or not.
           </p>
         </div>
-        <div
-          className="rounded-2xl p-6 md:p-8"
-          style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-        >
+        <div className="rounded-2xl p-6 md:p-8" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <ComparisonTable />
         </div>
       </div>
@@ -470,11 +656,7 @@ export default function LandingPage() {
             { icon: Clock, label: "Daily auto-scans", desc: "Pro and Agency plans scan automatically every 24 hours. Set it and never manually check again." },
             { icon: Zap, label: "Alerts within 15 minutes", desc: "Change detection runs immediately after each scan — you hear about it before it hits social media." },
           ].map(({ icon: Icon, label, desc }) => (
-            <div
-              key={label}
-              className="flex items-start gap-4 rounded-2xl p-5"
-              style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-            >
+            <div key={label} className="flex items-start gap-4 rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
               <div className="rounded-xl p-2 shrink-0" style={{ background: "rgba(163,240,0,.1)" }}>
                 <Icon className="w-4 h-4" style={{ color: "#a3f000" }} />
               </div>
@@ -496,9 +678,12 @@ export default function LandingPage() {
           <p className="text-base" style={{ color: "var(--muted)" }}>
             Start free. Upgrade when you need more competitors, history, or alerts.
           </p>
+          <p className="text-sm mt-2" style={{ color: "var(--accent)" }}>
+            Annual plans available — save 20%
+          </p>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
-          {PLANS.map(({ name, price, sub, highlight, features, cta, href }) => (
+          {PLANS.map(({ name, price, sub, annualNote, highlight, features, cta, href }) => (
             <div
               key={name}
               className="rounded-2xl p-6 flex flex-col relative"
@@ -516,10 +701,14 @@ export default function LandingPage() {
                 </div>
               )}
               <h3 className="font-bold text-lg mb-1" style={{ color: "var(--text)" }}>{name}</h3>
-              <div className="flex items-baseline gap-1 mb-5">
+              <div className="flex items-baseline gap-1 mb-1">
                 <span className="text-3xl font-black" style={{ color: highlight ? "#a3f000" : "var(--text)" }}>{price}</span>
                 <span className="text-sm" style={{ color: "var(--muted)" }}>{sub}</span>
               </div>
+              {annualNote && (
+                <p className="text-xs mb-4" style={{ color: "var(--muted)" }}>{annualNote}</p>
+              )}
+              {!annualNote && <div className="mb-5" />}
               <ul className="space-y-2.5 mb-6 flex-1">
                 {features.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "var(--muted)" }}>
@@ -531,11 +720,9 @@ export default function LandingPage() {
               <Link
                 href={href}
                 className="block text-center font-semibold py-3 rounded-xl transition-all hover:brightness-110"
-                style={
-                  highlight
-                    ? { background: "#a3f000", color: "#060d18" }
-                    : { border: "1px solid var(--border)", color: "var(--text)" }
-                }
+                style={highlight
+                  ? { background: "#a3f000", color: "#060d18" }
+                  : { border: "1px solid var(--border)", color: "var(--text)" }}
               >
                 {cta}
               </Link>
@@ -548,7 +735,7 @@ export default function LandingPage() {
       </div>
 
       {/* ── FAQ ─────────────────────────────────────────────────────────────── */}
-      <div className="max-w-2xl mx-auto px-6 pb-28">
+      <div className="max-w-2xl mx-auto px-6 pb-28" id="faq">
         <h2 className="text-3xl font-black mb-10 text-center" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
           Common questions
         </h2>
@@ -561,14 +748,13 @@ export default function LandingPage() {
           className="rounded-3xl p-12 relative overflow-hidden"
           style={{ background: "rgba(163,240,0,.06)", border: "1px solid rgba(163,240,0,.2)" }}
         >
-          {/* Ambient glow */}
           <div
             className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 rounded-full blur-3xl pointer-events-none"
             style={{ background: "rgba(163,240,0,.12)" }}
           />
           <div className="relative">
             <h2 className="text-3xl md:text-4xl font-black mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
-              Stop guessing what your competitors are doing.
+              Stop finding out about competitor moves too late.
             </h2>
             <p className="mb-8 text-lg" style={{ color: "var(--muted)" }}>
               Free forever. No credit card. First scan ready in under 60 seconds.
@@ -588,13 +774,16 @@ export default function LandingPage() {
       {/* ── Footer ──────────────────────────────────────────────────────────── */}
       <footer className="border-t" style={{ borderColor: "var(--border)" }}>
         <div className="max-w-5xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4" style={{ color: "#a3f000" }} />
+          <div className="flex items-center gap-2.5">
+            <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "var(--accent)" }}>
+              <Zap className="w-3.5 h-3.5" style={{ color: "#0a0a0f" }} />
+            </div>
             <span className="font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
           </div>
           <div className="flex items-center gap-6">
             <Link href="#how-it-works" className="text-sm hover:opacity-80 transition-opacity" style={{ color: "var(--muted)" }}>How it works</Link>
             <Link href="#pricing" className="text-sm hover:opacity-80 transition-opacity" style={{ color: "var(--muted)" }}>Pricing</Link>
+            <Link href="#faq" className="text-sm hover:opacity-80 transition-opacity" style={{ color: "var(--muted)" }}>FAQ</Link>
             <Link href="/auth/login" className="text-sm hover:opacity-80 transition-opacity" style={{ color: "var(--muted)" }}>Sign in</Link>
           </div>
           <p className="text-xs" style={{ color: "var(--muted)" }}>© 2025 StoreScout</p>

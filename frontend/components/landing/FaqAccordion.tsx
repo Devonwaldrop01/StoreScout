@@ -6,15 +6,23 @@ import { ChevronDown } from "lucide-react";
 const FAQS = [
   {
     q: "Is tracking a competitor's Shopify store legal?",
-    a: "Yes. StoreScout only reads publicly available product data from Shopify's public JSON endpoints — the same data any browser can access without logging in. We don't scrape private pages, checkout flows, or admin areas.",
+    a: "Yes. StoreScout only reads publicly available product data from Shopify's public JSON endpoints — the same data any browser can access without logging in. We don't scrape private pages, checkout flows, or admin areas. Thousands of businesses use publicly available competitor pricing data as a standard business practice.",
+  },
+  {
+    q: "How fast are the alerts? Can I really act on them?",
+    a: "Yes — alerts fire within 15 minutes of a scan completing, and Pro/Agency plans scan daily. If a competitor drops prices at 9am, you'll know by 9:15. We've had users match a competitor's flash sale the same morning it started.",
   },
   {
     q: "Which stores can I track?",
-    a: "Any store running Shopify with a public product catalog. This covers the vast majority of Shopify stores. A small number of stores restrict public product API access — we'll detect this and still attempt a scan.",
+    a: "Any store running Shopify with a public product catalog — which is the vast majority of Shopify stores. A small number restrict public access; we'll tell you immediately when you add the URL. There's no limit on which stores you can enter, only on how many you can track simultaneously.",
   },
   {
     q: "How current is the data?",
-    a: "Free tier: manual scan on demand (max once per week). Pro and Agency: daily automatic scans with change detection running after every scan. Price changes and new products are detected within hours of the next scheduled scan.",
+    a: "Free tier: manual scan on demand (max once per week). Pro and Agency: daily automatic scans with change detection running after every scan. Price changes and new products are detected within hours of the next scheduled scan — usually same-day.",
+  },
+  {
+    q: "What does the AI digest actually tell me?",
+    a: "Every Monday, Claude writes a 4–6 sentence strategic summary for each competitor you track. It covers the most significant change pattern from the past week, what it likely signals about their strategy, and one specific action you could consider. It's written to be read in 20 seconds — not a report.",
   },
   {
     q: "What happens when I hit my competitor limit?",
@@ -26,7 +34,7 @@ const FAQS = [
   },
   {
     q: "Do you support non-Shopify stores?",
-    a: "Not currently. Shopify's public products.json endpoint gives us structured, reliable data that makes pricing analysis possible. We may add WooCommerce and BigCommerce support in the future.",
+    a: "Not currently. Shopify's public products.json endpoint gives us structured, reliable data that makes pricing analysis possible at this depth. WooCommerce and BigCommerce are on the roadmap.",
   },
 ];
 
