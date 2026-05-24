@@ -6,6 +6,7 @@ import {
   Activity, Package, Zap, Clock,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { BarChart, Bar, XAxis, ResponsiveContainer, Cell } from "recharts";
 import {
   competitors as api, alerts as alertsApi,
@@ -376,6 +377,8 @@ function DiscoverySuggestions({
 // ── Page ──────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [competitorList, setCompetitorList] = useState<Competitor[]>([]);
   const [alertList, setAlertList] = useState<AlertEvent[]>([]);
   const [suggestions, setSuggestions] = useState<DiscoverySuggestion[]>([]);
@@ -384,6 +387,15 @@ export default function DashboardPage() {
   const [showModal, setShowModal] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [trackingHostname, setTrackingHostname] = useState<string | null>(null);
+
+  // Auto-open upgrade modal when onboarding sends ?upgrade=pro or ?upgrade=agency
+  useEffect(() => {
+    const plan = searchParams.get("upgrade");
+    if (plan === "pro" || plan === "agency") {
+      setUpgradeOpen(true);
+      router.replace("/dashboard");
+    }
+  }, [searchParams, router]);
 
   const load = useCallback(async () => {
     try { const { data } = await api.list(); setCompetitorList(data); }
