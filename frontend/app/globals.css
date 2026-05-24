@@ -1,15 +1,24 @@
 @import "tailwindcss";
 
+/* ── Color System ────────────────────────────────────────────────────────── */
 :root {
-  --bg: #060d18;
-  --bg2: #0a1628;
-  --bg3: #0e1d35;
-  --bg-card: rgba(255,255,255,.045);
-  --border: rgba(255,255,255,.09);
-  --text: #eef3fa;
-  --muted: #7d92aa;
-  --green: #a3f000;
-  --blue: #3b82f6;
+  --bg:       #0a0a0f;
+  --bg2:      #0d0d15;
+  --bg3:      #111118;
+  --bg4:      #16161f;
+  --bg-card:  #111118;
+  --border:   #1e2035;
+  --text:     #f0f0f3;
+  --text-2:   #c8d0e0;
+  --muted:    #5a6a82;
+  --accent:   #a8ff00;
+  --green:    #a8ff00;
+  --blue:     #60a5fa;
+  --emerald:  #10b981;
+  --amber:    #f59e0b;
+  --red:      #ef4444;
+  --cyan:     #22d3ee;
+  --purple:   #a78bfa;
 }
 
 @theme inline {
@@ -17,22 +26,85 @@
   --color-foreground: var(--text);
 }
 
+/* ── Base ────────────────────────────────────────────────────────────────── */
 html, body {
   background: var(--bg);
   color: var(--text);
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
+* { box-sizing: border-box; }
+
+::selection { background: rgba(168,255,0,.18); color: var(--text); }
+
+/* Subtle tactical grid — barely visible, adds depth */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(168,255,0,.014) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168,255,0,.014) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
 }
 
-::selection {
-  background: rgba(163,240,0,.25);
-}
+#__next, main { position: relative; z-index: 1; }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.25); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.09); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.16); }
+
+/* ── Animations ──────────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scanLine {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(168,255,0,.25); }
+  50%       { box-shadow: 0 0 0 5px rgba(168,255,0,.0); }
+}
+
+.fade-up   { animation: fadeUp  0.4s ease-out both; }
+.fade-up-1 { animation: fadeUp  0.4s ease-out 0.05s both; }
+.fade-up-2 { animation: fadeUp  0.4s ease-out 0.10s both; }
+.fade-up-3 { animation: fadeUp  0.4s ease-out 0.15s both; }
+.fade-up-4 { animation: fadeUp  0.4s ease-out 0.20s both; }
+.fade-up-5 { animation: fadeUp  0.4s ease-out 0.25s both; }
+.fade-in   { animation: fadeIn  0.3s ease-out both; }
+
+/* ── Card interaction ────────────────────────────────────────────────────── */
+.card-lift {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card-lift:hover {
+  border-color: rgba(168,255,0,.22) !important;
+  box-shadow: 0 0 0 1px rgba(168,255,0,.06), 0 12px 40px rgba(0,0,0,.5);
+  transform: translateY(-2px);
+}
+
+/* ── Scanning shimmer ────────────────────────────────────────────────────── */
+.scan-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.scan-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(168,255,0,.06), transparent);
+  animation: scanLine 2s ease-in-out infinite;
+}

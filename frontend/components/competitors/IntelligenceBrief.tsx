@@ -1,29 +1,32 @@
 "use client";
 
-import { Target, TrendingUp, Eye, Sparkles, ArrowRight } from "lucide-react";
+import { Target, TrendingUp, Eye, Sparkles, ArrowRight, X } from "lucide-react";
 import { type BriefCard } from "@/lib/api";
 
 const CARD_CONFIG = {
   signal: {
     Icon: Target,
-    color: "#a3f000",
+    color: "#a8ff00",
     label: "Most notable signal",
-    bg: "rgba(163,240,0,.08)",
-    border: "rgba(163,240,0,.2)",
+    bg: "rgba(168,255,0,.07)",
+    border: "rgba(168,255,0,.18)",
+    glow: "rgba(168,255,0,.15)",
   },
   opportunity: {
     Icon: TrendingUp,
     color: "#60a5fa",
     label: "Your opening",
-    bg: "rgba(96,165,250,.08)",
-    border: "rgba(96,165,250,.2)",
+    bg: "rgba(96,165,250,.07)",
+    border: "rgba(96,165,250,.18)",
+    glow: "rgba(96,165,250,.15)",
   },
   watch: {
     Icon: Eye,
-    color: "#facc15",
+    color: "#f59e0b",
     label: "Watch this",
-    bg: "rgba(250,204,21,.08)",
-    border: "rgba(250,204,21,.2)",
+    bg: "rgba(245,158,11,.07)",
+    border: "rgba(245,158,11,.18)",
+    glow: "rgba(245,158,11,.15)",
   },
 } as const;
 
@@ -35,68 +38,122 @@ interface Props {
 
 export function IntelligenceBrief({ hostname, cards, onDismiss }: Props) {
   return (
-    <div className="space-y-4">
-      <div className="flex items-start gap-2">
-        <Sparkles className="w-5 h-5 mt-0.5" style={{ color: "#a3f000" }} />
-        <div>
-          <h3 className="font-semibold" style={{ color: "var(--text)" }}>
-            Intelligence Brief — {hostname}
-          </h3>
-          <p className="text-sm" style={{ color: "var(--muted)" }}>
-            3 things you should know about this store right now
-          </p>
-        </div>
-      </div>
+    <div
+      className="relative rounded-2xl overflow-hidden mb-8 fade-in"
+      style={{
+        background: "linear-gradient(135deg, rgba(168,255,0,.06) 0%, rgba(168,255,0,.02) 40%, transparent 70%), var(--bg3)",
+        border: "1px solid rgba(168,255,0,.2)",
+        boxShadow: "0 0 0 1px rgba(168,255,0,.06), 0 20px 60px rgba(0,0,0,.5)",
+      }}
+    >
+      {/* Ambient glow behind the card */}
+      <div
+        className="absolute -top-20 -left-20 w-64 h-64 rounded-full blur-3xl pointer-events-none"
+        style={{ background: "rgba(168,255,0,.08)" }}
+      />
 
-      {cards.map((card, i) => {
-        const config = CARD_CONFIG[card.type] ?? CARD_CONFIG.signal;
-        const { Icon } = config;
-        return (
-          <div
-            key={i}
-            className="rounded-2xl p-5"
-            style={{ background: config.bg, border: `1px solid ${config.border}` }}
-          >
-            <div className="flex items-start gap-3">
-              <div
-                className="rounded-lg p-2 shrink-0"
-                style={{ background: `${config.color}18` }}
-              >
-                <Icon className="w-4 h-4" style={{ color: config.color }} />
-              </div>
-              <div>
+      <div className="relative p-6 sm:p-8">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: "rgba(168,255,0,.12)", border: "1px solid rgba(168,255,0,.2)" }}
+            >
+              <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
                 <span
-                  className="text-[10px] font-bold uppercase tracking-wide"
-                  style={{ color: config.color }}
+                  className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
+                  style={{ background: "rgba(168,255,0,.12)", color: "var(--accent)" }}
                 >
-                  {config.label}
+                  AI Intelligence Brief
                 </span>
-                <h4
-                  className="font-semibold text-sm mt-0.5"
-                  style={{ color: "var(--text)" }}
-                >
-                  {card.headline}
-                </h4>
-                <p
-                  className="text-sm mt-1 leading-relaxed"
-                  style={{ color: "var(--muted)" }}
-                >
-                  {card.body}
-                </p>
               </div>
+              <h3 className="text-base font-bold mt-1" style={{ color: "var(--text)" }}>
+                3 things you should know about{" "}
+                <span style={{ color: "var(--accent)" }}>{hostname}</span>
+              </h3>
             </div>
           </div>
-        );
-      })}
 
-      <button
-        onClick={onDismiss}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110"
-        style={{ background: "#a3f000", color: "#060d18" }}
-      >
-        View full analysis
-        <ArrowRight className="w-4 h-4" />
-      </button>
+          <button
+            onClick={onDismiss}
+            className="p-1.5 rounded-lg transition-colors hover:bg-white/10 shrink-0"
+            style={{ color: "var(--muted)" }}
+            aria-label="Dismiss"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* 3-card grid — hero layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          {cards.map((card, i) => {
+            const config = CARD_CONFIG[card.type] ?? CARD_CONFIG.signal;
+            const { Icon } = config;
+            return (
+              <div
+                key={i}
+                className={`relative rounded-xl p-5 fade-up-${i + 1}`}
+                style={{
+                  background: config.bg,
+                  border: `1px solid ${config.border}`,
+                }}
+              >
+                {/* Card glow on hover — CSS only */}
+                <div
+                  className="absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 pointer-events-none hover:opacity-100"
+                  style={{ boxShadow: `inset 0 0 30px ${config.glow}` }}
+                />
+
+                <div className="relative">
+                  {/* Icon + label row */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                      style={{ background: `${config.color}18` }}
+                    >
+                      <Icon className="w-4 h-4" style={{ color: config.color }} />
+                    </div>
+                    <span
+                      className="text-[10px] font-bold uppercase tracking-wider"
+                      style={{ color: config.color }}
+                    >
+                      {config.label}
+                    </span>
+                  </div>
+
+                  {/* Content */}
+                  <h4
+                    className="font-bold text-sm leading-snug mb-2"
+                    style={{ color: "var(--text)" }}
+                  >
+                    {card.headline}
+                  </h4>
+                  <p
+                    className="text-sm leading-relaxed"
+                    style={{ color: "var(--muted)" }}
+                  >
+                    {card.body}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* CTA */}
+        <button
+          onClick={onDismiss}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110"
+          style={{ background: "var(--accent)", color: "#0a0a0f" }}
+        >
+          View full analysis
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
     </div>
   );
 }
