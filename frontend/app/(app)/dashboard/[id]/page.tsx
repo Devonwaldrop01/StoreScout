@@ -741,7 +741,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   <LaunchVelocityChart launchData={launch} />
                 </div>
 
-                {/* Price history — Pro gate */}
+                {/* Price history */}
                 <div
                   className="rounded-2xl p-5"
                   style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
@@ -758,13 +758,10 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                       </span>
                     )}
                   </div>
-                  {isFree ? (
-                    <ProGate onUpgrade={() => setUpgradeOpen(true)} label="90-day price history — Pro only">
-                      <PriceHistoryChart competitorId={id} />
-                    </ProGate>
-                  ) : (
-                    <PriceHistoryChart competitorId={id} />
-                  )}
+                  <PriceHistoryChart
+                    competitorId={id}
+                    onUpgrade={() => setUpgradeOpen(true)}
+                  />
                 </div>
               </div>
             )}
