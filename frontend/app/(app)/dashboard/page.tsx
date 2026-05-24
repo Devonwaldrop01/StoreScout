@@ -51,6 +51,11 @@ function CompetitorCard({ competitor, alertList }: { competitor: Competitor; ale
   const deltas = computeDeltas(alertList, competitor.id);
   const isScanning = competitor.scan_status === "scanning";
 
+  const snapshotData = competitor.snapshot_data as Record<string, unknown> | undefined;
+  const pricing = snapshotData?.pricing as Record<string, unknown> | undefined;
+  const medianPrice = pricing?.median as number | undefined;
+  const promoRate = competitor.promo_rate;
+
   async function handleRescan(e: React.MouseEvent) {
     e.preventDefault();
     setRescanning(true);
@@ -62,13 +67,13 @@ function CompetitorCard({ competitor, alertList }: { competitor: Competitor; ale
     <Link
       href={`/dashboard/${competitor.id}`}
       className={cn(
-        "block rounded-2xl border p-5 transition-all group card-lift fade-up",
+        "block rounded-2xl border p-6 transition-all group card-lift fade-up",
         isScanning && "scan-shimmer"
       )}
       style={{ background: "var(--bg3)", borderColor: "var(--border)" }}
     >
-      {/* Top row */}
-      <div className="flex items-start justify-between gap-3 mb-5">
+      {/* Top row: title + scan badge */}
+      <div className="flex items-start justify-between gap-3 mb-4">
         <div className="min-w-0">
           <h3 className="font-bold text-base leading-tight truncate" style={{ color: "var(--text)" }}>
             {competitor.display_name || competitor.hostname}
@@ -82,24 +87,38 @@ function CompetitorCard({ competitor, alertList }: { competitor: Competitor; ale
         <ScanDot status={competitor.scan_status} />
       </div>
 
-      {/* Metrics row */}
-      <div className="grid grid-cols-2 gap-2 mb-4">
-        <div className="rounded-xl px-3 py-2.5" style={{ background: "var(--bg4)", border: "1px solid var(--border)" }}>
-          <p className="text-[10px] font-semibold uppercase tracking-wide mb-1" style={{ color: "var(--muted)" }}>Products</p>
-          <p className="text-lg font-bold font-mono" style={{ color: "var(--text)" }}>
+      {/* Row 1: product count + median price */}
+      <div className="flex items-center gap-4 mb-2">
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-xl font-bold font-mono" style={{ color: "var(--text)" }}>
             {competitor.product_count?.toLocaleString() ?? "—"}
-          </p>
+          </span>
+          <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>products</span>
         </div>
-        <div className="rounded-xl px-3 py-2.5" style={{ background: "var(--bg4)", border: "1px solid var(--border)" }}>
-          <p className="text-[10px] font-semibold uppercase tracking-wide mb-1" style={{ color: "var(--muted)" }}>Last scan</p>
-          <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-            {competitor.last_scanned_at ? formatRelativeTime(competitor.last_scanned_at) : "Pending"}
-          </p>
-        </div>
+        {medianPrice != null && (
+          <>
+            <span className="w-px h-4" style={{ background: "var(--border)" }} />
+            <div className="flex items-baseline gap-1">
+              <span className="text-sm font-semibold font-mono" style={{ color: "var(--text-2)" }}>
+                {formatPrice(medianPrice)}
+              </span>
+              <span className="text-xs" style={{ color: "var(--muted)" }}>median</span>
+            </div>
+          </>
+        )}
       </div>
 
+      {/* Row 2: promo rate */}
+      {promoRate != null && promoRate > 0 && (
+        <div className="mb-3">
+          <span className="text-xs font-semibold" style={{ color: "var(--amber)" }}>
+            {Math.round(promoRate * 100)}% on promo
+          </span>
+        </div>
+      )}
+
       {/* Delta badges — this week's activity */}
-      <div className="flex items-center gap-2 flex-wrap min-h-[24px]">
+      <div className="flex items-center gap-2 flex-wrap min-h-[24px] mt-3">
         {deltas.priceDrops > 0 && (
           <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(96,165,250,.12)", color: "var(--blue)" }}>
             ↓ {deltas.priceDrops} price drop{deltas.priceDrops !== 1 ? "s" : ""}
@@ -129,6 +148,13 @@ function CompetitorCard({ competitor, alertList }: { competitor: Competitor; ale
           Rescan
         </button>
       </div>
+
+      {/* Bottom: last scan time */}
+      <p className="text-[11px] mt-3 pt-3" style={{ color: "var(--muted)", borderTop: "1px solid var(--border)" }}>
+        {competitor.last_scanned_at
+          ? `Last scanned ${formatRelativeTime(competitor.last_scanned_at)}`
+          : "Scan pending"}
+      </p>
     </Link>
   );
 }
