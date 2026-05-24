@@ -607,11 +607,36 @@ def export_products_csv(competitor_id: str, user_id: str = Depends(get_effective
     )
 
 
+# Curated fallback: well-known Shopify stores shown when there's no tag/vendor data to
+# match against (new users, fresh competitors with no scan yet).
+_CURATED_STORES = [
+    {"hostname": "gymshark.com",       "category": "Apparel",  "tag": "Fitness apparel"},
+    {"hostname": "allbirds.com",       "category": "Apparel",  "tag": "Sustainable footwear"},
+    {"hostname": "fashionnova.com",    "category": "Apparel",  "tag": "Fast fashion"},
+    {"hostname": "chubbiesshorts.com", "category": "Apparel",  "tag": "Men's shorts"},
+    {"hostname": "vuori.com",          "category": "Apparel",  "tag": "Performance apparel"},
+    {"hostname": "kyliecosmetics.com", "category": "Beauty",   "tag": "Makeup"},
+    {"hostname": "colourpop.com",      "category": "Beauty",   "tag": "Affordable cosmetics"},
+    {"hostname": "fentybeauty.com",    "category": "Beauty",   "tag": "Inclusive beauty"},
+    {"hostname": "iliabeauty.com",     "category": "Beauty",   "tag": "Clean beauty"},
+    {"hostname": "brooklinen.com",     "category": "Home",     "tag": "Luxury bedding"},
+    {"hostname": "parachutehome.com",  "category": "Home",     "tag": "Home essentials"},
+    {"hostname": "ruggable.com",       "category": "Home",     "tag": "Washable rugs"},
+    {"hostname": "pourri.com",         "category": "Home",     "tag": "Lifestyle & wellness"},
+    {"hostname": "bombas.com",         "category": "Apparel",  "tag": "Socks & basics"},
+    {"hostname": "mvmtwatches.com",    "category": "Accessories","tag": "Minimalist watches"},
+    {"hostname": "puravidabracelets.com","category": "Accessories","tag": "Bracelets & jewelry"},
+    {"hostname": "tentree.com",        "category": "Apparel",  "tag": "Sustainable fashion"},
+    {"hostname": "skims.com",          "category": "Apparel",  "tag": "Shapewear"},
+]
+
+
 @router.get("/discover")
 def discover_similar(user_id: str = Depends(get_effective_user_id)):
     """
     Suggest similar Shopify stores to track based on tag/vendor overlap
-    with the user's currently tracked competitors.
+    with the user's currently tracked competitors. Falls back to curated
+    popular stores for new users or when no tag data is available.
     """
     db = get_supabase()
 
@@ -622,11 +647,30 @@ def discover_similar(user_id: str = Depends(get_effective_user_id)):
         .eq("is_active", True)\
         .eq("is_my_store", False)\
         .execute()
-    if not (user_comps.data or []):
-        return {"data": {"suggestions": []}}
 
-    tracked_ids = [c["id"] for c in user_comps.data]
-    tracked_hostnames = {c["hostname"] for c in user_comps.data}
+    tracked_hostnames = {c["hostname"] for c in (user_comps.data or [])}
+    tracked_ids = [c["id"] for c in (user_comps.data or [])]
+
+    def _curated_fallback() -> list:
+        return [
+            {
+                "hostname": s["hostname"],
+                "competitor_id": s["hostname"],  # no DB id — frontend uses hostname for dedup
+                "score": 0,
+                "match_reasons": [s["tag"]],
+                "product_count": None,
+                "median_price": None,
+                "market_position": None,
+                "is_curated": True,
+                "category": s["category"],
+            }
+            for s in _CURATED_STORES
+            if s["hostname"] not in tracked_hostnames
+        ][:6]
+
+    # No tracked competitors — return curated list
+    if not tracked_ids:
+        return {"data": {"suggestions": _curated_fallback()}}
 
     # Aggregate top tags + vendors across all user's competitors
     agg_tags: Counter = Counter()
@@ -644,7 +688,7 @@ def discover_similar(user_id: str = Depends(get_effective_user_id)):
     top_vendors = {v for v, _ in agg_vendors.most_common(8)}
 
     if not top_tags and not top_vendors:
-        return {"data": {"suggestions": []}}
+        return {"data": {"suggestions": _curated_fallback()}}
 
     # Pull recent snapshots from other competitors (across all users)
     thirty_days_ago = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
@@ -698,10 +742,16 @@ def discover_similar(user_id: str = Depends(get_effective_user_id)):
             "product_count": (data.get("catalog") or {}).get("total_products"),
             "median_price": pricing.get("median"),
             "market_position": market_pos,
+            "is_curated": False,
+            "category": None,
         })
 
     scored.sort(key=lambda x: x["score"], reverse=True)
-    return {"data": {"suggestions": scored[:6]}}
+    top = scored[:6]
+    # If no tag-matched candidates found in the DB, fall back to curated list
+    if not top:
+        return {"data": {"suggestions": _curated_fallback()}}
+    return {"data": {"suggestions": top}}
 
 
 def _user_tier(db, user_id: str) -> str:

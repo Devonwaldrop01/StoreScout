@@ -478,4 +478,6 @@ export interface DiscoverySuggestion {
   product_count?: number | null;
   median_price?: number | null;
   market_position?: string | null;
+  is_curated?: boolean;
+  category?: string | null;
 }

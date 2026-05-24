@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import {
   Plus, RefreshCw, TrendingUp, Sparkles, ArrowRight,
-  Activity, Package, Zap, Clock,
+  Activity, Package, Zap, Clock, X,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -332,41 +332,101 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
 // ── Discovery suggestions ─────────────────────────────────────────────────
 
 function DiscoverySuggestions({
-  suggestions, onTrack, tracking,
+  suggestions, onTrack, tracking, dismissed, onDismiss,
 }: {
   suggestions: DiscoverySuggestion[];
   onTrack: (hostname: string) => Promise<void>;
   tracking: string | null;
+  dismissed: Set<string>;
+  onDismiss: (hostname: string) => void;
 }) {
-  if (suggestions.length === 0) return null;
+  const visible = suggestions.filter((s) => !dismissed.has(s.hostname));
+  if (visible.length === 0) return null;
+
+  const isCurated = visible.every((s) => s.is_curated);
+
   return (
-    <div className="mt-6">
-      <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
-        <p className="text-sm font-bold" style={{ color: "var(--text)" }}>Stores you might want to track</p>
+    <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+      {/* Section header */}
+      <div
+        className="flex items-center gap-2 px-4 py-3"
+        style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
+      >
+        <Sparkles className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
+        <p className="text-xs font-bold flex-1" style={{ color: "var(--text)" }}>
+          {isCurated ? "Popular stores to track" : "Similar to what you're tracking"}
+        </p>
+        {!isCurated && (
+          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(168,255,0,.12)", color: "var(--accent)" }}>
+            AI matched
+          </span>
+        )}
       </div>
-      <div className="space-y-2">
-        {suggestions.map((s) => (
+
+      {/* Suggestion rows */}
+      <div>
+        {visible.map((s, idx) => (
           <div
-            key={s.competitor_id}
-            className="flex items-center gap-3 rounded-xl px-4 py-3"
-            style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+            key={s.hostname}
+            className="flex items-center gap-3 px-4 py-3 group"
+            style={{
+              background: "var(--bg2)",
+              borderTop: idx === 0 ? "none" : "1px solid var(--border)",
+            }}
           >
+            {/* Info */}
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold truncate" style={{ color: "var(--text)" }}>{s.hostname}</p>
-              <p className="text-[11px] mt-0.5" style={{ color: "var(--muted)" }}>
-                {s.product_count?.toLocaleString()} products · {s.market_position}
-              </p>
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-xs font-semibold truncate" style={{ color: "var(--text)" }}>
+                  {s.hostname}
+                </p>
+                {s.median_price != null && (
+                  <span className="text-[10px] font-mono shrink-0" style={{ color: "var(--muted)" }}>
+                    ~${Math.round(s.median_price)} avg
+                  </span>
+                )}
+              </div>
+              {/* Match reason / category chips */}
+              <div className="flex flex-wrap gap-1">
+                {(s.match_reasons.length > 0 ? s.match_reasons : s.category ? [s.category] : []).slice(0, 3).map((r) => (
+                  <span
+                    key={r}
+                    className="text-[10px] px-1.5 py-0.5 rounded-md"
+                    style={{ background: "rgba(255,255,255,.05)", color: "var(--muted)" }}
+                  >
+                    {r}
+                  </span>
+                ))}
+                {s.product_count != null && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-md" style={{ background: "rgba(255,255,255,.05)", color: "var(--muted)" }}>
+                    {s.product_count.toLocaleString()} products
+                  </span>
+                )}
+              </div>
             </div>
-            <button
-              onClick={() => onTrack(s.hostname)}
-              disabled={tracking === s.hostname}
-              className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg transition-all hover:brightness-110 disabled:opacity-50 shrink-0"
-              style={{ background: "var(--accent)", color: "#0a0a0f" }}
-            >
-              {tracking === s.hostname ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
-              Track
-            </button>
+
+            {/* Actions */}
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={() => onDismiss(s.hostname)}
+                className="p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-white/5"
+                style={{ color: "var(--muted)" }}
+                title="Dismiss"
+              >
+                <X className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => onTrack(s.hostname)}
+                disabled={tracking === s.hostname}
+                className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all hover:brightness-110 disabled:opacity-50"
+                style={{ background: "var(--accent)", color: "#0a0a0f" }}
+              >
+                {tracking === s.hostname
+                  ? <RefreshCw className="w-3 h-3 animate-spin" />
+                  : <Plus className="w-3 h-3" />}
+                Track
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -382,6 +442,7 @@ export default function DashboardPage() {
   const [competitorList, setCompetitorList] = useState<Competitor[]>([]);
   const [alertList, setAlertList] = useState<AlertEvent[]>([]);
   const [suggestions, setSuggestions] = useState<DiscoverySuggestion[]>([]);
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [alertsLoading, setAlertsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -422,8 +483,8 @@ export default function DashboardPage() {
   }, [load, loadAlerts]);
 
   useEffect(() => {
-    if (!loading && competitorList.length > 0) loadSuggestions();
-  }, [loading, competitorList.length, loadSuggestions]);
+    if (!loading) loadSuggestions();
+  }, [loading, loadSuggestions]);
 
   function handleAdded(competitor: Competitor) {
     setCompetitorList((prev) => [competitor, ...prev]);
@@ -444,6 +505,10 @@ export default function DashboardPage() {
     } finally {
       setTrackingHostname(null);
     }
+  }
+
+  function handleDismiss(hostname: string) {
+    setDismissed((prev) => new Set([...prev, hostname]));
   }
 
   // Compute signal groups once from loaded alerts
@@ -499,7 +564,20 @@ export default function DashboardPage() {
       </div>
 
       {competitorList.length === 0 ? (
-        <EmptyState onAdd={() => setShowModal(true)} />
+        <>
+          <EmptyState onAdd={() => setShowModal(true)} />
+          {suggestions.filter((s) => !dismissed.has(s.hostname)).length > 0 && (
+            <div className="mt-6 max-w-sm">
+              <DiscoverySuggestions
+                suggestions={suggestions}
+                onTrack={handleTrack}
+                tracking={trackingHostname}
+                dismissed={dismissed}
+                onDismiss={handleDismiss}
+              />
+            </div>
+          )}
+        </>
       ) : (
         <>
           {/* Stats bar */}
@@ -552,12 +630,10 @@ export default function DashboardPage() {
                 </>
               )}
 
-              {/* Discovery suggestions */}
-              <DiscoverySuggestions suggestions={suggestions} onTrack={handleTrack} tracking={trackingHostname} />
             </div>
 
             {/* ── Right: context panel (desktop only) ── */}
-            <div className="hidden lg:block w-64 shrink-0 space-y-0">
+            <div className="hidden lg:block w-64 shrink-0 space-y-3">
               {/* 7-day chart */}
               {!alertsLoading && <WeeklyChart alertList={alertList} />}
 
@@ -566,6 +642,15 @@ export default function DashboardPage() {
 
               {/* Watch list */}
               <WatchPanel competitorList={competitorList} />
+
+              {/* Discovery suggestions */}
+              <DiscoverySuggestions
+                suggestions={suggestions}
+                onTrack={handleTrack}
+                tracking={trackingHostname}
+                dismissed={dismissed}
+                onDismiss={handleDismiss}
+              />
             </div>
           </div>
 
@@ -574,6 +659,14 @@ export default function DashboardPage() {
             {!alertsLoading && <WeeklyChart alertList={alertList} />}
             {!alertsLoading && <MostActive competitorList={competitorList} signalGroups={signalGroups} />}
             <WatchPanel competitorList={competitorList} />
+            {/* Discovery on mobile — below the rest */}
+            <DiscoverySuggestions
+              suggestions={suggestions}
+              onTrack={handleTrack}
+              tracking={trackingHostname}
+              dismissed={dismissed}
+              onDismiss={handleDismiss}
+            />
           </div>
         </>
       )}
