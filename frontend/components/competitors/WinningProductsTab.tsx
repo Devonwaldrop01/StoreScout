@@ -3,8 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import {
   Lock, Trophy, Sparkles, ExternalLink, Copy, Check,
-  ChevronDown, ChevronUp, Flame, Clock, Layers, Tag,
-  ShoppingBag, Image as ImageIcon,
+  ChevronDown, ChevronUp, Flame,
 } from "lucide-react";
 import {
   competitors as api,
@@ -15,26 +14,70 @@ import {
 import { formatPrice } from "@/lib/utils";
 import UpgradeModal from "@/components/UpgradeModal";
 
-// ── signal config ────────────────────────────────────────────────────────────
+// ── verdict ──────────────────────────────────────────────────────────────────
 
-const SIGNALS: {
-  key: string;
-  label: string;
-  icon: React.ElementType;
-  color: string;
-  desc: string;
-}[] = [
-  { key: "longevity",            label: "Longevity",    icon: Clock,      color: "#60a5fa", desc: "Still in catalog — survived market test" },
-  { key: "variant_depth",        label: "Variants",     icon: Layers,     color: "#a78bfa", desc: "Option depth = seller's investment signal" },
-  { key: "full_price_confidence",label: "Full price",   icon: Tag,        color: "#34d399", desc: "Sells without relying on markdowns" },
-  { key: "availability",         label: "In stock",     icon: ShoppingBag,color: "#a3f000", desc: "Active inventory = still reordering it" },
-  { key: "image_investment",     label: "Imagery",      icon: ImageIcon,  color: "#fb923c", desc: "Merchandising effort on the listing" },
-];
+function getVerdict(score: number): {
+  label: string; color: string; bg: string; border: string;
+} {
+  if (score >= 75) return {
+    label: "Worth Testing",
+    color: "#a3f000",
+    bg: "rgba(163,240,0,0.10)",
+    border: "rgba(163,240,0,0.22)",
+  };
+  if (score >= 50) return {
+    label: "Watch First",
+    color: "#facc15",
+    bg: "rgba(250,204,21,0.10)",
+    border: "rgba(250,204,21,0.22)",
+  };
+  return {
+    label: "Skip",
+    color: "#94a3b8",
+    bg: "rgba(148,163,184,0.06)",
+    border: "rgba(148,163,184,0.15)",
+  };
+}
 
-function scoreColor(score: number) {
-  if (score >= 75) return "#a3f000";
-  if (score >= 50) return "#facc15";
-  return "#94a3b8";
+function getReasons(product: WinningProduct): string[] {
+  const reasons: string[] = [];
+  const signals = product.signals || {};
+
+  if (product.available === false) {
+    reasons.push("Out of stock — they sold through it, which confirms demand exists");
+  } else {
+    const avail = signals["availability"] ?? 0;
+    if (avail >= 0.8) reasons.push("Fully in stock — actively reordering, not a clearance item");
+    else reasons.push("Mostly in stock — limited variant gaps");
+  }
+
+  if (!product.discounted) {
+    const fp = signals["full_price_confidence"] ?? 0;
+    if (fp >= 0.8) reasons.push("Selling at full price — demand is not markdown-dependent");
+    else reasons.push("Primarily full price — mostly not relying on discounts");
+  } else if (product.discount_pct) {
+    reasons.push(`Running at ${Math.round(product.discount_pct)}% off — demand may depend on the markdown`);
+  }
+
+  if (product.age_days != null) {
+    if (product.age_days >= 365) {
+      const yrs = (product.age_days / 365).toFixed(1);
+      reasons.push(`${yrs} years in their catalog — a long-term proven seller`);
+    } else if (product.age_days >= 90) {
+      const mos = Math.round(product.age_days / 30);
+      reasons.push(`${mos} months in catalog — survived the initial drop-off window`);
+    } else if (product.age_days <= 30) {
+      reasons.push(`Only ${product.age_days} days old — too early to confirm sustained demand`);
+    } else {
+      reasons.push(`${product.age_days} days old — still establishing demand`);
+    }
+  }
+
+  if ((product.variants_count ?? 0) >= 8) {
+    reasons.push(`${product.variants_count} variants — seller has conviction, invested in full option depth`);
+  }
+
+  return reasons;
 }
 
 function ageDaysLabel(days: number) {
@@ -88,20 +131,6 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-function SignalBar({ value, color }: { value: number; color: string }) {
-  return (
-    <div
-      className="flex-1 h-1.5 rounded-full overflow-hidden"
-      style={{ background: "rgba(255,255,255,0.07)" }}
-    >
-      <div
-        className="h-full rounded-full"
-        style={{ width: `${Math.round(value * 100)}%`, background: color }}
-      />
-    </div>
-  );
-}
-
 // ── winner row ───────────────────────────────────────────────────────────────
 
 interface WinnerRowProps {
@@ -113,7 +142,8 @@ interface WinnerRowProps {
 }
 
 function WinnerRow({ product, rank, expanded, onToggle, isLast }: WinnerRowProps) {
-  const color = scoreColor(product.score);
+  const verdict = product.locked ? null : getVerdict(product.score);
+  const reasons = product.locked ? [] : getReasons(product);
 
   return (
     <div
@@ -133,12 +163,8 @@ function WinnerRow({ product, rank, expanded, onToggle, isLast }: WinnerRowProps
         <ProductImage src={product.image} title={product.title} />
 
         <div className="flex-1 min-w-0">
-          {/* Title line */}
           <div className="flex items-center gap-1.5">
-            <p
-              className="text-sm font-medium truncate"
-              style={{ color: "var(--text)" }}
-            >
+            <p className="text-sm font-medium truncate" style={{ color: "var(--text)" }}>
               {product.title || "Untitled product"}
             </p>
             <CopyButton text={product.title || ""} />
@@ -156,20 +182,12 @@ function WinnerRow({ product, rank, expanded, onToggle, isLast }: WinnerRowProps
             )}
           </div>
 
-          {/* Meta chips */}
           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
             <span className="text-xs" style={{ color: "var(--muted)" }}>
               {formatPrice(product.price_min)}
             </span>
 
-            {product.locked ? (
-              <span
-                className="text-[10px] px-1.5 py-0.5 rounded-md"
-                style={{ background: "rgba(168,255,0,0.08)", color: "var(--accent)" }}
-              >
-                Upgrade to see signals
-              </span>
-            ) : (
+            {!product.locked && (
               <>
                 {product.discounted && product.discount_pct ? (
                   <span
@@ -193,12 +211,6 @@ function WinnerRow({ product, rank, expanded, onToggle, isLast }: WinnerRowProps
                   </span>
                 )}
 
-                {(product.variants_count ?? 0) > 1 && (
-                  <span className="text-[10px]" style={{ color: "var(--muted)" }}>
-                    {product.variants_count}v
-                  </span>
-                )}
-
                 {!product.available && (
                   <span
                     className="text-[10px] px-1.5 py-0.5 rounded-md"
@@ -209,64 +221,70 @@ function WinnerRow({ product, rank, expanded, onToggle, isLast }: WinnerRowProps
                 )}
               </>
             )}
+
+            {product.locked && (
+              <span
+                className="text-[10px] px-1.5 py-0.5 rounded-md"
+                style={{ background: "rgba(168,255,0,0.08)", color: "var(--accent)" }}
+              >
+                Upgrade to see verdict
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Score + expand toggle */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <span className="text-base font-bold font-mono" style={{ color }}>
-            {product.score}
-          </span>
-          <span className="text-[10px]" style={{ color: "var(--muted)" }}>/100</span>
+        {/* Verdict badge + chevron */}
+        <div className="flex items-center gap-2 shrink-0">
+          {verdict && (
+            <span
+              className="text-[10px] font-bold px-2 py-1 rounded-lg whitespace-nowrap"
+              style={{
+                background: verdict.bg,
+                color: verdict.color,
+                border: `1px solid ${verdict.border}`,
+              }}
+            >
+              {verdict.label}
+            </span>
+          )}
           {!product.locked && (
             expanded
-              ? <ChevronUp className="w-3.5 h-3.5 ml-0.5" style={{ color: "var(--muted)" }} />
+              ? <ChevronUp className="w-3.5 h-3.5" style={{ color: "var(--muted)" }} />
               : <ChevronDown
-                  className="w-3.5 h-3.5 ml-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity"
                   style={{ color: "var(--muted)" }}
                 />
           )}
         </div>
       </div>
 
-      {/* Signal breakdown — shown when expanded */}
+      {/* Reasoning — shown when expanded */}
       {expanded && !product.locked && (
         <div
           className="px-4 pb-4 pt-0"
           style={{ borderTop: "1px solid rgba(255,255,255,0.05)", marginLeft: 52 }}
         >
           <p
-            className="text-[10px] font-semibold uppercase tracking-wider pt-3 pb-2.5"
+            className="text-[10px] font-semibold uppercase tracking-wider pt-3 pb-2"
             style={{ color: "var(--muted)" }}
           >
-            Signal breakdown — why it scored {product.score}
+            Why {verdict?.label}
           </p>
-          <div className="space-y-2">
-            {SIGNALS.map((sig) => {
-              const value = product.signals?.[sig.key] ?? 0;
-              const Icon = sig.icon;
-              return (
-                <div key={sig.key} className="flex items-center gap-2.5" title={sig.desc}>
-                  <Icon className="w-3 h-3 shrink-0" style={{ color: sig.color, opacity: 0.7 }} />
-                  <span
-                    className="text-[11px] w-20 shrink-0"
-                    style={{ color: "var(--muted)" }}
-                  >
-                    {sig.label}
-                  </span>
-                  <SignalBar value={value} color={sig.color} />
-                  <span
-                    className="text-[11px] w-5 text-right font-mono shrink-0"
-                    style={{ color: sig.color }}
-                  >
-                    {Math.round(value * 10)}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+          <ul className="space-y-1.5 mb-3">
+            {reasons.map((r, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <span className="mt-1 w-1 h-1 rounded-full shrink-0" style={{ background: verdict?.color }} />
+                <span className="text-xs leading-relaxed" style={{ color: "var(--text-2, var(--muted))" }}>
+                  {r}
+                </span>
+              </li>
+            ))}
+          </ul>
           {product.reason && (
-            <p className="text-xs mt-3 leading-relaxed" style={{ color: "var(--muted)" }}>
+            <p className="text-xs leading-relaxed pt-2" style={{
+              color: "var(--muted)",
+              borderTop: "1px solid rgba(255,255,255,0.05)",
+            }}>
               {product.reason}
             </p>
           )}
@@ -278,15 +296,15 @@ function WinnerRow({ product, rank, expanded, onToggle, isLast }: WinnerRowProps
 
 // ── filter / sort types ──────────────────────────────────────────────────────
 
-type FilterKey = "full_price" | "in_stock" | "deep_variants" | "long_running" | "new_launch";
+type FilterKey = "worth_testing" | "watch_first" | "full_price" | "in_stock" | "new_launch";
 type SortKey   = "score" | "newest" | "price_asc" | "price_desc";
 
 const FILTERS: { key: FilterKey; label: string }[] = [
+  { key: "worth_testing", label: "Worth Testing" },
+  { key: "watch_first",   label: "Watch First" },
   { key: "full_price",    label: "Full price" },
-  { key: "in_stock",     label: "In stock" },
-  { key: "deep_variants",label: "10+ variants" },
-  { key: "long_running", label: "6mo+ catalog" },
-  { key: "new_launch",   label: "New (<30d)" },
+  { key: "in_stock",      label: "In stock" },
+  { key: "new_launch",    label: "New (<30d)" },
 ];
 
 const SORTS: { key: SortKey; label: string }[] = [
@@ -355,7 +373,6 @@ function LaunchRow({ p, isLast }: { p: NewestProduct; isLast: boolean }) {
         </div>
       </div>
 
-      {/* Age badge */}
       <span
         className="text-[10px] font-medium px-2 py-1 rounded-full shrink-0"
         style={ageBadgeStyle}
@@ -397,21 +414,19 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
     if (!data) return [];
     let list = [...data.products];
 
+    if (activeFilters.has("worth_testing")) list = list.filter((p) => p.score >= 75);
+    if (activeFilters.has("watch_first"))   list = list.filter((p) => p.score >= 50 && p.score < 75);
     if (activeFilters.has("full_price"))    list = list.filter((p) => !p.discounted);
     if (activeFilters.has("in_stock"))      list = list.filter((p) => p.available);
-    if (activeFilters.has("deep_variants")) list = list.filter((p) => (p.variants_count ?? 0) >= 10);
-    if (activeFilters.has("long_running"))  list = list.filter((p) => (p.age_days ?? 0) >= 180);
     if (activeFilters.has("new_launch"))    list = list.filter((p) => (p.age_days ?? 999) <= 30);
 
     if (sort === "newest")    list.sort((a, b) => (a.age_days ?? 9999) - (b.age_days ?? 9999));
     if (sort === "price_asc") list.sort((a, b) => (a.price_min ?? 0) - (b.price_min ?? 0));
     if (sort === "price_desc")list.sort((a, b) => (b.price_min ?? 0) - (a.price_min ?? 0));
-    // "score" keeps backend order
 
     return list;
   }, [data, activeFilters, sort]);
 
-  // ── loading ──
   if (loading) {
     return (
       <div className="space-y-3">
@@ -437,6 +452,10 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
 
   const launches = data.newest || [];
 
+  // Verdict summary counts for the header
+  const worthCount = data.products.filter((p) => !p.locked && p.score >= 75).length;
+  const watchCount = data.products.filter((p) => !p.locked && p.score >= 50 && p.score < 75).length;
+
   return (
     <div className="space-y-4">
 
@@ -444,10 +463,20 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
       <div className="flex items-start justify-between gap-3">
         <div>
           <h3 className="font-semibold" style={{ color: "var(--text)" }}>
-            Product Intelligence
+            Should you test these products?
           </h3>
           <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
-            {data.products.length} products scored · click a row to see signal breakdown
+            {worthCount > 0 && (
+              <span style={{ color: "#a3f000" }}>{worthCount} worth testing</span>
+            )}
+            {worthCount > 0 && watchCount > 0 && <span> · </span>}
+            {watchCount > 0 && (
+              <span style={{ color: "#facc15" }}>{watchCount} to watch</span>
+            )}
+            {worthCount === 0 && watchCount === 0 && (
+              <span>{data.products.length} products scored</span>
+            )}
+            {" · "}click a row for reasoning
           </p>
         </div>
 
@@ -511,7 +540,6 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
               );
             })}
 
-            {/* Sort */}
             <div
               className="ml-auto flex items-center rounded-lg overflow-hidden"
               style={{ background: "var(--bg3)" }}
@@ -532,7 +560,6 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
             </div>
           </div>
 
-          {/* Result count when filters active */}
           {activeFilters.size > 0 && (
             <p className="text-xs" style={{ color: "var(--muted)" }}>
               {filteredProducts.length} of {data.products.length} products match
@@ -547,7 +574,6 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
             </p>
           )}
 
-          {/* Product list */}
           <div
             className="rounded-2xl overflow-hidden"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
@@ -576,7 +602,6 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
               })
             )}
 
-            {/* Locked CTA */}
             {data.locked && data.locked_count > 0 && (
               <div
                 className="px-5 py-5 text-center"
@@ -590,7 +615,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
                   {data.locked_count} more products scored
                 </p>
                 <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
-                  Unlock the full ranking, signal breakdown, and filter controls.
+                  Unlock the full ranking with Worth Testing / Watch First verdicts.
                 </p>
                 <button
                   onClick={() => setUpgradeOpen(true)}
@@ -603,46 +628,39 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
             )}
           </div>
 
-          {/* Signal legend */}
-          {!data.locked && (
-            <div className="flex flex-wrap gap-3 pt-1">
-              {SIGNALS.map((sig) => {
-                const Icon = sig.icon;
-                return (
-                  <span
-                    key={sig.key}
-                    className="flex items-center gap-1.5 text-[11px]"
-                    style={{ color: "var(--muted)" }}
-                    title={sig.desc}
-                  >
-                    <Icon className="w-3 h-3" style={{ color: sig.color }} />
-                    {sig.label}
-                  </span>
-                );
-              })}
-            </div>
-          )}
+          {/* Verdict legend */}
+          <div className="flex items-center gap-4 text-[11px]" style={{ color: "var(--muted)" }}>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full inline-block" style={{ background: "#a3f000" }} />
+              Worth Testing — score ≥ 75
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full inline-block" style={{ background: "#facc15" }} />
+              Watch First — score 50–74
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full inline-block" style={{ background: "#94a3b8" }} />
+              Skip — score &lt; 50
+            </span>
+          </div>
         </>
       )}
 
       {/* ── Launches view ──────────────────────────────────────────────────── */}
       {view === "launches" && (
         <div className="space-y-3">
-          {/* Context callout */}
           <div
             className="rounded-xl px-4 py-3 flex items-start gap-3"
             style={{ background: "rgba(96,165,250,0.07)", border: "1px solid rgba(96,165,250,0.15)" }}
           >
             <Sparkles className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#60a5fa" }} />
             <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
-              <span style={{ color: "#e2e8f0" }}>Established brands validate products before listing.</span>
-              {" "}A recent launch with high variant depth or full-price confidence signals they have conviction —
-              watch whether it sticks or disappears. New products from a fast-growing competitor are a category
-              move worth noting.
+              <span style={{ color: "#e2e8f0" }}>A recent launch with deep variants signals real conviction.</span>
+              {" "}If it stays listed past 30 days, the category has demand. New launches from established brands
+              are worth adding to your product research list before they build momentum.
             </p>
           </div>
 
-          {/* Launch list */}
           <div
             className="rounded-2xl overflow-hidden"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
@@ -660,7 +678,6 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
             )}
           </div>
 
-          {/* Age legend */}
           <div className="flex items-center gap-4 text-[11px]" style={{ color: "var(--muted)" }}>
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full inline-block" style={{ background: "#a3f000" }} />
