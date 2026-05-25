@@ -216,8 +216,10 @@ function OnboardingContent() {
       // Pre-fill competitor URL if coming from a shared report
       const prefilledCompetitor = searchParams.get("competitor");
       if (prefilledCompetitor) {
-        const normalized = prefilledCompetitor.startsWith("http")
+        const normalized = prefilledCompetitor.startsWith("https://")
           ? prefilledCompetitor
+          : prefilledCompetitor.startsWith("http://")
+          ? prefilledCompetitor.replace("http://", "https://")
           : `https://${prefilledCompetitor}`;
         setUrl(normalized);
       }

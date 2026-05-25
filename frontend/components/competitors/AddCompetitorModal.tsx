@@ -59,13 +59,20 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
     }
   }
 
+  function normalizeUrl(raw: string): string {
+    const s = raw.trim();
+    if (s.startsWith("https://")) return s;
+    if (s.startsWith("http://")) return s.replace("http://", "https://");
+    return `https://${s}`;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!url.trim()) return;
     setSubmitting(true);
     setError("");
     try {
-      const { data } = await api.add(url.trim(), displayName || undefined);
+      const { data } = await api.add(normalizeUrl(url), displayName || undefined);
       onAdded(data);
     } catch (err: unknown) {
       const apiErr = err as { data?: { detail?: string | { code?: string; limit?: number } } };

@@ -402,7 +402,7 @@ export interface BriefData {
 export interface UserSubscription {
   id: string;
   email: string;
-  tier: "free" | "pro" | "agency";
+  tier: "free" | "pro" | "agency" | "developer";
   subscription_status: string;
   stripe_customer_id?: string;
   limits: {

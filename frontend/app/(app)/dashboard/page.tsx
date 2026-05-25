@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BarChart, Bar, XAxis, ResponsiveContainer, Cell } from "recharts";
 import {
-  competitors as api, alerts as alertsApi,
+  competitors as api, alerts as alertsApi, user as userApi,
   type Competitor, type AlertEvent, type DiscoverySuggestion,
 } from "@/lib/api";
 import { cn, formatRelativeTime, formatPrice } from "@/lib/utils";
@@ -449,6 +449,7 @@ function DashboardContent() {
   const [addPrefilledUrl, setAddPrefilledUrl] = useState("");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [trackingHostname, setTrackingHostname] = useState<string | null>(null);
+  const [maxCompetitors, setMaxCompetitors] = useState<number | null>(null);
 
   // Auto-open upgrade modal when onboarding sends ?upgrade=pro or ?upgrade=agency
   useEffect(() => {
@@ -471,6 +472,11 @@ function DashboardContent() {
     try { const { data } = await api.list(); setCompetitorList(data); }
     catch {}
     finally { setLoading(false); }
+  }, []);
+
+  // Load subscription once to know if user is at competitor limit
+  useEffect(() => {
+    userApi.subscription().then((r) => setMaxCompetitors(r.data.limits?.max_competitors ?? 1)).catch(() => {});
   }, []);
 
   const loadAlerts = useCallback(async () => {
@@ -503,6 +509,11 @@ function DashboardContent() {
   }
 
   async function handleTrack(hostname: string) {
+    // Proactive limit check — avoids a round-trip for free users who are at their cap
+    if (maxCompetitors !== null && competitorList.length >= maxCompetitors) {
+      setUpgradeOpen(true);
+      return;
+    }
     setTrackingHostname(hostname);
     try {
       const { data: newComp } = await api.add(`https://${hostname}`);
@@ -510,7 +521,13 @@ function DashboardContent() {
       setSuggestions((prev) => prev.filter((s) => s.hostname !== hostname));
       loadSuggestions();
     } catch (err: unknown) {
-      if ((err as { status?: number })?.status === 403) setUpgradeOpen(true);
+      const apiErr = err as { status?: number; data?: { detail?: { code?: string } | string } };
+      const detail = apiErr?.data?.detail;
+      const isLimitError =
+        (typeof detail === "object" && detail?.code === "competitor_limit_reached") ||
+        apiErr?.status === 402 ||
+        apiErr?.status === 403;
+      if (isLimitError) setUpgradeOpen(true);
     } finally {
       setTrackingHostname(null);
     }

@@ -94,6 +94,25 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_effect
     if dupe.data:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Competitor already tracked")
 
+    # Validate the URL is actually a Shopify store before creating the row.
+    # This surfaces the failure immediately instead of after a 60s scan attempt.
+    try:
+        from app.services.fetch import check_store
+        probe = check_store(body.store_url)
+        if not probe.get("ok"):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={
+                    "code": "not_shopify",
+                    "message": "This doesn't appear to be a Shopify store. Check the URL and try again.",
+                },
+            )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        # Probe network error — allow the add and let the scan fail gracefully
+        logger.warning("check_store probe failed for %s: %s", body.store_url, exc)
+
     hostname = urlparse(body.store_url).netloc
     now = datetime.now(timezone.utc)
 
@@ -312,6 +331,19 @@ def manual_rescan(competitor_id: str, user_id: str = Depends(get_effective_user_
     competitor = db.table("competitors").select("scan_status").eq("id", competitor_id).single().execute()
     if (competitor.data or {}).get("scan_status") == "scanning":
         raise HTTPException(status_code=409, detail="Scan already in progress")
+
+    # Redis-based cooldown — 60s between rescans per competitor (non-fatal if Redis unavailable)
+    try:
+        import redis as redis_lib
+        r = redis_lib.from_url(get_settings().redis_url, socket_connect_timeout=1)
+        rl_key = f"ratelimit:rescan:{competitor_id}"
+        if r.exists(rl_key):
+            raise HTTPException(status_code=429, detail="Rescan cooldown active — please wait 60 seconds")
+        r.set(rl_key, "1", ex=60)
+    except HTTPException:
+        raise
+    except Exception:
+        pass  # Redis unavailable — allow the rescan
 
     from app.tasks.scan import manual_rescan as _rescan
     _rescan.apply_async(args=[competitor_id], queue="priority")

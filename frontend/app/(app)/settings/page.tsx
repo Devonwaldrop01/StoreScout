@@ -75,7 +75,7 @@ function SettingsContent() {
 
     userApi.subscription().then((r) => {
       setSubscription(r.data);
-      if (["pro", "agency", "developer"].includes(r.data.tier)) {
+      if (r.data.tier === "developer") {
         apiKeysApi.list().then((kr) => setKeys(kr.data)).catch(() => {});
       }
       if (r.data.tier === "agency") {
@@ -772,8 +772,8 @@ function SettingsContent() {
           </section>
         )}
 
-        {/* ── API keys — Pro / Agency / Developer ── */}
-        {isPaidTier && (
+        {/* ── API keys — Developer plan only (not yet launched) ── */}
+        {subscription?.tier === "developer" && (
           <section
             className="rounded-2xl p-6"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}

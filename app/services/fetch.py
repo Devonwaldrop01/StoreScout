@@ -78,6 +78,7 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
 
     page_limit = min(250, max_products) if max_products is not None else 250
     MAX_PAGES = 10
+    FETCH_WALL_LIMIT = 180  # seconds — bail out before Celery hard-kills the task
 
     try:
         if _USE_CURL_CFFI:
@@ -85,8 +86,15 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
         else:
             _make_client = lambda: httpx.Client(timeout=25.0, headers=_headers(), follow_redirects=True)
 
+        fetch_start = time.monotonic()
         with _make_client() as client:
             for page in range(1, MAX_PAGES + 1):
+                if time.monotonic() - fetch_start > FETCH_WALL_LIMIT:
+                    logger.warning(
+                        "[FETCH TRUNCATED] store_url=%r hit %ds wall limit after %d products on page %d",
+                        store_url, FETCH_WALL_LIMIT, len(products), page,
+                    )
+                    break
                 url = f"{store_url.rstrip('/')}/products.json?limit={page_limit}&page={page}"
                 logger.info("[FETCH REQUEST] page=%d url=%r", page, url)
 

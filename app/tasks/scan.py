@@ -11,7 +11,14 @@ from app.core.database import get_supabase
 logger = logging.getLogger(__name__)
 
 
-@celery.task(bind=True, max_retries=3, default_retry_delay=30, name="app.tasks.scan.scan_competitor")
+@celery.task(
+    bind=True,
+    max_retries=3,
+    default_retry_delay=30,
+    name="app.tasks.scan.scan_competitor",
+    soft_time_limit=240,
+    time_limit=300,
+)
 def scan_competitor(self, competitor_id: str) -> dict:
     db = get_supabase()
     settings = get_settings()
@@ -26,7 +33,7 @@ def scan_competitor(self, competitor_id: str) -> dict:
         resp = httpx.post(
             f"{settings.api_internal_url}/api/v1/internal/scan/{competitor_id}",
             headers={"x-internal-token": settings.internal_secret},
-            timeout=120.0,
+            timeout=240.0,
         )
         resp.raise_for_status()
         data = resp.json()
