@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Zap } from "lucide-react";
+import { Zap, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 function GoogleIcon() {
@@ -22,6 +22,7 @@ export default function LoginPage() {
   const supabase = createClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
@@ -45,15 +46,12 @@ export default function LoginPage() {
     setError("");
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
     if (err) {
       setError(err.message);
       setGoogleLoading(false);
     }
-    // On success, browser redirects to Google — no further action needed here
   }
 
   const inputStyle = (field: string) => ({
@@ -66,89 +64,25 @@ export default function LoginPage() {
   });
 
   return (
-    <div
-      className="relative min-h-screen flex items-center justify-center p-4"
-      style={{ background: "var(--bg)" }}
-    >
+    <div className="relative min-h-screen flex items-center justify-center p-4" style={{ background: "var(--bg)" }}>
       {/* Ambient glows */}
-      <div
-        className="fixed pointer-events-none"
-        style={{
-          top: "-80px",
-          left: "-80px",
-          width: "400px",
-          height: "400px",
-          borderRadius: "50%",
-          background: "rgba(168,255,0,.06)",
-          filter: "blur(80px)",
-          zIndex: 0,
-        }}
-      />
-      <div
-        className="fixed pointer-events-none"
-        style={{
-          top: "-60px",
-          right: "-60px",
-          width: "300px",
-          height: "300px",
-          borderRadius: "50%",
-          background: "rgba(96,165,250,.04)",
-          filter: "blur(80px)",
-          zIndex: 0,
-        }}
-      />
-      <div
-        className="fixed pointer-events-none"
-        style={{
-          bottom: "-80px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "350px",
-          height: "350px",
-          borderRadius: "50%",
-          background: "rgba(167,139,250,.04)",
-          filter: "blur(80px)",
-          zIndex: 0,
-        }}
-      />
+      <div className="fixed pointer-events-none" style={{ top: "-80px", left: "-80px", width: "400px", height: "400px", borderRadius: "50%", background: "rgba(168,255,0,.06)", filter: "blur(80px)", zIndex: 0 }} />
+      <div className="fixed pointer-events-none" style={{ top: "-60px", right: "-60px", width: "300px", height: "300px", borderRadius: "50%", background: "rgba(96,165,250,.04)", filter: "blur(80px)", zIndex: 0 }} />
+      <div className="fixed pointer-events-none" style={{ bottom: "-80px", left: "50%", transform: "translateX(-50%)", width: "350px", height: "350px", borderRadius: "50%", background: "rgba(167,139,250,.04)", filter: "blur(80px)", zIndex: 0 }} />
 
-      {/* Content */}
       <div className="relative w-full max-w-sm" style={{ zIndex: 1 }}>
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div
-            style={{
-              width: "32px",
-              height: "32px",
-              borderRadius: "12px",
-              background: "var(--accent)",
-              boxShadow: "0 0 20px rgba(168,255,0,.4)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
+          <div style={{ width: "32px", height: "32px", borderRadius: "12px", background: "var(--accent)", boxShadow: "0 0 20px rgba(168,255,0,.4)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <Zap style={{ width: "16px", height: "16px", color: "#0a0a0f" }} />
           </div>
           <span className="text-xl font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
         </div>
 
         {/* Card */}
-        <div
-          className="rounded-2xl p-7"
-          style={{
-            background: "var(--bg2)",
-            border: "1px solid var(--border)",
-            boxShadow: "0 24px 80px rgba(0,0,0,.5)",
-          }}
-        >
-          <h1 className="text-2xl font-bold mb-1 text-center" style={{ color: "var(--text)" }}>
-            Welcome back
-          </h1>
-          <p className="text-sm text-center mb-6" style={{ color: "var(--muted)" }}>
-            Sign in to your account
-          </p>
+        <div className="rounded-2xl p-7" style={{ background: "var(--bg2)", border: "1px solid var(--border)", boxShadow: "0 24px 80px rgba(0,0,0,.5)" }}>
+          <h1 className="text-2xl font-bold mb-1 text-center" style={{ color: "var(--text)" }}>Welcome back</h1>
+          <p className="text-sm text-center mb-6" style={{ color: "var(--muted)" }}>Sign in to your account</p>
 
           {/* Google */}
           <button
@@ -156,19 +90,12 @@ export default function LoginPage() {
             onClick={handleGoogleLogin}
             disabled={googleLoading || loading}
             className="w-full flex items-center justify-center gap-3 py-3 rounded-xl font-medium text-sm mb-4 transition-all disabled:opacity-50"
-            style={{
-              background: "var(--bg3)",
-              border: "1px solid var(--border)",
-              color: "var(--text)",
-            }}
+            style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,.06)")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "var(--bg3)")}
           >
             {googleLoading ? (
-              <div
-                className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin"
-                style={{ borderColor: "var(--muted)" }}
-              />
+              <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--muted)" }} />
             ) : (
               <GoogleIcon />
             )}
@@ -183,47 +110,55 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--muted)" }}>
-                Email
-              </label>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--muted)" }}>Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoFocus
                 className="w-full px-4 py-3 rounded-xl text-sm"
                 style={inputStyle("email")}
                 onFocus={() => setFocusedField("email")}
                 onBlur={() => setFocusedField(null)}
               />
             </div>
+
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-sm font-medium" style={{ color: "var(--muted)" }}>
-                  Password
-                </label>
-                <Link
-                  href="/auth/forgot-password"
-                  className="text-xs hover:underline"
-                  style={{ color: "var(--accent)" }}
-                >
+                <label className="text-sm font-medium" style={{ color: "var(--muted)" }}>Password</label>
+                <Link href="/auth/forgot-password" className="text-xs hover:underline" style={{ color: "var(--accent)" }}>
                   Forgot password?
                 </Link>
               </div>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-4 py-3 rounded-xl text-sm"
-                style={inputStyle("password")}
-                onFocus={() => setFocusedField("password")}
-                onBlur={() => setFocusedField(null)}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 pr-11 rounded-xl text-sm"
+                  style={inputStyle("password")}
+                  onFocus={() => setFocusedField("password")}
+                  onBlur={() => setFocusedField(null)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded"
+                  style={{ color: "var(--muted)" }}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             {error && (
-              <p className="text-sm text-red-400 text-center">{error}</p>
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm" style={{ background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.2)", color: "#f87171" }}>
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                {error}
+              </div>
             )}
 
             <button

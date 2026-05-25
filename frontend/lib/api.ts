@@ -43,7 +43,9 @@ export const competitors = {
       `/competitors/${id}/changes?limit=${limit}${changeType ? `&change_type=${changeType}` : ""}`
     ),
   aiSummary: (id: string) =>
-    apiFetch<{ data: AiSummary }>(`/competitors/${id}/ai-summary`),
+    apiFetch<{ data: AiSummary | null; status: "ok" | "generating" }>(`/competitors/${id}/ai-summary`),
+  regenerateSummary: (id: string) =>
+    apiFetch<{ status: string }>(`/competitors/${id}/ai-summary/regenerate`, { method: "POST" }),
   winningProducts: (id: string) =>
     apiFetch<{ data: WinningProductsResponse }>(`/competitors/${id}/winning-products`),
   gaps: (id: string) =>
@@ -119,6 +121,8 @@ export const alerts = {
   unreadCount: () => apiFetch<{ count: number }>("/alerts/unread-count"),
   markRead: (id: string) =>
     apiFetch<{ status: string }>(`/alerts/${id}/read`, { method: "PUT" }),
+  markAllRead: () =>
+    apiFetch<{ status: string; marked: number }>("/alerts/mark-all-read", { method: "POST" }),
 };
 
 // ── Billing ───────────────────────────────────────────────────
@@ -205,6 +209,7 @@ export interface ChangeEvent {
 
 export interface AlertEvent extends ChangeEvent {
   hostname: string;
+  read_at?: string | null;
 }
 
 export interface AiSummary {
@@ -442,6 +447,9 @@ export interface PublicReport {
     catalog_complexity?: Record<string, unknown>;
   };
   takeaways: string[];
+  ai_brief?: {
+    cards?: { type: "signal" | "opportunity" | "watch"; headline: string; body: string }[];
+  } | null;
 }
 
 export interface ApiKey {
@@ -473,4 +481,6 @@ export interface DiscoverySuggestion {
   product_count?: number | null;
   median_price?: number | null;
   market_position?: string | null;
+  is_curated?: boolean;
+  category?: string | null;
 }

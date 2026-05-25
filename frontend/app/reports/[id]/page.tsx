@@ -2,8 +2,9 @@
 
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
-import { Zap, Share2, Check, ArrowRight } from "lucide-react";
+import { Zap, Share2, Check, ArrowRight, TrendingUp, Target, Eye } from "lucide-react";
 import { reports, type PublicReport } from "@/lib/api";
+import { createClient } from "@/lib/supabase/client";
 import { formatRelativeTime, formatPrice, formatPct } from "@/lib/utils";
 import { PriceDistributionChart } from "@/components/charts/PriceDistributionChart";
 
@@ -35,12 +36,87 @@ function PositioningBar({ label, pos }: { label: string; pos: Record<string, unk
   );
 }
 
+const BRIEF_CARD_STYLES = {
+  signal: {
+    color: "#a8ff00",
+    bg: "rgba(168,255,0,.06)",
+    border: "rgba(168,255,0,.18)",
+    label: "Signal",
+    Icon: TrendingUp,
+  },
+  opportunity: {
+    color: "#60a5fa",
+    bg: "rgba(96,165,250,.06)",
+    border: "rgba(96,165,250,.18)",
+    label: "Opportunity",
+    Icon: Target,
+  },
+  watch: {
+    color: "#facc15",
+    bg: "rgba(250,204,21,.06)",
+    border: "rgba(250,204,21,.18)",
+    label: "Watch",
+    Icon: Eye,
+  },
+} as const;
+
+function AiBriefSection({ brief }: { brief: NonNullable<PublicReport["ai_brief"]> }) {
+  const cards = brief.cards || [];
+  if (cards.length === 0) return null;
+  return (
+    <div className="mb-8">
+      <div className="flex items-center gap-2 mb-4">
+        <div
+          className="w-6 h-6 rounded-lg flex items-center justify-center"
+          style={{ background: "rgba(168,255,0,.12)" }}
+        >
+          <Zap className="w-3.5 h-3.5" style={{ color: "#a8ff00" }} />
+        </div>
+        <h2 className="text-sm font-bold" style={{ color: "var(--text)" }}>AI Intelligence Brief</h2>
+        <span
+          className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+          style={{ background: "rgba(168,255,0,.1)", color: "#a8ff00" }}
+        >
+          Powered by Claude
+        </span>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {cards.map((card) => {
+          const style = BRIEF_CARD_STYLES[card.type] ?? BRIEF_CARD_STYLES.signal;
+          const Icon = style.Icon;
+          return (
+            <div
+              key={card.type}
+              className="rounded-2xl p-5"
+              style={{ background: style.bg, border: `1px solid ${style.border}` }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Icon className="w-3.5 h-3.5" style={{ color: style.color }} />
+                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: style.color }}>
+                  {style.label}
+                </span>
+              </div>
+              <p className="text-sm font-semibold mb-2 leading-snug" style={{ color: "var(--text)" }}>
+                {card.headline}
+              </p>
+              <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
+                {card.body}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function PublicReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [report, setReport] = useState<PublicReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     reports.get(id)
@@ -49,6 +125,11 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
         if (e?.status === 404) setNotFound(true);
       })
       .finally(() => setLoading(false));
+
+    // Check auth state to customize CTAs — non-blocking
+    createClient().auth.getSession()
+      .then(({ data }) => { if (data.session) setIsLoggedIn(true); })
+      .catch(() => {});
   }, [id]);
 
   function handleShare() {
@@ -60,7 +141,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
-        <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--green)" }} />
+        <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--accent)" }} />
       </div>
     );
   }
@@ -73,7 +154,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
         <Link
           href="/auth/signup"
           className="flex items-center gap-2 font-semibold px-6 py-3 rounded-xl transition-all hover:brightness-110"
-          style={{ background: "#a3f000", color: "#060d18" }}
+          style={{ background: "var(--accent)", color: "#060d18" }}
         >
           Track your own competitors free
           <ArrowRight className="w-4 h-4" />
@@ -82,17 +163,26 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
     );
   }
 
-  const { hostname, scanned_at, product_count, pricing, discounts, launch, positioning, takeaways } = report;
+  const { hostname, scanned_at, product_count, pricing, discounts, launch, positioning, takeaways, ai_brief } = report;
+
+  // Sign-up URL pre-fills the competitor hostname so onboarding starts with it
+  const signupUrl = `/auth/signup?competitor=${encodeURIComponent(hostname)}`;
+  const dashboardAddUrl = `/dashboard?add=${encodeURIComponent(hostname)}`;
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg)" }}>
       {/* Nav */}
       <nav
-        className="flex items-center justify-between px-6 py-4 border-b"
-        style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
+        className="flex items-center justify-between px-6 py-4 border-b sticky top-0 z-10"
+        style={{ borderColor: "var(--border)", background: "rgba(6,13,24,.92)", backdropFilter: "blur(12px)" }}
       >
         <Link href="/" className="flex items-center gap-2">
-          <Zap className="w-5 h-5" style={{ color: "#a3f000" }} />
+          <div
+            className="w-6 h-6 rounded-lg flex items-center justify-center"
+            style={{ background: "var(--accent)" }}
+          >
+            <Zap className="w-3.5 h-3.5" style={{ color: "#0a0a0f" }} />
+          </div>
           <span className="font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
         </Link>
         <div className="flex items-center gap-3">
@@ -101,16 +191,26 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
             className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-xl transition-colors hover:bg-white/10"
             style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Share2 className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5" style={{ color: "#4ade80" }} /> : <Share2 className="w-3.5 h-3.5" />}
             {copied ? "Copied!" : "Share"}
           </button>
-          <Link
-            href="/auth/signup"
-            className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110"
-            style={{ background: "#a3f000", color: "#060d18" }}
-          >
-            Track your competitors
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              href={dashboardAddUrl}
+              className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110"
+              style={{ background: "var(--accent)", color: "#060d18" }}
+            >
+              Add to dashboard
+            </Link>
+          ) : (
+            <Link
+              href={signupUrl}
+              className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110"
+              style={{ background: "var(--accent)", color: "#060d18" }}
+            >
+              Track competitors free
+            </Link>
+          )}
         </div>
       </nav>
 
@@ -139,6 +239,9 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
           <KpiCard label="Promo Rate" value={formatPct(discounts.discounted_pct)} />
           <KpiCard label="New (30d)" value={launch.new_30d?.toString() ?? "—"} />
         </div>
+
+        {/* AI brief — shown before positioning if available */}
+        {ai_brief && <AiBriefSection brief={ai_brief} />}
 
         {/* Positioning scores */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
@@ -191,20 +294,41 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
           className="rounded-2xl p-8 text-center"
           style={{ background: "rgba(163,240,0,.05)", border: "1px solid rgba(163,240,0,.2)" }}
         >
-          <h2 className="text-xl font-bold mb-2" style={{ color: "var(--text)" }}>
-            Track {hostname} yourself
-          </h2>
-          <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>
-            Get alerted when they change prices, launch products, or run discounts. Free to start.
-          </p>
-          <Link
-            href="/auth/signup"
-            className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all hover:brightness-110"
-            style={{ background: "#a3f000", color: "#060d18" }}
-          >
-            Start tracking free
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          {isLoggedIn ? (
+            <>
+              <h2 className="text-xl font-bold mb-2" style={{ color: "var(--text)" }}>
+                Track {hostname} live
+              </h2>
+              <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>
+                Get alerted within 15 minutes when they change prices, launch products, or run discounts.
+              </p>
+              <Link
+                href={dashboardAddUrl}
+                className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all hover:brightness-110"
+                style={{ background: "var(--accent)", color: "#060d18" }}
+              >
+                Add to my dashboard
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </>
+          ) : (
+            <>
+              <h2 className="text-xl font-bold mb-2" style={{ color: "var(--text)" }}>
+                Track {hostname} yourself
+              </h2>
+              <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>
+                Get alerted when they change prices, launch products, or run discounts. Free to start — no credit card.
+              </p>
+              <Link
+                href={signupUrl}
+                className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all hover:brightness-110"
+                style={{ background: "var(--accent)", color: "#060d18" }}
+              >
+                Start tracking free
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Footer attribution */}
