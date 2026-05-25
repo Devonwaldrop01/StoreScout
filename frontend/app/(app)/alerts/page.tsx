@@ -211,17 +211,40 @@ export default function AlertsPage() {
         </div>
 
       ) : alertList.length === 0 ? (
-        <div
-          className="flex flex-col items-center justify-center min-h-[320px] text-center rounded-2xl fade-in"
-          style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
-        >
-          <Bell size={48} className="mb-4" style={{ color: "var(--muted)", opacity: 0.3 }} />
-          <p className="text-base font-semibold mb-1" style={{ color: "var(--text)" }}>
-            All clear
-          </p>
-          <p className="text-sm max-w-xs" style={{ color: "var(--muted)" }}>
-            We&apos;ll notify you here the moment a competitor makes a move.
-          </p>
+        <div className="rounded-2xl overflow-hidden fade-in" style={{ border: "1px solid var(--border)" }}>
+          {/* Header */}
+          <div className="flex flex-col items-center text-center px-6 pt-10 pb-6" style={{ background: "var(--bg3)" }}>
+            <div className="w-12 h-12 rounded-2xl mb-4 flex items-center justify-center" style={{ background: "rgba(168,255,0,.06)", border: "1px solid rgba(168,255,0,.14)" }}>
+              <Bell className="w-6 h-6" style={{ color: "var(--accent)" }} />
+            </div>
+            <p className="text-base font-bold mb-2" style={{ color: "var(--text)" }}>No alerts yet</p>
+            <p className="text-sm max-w-sm leading-relaxed" style={{ color: "var(--muted)" }}>
+              When a tracked competitor changes prices, launches products, or starts a discount campaign — you&apos;ll see it here within minutes.
+            </p>
+          </div>
+
+          {/* Ghost example rows */}
+          <div className="px-4 pb-6 space-y-2 opacity-40 pointer-events-none" style={{ background: "var(--bg-card)" }}>
+            <p className="text-[10px] font-bold uppercase tracking-wider pt-4 pb-1" style={{ color: "var(--muted)" }}>
+              What alerts look like
+            </p>
+            {[
+              { icon: "↓", label: "Price drop detected", desc: "Oversized T-Shirt dropped 22% — $45 → $35", time: "2h ago", color: "#22c55e" },
+              { icon: "+", label: "New product launched", desc: "Summer Pump Cover added to catalog", time: "Yesterday", color: "#60a5fa" },
+              { icon: "%", label: "Discount campaign started", desc: "17 products now showing sale pricing", time: "3 days ago", color: "#f59e0b" },
+            ].map((ex) => (
+              <div key={ex.label} className="flex items-start gap-3 px-4 py-3 rounded-xl" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-bold" style={{ background: `${ex.color}15`, color: ex.color }}>
+                  {ex.icon}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold leading-none mb-1" style={{ color: "var(--text)" }}>{ex.label}</p>
+                  <p className="text-xs" style={{ color: "var(--muted)" }}>{ex.desc}</p>
+                </div>
+                <span className="text-xs shrink-0 mt-0.5" style={{ color: "var(--muted)" }}>{ex.time}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
       ) : filtered.length === 0 ? (

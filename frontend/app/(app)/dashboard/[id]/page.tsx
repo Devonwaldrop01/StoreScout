@@ -255,7 +255,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const [snapshot,       setSnapshot]       = useState<Snapshot | null>(null);
   const [changes,        setChanges]        = useState<ChangeEvent[]>([]);
   const [aiSummary,      setAiSummary]      = useState<AiSummary | null>(null);
-  const [aiStatus,       setAiStatus]       = useState<"idle" | "loading" | "generating" | "error">("idle");
+  const [aiStatus,       setAiStatus]       = useState<"idle" | "loading" | "generating" | "error" | "none">("idle");
   const aiPollRef    = useRef<ReturnType<typeof setInterval> | null>(null);
   const aiPollCount  = useRef(0);
   const [loading,        setLoading]        = useState(true);
@@ -310,7 +310,8 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
           setAiSummary(r.data);
           setAiStatus("idle");
         } else {
-          setAiStatus("error");
+          // No summary generated yet — not an error, just hasn't been run
+          setAiStatus("none");
         }
       })
       .catch(() => setAiStatus("error"));
@@ -847,10 +848,29 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   </div>
 
                   {changes.length === 0 ? (
-                    <div className="px-5 py-12 text-center" style={{ background: "var(--bg-card)" }}>
-                      <p className="text-sm" style={{ color: "var(--muted)" }}>
-                        No changes detected yet. Check back after the next scan.
-                      </p>
+                    <div className="px-5 py-10 text-center space-y-6" style={{ background: "var(--bg-card)" }}>
+                      <div>
+                        <div className="w-10 h-10 rounded-xl mx-auto mb-3 flex items-center justify-center" style={{ background: "rgba(255,255,255,.04)", border: "1px solid var(--border)" }}>
+                          <Clock className="w-5 h-5" style={{ color: "var(--muted)", opacity: 0.4 }} />
+                        </div>
+                        <p className="text-sm font-semibold mb-1.5" style={{ color: "var(--text)" }}>No changes detected yet</p>
+                        <p className="text-xs leading-relaxed max-w-xs mx-auto" style={{ color: "var(--muted)" }}>
+                          We compare each scan to the previous one. Price shifts, new product launches, and removed items will appear here.
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 max-w-xs mx-auto">
+                        {[
+                          { icon: "↓", label: "Price drop",       color: "#22c55e" },
+                          { icon: "↑", label: "Price increase",   color: "#ef4444" },
+                          { icon: "+", label: "New product",      color: "#60a5fa" },
+                          { icon: "✕", label: "Product removed",  color: "#f59e0b" },
+                        ].map(({ icon, label, color }) => (
+                          <div key={label} className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+                            <span className="text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: `${color}15`, color }}>{icon}</span>
+                            <span className="text-xs" style={{ color: "var(--muted)" }}>{label}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ) : (
                     <div>
@@ -971,6 +991,41 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           {aiStatus === "generating" && (
                             <p className="text-xs mt-4" style={{ color: "var(--muted)", opacity: 0.6 }}>Usually takes 20–30 seconds</p>
                           )}
+                        </div>
+
+                      ) : aiStatus === "none" ? (
+                        <div
+                          className="rounded-2xl p-8 text-center"
+                          style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+                        >
+                          <div className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(168,255,0,.06)", border: "1px solid rgba(168,255,0,.14)" }}>
+                            <Sparkles className="w-6 h-6" style={{ color: "var(--accent)" }} />
+                          </div>
+                          <h3 className="text-base font-bold mb-2" style={{ color: "var(--text)" }}>No analysis yet</h3>
+                          <p className="text-sm mb-6 max-w-sm mx-auto leading-relaxed" style={{ color: "var(--muted)" }}>
+                            Generate a strategic read on {hostname}&apos;s pricing, launch patterns, and competitive positioning.
+                          </p>
+                          <div className="mb-6 text-left rounded-xl p-4 space-y-2.5" style={{ background: "var(--bg3)" }}>
+                            {[
+                              "Pricing strategy and discount aggression",
+                              "Launch velocity and catalog expansion rate",
+                              "One specific action you could take this week",
+                            ].map((line, i) => (
+                              <div key={i} className="flex items-start gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--accent)" }} />
+                                <p className="text-xs" style={{ color: "var(--text-2)" }}>{line}</p>
+                              </div>
+                            ))}
+                          </div>
+                          <button
+                            onClick={handleRegenerate}
+                            className="font-semibold text-sm px-6 py-3 rounded-xl transition-all hover:brightness-110"
+                            style={{ background: "var(--accent)", color: "#0a0a0f" }}
+                          >
+                            <Sparkles className="w-4 h-4 inline mr-1.5 -mt-0.5" />
+                            Generate analysis
+                          </button>
+                          <p className="text-xs mt-3" style={{ color: "var(--muted)", opacity: 0.6 }}>Usually takes 20–30 seconds</p>
                         </div>
 
                       ) : (() => {
