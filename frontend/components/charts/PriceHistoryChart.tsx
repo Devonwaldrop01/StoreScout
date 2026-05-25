@@ -28,6 +28,7 @@ const DEMO_DATA = [
 
 interface Props {
   competitorId: string;
+  isFree?: boolean;
   onUpgrade?: () => void;
 }
 
@@ -70,19 +71,34 @@ function Chart({ chartData, showBFLine = false }: {
   );
 }
 
-export function PriceHistoryChart({ competitorId, onUpgrade }: Props) {
+export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Props) {
   const [data, setData] = useState<PriceHistoryResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
+    setFetchError(false);
     api.priceHistory(competitorId)
       .then((r) => setData(r.data))
-      .catch(() => {})
+      .catch(() => setFetchError(true))
       .finally(() => setLoading(false));
   }, [competitorId]);
 
   if (loading) {
     return <div className="h-64 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />;
+  }
+
+  // Paid user but API call failed — show a neutral message, not the paywall
+  if (!isFree && (fetchError || !data || !data.locked)) {
+    if (fetchError || !data) {
+      return (
+        <div className="rounded-xl px-5 py-8 text-center" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+          <p className="text-sm" style={{ color: "var(--muted)" }}>
+            Price history builds over time — check back after a few more daily scans.
+          </p>
+        </div>
+      );
+    }
   }
 
   // ── Paid: full chart ────────────────────────────────────────────────────────

@@ -30,7 +30,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const nav = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/alerts",    icon: Bell,            label: "Alerts",   badge: unread },
-    { href: "/settings",  icon: Store,            label: "My Store", match: "/settings" },
   ];
 
   const isFree = tier === "free" || tier === null;

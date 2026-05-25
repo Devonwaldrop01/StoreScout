@@ -63,7 +63,7 @@ function StatsBar({ competitorList, signalGroups }: { competitorList: Competitor
       value: criticals > 0 ? criticals.toString() : "✓",
       color: criticals > 0 ? "var(--red)" : "var(--emerald)",
     },
-    ...(nextScanTs ? [{ icon: Clock, label: "Next scan", value: formatNextScan(new Date(nextScanTs).toISOString()), color: "var(--muted)" }] : []),
+    ...(nextScanTs ? [{ icon: Clock, label: "Next auto-scan", value: formatNextScan(new Date(nextScanTs).toISOString()), color: "var(--muted)" }] : []),
   ];
 
   return (
@@ -216,7 +216,7 @@ function CompetitorMonitor({ competitor, signalGroups }: { competitor: Competito
       {/* Next scan + rescan */}
       <div className="flex items-center gap-2 shrink-0">
         <span className="text-[11px]" style={{ color: "var(--muted)" }}>
-          {isScanning ? "Scanning…" : `Next: ${formatNextScan(competitor.next_scan_at)}`}
+          {isScanning ? "Scanning…" : `Scan in ${formatNextScan(competitor.next_scan_at)}`}
         </span>
         <button
           onClick={handleRescan}

@@ -41,6 +41,10 @@ celery.conf.update(
         "app.tasks.*": {"queue": "default"},
     },
     beat_schedule={
+        "recover-stuck-scans": {
+            "task": "app.tasks.scheduler.recover_stuck_scans",
+            "schedule": crontab(minute="*/10"),
+        },
         "enqueue-due-scans": {
             "task": "app.tasks.scheduler.enqueue_due_scans",
             "schedule": crontab(minute="*/15"),
