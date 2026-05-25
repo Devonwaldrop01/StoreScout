@@ -197,9 +197,11 @@ export default function OnboardingPage() {
   const [scanDone, setScanDone] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [scanPhase, setScanPhase] = useState("Connecting to store...");
+  const [scanTimedOut, setScanTimedOut] = useState(false);
 
   const checkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const progressRef = useRef(0);
+  const pollCountRef = useRef(0);
 
   // Auth guard
   useEffect(() => {
@@ -218,6 +220,11 @@ export default function OnboardingPage() {
           ? prefilledCompetitor
           : `https://${prefilledCompetitor}`;
         setUrl(normalized);
+      }
+      // Pre-select plan if forwarded from landing page CTA
+      const planParam = searchParams.get("plan");
+      if (planParam === "free" || planParam === "pro" || planParam === "agency") {
+        setSelectedPlan(planParam);
       }
       setAuthChecked(true);
     }
@@ -244,20 +251,29 @@ export default function OnboardingPage() {
     return () => clearInterval(timer);
   }, [newCompetitorId, scanDone]);
 
-  // Real scan polling
+  // Real scan polling — stops after 40 polls (~2 min), shows escape hatch after 40s
   useEffect(() => {
     if (!newCompetitorId || scanDone) return;
+    pollCountRef.current = 0;
+    setScanTimedOut(false);
+    const timeoutTimer = setTimeout(() => setScanTimedOut(true), 40000);
     const poll = setInterval(async () => {
+      pollCountRef.current += 1;
+      if (pollCountRef.current > 40) {
+        clearInterval(poll);
+        return;
+      }
       try {
         await competitorsApi.latestSnapshot(newCompetitorId);
         setScanDone(true);
         setScanProgress(100);
         setScanPhase("Scan complete!");
+        clearTimeout(timeoutTimer);
       } catch {
         // 404 = still pending
       }
     }, 3000);
-    return () => clearInterval(poll);
+    return () => { clearInterval(poll); clearTimeout(timeoutTimer); };
   }, [newCompetitorId, scanDone]);
 
   async function checkStore(value: string) {
@@ -951,9 +967,11 @@ export default function OnboardingPage() {
                     <button
                       onClick={finish}
                       className="mt-2 w-full text-sm py-2 rounded-xl hover:bg-white/5 transition-colors"
-                      style={{ color: "var(--muted)" }}
+                      style={{ color: scanTimedOut ? "var(--text)" : "var(--muted)" }}
                     >
-                      Go to dashboard now (scan continues in background)
+                      {scanTimedOut
+                        ? "Scan is taking longer than usual — continue to dashboard"
+                        : "Go to dashboard now (scan continues in background)"}
                     </button>
                   )}
                 </>

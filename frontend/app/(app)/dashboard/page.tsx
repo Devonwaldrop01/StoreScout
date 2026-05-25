@@ -460,7 +460,8 @@ export default function DashboardPage() {
     // ?add=hostname — pre-open Add Competitor modal (from shareable report CTA)
     const addHostname = searchParams.get("add");
     if (addHostname) {
-      setAddPrefilledUrl(`https://${addHostname}`);
+      const normalizedHostname = addHostname.replace(/^https?:\/\//, "");
+      setAddPrefilledUrl(`https://${normalizedHostname}`);
       setShowModal(true);
       router.replace("/dashboard");
     }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Zap, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { user as userApi } from "@/lib/api";
@@ -28,6 +28,7 @@ const AmbienceGlows = () => (
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,10 +44,13 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
 
+    const plan = searchParams.get("plan");
+    const onboardingPath = plan ? `/onboarding?plan=${encodeURIComponent(plan)}` : "/onboarding";
+
     const { data, error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(onboardingPath)}` },
     });
     if (err) {
       setError(err.message);
@@ -56,7 +60,7 @@ export default function SignupPage() {
 
     if (data.session) {
       await userApi.provision().catch(() => {});
-      router.push("/onboarding");
+      router.push(onboardingPath);
     } else {
       setDone(true);
       setLoading(false);
@@ -66,9 +70,11 @@ export default function SignupPage() {
   async function handleGoogleSignup() {
     setGoogleLoading(true);
     setError("");
+    const plan = searchParams.get("plan");
+    const onboardingPath = plan ? `/onboarding?plan=${encodeURIComponent(plan)}` : "/onboarding";
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(onboardingPath)}` },
     });
     if (err) {
       setError(err.message);
