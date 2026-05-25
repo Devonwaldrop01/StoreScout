@@ -17,6 +17,7 @@ import { groupAlertEvents, generateNarrative, type SignalGroup } from "@/lib/sig
 import { SignalFeed } from "@/components/signals/SignalFeed";
 import { AddCompetitorModal } from "@/components/competitors/AddCompetitorModal";
 import UpgradeModal from "@/components/UpgradeModal";
+import { ActionPlaybook } from "@/components/competitors/ActionPlaybook";
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -611,6 +612,9 @@ function DashboardContent() {
 
           {/* Narrative bar */}
           {!alertsLoading && <NarrativeBar narrative={narrative} signalGroups={signalGroups} />}
+
+          {/* Your Move — action playbook */}
+          <ActionPlaybook competitorCount={competitorList.length} />
 
           {/* ── 3-column layout ── */}
           <div className="flex gap-5 items-start">
