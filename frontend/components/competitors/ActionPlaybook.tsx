@@ -98,6 +98,21 @@ export function ActionPlaybook({ competitorCount }: Props) {
     );
   }
 
+  if (!loading && visible.length === 0 && !locked) {
+    return (
+      <div
+        className="mb-6 rounded-xl px-5 py-3 fade-in flex items-center gap-3"
+        style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+      >
+        <Zap className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--muted)" }} />
+        <p className="text-xs" style={{ color: "var(--muted)" }}>
+          <span className="font-medium" style={{ color: "var(--text-2)" }}>Your Move</span>
+          {" · "}No urgent competitive moves detected in the last 7 days. You&apos;ll see action recommendations here when a competitor makes a significant pricing or catalog change.
+        </p>
+      </div>
+    );
+  }
+
   if (locked) {
     return (
       <div
