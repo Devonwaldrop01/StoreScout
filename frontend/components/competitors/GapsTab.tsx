@@ -156,7 +156,7 @@ function GapCard({ gap, index, reviewed, onReviewed }: GapCardProps) {
           {/* Mark as reviewed */}
           <div className="flex items-center justify-between mt-3">
             <p className="text-[11px]" style={{ color: "var(--muted)" }}>
-              {gap.metric && (
+              {gap.metric && typeof gap.metric === "string" && (
                 <span>{gap.metric}</span>
               )}
             </p>
