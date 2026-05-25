@@ -147,6 +147,52 @@ def _detect(old_snap: dict, new_snap: dict) -> List[dict]:
     return changes
 
 
+def _aggregate_bulk(changes: List[dict], threshold: int) -> List[dict]:
+    """
+    Collapse noisy bulk change_types into a single summary event when the count
+    exceeds `threshold`. Keeps individual events for types that are below the
+    threshold. Non-aggregatable types (discount_start/end, availability) are
+    always kept as-is.
+    """
+    from collections import defaultdict
+    AGGREGATABLE = {"product_removed", "new_product", "price_change"}
+    bucketed: dict = defaultdict(list)
+    passthrough: List[dict] = []
+
+    for c in changes:
+        ct = c.get("change_type", "")
+        if ct in AGGREGATABLE:
+            bucketed[ct].append(c)
+        else:
+            passthrough.append(c)
+
+    result: List[dict] = list(passthrough)
+    for ct, items in bucketed.items():
+        if len(items) <= threshold:
+            result.extend(items)
+        else:
+            sample = items[:5]
+            aggregate_type = {
+                "product_removed": "bulk_removal",
+                "new_product": "bulk_new_products",
+                "price_change": "bulk_price_change",
+            }[ct]
+            result.append({
+                "change_type": aggregate_type,
+                "product_handle": None,
+                "product_title": None,
+                "product_url": None,
+                "old_value": {
+                    "count": len(items),
+                    "sample": [{"title": p.get("product_title"), "handle": p.get("product_handle")} for p in sample],
+                },
+                "new_value": None,
+                "delta_pct": None,
+                "severity": "warning" if len(items) >= 20 else "info",
+            })
+    return result
+
+
 @celery.task(name="app.tasks.detect_changes.detect_changes")
 def detect_changes(competitor_id: str, snapshot_id: str) -> dict:
     db = get_supabase()
@@ -175,6 +221,12 @@ def detect_changes(competitor_id: str, snapshot_id: str) -> dict:
 
     if not changes:
         return {"status": "no_changes"}
+
+    # Aggregate noisy bulk events so the feed and alert email stay readable.
+    # If a single change_type has > BULK_THRESHOLD items, collapse to one summary row.
+    BULK_THRESHOLD = 10
+    changes = _aggregate_bulk(changes, BULK_THRESHOLD)
+    logger.info("[DETECT %s] after aggregation: %d change(s)", competitor_id, len(changes))
 
     now = datetime.now(timezone.utc).isoformat()
     rows = [{**c, "competitor_id": competitor_id, "detected_at": now} for c in changes]
