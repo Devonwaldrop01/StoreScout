@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import {
   Plus, RefreshCw, TrendingUp, Sparkles, ArrowRight,
   Activity, Package, Zap, Clock, X,
@@ -436,7 +436,7 @@ function DiscoverySuggestions({
 
 // ── Page ──────────────────────────────────────────────────────────────────
 
-export default function DashboardPage() {
+function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [competitorList, setCompetitorList] = useState<Competitor[]>([]);
@@ -689,5 +689,13 @@ export default function DashboardPage() {
       )}
       {upgradeOpen && <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="competitor_limit" />}
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardContent />
+    </Suspense>
   );
 }
