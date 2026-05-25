@@ -218,7 +218,8 @@ Output this exact structure:
   "cards": [
     {{"type": "signal", "headline": "...", "body": "..."}},
     {{"type": "opportunity", "headline": "...", "body": "..."}},
-    {{"type": "watch", "headline": "...", "body": "..."}}
+    {{"type": "watch", "headline": "...", "body": "..."}},
+    {{"type": "action", "headline": "...", "body": "..."}}
   ]
 }}
 
@@ -228,6 +229,7 @@ Rules:
 - signal: most notable thing about this store right now (pricing, discount rate, launch pace)
 - opportunity: the clearest gap or opening a competitor could exploit
 - watch: a trend or signal that bears monitoring
+- action: the single most important thing to do in the next 7 days — start with a verb (Launch, Reprice, Push, Email, Test), include a concrete timeframe (today / this week / within 48 hours)
 
 Store data:
 {current_state}"""
@@ -238,7 +240,7 @@ Store data:
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         message = client.messages.create(
             model=model,
-            max_tokens=600,
+            max_tokens=750,
             messages=[{"role": "user", "content": prompt}],
         )
         raw_text = message.content[0].text.strip()

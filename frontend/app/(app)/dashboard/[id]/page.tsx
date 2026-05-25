@@ -15,7 +15,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import {
   cn, formatRelativeTime, formatPrice, formatPct, formatDelta,
-  changeTypeIcon,
+  changeTypeIcon, getChangeAction,
 } from "@/lib/utils";
 import { PriceDistributionChart } from "@/components/charts/PriceDistributionChart";
 import { PriceHistoryChart } from "@/components/charts/PriceHistoryChart";
@@ -126,7 +126,7 @@ function SignalBadge({ label, scoreLabel, score }: { label: string; scoreLabel: 
 }
 
 // ── Change row ────────────────────────────────────────────────────────────────
-function ChangeRow({ change }: { change: ChangeEvent }) {
+function ChangeRow({ change, hostname }: { change: ChangeEvent; hostname?: string }) {
   const icon  = changeTypeIcon(change.change_type);
   const old_v = change.old_value || {};
   const new_v = change.new_value || {};
@@ -143,6 +143,8 @@ function ChangeRow({ change }: { change: ChangeEvent }) {
     change.severity === "warning"  ? "var(--amber)" : "transparent";
   const detailColor = change.delta_pct != null && change.delta_pct < 0 ? "var(--red)" : "var(--emerald)";
 
+  const action = getChangeAction(change.change_type, change.delta_pct, change.severity, hostname);
+
   return (
     <div
       className="flex items-start gap-3 py-3 pl-3 border-b last:border-0"
@@ -155,6 +157,18 @@ function ChangeRow({ change }: { change: ChangeEvent }) {
         </p>
         {detail && (
           <p className="text-xs font-mono mt-0.5" style={{ color: detailColor }}>{detail}</p>
+        )}
+        {action && (change.severity === "critical" || change.severity === "warning") && (
+          <p
+            className="text-[11px] mt-1.5 px-2.5 py-1 rounded-md inline-block"
+            style={{
+              background: "rgba(168,255,0,.07)",
+              color: "var(--accent)",
+              border: "1px solid rgba(168,255,0,.15)",
+            }}
+          >
+            ▶ {action}
+          </p>
         )}
       </div>
       <p className="text-xs shrink-0" style={{ color: "var(--muted)" }}>
@@ -678,7 +692,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                       </button>
                     </div>
                     <div className="px-5" style={{ background: "var(--bg-card)" }}>
-                      {changes.slice(0, 4).map((c) => <ChangeRow key={c.id} change={c} />)}
+                      {changes.slice(0, 4).map((c) => <ChangeRow key={c.id} change={c} hostname={hostname} />)}
                     </div>
                   </div>
                 )}
@@ -875,7 +889,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   ) : (
                     <div>
                       <div className="px-5" style={{ background: "var(--bg-card)" }}>
-                        {visibleChanges.map((c) => <ChangeRow key={c.id} change={c} />)}
+                        {visibleChanges.map((c) => <ChangeRow key={c.id} change={c} hostname={hostname} />)}
                       </div>
 
                       {/* Free tier gate */}
@@ -1035,6 +1049,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           signal:      { color: "#a8ff00", bg: "rgba(168,255,0,.07)",  border: "rgba(168,255,0,.18)",  label: "Most notable signal" },
                           opportunity: { color: "#60a5fa", bg: "rgba(96,165,250,.07)", border: "rgba(96,165,250,.18)", label: "Your opening" },
                           watch:       { color: "#f59e0b", bg: "rgba(245,158,11,.07)", border: "rgba(245,158,11,.18)", label: "Watch this" },
+                          action:      { color: "#4ade80", bg: "rgba(74,222,128,.07)", border: "rgba(74,222,128,.18)", label: "Your move" },
                         };
                         return (
                           <div className="space-y-5">
@@ -1053,17 +1068,30 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                               </button>
                             </div>
                             {parsed.type === "cards" ? (
-                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                {parsed.cards.map((card, i) => {
-                                  const cfg = CARD_CONFIG[card.type] ?? CARD_CONFIG.signal;
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                  {parsed.cards.filter((c) => c.type !== "action").map((card, i) => {
+                                    const cfg = CARD_CONFIG[card.type] ?? CARD_CONFIG.signal;
+                                    return (
+                                      <div key={i} className="rounded-xl p-5" style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider block mb-3" style={{ color: cfg.color }}>{cfg.label}</span>
+                                        <h4 className="font-bold text-sm mb-2 leading-snug" style={{ color: "var(--text)" }}>{card.headline}</h4>
+                                        <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{card.body}</p>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                                {parsed.cards.find((c) => c.type === "action") && (() => {
+                                  const ac = parsed.cards.find((c) => c.type === "action")!;
+                                  const cfg = CARD_CONFIG.action;
                                   return (
-                                    <div key={i} className="rounded-xl p-5" style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
-                                      <span className="text-[10px] font-bold uppercase tracking-wider block mb-3" style={{ color: cfg.color }}>{cfg.label}</span>
-                                      <h4 className="font-bold text-sm mb-2 leading-snug" style={{ color: "var(--text)" }}>{card.headline}</h4>
-                                      <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{card.body}</p>
+                                    <div className="rounded-xl p-5" style={{ background: cfg.bg, border: `2px solid ${cfg.border}` }}>
+                                      <span className="text-[10px] font-bold uppercase tracking-wider block mb-2" style={{ color: cfg.color }}>▶ {cfg.label}</span>
+                                      <h4 className="font-bold text-sm mb-2 leading-snug" style={{ color: "var(--text)" }}>{ac.headline}</h4>
+                                      <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{ac.body}</p>
                                     </div>
                                   );
-                                })}
+                                })()}
                               </div>
                             ) : (
                               <div className="rounded-2xl p-5 space-y-4" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>

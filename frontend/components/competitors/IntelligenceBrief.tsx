@@ -1,6 +1,6 @@
 "use client";
 
-import { Target, TrendingUp, Eye, Sparkles, ArrowRight, X } from "lucide-react";
+import { Target, TrendingUp, Eye, Zap, Sparkles, ArrowRight, X } from "lucide-react";
 import { type BriefCard } from "@/lib/api";
 
 const CARD_CONFIG = {
@@ -27,6 +27,14 @@ const CARD_CONFIG = {
     bg: "rgba(245,158,11,.07)",
     border: "rgba(245,158,11,.18)",
     glow: "rgba(245,158,11,.15)",
+  },
+  action: {
+    Icon: Zap,
+    color: "#4ade80",
+    label: "Your move",
+    bg: "rgba(74,222,128,.07)",
+    border: "rgba(74,222,128,.18)",
+    glow: "rgba(74,222,128,.15)",
   },
 } as const;
 
@@ -72,7 +80,7 @@ export function IntelligenceBrief({ hostname, cards, onDismiss }: Props) {
                 </span>
               </div>
               <h3 className="text-base font-bold mt-1" style={{ color: "var(--text)" }}>
-                3 things you should know about{" "}
+                {cards.length >= 4 ? "4" : "3"} things you should know about{" "}
                 <span style={{ color: "var(--accent)" }}>{hostname}</span>
               </h3>
             </div>
@@ -89,8 +97,8 @@ export function IntelligenceBrief({ hostname, cards, onDismiss }: Props) {
         </div>
 
         {/* 3-card grid — hero layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          {cards.map((card, i) => {
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+          {cards.filter((c) => c.type !== "action").map((card, i) => {
             const config = CARD_CONFIG[card.type] ?? CARD_CONFIG.signal;
             const { Icon } = config;
             return (
@@ -143,6 +151,50 @@ export function IntelligenceBrief({ hostname, cards, onDismiss }: Props) {
             );
           })}
         </div>
+
+        {/* Action card — full-width, prominent */}
+        {cards.find((c) => c.type === "action") && (() => {
+          const actionCard = cards.find((c) => c.type === "action")!;
+          const config = CARD_CONFIG.action;
+          return (
+            <div
+              className="relative rounded-xl p-5 mb-6 fade-up-3"
+              style={{
+                background: config.bg,
+                border: `2px solid ${config.border}`,
+              }}
+            >
+              <div className="flex items-start gap-4">
+                <div
+                  className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                  style={{ background: `${config.color}18` }}
+                >
+                  <Zap className="w-4 h-4" style={{ color: config.color }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span
+                    className="text-[10px] font-bold uppercase tracking-wider"
+                    style={{ color: config.color }}
+                  >
+                    {config.label}
+                  </span>
+                  <h4
+                    className="font-bold text-sm leading-snug mt-1 mb-1.5"
+                    style={{ color: "var(--text)" }}
+                  >
+                    {actionCard.headline}
+                  </h4>
+                  <p
+                    className="text-sm leading-relaxed"
+                    style={{ color: "var(--muted)" }}
+                  >
+                    {actionCard.body}
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* CTA */}
         <button

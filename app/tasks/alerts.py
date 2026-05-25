@@ -10,6 +10,7 @@ import resend
 from .celery_app import celery
 from app.core.config import get_settings
 from app.core.database import get_supabase
+from app.services.action_templates import action_for_change as _action_for_change_tmpl
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +64,20 @@ def _interpret_changes(hostname: str, change_list: list, settings) -> Optional[s
     except Exception as exc:
         logger.warning("Alert interpretation failed (non-fatal): %s", exc)
         return None
+
+
+def _action_for_email(change_list: list, hostname: str) -> Optional[str]:
+    """Pick the highest-priority change and return an action recommendation."""
+    if not change_list:
+        return None
+    ranked = sorted(
+        change_list,
+        key=lambda c: (
+            {"critical": 0, "warning": 1, "info": 2}.get(c.get("severity", "info"), 2),
+            -abs(c.get("delta_pct") or 0),
+        ),
+    )
+    return _action_for_change_tmpl(ranked[0], hostname)
 
 
 def _build_alert_html(hostname: str, subject: str, n: int, change_list: list,
@@ -121,6 +136,18 @@ def _build_alert_html(hostname: str, subject: str, n: int, change_list: list,
             f"</div>"
         )
 
+    your_move = _action_for_email(change_list, hostname)
+    your_move_block = ""
+    if your_move:
+        your_move_block = (
+            f"<div style='background:rgba(96,165,250,.08);border-left:3px solid #60a5fa;"
+            f"border-radius:8px;padding:14px 16px;margin-bottom:20px'>"
+            f"<div style='font-size:10px;font-weight:700;text-transform:uppercase;"
+            f"letter-spacing:.05em;color:#60a5fa;margin-bottom:6px'>▶ Your Move</div>"
+            f"<p style='color:#c8d8f0;font-size:13px;line-height:1.5;margin:0'>{your_move}</p>"
+            f"</div>"
+        )
+
     return f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#060d18;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
@@ -138,6 +165,7 @@ def _build_alert_html(hostname: str, subject: str, n: int, change_list: list,
   <div style="background:#0e1d35;border:1px solid #1e3a5f;border-radius:12px;padding:16px 20px;margin-bottom:20px">
     <table style="width:100%;border-collapse:collapse">{rows_html}</table>
   </div>
+  {your_move_block}
   <a href="{dashboard_url}"
      style="display:block;background:#a3f000;color:#060d18;text-decoration:none;
             text-align:center;padding:14px 24px;border-radius:12px;font-weight:700;font-size:15px">
@@ -623,6 +651,7 @@ _CARD_COLORS = {
     "signal": ("#a3f000", "rgba(163,240,0,0.12)", "Most notable signal"),
     "opportunity": ("#60a5fa", "rgba(96,165,250,0.12)", "Your opening"),
     "watch": ("#facc15", "rgba(250,204,21,0.12)", "Watch this"),
+    "action": ("#4ade80", "rgba(74,222,128,0.12)", "Your move"),
 }
 
 
@@ -693,7 +722,7 @@ def send_first_scan_email(self, competitor_id: str) -> dict:
     if not cards:
         return {"status": "empty_cards"}
 
-    cards_html = "".join(_build_brief_card_html(c) for c in cards[:3])
+    cards_html = "".join(_build_brief_card_html(c) for c in cards[:4])
     dashboard_url = f"{settings.public_base_url}/dashboard/{competitor_id}"
     product_label = f"{product_count:,} products analyzed · " if product_count else ""
 

@@ -140,6 +140,7 @@ export const billing = {
 // ── User ──────────────────────────────────────────────────────
 export const user = {
   subscription: () => apiFetch<{ data: UserSubscription }>("/user/subscription"),
+  actionItems: () => apiFetch<{ data: ActionItem[]; locked?: boolean }>("/action-items"),
   prefs: () => apiFetch<{ data: NotificationPrefs }>("/user/notification-prefs"),
   updatePrefs: (prefs: Partial<NotificationPrefs>) =>
     apiFetch<{ status: string }>("/user/notification-prefs", {
@@ -387,9 +388,20 @@ export interface PriceHistoryResponse {
 }
 
 export interface BriefCard {
-  type: "signal" | "opportunity" | "watch";
+  type: "signal" | "opportunity" | "watch" | "action";
   headline: string;
   body: string;
+}
+
+export interface ActionItem {
+  id: string;
+  type: "threat" | "opportunity" | "gap";
+  competitor_id: string;
+  hostname: string;
+  headline: string;
+  action_text: string;
+  context: string;
+  tab: string;
 }
 
 export interface BriefData {
