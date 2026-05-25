@@ -68,6 +68,17 @@ async def stripe_subscription_webhook(request: Request):
     etype = event["type"]
     data = event["data"]["object"]
 
+    try:
+        _handle_event(db, etype, data)
+    except Exception as exc:
+        # Log and swallow — always ACK to Stripe so it stops retrying.
+        # Individual handler bugs should not cause aggressive retry storms.
+        logger.exception("Unhandled error processing Stripe event %s: %s", etype, exc)
+
+    return {"received": True}
+
+
+def _handle_event(db, etype: str, data: dict):
     # ── Checkout completed: immediate tier update using session metadata ──────
     if etype == "checkout.session.completed":
         if data.get("mode") == "subscription" and data.get("payment_status") == "paid":
@@ -128,5 +139,3 @@ async def stripe_subscription_webhook(request: Request):
             db.table("user_profiles").update(
                 {"stripe_customer_id": customer_id}
             ).eq("id", user_id).execute()
-
-    return {"received": True}
