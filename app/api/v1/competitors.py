@@ -204,7 +204,7 @@ def discover_similar(user_id: str = Depends(get_effective_user_id)):
     if not tracked_ids:
         return {"data": {"suggestions": _curated_fallback()}}
 
-    # Aggregate top tags + vendors across all user's competitors
+    # Aggregate top tags + vendors from user's tracked competitors' snapshots
     agg_tags: Counter = Counter()
     agg_vendors: Counter = Counter()
     for comp_id in tracked_ids:
@@ -222,31 +222,44 @@ def discover_similar(user_id: str = Depends(get_effective_user_id)):
     if not top_tags and not top_vendors:
         return {"data": {"suggestions": _curated_fallback()}}
 
-    # Pull recent snapshots from other competitors (across all users)
+    # Find other recently-scanned competitors (not tracked by this user).
+    # Step 1: get unique competitor_ids from recent scan_snapshots.
     thirty_days_ago = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
-    recent = db.table("scan_snapshots")\
-        .select("competitor_id, snapshot_data, scanned_at")\
+    recent_snaps = db.table("scan_snapshots")\
+        .select("competitor_id")\
         .gte("scanned_at", thirty_days_ago)\
         .order("scanned_at", desc=True)\
-        .limit(400)\
+        .limit(200)\
         .execute()
 
-    # Deduplicate: keep only the latest snapshot per competitor_id
-    seen: dict[str, dict] = {}
-    for snap in (recent.data or []):
-        cid = snap["competitor_id"]
-        if cid in tracked_ids or cid in seen:
-            continue
-        snap_data = snap.get("snapshot_data") or {}
-        hostname = snap_data.get("hostname") or ""
-        if hostname and hostname not in tracked_hostnames:
-            seen[cid] = snap_data
+    candidate_ids = list({
+        s["competitor_id"] for s in (recent_snaps.data or [])
+        if s["competitor_id"] not in tracked_ids
+    })[:60]
 
-    # Score each candidate by tag + vendor overlap
+    if not candidate_ids:
+        return {"data": {"suggestions": _curated_fallback()}}
+
+    # Step 2: get hostnames for those competitor_ids from the competitors table.
+    cand_comps_res = db.table("competitors")\
+        .select("id, hostname")\
+        .in_("id", candidate_ids)\
+        .execute()
+
+    cand_map = {
+        c["id"]: c["hostname"]
+        for c in (cand_comps_res.data or [])
+        if c.get("hostname") and c["hostname"] not in tracked_hostnames
+    }
+
+    if not cand_map:
+        return {"data": {"suggestions": _curated_fallback()}}
+
+    # Step 3: score each candidate by tag + vendor overlap with user's tracked stores.
     scored = []
-    for cid, data in seen.items():
-        hostname = data.get("hostname") or ""
-        if not hostname:
+    for cid, hostname in cand_map.items():
+        data = _latest_snapshot_data(db, cid)
+        if not data:
             continue
 
         cand_tags = {str(t.get("tag", "")) for t in (data.get("tag_analysis") or {}).get("top_tags", [])[:10]}
@@ -258,7 +271,6 @@ def discover_similar(user_id: str = Depends(get_effective_user_id)):
         if score == 0:
             continue
 
-        # Build readable match reasons: vendor matches first (more specific)
         reasons = [f"vendor: {v}" for v in sorted(vendor_matches)[:2]]
         reasons += [t for t in sorted(tag_matches)[:3] if t not in (r.split(": ")[-1] for r in reasons)]
 
@@ -280,7 +292,6 @@ def discover_similar(user_id: str = Depends(get_effective_user_id)):
 
     scored.sort(key=lambda x: x["score"], reverse=True)
     top = scored[:6]
-    # If no tag-matched candidates found in the DB, fall back to curated list
     if not top:
         return {"data": {"suggestions": _curated_fallback()}}
     return {"data": {"suggestions": top}}
