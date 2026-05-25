@@ -592,7 +592,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     accent="var(--blue)"
                     insight={`This store has ${(catalog.total_products as number)?.toLocaleString() ?? "an unknown number of"} active products. Compare this to your own catalog size to gauge competitive breadth.`}
                     actionLabel="Alert me when count changes"
-                    onAction={() => setUpgradeOpen(true)}
+                    onAction={() => isFree ? setUpgradeOpen(true) : router.push("/settings#notifications")}
                     locked={isFree}
                   />
                   <KpiCard
@@ -610,7 +610,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     accent="var(--amber)"
                     insight={`${formatPct(discounts.discounted_pct as number)} of their catalog is currently discounted — average discount depth is ${formatPct(discounts.avg_discount_pct as number)}. A high promo rate can signal pricing pressure or clearance cycles.`}
                     actionLabel="Alert me on flash sales"
-                    onAction={() => setUpgradeOpen(true)}
+                    onAction={() => isFree ? setUpgradeOpen(true) : router.push("/settings#notifications")}
                     locked={isFree}
                   />
                   <KpiCard
@@ -619,7 +619,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     accent="var(--emerald)"
                     insight={`They launched ${((launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? 0)} products in the last 30 days. A high velocity often signals an aggressive growth phase or seasonal push.`}
                     actionLabel="Alert me when they launch"
-                    onAction={() => setUpgradeOpen(true)}
+                    onAction={() => isFree ? setUpgradeOpen(true) : router.push("/settings#notifications")}
                     locked={isFree}
                   />
                 </div>
@@ -791,6 +791,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     </button>
                   ) : (
                     <button
+                      onClick={() => router.push("/settings#notifications")}
                       className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 text-xs font-semibold rounded-xl transition-all hover:brightness-110"
                       style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.2)" }}
                     >
