@@ -118,6 +118,21 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_effect
     return {"data": row.data[0]}
 
 
+@router.get("/{competitor_id}")
+def get_competitor(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
+    """Fetch a single competitor record (no snapshot data)."""
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    result = db.table("competitors")\
+        .select("*")\
+        .eq("id", competitor_id)\
+        .maybe_single()\
+        .execute()
+    if not result or not result.data:
+        raise HTTPException(status_code=404, detail="Not found")
+    return {"data": result.data}
+
+
 @router.patch("/{competitor_id}")
 def update_competitor(
     competitor_id: str,

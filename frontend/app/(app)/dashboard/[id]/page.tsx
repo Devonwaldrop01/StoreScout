@@ -251,6 +251,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const { id }   = use(params);
   const router   = useRouter();
 
+  const [competitor,     setCompetitor]     = useState<import("@/lib/api").Competitor | null>(null);
   const [snapshot,       setSnapshot]       = useState<Snapshot | null>(null);
   const [changes,        setChanges]        = useState<ChangeEvent[]>([]);
   const [aiSummary,      setAiSummary]      = useState<AiSummary | null>(null);
@@ -273,6 +274,11 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
   const isFree = tier === "free";
 
+  // Load competitor record for hostname/display_name before the first snapshot exists
+  useEffect(() => {
+    api.get(id).then((r) => setCompetitor(r.data)).catch(() => {});
+  }, [id]);
+
   useEffect(() => {
     async function load() {
       try {
@@ -294,7 +300,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
   // Fetch AI summary when landing on the AI insights sub-tab
   useEffect(() => {
-    if (tab !== "intelligence" || intelSub !== "ai" || isFree || aiStatus !== "idle") return;
+    if (tab !== "intelligence" || intelSub !== "ai" || isFree || aiStatus !== "idle" || aiSummary) return;
     setAiStatus("loading");
     api.aiSummary(id)
       .then((r) => {
@@ -421,7 +427,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const positioning = (data?.positioning || {}) as Record<string, unknown>;
   const launch      = (data?.launch_timeline || {}) as Record<string, unknown>;
   const takeaways   = (data?.takeaways   || []) as string[];
-  const hostname    = (data?.hostname as string) || id;
+  const hostname    = (data?.hostname as string) || competitor?.display_name || competitor?.hostname || id;
 
   const MAIN_TABS: { id: Tab; label: string; icon: React.ReactNode; pro?: boolean }[] = [
     { id: "overview",      label: "Overview",      icon: <TrendingUp className="w-3.5 h-3.5" /> },
@@ -809,6 +815,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   </div>
                   <PriceHistoryChart
                     competitorId={id}
+                    isFree={isFree}
                     onUpgrade={() => setUpgradeOpen(true)}
                   />
                 </div>

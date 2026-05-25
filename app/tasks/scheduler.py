@@ -1,11 +1,32 @@
 from __future__ import annotations
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from .celery_app import celery
 from app.core.database import get_supabase
 
 logger = logging.getLogger(__name__)
+
+
+@celery.task(name="app.tasks.scheduler.recover_stuck_scans")
+def recover_stuck_scans() -> dict:
+    """
+    Runs every 10 minutes. Any competitor stuck in scan_status='scanning' for
+    > 5 minutes is reset to 'pending' so the scheduler can re-enqueue it.
+    This recovers from Celery worker crashes or network timeouts mid-scan.
+    """
+    db = get_supabase()
+    cutoff = (datetime.now(timezone.utc) - timedelta(minutes=5)).isoformat()
+
+    result = db.table("competitors").update({
+        "scan_status": "pending",
+        "error_message": "Scan timed out — will retry automatically",
+    }).eq("scan_status", "scanning").lt("updated_at", cutoff).execute()
+
+    count = len(result.data or [])
+    if count:
+        logger.warning("recover_stuck_scans: reset %d stuck scan(s) back to pending", count)
+    return {"recovered": count}
 
 
 @celery.task(name="app.tasks.scheduler.enqueue_due_scans")

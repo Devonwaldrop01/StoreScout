@@ -25,6 +25,7 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
 // ── Competitors ───────────────────────────────────────────────
 export const competitors = {
   list: () => apiFetch<{ data: Competitor[] }>("/competitors"),
+  get: (id: string) => apiFetch<{ data: Competitor }>(`/competitors/${id}`),
   add: (store_url: string, display_name?: string) =>
     apiFetch<{ data: Competitor }>("/competitors", {
       method: "POST",
