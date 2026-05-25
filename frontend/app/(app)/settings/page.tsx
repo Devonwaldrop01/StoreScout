@@ -78,6 +78,9 @@ function SettingsContent() {
       if (["pro", "agency", "developer"].includes(r.data.tier)) {
         apiKeysApi.list().then((kr) => setKeys(kr.data)).catch(() => {});
       }
+      if (r.data.tier === "agency") {
+        teamApi.members().then((tr) => setTeamMembers(tr.data)).catch(() => {});
+      }
     }).catch(() => {});
 
     userApi.prefs().then((r) => {
@@ -88,7 +91,6 @@ function SettingsContent() {
 
     competitorsApi.list().then((r) => setMyCompetitors(r.data || [])).catch(() => {});
     myStoreApi.get().then((r) => setStore(r.data)).catch(() => {});
-    teamApi.members().then((r) => setTeamMembers(r.data)).catch(() => {});
 
     supabase.auth.getUser().then(({ data }) => {
       if (data.user?.email) setUserEmail(data.user.email);

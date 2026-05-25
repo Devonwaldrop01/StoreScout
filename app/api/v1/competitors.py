@@ -118,6 +118,155 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_effect
     return {"data": row.data[0]}
 
 
+# Curated fallback: well-known Shopify stores shown when there's no tag/vendor data to
+# match against (new users, fresh competitors with no scan yet).
+_CURATED_STORES = [
+    {"hostname": "gymshark.com",       "category": "Apparel",  "tag": "Fitness apparel"},
+    {"hostname": "allbirds.com",       "category": "Apparel",  "tag": "Sustainable footwear"},
+    {"hostname": "fashionnova.com",    "category": "Apparel",  "tag": "Fast fashion"},
+    {"hostname": "chubbiesshorts.com", "category": "Apparel",  "tag": "Men's shorts"},
+    {"hostname": "vuori.com",          "category": "Apparel",  "tag": "Performance apparel"},
+    {"hostname": "kyliecosmetics.com", "category": "Beauty",   "tag": "Makeup"},
+    {"hostname": "colourpop.com",      "category": "Beauty",   "tag": "Affordable cosmetics"},
+    {"hostname": "fentybeauty.com",    "category": "Beauty",   "tag": "Inclusive beauty"},
+    {"hostname": "iliabeauty.com",     "category": "Beauty",   "tag": "Clean beauty"},
+    {"hostname": "brooklinen.com",     "category": "Home",     "tag": "Luxury bedding"},
+    {"hostname": "parachutehome.com",  "category": "Home",     "tag": "Home essentials"},
+    {"hostname": "ruggable.com",       "category": "Home",     "tag": "Washable rugs"},
+    {"hostname": "pourri.com",         "category": "Home",     "tag": "Lifestyle & wellness"},
+    {"hostname": "bombas.com",         "category": "Apparel",  "tag": "Socks & basics"},
+    {"hostname": "mvmtwatches.com",    "category": "Accessories","tag": "Minimalist watches"},
+    {"hostname": "puravidabracelets.com","category": "Accessories","tag": "Bracelets & jewelry"},
+    {"hostname": "tentree.com",        "category": "Apparel",  "tag": "Sustainable fashion"},
+    {"hostname": "skims.com",          "category": "Apparel",  "tag": "Shapewear"},
+]
+
+
+# IMPORTANT: /discover must be registered before /{competitor_id} so FastAPI doesn't
+# try to parse the literal string "discover" as a UUID competitor_id.
+@router.get("/discover")
+def discover_similar(user_id: str = Depends(get_effective_user_id)):
+    """
+    Suggest similar Shopify stores to track based on tag/vendor overlap
+    with the user's currently tracked competitors. Falls back to curated
+    popular stores for new users or when no tag data is available.
+    """
+    db = get_supabase()
+
+    # User's current competitors
+    user_comps = db.table("competitors")\
+        .select("id, hostname")\
+        .eq("user_id", user_id)\
+        .eq("is_active", True)\
+        .eq("is_my_store", False)\
+        .execute()
+
+    tracked_hostnames = {c["hostname"] for c in (user_comps.data or [])}
+    tracked_ids = [c["id"] for c in (user_comps.data or [])]
+
+    def _curated_fallback() -> list:
+        return [
+            {
+                "hostname": s["hostname"],
+                "competitor_id": s["hostname"],  # no DB id — frontend uses hostname for dedup
+                "score": 0,
+                "match_reasons": [s["tag"]],
+                "product_count": None,
+                "median_price": None,
+                "market_position": None,
+                "is_curated": True,
+                "category": s["category"],
+            }
+            for s in _CURATED_STORES
+            if s["hostname"] not in tracked_hostnames
+        ][:6]
+
+    # No tracked competitors — return curated list
+    if not tracked_ids:
+        return {"data": {"suggestions": _curated_fallback()}}
+
+    # Aggregate top tags + vendors across all user's competitors
+    agg_tags: Counter = Counter()
+    agg_vendors: Counter = Counter()
+    for comp_id in tracked_ids:
+        data = _latest_snapshot_data(db, comp_id)
+        if not data:
+            continue
+        for t in (data.get("tag_analysis") or {}).get("top_tags", [])[:10]:
+            agg_tags[str(t.get("tag", ""))] += t.get("count", 1)
+        for v in (data.get("vendor_analysis") or {}).get("top_vendors", [])[:5]:
+            agg_vendors[str(v.get("vendor", "")).lower()] += v.get("count", 1)
+
+    top_tags = {t for t, _ in agg_tags.most_common(15)}
+    top_vendors = {v for v, _ in agg_vendors.most_common(8)}
+
+    if not top_tags and not top_vendors:
+        return {"data": {"suggestions": _curated_fallback()}}
+
+    # Pull recent snapshots from other competitors (across all users)
+    thirty_days_ago = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+    recent = db.table("scan_snapshots")\
+        .select("competitor_id, snapshot_data, scanned_at")\
+        .gte("scanned_at", thirty_days_ago)\
+        .order("scanned_at", desc=True)\
+        .limit(400)\
+        .execute()
+
+    # Deduplicate: keep only the latest snapshot per competitor_id
+    seen: dict[str, dict] = {}
+    for snap in (recent.data or []):
+        cid = snap["competitor_id"]
+        if cid in tracked_ids or cid in seen:
+            continue
+        snap_data = snap.get("snapshot_data") or {}
+        hostname = snap_data.get("hostname") or ""
+        if hostname and hostname not in tracked_hostnames:
+            seen[cid] = snap_data
+
+    # Score each candidate by tag + vendor overlap
+    scored = []
+    for cid, data in seen.items():
+        hostname = data.get("hostname") or ""
+        if not hostname:
+            continue
+
+        cand_tags = {str(t.get("tag", "")) for t in (data.get("tag_analysis") or {}).get("top_tags", [])[:10]}
+        cand_vendors = {str(v.get("vendor", "")).lower() for v in (data.get("vendor_analysis") or {}).get("top_vendors", [])[:5]}
+
+        tag_matches = top_tags & cand_tags
+        vendor_matches = top_vendors & cand_vendors
+        score = len(tag_matches) * 2 + len(vendor_matches) * 3
+        if score == 0:
+            continue
+
+        # Build readable match reasons: vendor matches first (more specific)
+        reasons = [f"vendor: {v}" for v in sorted(vendor_matches)[:2]]
+        reasons += [t for t in sorted(tag_matches)[:3] if t not in (r.split(": ")[-1] for r in reasons)]
+
+        pricing = data.get("pricing") or {}
+        pos = (data.get("positioning") or {}).get("market_position") or {}
+        market_pos = pos.get("label") if isinstance(pos, dict) else None
+
+        scored.append({
+            "hostname": hostname,
+            "competitor_id": cid,
+            "score": score,
+            "match_reasons": reasons[:4],
+            "product_count": (data.get("catalog") or {}).get("total_products"),
+            "median_price": pricing.get("median"),
+            "market_position": market_pos,
+            "is_curated": False,
+            "category": None,
+        })
+
+    scored.sort(key=lambda x: x["score"], reverse=True)
+    top = scored[:6]
+    # If no tag-matched candidates found in the DB, fall back to curated list
+    if not top:
+        return {"data": {"suggestions": _curated_fallback()}}
+    return {"data": {"suggestions": top}}
+
+
 @router.get("/{competitor_id}")
 def get_competitor(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """Fetch a single competitor record (no snapshot data)."""
@@ -533,7 +682,7 @@ def get_price_history(competitor_id: str, user_id: str = Depends(get_effective_u
     query = db.table("scan_snapshots")\
         .select("scanned_at, median_price, promo_rate, product_count")\
         .eq("competitor_id", competitor_id)\
-        .order("scanned_at", asc=True)\
+        .order("scanned_at", desc=False)\
         .limit(365)
 
     if tier == "pro":
@@ -620,153 +769,6 @@ def export_products_csv(competitor_id: str, user_id: str = Depends(get_effective
         media_type="text/csv",
         headers={"Content-Disposition": f'attachment; filename="{safe_hostname}_products.csv"'},
     )
-
-
-# Curated fallback: well-known Shopify stores shown when there's no tag/vendor data to
-# match against (new users, fresh competitors with no scan yet).
-_CURATED_STORES = [
-    {"hostname": "gymshark.com",       "category": "Apparel",  "tag": "Fitness apparel"},
-    {"hostname": "allbirds.com",       "category": "Apparel",  "tag": "Sustainable footwear"},
-    {"hostname": "fashionnova.com",    "category": "Apparel",  "tag": "Fast fashion"},
-    {"hostname": "chubbiesshorts.com", "category": "Apparel",  "tag": "Men's shorts"},
-    {"hostname": "vuori.com",          "category": "Apparel",  "tag": "Performance apparel"},
-    {"hostname": "kyliecosmetics.com", "category": "Beauty",   "tag": "Makeup"},
-    {"hostname": "colourpop.com",      "category": "Beauty",   "tag": "Affordable cosmetics"},
-    {"hostname": "fentybeauty.com",    "category": "Beauty",   "tag": "Inclusive beauty"},
-    {"hostname": "iliabeauty.com",     "category": "Beauty",   "tag": "Clean beauty"},
-    {"hostname": "brooklinen.com",     "category": "Home",     "tag": "Luxury bedding"},
-    {"hostname": "parachutehome.com",  "category": "Home",     "tag": "Home essentials"},
-    {"hostname": "ruggable.com",       "category": "Home",     "tag": "Washable rugs"},
-    {"hostname": "pourri.com",         "category": "Home",     "tag": "Lifestyle & wellness"},
-    {"hostname": "bombas.com",         "category": "Apparel",  "tag": "Socks & basics"},
-    {"hostname": "mvmtwatches.com",    "category": "Accessories","tag": "Minimalist watches"},
-    {"hostname": "puravidabracelets.com","category": "Accessories","tag": "Bracelets & jewelry"},
-    {"hostname": "tentree.com",        "category": "Apparel",  "tag": "Sustainable fashion"},
-    {"hostname": "skims.com",          "category": "Apparel",  "tag": "Shapewear"},
-]
-
-
-@router.get("/discover")
-def discover_similar(user_id: str = Depends(get_effective_user_id)):
-    """
-    Suggest similar Shopify stores to track based on tag/vendor overlap
-    with the user's currently tracked competitors. Falls back to curated
-    popular stores for new users or when no tag data is available.
-    """
-    db = get_supabase()
-
-    # User's current competitors
-    user_comps = db.table("competitors")\
-        .select("id, hostname")\
-        .eq("user_id", user_id)\
-        .eq("is_active", True)\
-        .eq("is_my_store", False)\
-        .execute()
-
-    tracked_hostnames = {c["hostname"] for c in (user_comps.data or [])}
-    tracked_ids = [c["id"] for c in (user_comps.data or [])]
-
-    def _curated_fallback() -> list:
-        return [
-            {
-                "hostname": s["hostname"],
-                "competitor_id": s["hostname"],  # no DB id — frontend uses hostname for dedup
-                "score": 0,
-                "match_reasons": [s["tag"]],
-                "product_count": None,
-                "median_price": None,
-                "market_position": None,
-                "is_curated": True,
-                "category": s["category"],
-            }
-            for s in _CURATED_STORES
-            if s["hostname"] not in tracked_hostnames
-        ][:6]
-
-    # No tracked competitors — return curated list
-    if not tracked_ids:
-        return {"data": {"suggestions": _curated_fallback()}}
-
-    # Aggregate top tags + vendors across all user's competitors
-    agg_tags: Counter = Counter()
-    agg_vendors: Counter = Counter()
-    for comp_id in tracked_ids:
-        data = _latest_snapshot_data(db, comp_id)
-        if not data:
-            continue
-        for t in (data.get("tag_analysis") or {}).get("top_tags", [])[:10]:
-            agg_tags[str(t.get("tag", ""))] += t.get("count", 1)
-        for v in (data.get("vendor_analysis") or {}).get("top_vendors", [])[:5]:
-            agg_vendors[str(v.get("vendor", "")).lower()] += v.get("count", 1)
-
-    top_tags = {t for t, _ in agg_tags.most_common(15)}
-    top_vendors = {v for v, _ in agg_vendors.most_common(8)}
-
-    if not top_tags and not top_vendors:
-        return {"data": {"suggestions": _curated_fallback()}}
-
-    # Pull recent snapshots from other competitors (across all users)
-    thirty_days_ago = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
-    recent = db.table("scan_snapshots")\
-        .select("competitor_id, snapshot_data, scanned_at")\
-        .gte("scanned_at", thirty_days_ago)\
-        .order("scanned_at", desc=True)\
-        .limit(400)\
-        .execute()
-
-    # Deduplicate: keep only the latest snapshot per competitor_id
-    seen: dict[str, dict] = {}
-    for snap in (recent.data or []):
-        cid = snap["competitor_id"]
-        if cid in tracked_ids or cid in seen:
-            continue
-        snap_data = snap.get("snapshot_data") or {}
-        hostname = snap_data.get("hostname") or ""
-        if hostname and hostname not in tracked_hostnames:
-            seen[cid] = snap_data
-
-    # Score each candidate by tag + vendor overlap
-    scored = []
-    for cid, data in seen.items():
-        hostname = data.get("hostname") or ""
-        if not hostname:
-            continue
-
-        cand_tags = {str(t.get("tag", "")) for t in (data.get("tag_analysis") or {}).get("top_tags", [])[:10]}
-        cand_vendors = {str(v.get("vendor", "")).lower() for v in (data.get("vendor_analysis") or {}).get("top_vendors", [])[:5]}
-
-        tag_matches = top_tags & cand_tags
-        vendor_matches = top_vendors & cand_vendors
-        score = len(tag_matches) * 2 + len(vendor_matches) * 3
-        if score == 0:
-            continue
-
-        # Build readable match reasons: vendor matches first (more specific)
-        reasons = [f"vendor: {v}" for v in sorted(vendor_matches)[:2]]
-        reasons += [t for t in sorted(tag_matches)[:3] if t not in (r.split(": ")[-1] for r in reasons)]
-
-        pricing = data.get("pricing") or {}
-        pos = (data.get("positioning") or {}).get("market_position") or {}
-        market_pos = pos.get("label") if isinstance(pos, dict) else None
-
-        scored.append({
-            "hostname": hostname,
-            "competitor_id": cid,
-            "score": score,
-            "match_reasons": reasons[:4],
-            "product_count": (data.get("catalog") or {}).get("total_products"),
-            "median_price": pricing.get("median"),
-            "market_position": market_pos,
-            "is_curated": False,
-            "category": None,
-        })
-
-    scored.sort(key=lambda x: x["score"], reverse=True)
-    top = scored[:6]
-    # If no tag-matched candidates found in the DB, fall back to curated list
-    if not top:
-        return {"data": {"suggestions": _curated_fallback()}}
-    return {"data": {"suggestions": top}}
 
 
 def _user_tier(db, user_id: str) -> str:

@@ -48,8 +48,6 @@ def get_subscription(user_id: str = Depends(get_current_user_id)):
 
 @router.get("/notification-prefs")
 def get_prefs(user_id: str = Depends(get_current_user_id)):
-    db = get_supabase()
-    result = db.table("notification_prefs").select("*").eq("user_id", user_id).maybe_single().execute()
     defaults = {
         "user_id": user_id,
         "email_price_changes": True,
@@ -58,7 +56,12 @@ def get_prefs(user_id: str = Depends(get_current_user_id)):
         "email_weekly_digest": True,
         "digest_day": "monday",
     }
-    return {"data": result.data or defaults}
+    try:
+        db = get_supabase()
+        result = db.table("notification_prefs").select("*").eq("user_id", user_id).maybe_single().execute()
+        return {"data": result.data or defaults}
+    except Exception:
+        return {"data": defaults}
 
 
 @router.put("/notification-prefs")
@@ -147,13 +150,16 @@ def provision_user(user_id: str = Depends(get_current_user_id)):
         "subscription_status": "inactive",
     }).execute()
 
-    db.table("notification_prefs").insert({
-        "user_id": user_id,
-        "email_price_changes": True,
-        "email_new_products": True,
-        "email_discount_changes": False,
-        "email_weekly_digest": True,
-        "digest_day": "monday",
-    }).execute()
+    try:
+        db.table("notification_prefs").insert({
+            "user_id": user_id,
+            "email_price_changes": True,
+            "email_new_products": True,
+            "email_discount_changes": False,
+            "email_weekly_digest": True,
+            "digest_day": "monday",
+        }).execute()
+    except Exception:
+        pass  # table may not have been migrated yet; non-fatal
 
     return {"status": "created"}
