@@ -546,6 +546,7 @@ function SettingsContent() {
         {/* ── Email notifications ── */}
         {prefs && (
           <section
+            id="notifications"
             className="rounded-2xl p-6"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
           >
