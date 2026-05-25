@@ -4,11 +4,15 @@ import uuid
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 
+import logging
+
 from fastapi import APIRouter, Depends
 
 from app.core.auth import get_effective_user_id
 from app.core.database import get_supabase
 from app.services.action_templates import action_for_change, action_for_gap
+
+logger = logging.getLogger(__name__)
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +35,14 @@ def _score_change(change: dict) -> int:
 
 @router.get("")
 def get_action_items(user_id: str = Depends(get_effective_user_id)):
+    try:
+        return _get_action_items_inner(user_id)
+    except Exception as exc:
+        logger.error("action_items failed for user %s: %s", user_id, exc)
+        return {"data": [], "locked": False}
+
+
+def _get_action_items_inner(user_id: str) -> dict:
     db = get_supabase()
 
     # Check tier
@@ -54,17 +66,20 @@ def get_action_items(user_id: str = Depends(get_effective_user_id)):
     comp_ids = [c["id"] for c in competitors]
     comp_map = {c["id"]: c["hostname"] for c in competitors}
 
-    # Get recent warning/critical changes (last 7 days)
+    # Get recent changes (last 7 days), filter warning/critical in Python
+    # to avoid chaining two in_() calls which may behave inconsistently
     cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
     changes_res = db.table("change_events")\
         .select("*")\
         .in_("competitor_id", comp_ids)\
-        .in_("severity", ["critical", "warning"])\
         .gte("detected_at", cutoff)\
         .order("detected_at", desc=True)\
-        .limit(50)\
+        .limit(100)\
         .execute()
-    changes = changes_res.data or []
+    changes = [
+        c for c in (changes_res.data or [])
+        if c.get("severity") in ("critical", "warning")
+    ]
 
     # Build action items from changes
     items: List[dict] = []
