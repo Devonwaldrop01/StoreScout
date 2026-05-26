@@ -1,3 +1,8 @@
+import type { ElementType } from "react";
+import {
+  Rocket, Zap, TrendingDown, TrendingUp, Tag, Trash2,
+  Package, Plus, ArrowUpDown, Percent, Minus,
+} from "lucide-react";
 import { type AlertEvent } from "@/lib/api";
 
 // ── Types ─────────────────────────────────────────────────────────────────
@@ -31,6 +36,7 @@ export interface SignalGroup {
   avg_delta_pct?: number;
   category_hint?: string;
   why_this_matters?: string;
+  your_move?: string;
   label: string;        // e.g. "19 products launched"
   headline: string;     // e.g. "Launch Burst"
 }
@@ -84,6 +90,7 @@ function classify(
   changeType: string,
   count: number,
   avgDelta: number | undefined,
+  maxSeverity: "info" | "warning" | "critical" = "info",
 ): { type: SignalType; tier: SignalTier; headline: string } {
   const down = (avgDelta ?? 0) < 0;
   const deepCut = (avgDelta ?? 0) < -10;
@@ -93,22 +100,28 @@ function classify(
     if (count >= 2) return { type: "tactical_launches",  tier: "tactical",  headline: "New Products" };
   }
   if (changeType === "price_change") {
-    if (count >= 3 && down && deepCut) return { type: "flash_sale",          tier: "strategic", headline: "Flash Sale Detected" };
-    if (count >= 5 && down)           return { type: "price_wave",           tier: "strategic", headline: "Price Compression" };
-    if (count >= 5)                   return { type: "price_increase",       tier: "strategic", headline: "Price Increase Wave" };
-    if (count >= 2)                   return { type: "tactical_prices",      tier: "tactical",  headline: "Price Changes" };
+    if (count >= 3 && down && deepCut) return { type: "flash_sale",     tier: "strategic", headline: "Flash Sale" };
+    if (count >= 5 && down)           return { type: "price_wave",      tier: "strategic", headline: "Price Drop Wave" };
+    if (count >= 5)                   return { type: "price_increase",  tier: "strategic", headline: "Prices Rising" };
+    if (count >= 2)                   return { type: "tactical_prices", tier: "tactical",  headline: "Price Changes" };
   }
   if (changeType === "discount_start") {
     if (count >= 5) return { type: "discount_wave",      tier: "strategic", headline: "Discount Campaign" };
     if (count >= 2) return { type: "tactical_discounts", tier: "tactical",  headline: "Discounts Started" };
   }
   if (changeType === "product_removed") {
-    if (count >= 5) return { type: "product_removals",   tier: "strategic", headline: "Catalog Purge" };
+    if (count >= 5) return { type: "product_removals",   tier: "strategic", headline: "Products Delisted" };
     if (count >= 2) return { type: "product_removals",   tier: "tactical",  headline: "Products Removed" };
   }
   if (changeType === "availability_change") {
-    if (count >= 5) return { type: "availability_shift", tier: "strategic", headline: "Availability Shift" };
-    if (count >= 2) return { type: "availability_shift", tier: "tactical",  headline: "Availability Changes" };
+    if (maxSeverity === "info") {
+      // Restock noise — demote to tactical only, never strategic
+      if (count >= 2) return { type: "availability_shift", tier: "tactical", headline: "Stock Changes" };
+    } else {
+      // warning/critical = real stock-out = positioning opportunity
+      if (count >= 5) return { type: "availability_shift", tier: "strategic", headline: "Stock-Out Opportunity" };
+      if (count >= 2) return { type: "availability_shift", tier: "tactical",  headline: "Stock Changes" };
+    }
   }
   return { type: "single", tier: "raw", headline: "" };
 }
@@ -158,6 +171,27 @@ function makeWhyThisMatters(
   }
 }
 
+function makeYourMove(type: SignalType, count: number, hostname: string, avgDelta?: number): string | undefined {
+  switch (type) {
+    case "flash_sale":
+      return `Open Meta Ads Manager, duplicate your best ad set, and narrow the audience to followers of ${hostname}. Test "${hostname} is on sale. We never are." as headline copy — run $10/day for 5 days and compare CTR to your control.`;
+    case "price_wave":
+      return `Cross-reference the ${count} repriced products against your catalog. If there's overlap, hold your price and push quality messaging this week — their value-focused customers are now comparison shopping.`;
+    case "price_increase":
+      return `${hostname} raised prices on ${count} products. Launch a Google Shopping campaign targeting their product names — their price-sensitive customers are now actively looking for alternatives.`;
+    case "launch_burst":
+      return `Watch ${hostname}'s social and email over the next 72h to see how they position this. If they're entering a category you also cover, get your version into ads before their campaign peaks.`;
+    case "discount_wave":
+      return `Don't race them. Send your email list this week with a full-price quality angle — ${hostname}'s discount-fatigued customers are your best acquisition target right now.`;
+    case "product_removals":
+      return `${hostname} pulled ${count} products. If you carry anything similar, update your Google Shopping feed and ad copy now — you have less direct competition for those searches.`;
+    case "availability_shift":
+      return `${hostname} has stock issues on ${count} products. If you're reliably in-stock on similar items, push that as a competitive advantage in your ads and email this week.`;
+    default:
+      return undefined;
+  }
+}
+
 // ── Main export ───────────────────────────────────────────────────────────
 
 export function groupAlertEvents(alerts: AlertEvent[]): SignalGroup[] {
@@ -191,7 +225,10 @@ export function groupAlertEvents(alerts: AlertEvent[]): SignalGroup[] {
     const avgDelta = computeAvgDelta(b.events);
     const avgPrice = computeAvgPrice(b.events);
     const category = inferCategory(b.events);
-    const { type, tier, headline } = classify(b.changeType, count, avgDelta);
+    const maxSeverity: "info" | "warning" | "critical" =
+      b.events.some((e) => e.severity === "critical") ? "critical" :
+      b.events.some((e) => e.severity === "warning")  ? "warning"  : "info";
+    const { type, tier, headline } = classify(b.changeType, count, avgDelta, maxSeverity);
 
     const times = b.events.map((e) => e.detected_at).sort();
     const detected_at = times[times.length - 1];
@@ -216,6 +253,7 @@ export function groupAlertEvents(alerts: AlertEvent[]): SignalGroup[] {
       avg_delta_pct: avgDelta,
       category_hint: category,
       why_this_matters: tier === "strategic" ? makeWhyThisMatters(type, count, b.events[0].hostname, category, avgDelta) : undefined,
+      your_move: tier === "strategic" ? makeYourMove(type, count, b.events[0].hostname, avgDelta) : undefined,
       label: count === 1 ? "" : makeLabel(type, count, category),
       headline,
     };
@@ -249,16 +287,16 @@ export function generateNarrative(groups: SignalGroup[]): string | null {
 
 // ── Signal type → visual config ──────────────────────────────────────────
 
-export const SIGNAL_CONFIG: Record<SignalType, { color: string; bg: string; border: string; icon: string }> = {
-  launch_burst:       { color: "#a8ff00", bg: "rgba(168,255,0,.08)",   border: "rgba(168,255,0,.25)",   icon: "🚀" },
-  flash_sale:         { color: "#ef4444", bg: "rgba(239,68,68,.08)",   border: "rgba(239,68,68,.25)",   icon: "⚡" },
-  price_wave:         { color: "#60a5fa", bg: "rgba(96,165,250,.08)",  border: "rgba(96,165,250,.25)",  icon: "📉" },
-  price_increase:     { color: "#10b981", bg: "rgba(16,185,129,.08)",  border: "rgba(16,185,129,.25)",  icon: "📈" },
-  discount_wave:      { color: "#f59e0b", bg: "rgba(245,158,11,.08)",  border: "rgba(245,158,11,.25)",  icon: "🏷️" },
-  product_removals:   { color: "#a78bfa", bg: "rgba(167,139,250,.08)", border: "rgba(167,139,250,.25)", icon: "🗑️" },
-  availability_shift: { color: "#22d3ee", bg: "rgba(34,211,238,.08)",  border: "rgba(34,211,238,.25)",  icon: "📦" },
-  tactical_launches:  { color: "#a8ff00", bg: "rgba(168,255,0,.05)",   border: "rgba(168,255,0,.15)",   icon: "✦" },
-  tactical_prices:    { color: "#60a5fa", bg: "rgba(96,165,250,.05)",  border: "rgba(96,165,250,.15)",  icon: "↕" },
-  tactical_discounts: { color: "#f59e0b", bg: "rgba(245,158,11,.05)",  border: "rgba(245,158,11,.15)",  icon: "%" },
-  single:             { color: "#5a6a82", bg: "transparent",           border: "var(--border)",         icon: "·" },
+export const SIGNAL_CONFIG: Record<SignalType, { color: string; bg: string; border: string; icon: ElementType }> = {
+  launch_burst:       { color: "#a8ff00", bg: "rgba(168,255,0,.08)",   border: "rgba(168,255,0,.25)",   icon: Rocket },
+  flash_sale:         { color: "#ef4444", bg: "rgba(239,68,68,.08)",   border: "rgba(239,68,68,.25)",   icon: Zap },
+  price_wave:         { color: "#60a5fa", bg: "rgba(96,165,250,.08)",  border: "rgba(96,165,250,.25)",  icon: TrendingDown },
+  price_increase:     { color: "#10b981", bg: "rgba(16,185,129,.08)",  border: "rgba(16,185,129,.25)",  icon: TrendingUp },
+  discount_wave:      { color: "#f59e0b", bg: "rgba(245,158,11,.08)",  border: "rgba(245,158,11,.25)",  icon: Tag },
+  product_removals:   { color: "#a78bfa", bg: "rgba(167,139,250,.08)", border: "rgba(167,139,250,.25)", icon: Trash2 },
+  availability_shift: { color: "#22d3ee", bg: "rgba(34,211,238,.08)",  border: "rgba(34,211,238,.25)",  icon: Package },
+  tactical_launches:  { color: "#a8ff00", bg: "rgba(168,255,0,.05)",   border: "rgba(168,255,0,.15)",   icon: Plus },
+  tactical_prices:    { color: "#60a5fa", bg: "rgba(96,165,250,.05)",  border: "rgba(96,165,250,.15)",  icon: ArrowUpDown },
+  tactical_discounts: { color: "#f59e0b", bg: "rgba(245,158,11,.05)",  border: "rgba(245,158,11,.15)",  icon: Percent },
+  single:             { color: "#5a6a82", bg: "transparent",           border: "var(--border)",         icon: Minus },
 };
