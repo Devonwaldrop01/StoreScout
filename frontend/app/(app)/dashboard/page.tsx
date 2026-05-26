@@ -234,23 +234,29 @@ function CompetitorMonitor({
   const pricing = snapshotData?.pricing as Record<string, unknown> | undefined;
   const medianPrice = pricing?.median as number | undefined;
 
+  // Clear queued state once the scan actually picks up
+  useEffect(() => {
+    if (isScanning) setRescanning(false);
+  }, [isScanning]);
+
   async function handleRescan(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     setRescanning(true);
-    await api.rescan(competitor.id).catch(() => {});
-    setTimeout(() => setRescanning(false), 3000);
+    await api.rescan(competitor.id).catch(() => { setRescanning(false); });
   }
 
   const topStrategic = recentSignals.find((g) => g.tier === "strategic");
   const topSignalCfg = topStrategic ? SIGNAL_CONFIG[topStrategic.type] : null;
 
-  const statusColor = isScanning ? "var(--accent)" : hasStrategic ? "var(--red)" : "var(--emerald)";
+  // Orange for "urgent intelligence", not red (red = errors/broken)
+  const ALERT_COLOR = "#f97316";
+  const statusColor = isScanning ? "var(--accent)" : hasStrategic ? ALERT_COLOR : "var(--emerald)";
 
   const borderColor = isSelected
     ? "rgba(163,240,0,.3)"
     : hasStrategic
-    ? "rgba(239,68,68,.2)"
+    ? "rgba(249,115,22,.2)"
     : "var(--border)";
 
   const rowBody = (
@@ -314,6 +320,8 @@ function CompetitorMonitor({
         <div className="flex items-center gap-2 shrink-0">
           {isScanning ? (
             <span className="text-[11px]" style={{ color: "var(--accent)" }}>Scanning…</span>
+          ) : rescanning ? (
+            <span className="text-[11px]" style={{ color: "var(--muted)" }}>Queued…</span>
           ) : topSignalCfg && topStrategic ? (
             <span
               className="text-[10px] font-bold px-2 py-1 rounded-md whitespace-nowrap"
@@ -397,11 +405,11 @@ function MostActive({ competitorList, signalGroups }: { competitorList: Competit
   return (
     <div
       className="rounded-xl px-4 py-3 mb-3 flex items-center gap-3"
-      style={{ background: "rgba(239,68,68,.05)", border: "1px solid rgba(239,68,68,.18)" }}
+      style={{ background: "rgba(249,115,22,.05)", border: "1px solid rgba(249,115,22,.18)" }}
     >
       <span className="text-base shrink-0">🔥</span>
       <div className="min-w-0">
-        <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: "var(--red)" }}>Most active today</p>
+        <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: "#f97316" }}>Most active today</p>
         <p className="text-xs font-semibold truncate" style={{ color: "var(--text)" }}>
           {top.competitor.hostname} · <span style={{ color: "var(--muted)" }}>{top.count} change{top.count !== 1 ? "s" : ""}</span>
         </p>

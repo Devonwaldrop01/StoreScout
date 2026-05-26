@@ -161,9 +161,10 @@ function PositioningBar({ label, score, scoreLabel }: { label: string; score: nu
 // ── Top alert banner ──────────────────────────────────────────────────────────
 function TopAlertBanner({ change, hostname, onViewAll }: { change: ChangeEvent; hostname?: string; onViewAll: () => void }) {
   const isCritical = change.severity === "critical";
-  const color      = isCritical ? "#f87171" : "#fbbf24";
-  const bg         = isCritical ? "rgba(248,113,113,.06)" : "rgba(251,191,36,.06)";
-  const border     = isCritical ? "rgba(248,113,113,.22)" : "rgba(251,191,36,.22)";
+  // Orange for "urgent intelligence" — red is reserved for errors/broken states
+  const color      = isCritical ? "#f97316" : "#fbbf24";
+  const bg         = isCritical ? "rgba(249,115,22,.06)" : "rgba(251,191,36,.06)";
+  const border     = isCritical ? "rgba(249,115,22,.22)" : "rgba(251,191,36,.22)";
   const old_v      = change.old_value || {};
   const new_v      = change.new_value || {};
   const action     = getChangeAction(change.change_type, change.delta_pct, change.severity, hostname);
@@ -243,7 +244,7 @@ function ChangeRow({ change, hostname }: { change: ChangeEvent; hostname?: strin
     detail = inStock === false ? "went out of stock" : inStock === true ? "back in stock" : "";
   }
   const borderColor =
-    change.severity === "critical" ? "var(--red)" :
+    change.severity === "critical" ? "#f97316" :
     change.severity === "warning"  ? "var(--amber)" : "transparent";
 
   const action = getChangeAction(change.change_type, change.delta_pct, change.severity, hostname);
@@ -521,10 +522,14 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
   const isScanning = competitor?.scan_status === "scanning" || competitor?.scan_status === "pending";
 
+  // Clear queued state once the scan actually picks up
+  useEffect(() => {
+    if (isScanning) setRescanning(false);
+  }, [isScanning]);
+
   async function handleRescan() {
     setRescanning(true);
-    await api.rescan(id).catch(() => {});
-    setTimeout(() => setRescanning(false), 3000);
+    await api.rescan(id).catch(() => { setRescanning(false); });
   }
 
   function handleDismissBrief() {
@@ -695,7 +700,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
               style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.2)" }}
             >
               <RefreshCw className={cn("w-3.5 h-3.5", (rescanning || isScanning) && "animate-spin")} />
-              {isScanning ? "Scanning…" : "Rescan"}
+              {isScanning ? "Scanning…" : rescanning ? "Queued…" : "Rescan"}
             </button>
             <button
               onClick={handleDelete}
@@ -721,11 +726,11 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
             </p>
             <button
               onClick={handleRescan}
-              disabled={rescanning}
-              className="text-xs font-bold px-4 py-2 rounded-xl transition-all hover:brightness-110"
+              disabled={rescanning || isScanning}
+              className="text-xs font-bold px-4 py-2 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
               style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.2)" }}
             >
-              Try again
+              {rescanning ? "Queued…" : "Try again"}
             </button>
           </div>
         ) : (

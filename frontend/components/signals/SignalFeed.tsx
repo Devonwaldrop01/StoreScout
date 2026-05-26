@@ -103,7 +103,7 @@ function RawEventRow({ event, indent = false }: { event: AlertEvent; indent?: bo
   }
 
   const severityBorder =
-    event.severity === "critical" ? "var(--red)" :
+    event.severity === "critical" ? "#f97316" :
     event.severity === "warning"  ? "var(--amber)" : "transparent";
 
   return (
