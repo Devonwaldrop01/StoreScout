@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { alerts, user as userApi } from "@/lib/api";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -159,7 +160,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* ── Main content ──────────────────────────────────────────────────── */}
       <main className="flex-1 overflow-y-auto pb-20 md:pb-0" style={{ background: "var(--bg)" }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-          {children}
+          <ErrorBoundary>{children}</ErrorBoundary>
         </div>
       </main>
 

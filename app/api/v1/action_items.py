@@ -4,15 +4,11 @@ import uuid
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 
-import logging
-
 from fastapi import APIRouter, Depends
 
 from app.core.auth import get_effective_user_id
 from app.core.database import get_supabase
 from app.services.action_templates import action_for_change, action_for_gap
-
-logger = logging.getLogger(__name__)
 
 logger = logging.getLogger(__name__)
 
