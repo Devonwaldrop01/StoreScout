@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import {
   competitors as api, user as userApi,
-  type Snapshot, type ChangeEvent, type AiSummary,
+  type Snapshot, type SnapshotMeta, type ChangeEvent, type AiSummary,
 } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -36,13 +36,15 @@ type IntelSub = "ai" | "brand" | "compare";
 
 // ── Expandable KPI card ───────────────────────────────────────────────────────
 function KpiCard({
-  label, value, sub, accent, insight, actionLabel, onAction, locked = false,
+  label, value, sub, accent, delta, insight, actionLabel, onAction, locked = false,
 }: {
   label: string; value: string; sub?: string; accent?: string;
+  delta?: { label: string; up: boolean | null };
   insight?: string; actionLabel?: string; onAction?: () => void; locked?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const clickable = !!insight;
+  const deltaColor = delta?.up === true ? "var(--emerald)" : delta?.up === false ? "var(--red)" : "var(--muted)";
 
   return (
     <div
@@ -59,7 +61,12 @@ function KpiCard({
           {label}
         </p>
         <p className="text-2xl font-bold font-mono" style={{ color: "var(--text)" }}>{value}</p>
-        {sub && <p className="text-xs mt-1.5" style={{ color: "var(--muted)" }}>{sub}</p>}
+        {delta && (
+          <p className="text-[11px] font-medium mt-1" style={{ color: deltaColor }}>
+            {delta.label}
+          </p>
+        )}
+        {!delta && sub && <p className="text-xs mt-1.5" style={{ color: "var(--muted)" }}>{sub}</p>}
         {clickable && (
           <div className="flex items-center gap-1 mt-2.5">
             {expanded
@@ -108,19 +115,105 @@ function KpiCard({
   );
 }
 
-// ── Signal badge ──────────────────────────────────────────────────────────────
-function SignalBadge({ label, scoreLabel, score }: { label: string; scoreLabel: string; score: number }) {
-  const color = score < 34 ? "var(--cyan)" : score < 67 ? "var(--accent)" : "var(--red)";
-  const bg    = score < 34 ? "rgba(34,211,238,.1)" : score < 67 ? "rgba(168,255,0,.1)" : "rgba(239,68,68,.1)";
+// ── Positioning bar ───────────────────────────────────────────────────────────
+function positioningDescription(label: string, score: number): string {
+  switch (label) {
+    case "Market Position":
+      return score < 34 ? "Budget-focused — price is their primary lever."
+           : score < 67 ? "Mid-market — competes on value and quality."
+           :               "Premium — margin-focused, aspirational positioning.";
+    case "Promo Intensity":
+      return score < 34 ? "Rarely discounts — full-price brand."
+           : score < 67 ? "Selective discounting — strategic promotions."
+           :               "Heavy discounter — frequent sales and markdowns.";
+    case "Launch Velocity":
+      return score < 34 ? "Slow launches — stable, focused catalog."
+           : score < 67 ? "Steady launch pace — measured expansion."
+           :               "Aggressive expansion — launching frequently.";
+    case "Catalog Complexity":
+      return score < 34 ? "Focused catalog — tight product range."
+           : score < 67 ? "Moderate variety — several categories."
+           :               "Very broad catalog — many categories and variants.";
+    default: return "";
+  }
+}
+
+function PositioningBar({ label, score, scoreLabel }: { label: string; score: number; scoreLabel: string }) {
+  const color = score < 34 ? "#60a5fa" : score < 67 ? "#facc15" : "#fb923c";
+  const desc  = positioningDescription(label, score);
   return (
     <div
-      className="flex items-center justify-between px-4 py-3 rounded-xl"
+      className="rounded-xl p-4"
       style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
     >
-      <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>{label}</span>
-      <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ color, background: bg }}>
-        {scoreLabel}
-      </span>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>{label}</span>
+        <span className="text-xs font-semibold" style={{ color }}>{scoreLabel}</span>
+      </div>
+      <div className="h-1.5 rounded-full overflow-hidden mb-2" style={{ background: "var(--bg3)" }}>
+        <div className="h-full rounded-full transition-all" style={{ width: `${score}%`, background: color }} />
+      </div>
+      {desc && <p className="text-[11px] leading-snug" style={{ color: "var(--muted)" }}>{desc}</p>}
+    </div>
+  );
+}
+
+// ── Top alert banner ──────────────────────────────────────────────────────────
+function TopAlertBanner({ change, hostname, onViewAll }: { change: ChangeEvent; hostname?: string; onViewAll: () => void }) {
+  const isCritical = change.severity === "critical";
+  const color      = isCritical ? "#f87171" : "#fbbf24";
+  const bg         = isCritical ? "rgba(248,113,113,.06)" : "rgba(251,191,36,.06)";
+  const border     = isCritical ? "rgba(248,113,113,.22)" : "rgba(251,191,36,.22)";
+  const old_v      = change.old_value || {};
+  const new_v      = change.new_value || {};
+  const action     = getChangeAction(change.change_type, change.delta_pct, change.severity, hostname);
+  let detail = "";
+  if (change.change_type === "price_change" && change.delta_pct != null)
+    detail = `${formatPrice(old_v.price as number)} → ${formatPrice(new_v.price as number)} (${formatDelta(change.delta_pct)})`;
+  else if (change.change_type === "discount_start" || change.change_type === "discount_end")
+    detail = `${formatPct(old_v.discounted_pct as number)} → ${formatPct(new_v.discounted_pct as number)} of catalog`;
+
+  return (
+    <div className="rounded-2xl p-4" style={{ background: bg, border: `1px solid ${border}` }}>
+      <div className="flex items-start gap-3">
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+          style={{ background: `${color}1a` }}
+        >
+          <Bell className="w-4 h-4" style={{ color }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color }}>
+                {isCritical ? "Critical change" : "Recent alert"}
+              </span>
+              <span className="text-[10px]" style={{ color: "var(--muted)" }}>
+                {formatRelativeTime(change.detected_at)}
+              </span>
+            </div>
+            <button
+              onClick={onViewAll}
+              className="text-[11px] font-medium hover:underline shrink-0"
+              style={{ color: "var(--accent)" }}
+            >
+              View all →
+            </button>
+          </div>
+          <p className="text-sm font-semibold mt-0.5" style={{ color: "var(--text)" }}>
+            {change.product_title || change.change_type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+          </p>
+          {detail && <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>{detail}</p>}
+          {action && (
+            <p
+              className="text-xs mt-2.5 px-2.5 py-1.5 rounded-lg inline-block"
+              style={{ background: "rgba(168,255,0,.07)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.14)" }}
+            >
+              ▶ {action}
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -292,6 +385,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const aiPollRef    = useRef<ReturnType<typeof setInterval> | null>(null);
   const aiPollCount  = useRef(0);
   const [loading,        setLoading]        = useState(true);
+  const [prevMeta,       setPrevMeta]       = useState<SnapshotMeta | null>(null);
   const [tab,            setTab]            = useState<Tab>(resolveInitialTab);
   const [catalogSub,     setCatalogSub]     = useState<CatalogSub>(resolveInitialCatalogSub);
   const [intelSub,       setIntelSub]       = useState<IntelSub>(resolveInitialIntelSub);
@@ -330,6 +424,14 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
     const interval = setInterval(load, scanPending ? 3000 : 15000);
     return () => clearInterval(interval);
   }, [id, scanPending]);
+
+  // Fetch previous snapshot meta for trend deltas (once per page load)
+  useEffect(() => {
+    if (!snapshot) return;
+    api.snapshots(id, 2)
+      .then((r) => { if (r.data.length >= 2) setPrevMeta(r.data[1]); })
+      .catch(() => {});
+  }, [id, snapshot?.id]);
 
   // Fetch AI summary when landing on the AI insights sub-tab
   useEffect(() => {
@@ -462,6 +564,21 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const discounts   = (data?.discounts   || {}) as Record<string, unknown>;
   const positioning = (data?.positioning || {}) as Record<string, unknown>;
   const launch      = (data?.launch_timeline || {}) as Record<string, unknown>;
+
+  // KPI trend deltas vs previous scan
+  function kpiDelta(curr: number | null | undefined, prev: number | null | undefined, fmt: (n: number) => string): { label: string; up: boolean | null } | undefined {
+    if (curr == null || prev == null || curr === prev) return undefined;
+    const diff = curr - prev;
+    const sign = diff > 0 ? "▲ +" : "▼ ";
+    return { label: `${sign}${fmt(Math.abs(diff))} vs last scan`, up: diff > 0 ? true : false };
+  }
+  const deltaProd   = kpiDelta(snapshot?.product_count, prevMeta?.product_count, (n) => n.toLocaleString());
+  const deltaPrice  = kpiDelta(snapshot?.median_price,  prevMeta?.median_price,  formatPrice);
+  const deltaPromo  = kpiDelta(snapshot?.promo_rate,    prevMeta?.promo_rate,    formatPct);
+  const deltaNew30d = kpiDelta(snapshot?.new_30d,       prevMeta?.new_30d,       (n) => n.toLocaleString());
+
+  // Top critical/warning change for the alert banner
+  const topAlert = changes.find((c) => c.severity === "critical" || c.severity === "warning");
   const takeaways   = (data?.takeaways   || []) as string[];
   const hostname    = (data?.hostname as string) || competitor?.display_name || competitor?.hostname || id;
 
@@ -641,12 +758,23 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
             ══════════════════════════════════════════════════════════════ */}
             {tab === "overview" && (
               <div className="space-y-6 fade-up">
-                {/* Expandable KPI cards */}
+
+                {/* Top alert banner — most urgent change first */}
+                {topAlert && (
+                  <TopAlertBanner
+                    change={topAlert}
+                    hostname={hostname}
+                    onViewAll={() => setTab("changes")}
+                  />
+                )}
+
+                {/* KPI cards with trend deltas */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <KpiCard
                     label="Products"
                     value={(catalog.total_products as number)?.toLocaleString() ?? "—"}
                     accent="var(--blue)"
+                    delta={deltaProd}
                     insight={`This store has ${(catalog.total_products as number)?.toLocaleString() ?? "an unknown number of"} active products. Compare this to your own catalog size to gauge competitive breadth.`}
                     actionLabel="Alert me when count changes"
                     onAction={() => isFree ? setUpgradeOpen(true) : router.push("/settings#notifications")}
@@ -656,6 +784,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     label="Median Price"
                     value={formatPrice(pricing.median as number)}
                     accent="var(--accent)"
+                    delta={deltaPrice}
                     insight={`Their median price is ${formatPrice(pricing.median as number)}, ranging from ${formatPrice(pricing.min as number)} to ${formatPrice(pricing.max as number)}. This positions them in the ${(positioning.market_position as Record<string, unknown>)?.label ?? "mid-market"} segment.`}
                     actionLabel="See 90-day price history"
                     onAction={() => { if (isFree) setUpgradeOpen(true); else setTab("pricing"); }}
@@ -665,6 +794,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     label="Promo Rate"
                     value={formatPct(discounts.discounted_pct as number)}
                     accent="var(--amber)"
+                    delta={deltaPromo}
                     insight={`${formatPct(discounts.discounted_pct as number)} of their catalog is currently discounted — average discount depth is ${formatPct(discounts.avg_discount_pct as number)}. A high promo rate can signal pricing pressure or clearance cycles.`}
                     actionLabel="Alert me on flash sales"
                     onAction={() => isFree ? setUpgradeOpen(true) : router.push("/settings#notifications")}
@@ -674,6 +804,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     label="New (30d)"
                     value={((launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? "—").toString()}
                     accent="var(--emerald)"
+                    delta={deltaNew30d}
                     insight={`They launched ${((launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? 0)} products in the last 30 days. A high velocity often signals an aggressive growth phase or seasonal push.`}
                     actionLabel="Alert me when they launch"
                     onAction={() => isFree ? setUpgradeOpen(true) : router.push("/settings#notifications")}
@@ -681,23 +812,45 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   />
                 </div>
 
+                {/* Recent changes — moved up, most time-sensitive after KPIs */}
+                {changes.length > 0 && (
+                  <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+                    <div
+                      className="flex items-center justify-between px-5 py-3.5"
+                      style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
+                    >
+                      <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Recent changes</h3>
+                      <button
+                        onClick={() => setTab("changes")}
+                        className="text-xs font-medium hover:underline"
+                        style={{ color: "var(--accent)" }}
+                      >
+                        View all {changes.length} →
+                      </button>
+                    </div>
+                    <div className="px-5" style={{ background: "var(--bg-card)" }}>
+                      {changes.slice(0, 4).map((c) => <ChangeRow key={c.id} change={c} hostname={hostname} />)}
+                    </div>
+                  </div>
+                )}
+
                 {/* Quick wins */}
                 <QuickWins competitorId={id} />
 
-                {/* Positioning signals */}
+                {/* Competitive positioning bars */}
                 {[positioning.market_position, positioning.promo_intensity, positioning.launch_velocity, positioning.catalog_complexity].some(Boolean) && (
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--muted)" }}>
-                      Competitive signals
+                      Competitive positioning
                     </p>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       {[
                         { label: "Market Position",    pos: positioning.market_position    as Record<string, unknown> },
                         { label: "Promo Intensity",    pos: positioning.promo_intensity    as Record<string, unknown> },
                         { label: "Launch Velocity",    pos: positioning.launch_velocity    as Record<string, unknown> },
                         { label: "Catalog Complexity", pos: positioning.catalog_complexity as Record<string, unknown> },
                       ].map(({ label, pos }) => pos ? (
-                        <SignalBadge
+                        <PositioningBar
                           key={label}
                           label={label}
                           score={(pos.score as number) ?? 50}
@@ -726,31 +879,6 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                         </li>
                       ))}
                     </ul>
-                  </div>
-                )}
-
-                {/* Recent changes preview */}
-                {changes.length > 0 && (
-                  <div
-                    className="rounded-2xl overflow-hidden"
-                    style={{ border: "1px solid var(--border)" }}
-                  >
-                    <div
-                      className="flex items-center justify-between px-5 py-3.5"
-                      style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
-                    >
-                      <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Recent changes</h3>
-                      <button
-                        onClick={() => setTab("changes")}
-                        className="text-xs font-medium hover:underline"
-                        style={{ color: "var(--accent)" }}
-                      >
-                        View all {changes.length} →
-                      </button>
-                    </div>
-                    <div className="px-5" style={{ background: "var(--bg-card)" }}>
-                      {changes.slice(0, 4).map((c) => <ChangeRow key={c.id} change={c} hostname={hostname} />)}
-                    </div>
                   </div>
                 )}
               </div>
