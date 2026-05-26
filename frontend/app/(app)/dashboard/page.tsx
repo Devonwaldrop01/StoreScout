@@ -2,22 +2,21 @@
 
 import { useEffect, useState, useCallback, Suspense } from "react";
 import {
-  Plus, RefreshCw, TrendingUp, Sparkles, ArrowRight,
-  Activity, Package, Zap, Clock, X,
+  Plus, RefreshCw, TrendingUp, ArrowRight, Sparkles,
+  Activity, Package, Zap, Clock, X, Trash2, Check, Lock,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BarChart, Bar, XAxis, ResponsiveContainer, Cell } from "recharts";
 import {
   competitors as api, alerts as alertsApi, user as userApi,
-  type Competitor, type AlertEvent, type DiscoverySuggestion,
+  type Competitor, type AlertEvent, type DiscoverySuggestion, type PlaybookPlay,
 } from "@/lib/api";
-import { cn, formatRelativeTime, formatPrice } from "@/lib/utils";
-import { groupAlertEvents, generateNarrative, type SignalGroup } from "@/lib/signals";
+import { cn, formatPrice } from "@/lib/utils";
+import { groupAlertEvents, type SignalGroup } from "@/lib/signals";
 import { SignalFeed } from "@/components/signals/SignalFeed";
 import { AddCompetitorModal } from "@/components/competitors/AddCompetitorModal";
 import UpgradeModal from "@/components/UpgradeModal";
-import { ActionPlaybook } from "@/components/competitors/ActionPlaybook";
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -91,30 +90,6 @@ function StatsBar({ competitorList, signalGroups }: { competitorList: Competitor
   );
 }
 
-// ── Narrative header ──────────────────────────────────────────────────────
-
-function NarrativeBar({ narrative, signalGroups }: { narrative: string | null; signalGroups: SignalGroup[] }) {
-  if (!narrative) return null;
-  const hasStrategic = signalGroups.some((g) => g.tier === "strategic");
-  return (
-    <div
-      className="flex items-center gap-3 rounded-xl px-4 py-2.5 mb-4 fade-in"
-      style={{
-        background: hasStrategic ? "rgba(239,68,68,.06)" : "rgba(168,255,0,.05)",
-        border: hasStrategic ? "1px solid rgba(239,68,68,.2)" : "1px solid rgba(168,255,0,.14)",
-      }}
-    >
-      <span
-        className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse"
-        style={{ background: hasStrategic ? "var(--red)" : "var(--accent)" }}
-      />
-      <p className="text-xs font-semibold" style={{ color: hasStrategic ? "var(--red)" : "var(--accent)" }}>
-        {narrative}
-      </p>
-    </div>
-  );
-}
-
 // ── Weekly activity chart ─────────────────────────────────────────────────
 
 function WeeklyChart({ alertList }: { alertList: AlertEvent[] }) {
@@ -146,9 +121,105 @@ function WeeklyChart({ alertList }: { alertList: AlertEvent[] }) {
   );
 }
 
+// ── Playbook sidebar widget ───────────────────────────────────────────────
+
+const DEADLINE_COLOR: Record<string, string> = {
+  "right now": "#f87171",
+  "today": "#fb923c",
+  "within 48h": "#fb923c",
+  "this week": "#a3f000",
+};
+
+function PlaybookWidget() {
+  const [plays, setPlays] = useState<PlaybookPlay[]>([]);
+  const [playbookLoading, setPlaybookLoading] = useState(true);
+  const [locked, setLocked] = useState(false);
+
+  useEffect(() => {
+    userApi.playbook()
+      .then((r) => { setPlays((r.plays || []).slice(0, 3)); setLocked(r.locked ?? false); })
+      .catch(() => {})
+      .finally(() => setPlaybookLoading(false));
+  }, []);
+
+  if (!playbookLoading && plays.length === 0 && !locked) return null;
+
+  return (
+    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+      <div
+        className="px-4 py-2.5 flex items-center justify-between"
+        style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
+      >
+        <div className="flex items-center gap-2">
+          <Zap className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
+          <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>Playbook</p>
+        </div>
+        <Link
+          href="/playbook"
+          className="text-[11px] font-medium flex items-center gap-1 hover:opacity-80"
+          style={{ color: "var(--accent)" }}
+        >
+          See all <ArrowRight className="w-3 h-3" />
+        </Link>
+      </div>
+      <div style={{ background: "var(--bg-card)" }}>
+        {playbookLoading ? (
+          [1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="px-4 py-3 animate-pulse"
+              style={i < 3 ? { borderBottom: "1px solid var(--border)" } : undefined}
+            >
+              <div className="h-3 rounded-full w-4/5" style={{ background: "var(--bg3)" }} />
+              <div className="h-2.5 rounded-full w-1/2 mt-1.5" style={{ background: "var(--bg3)" }} />
+            </div>
+          ))
+        ) : locked ? (
+          <div className="px-4 py-3 flex items-center gap-2">
+            <Lock className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--muted)" }} />
+            <p className="text-xs" style={{ color: "var(--muted)" }}>
+              Upgrade to Pro to unlock your full playbook.
+            </p>
+          </div>
+        ) : (
+          plays.map((p, i) => (
+            <Link
+              key={p.id}
+              href="/playbook"
+              className="flex items-start gap-2.5 px-4 py-3 hover:bg-white/[0.02] transition-colors"
+              style={i < plays.length - 1 ? { borderBottom: "1px solid var(--border)" } : undefined}
+            >
+              <span
+                className="text-[9px] font-bold px-1.5 py-0.5 rounded mt-0.5 whitespace-nowrap shrink-0"
+                style={{
+                  background: `${DEADLINE_COLOR[p.deadline] ?? "#94a3b8"}18`,
+                  color: DEADLINE_COLOR[p.deadline] ?? "#94a3b8",
+                }}
+              >
+                {p.deadline}
+              </span>
+              <p className="text-xs leading-snug line-clamp-2" style={{ color: "var(--text)" }}>
+                {p.headline}
+              </p>
+            </Link>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Competitor monitor strip ──────────────────────────────────────────────
 
-function CompetitorMonitor({ competitor, signalGroups }: { competitor: Competitor; signalGroups: SignalGroup[] }) {
+function CompetitorMonitor({
+  competitor, signalGroups, selectMode, isSelected, onToggle,
+}: {
+  competitor: Competitor;
+  signalGroups: SignalGroup[];
+  selectMode: boolean;
+  isSelected: boolean;
+  onToggle: () => void;
+}) {
   const [rescanning, setRescanning] = useState(false);
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const recentSignals = signalGroups.filter(
@@ -164,6 +235,7 @@ function CompetitorMonitor({ competitor, signalGroups }: { competitor: Competito
 
   async function handleRescan(e: React.MouseEvent) {
     e.preventDefault();
+    e.stopPropagation();
     setRescanning(true);
     await api.rescan(competitor.id).catch(() => {});
     setTimeout(() => setRescanning(false), 3000);
@@ -171,20 +243,39 @@ function CompetitorMonitor({ competitor, signalGroups }: { competitor: Competito
 
   const statusColor = isScanning ? "var(--accent)" : hasStrategic ? "var(--red)" : "var(--emerald)";
 
-  return (
-    <Link
-      href={`/dashboard/${competitor.id}`}
-      className={cn(
-        "flex items-center gap-3 rounded-xl px-4 py-3 transition-colors hover:bg-white/[0.03] group",
-        isScanning && "scan-shimmer"
+  const borderColor = isSelected
+    ? "rgba(163,240,0,.3)"
+    : hasStrategic
+    ? "rgba(239,68,68,.2)"
+    : "var(--border)";
+
+  const rowBody = (
+    <>
+      {/* Checkbox — always visible in select mode, hover-visible otherwise */}
+      <div
+        className={cn(
+          "w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-all",
+          !selectMode && "opacity-0 group-hover:opacity-100",
+        )}
+        style={{
+          borderColor: isSelected ? "var(--accent)" : "var(--muted)",
+          background: isSelected ? "var(--accent)" : "transparent",
+        }}
+        onClick={!selectMode ? (e) => { e.preventDefault(); e.stopPropagation(); onToggle(); } : undefined}
+      >
+        {isSelected && <Check className="w-2.5 h-2.5" style={{ color: "#0a0a0f" }} />}
+      </div>
+
+      {/* Status dot — hidden when checkbox is shown */}
+      {!selectMode && (
+        <span
+          className={cn(
+            "w-2 h-2 rounded-full shrink-0 transition-opacity group-hover:opacity-0",
+            isScanning && "animate-pulse"
+          )}
+          style={{ background: statusColor }}
+        />
       )}
-      style={{ border: `1px solid ${hasStrategic ? "rgba(239,68,68,.2)" : "var(--border)"}`, background: "var(--bg3)" }}
-    >
-      {/* Status dot */}
-      <span
-        className={cn("w-2 h-2 rounded-full shrink-0", isScanning && "animate-pulse")}
-        style={{ background: statusColor }}
-      />
 
       {/* Name + stats */}
       <div className="flex-1 min-w-0">
@@ -216,17 +307,53 @@ function CompetitorMonitor({ competitor, signalGroups }: { competitor: Competito
 
       {/* Next scan + rescan */}
       <div className="flex items-center gap-2 shrink-0">
-        <span className="text-[11px]" style={{ color: "var(--muted)" }}>
-          {isScanning ? "Scanning…" : `Scan in ${formatNextScan(competitor.next_scan_at)}`}
-        </span>
-        <button
-          onClick={handleRescan}
-          className="p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10"
-          style={{ color: "var(--muted)" }}
-        >
-          <RefreshCw className={cn("w-3 h-3", (rescanning || isScanning) && "animate-spin")} />
-        </button>
+        {!selectMode && (
+          <span className="text-[11px]" style={{ color: "var(--muted)" }}>
+            {isScanning ? "Scanning…" : `Scan in ${formatNextScan(competitor.next_scan_at)}`}
+          </span>
+        )}
+        {!selectMode && (
+          <button
+            onClick={handleRescan}
+            className="p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10"
+            style={{ color: "var(--muted)" }}
+          >
+            <RefreshCw className={cn("w-3 h-3", (rescanning || isScanning) && "animate-spin")} />
+          </button>
+        )}
       </div>
+    </>
+  );
+
+  const sharedClass = cn(
+    "flex items-center gap-3 rounded-xl px-4 py-3 transition-colors group",
+    isScanning && !selectMode && "scan-shimmer",
+    isSelected && "bg-[rgba(163,240,0,.03)]"
+  );
+  const sharedStyle = {
+    border: `1px solid ${borderColor}`,
+    background: isSelected ? "rgba(163,240,0,.03)" : "var(--bg3)",
+  };
+
+  if (selectMode) {
+    return (
+      <div
+        onClick={onToggle}
+        className={cn(sharedClass, "cursor-pointer hover:bg-white/[0.02]")}
+        style={sharedStyle}
+      >
+        {rowBody}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={`/dashboard/${competitor.id}`}
+      className={cn(sharedClass, "hover:bg-white/[0.03]")}
+      style={sharedStyle}
+    >
+      {rowBody}
     </Link>
   );
 }
@@ -451,6 +578,35 @@ function DashboardContent() {
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [trackingHostname, setTrackingHostname] = useState<string | null>(null);
   const [maxCompetitors, setMaxCompetitors] = useState<number | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [scanningAll, setScanningAll] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const selectMode = selectedIds.size > 0;
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  async function handleScanAll() {
+    if (scanningAll) return;
+    setScanningAll(true);
+    await Promise.allSettled(competitorList.map((c) => api.rescan(c.id)));
+    setTimeout(() => { setScanningAll(false); load(); }, 1500);
+  }
+
+  async function handleBulkDelete() {
+    if (deleting || selectedIds.size === 0) return;
+    setDeleting(true);
+    await Promise.allSettled([...selectedIds].map((id) => api.remove(id)));
+    setCompetitorList((prev) => prev.filter((c) => !selectedIds.has(c.id)));
+    setSelectedIds(new Set());
+    setDeleting(false);
+  }
 
   // Auto-open upgrade modal when onboarding sends ?upgrade=pro or ?upgrade=agency
   useEffect(() => {
@@ -540,7 +696,6 @@ function DashboardContent() {
 
   // Compute signal groups once from loaded alerts
   const signalGroups = alertsLoading ? [] : groupAlertEvents(alertList);
-  const narrative = generateNarrative(signalGroups);
 
   // Skeleton
   if (loading) {
@@ -580,14 +735,27 @@ function DashboardContent() {
               : `Monitoring ${competitorList.length} store${competitorList.length !== 1 ? "s" : ""}`}
           </p>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 font-bold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-110"
-          style={{ background: "var(--accent)", color: "#0a0a0f" }}
-        >
-          <Plus className="w-4 h-4" />
-          Add competitor
-        </button>
+        <div className="flex items-center gap-2">
+          {competitorList.length > 1 && (
+            <button
+              onClick={handleScanAll}
+              disabled={scanningAll || competitorList.some((c) => c.scan_status === "scanning")}
+              className="flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-xl transition-all hover:bg-white/[0.06] disabled:opacity-40"
+              style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+            >
+              <RefreshCw className={cn("w-4 h-4", scanningAll && "animate-spin")} />
+              {scanningAll ? "Scanning…" : "Scan all"}
+            </button>
+          )}
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 font-bold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-110"
+            style={{ background: "var(--accent)", color: "#0a0a0f" }}
+          >
+            <Plus className="w-4 h-4" />
+            Add competitor
+          </button>
+        </div>
       </div>
 
       {competitorList.length === 0 ? (
@@ -610,12 +778,6 @@ function DashboardContent() {
           {/* Stats bar */}
           {!alertsLoading && <StatsBar competitorList={competitorList} signalGroups={signalGroups} />}
 
-          {/* Narrative bar */}
-          {!alertsLoading && <NarrativeBar narrative={narrative} signalGroups={signalGroups} />}
-
-          {/* Your Move — action playbook */}
-          <ActionPlaybook competitorCount={competitorList.length} />
-
           {/* ── 3-column layout ── */}
           <div className="flex gap-5 items-start">
 
@@ -624,7 +786,14 @@ function DashboardContent() {
               {/* Competitor monitors */}
               <div className="space-y-2 mb-5">
                 {competitorList.map((c) => (
-                  <CompetitorMonitor key={c.id} competitor={c} signalGroups={signalGroups} />
+                  <CompetitorMonitor
+                    key={c.id}
+                    competitor={c}
+                    signalGroups={signalGroups}
+                    selectMode={selectMode}
+                    isSelected={selectedIds.has(c.id)}
+                    onToggle={() => toggleSelect(c.id)}
+                  />
                 ))}
               </div>
 
@@ -670,6 +839,9 @@ function DashboardContent() {
               {/* Most active today */}
               {!alertsLoading && <MostActive competitorList={competitorList} signalGroups={signalGroups} />}
 
+              {/* Playbook preview */}
+              <PlaybookWidget />
+
               {/* Discovery suggestions */}
               <DiscoverySuggestions
                 suggestions={suggestions}
@@ -685,7 +857,7 @@ function DashboardContent() {
           <div className="lg:hidden mt-6 space-y-3">
             {!alertsLoading && <WeeklyChart alertList={alertList} />}
             {!alertsLoading && <MostActive competitorList={competitorList} signalGroups={signalGroups} />}
-            {/* Discovery on mobile — below the rest */}
+            <PlaybookWidget />
             <DiscoverySuggestions
               suggestions={suggestions}
               onTrack={handleTrack}
@@ -695,6 +867,34 @@ function DashboardContent() {
             />
           </div>
         </>
+      )}
+
+      {/* ── Bulk action bar ── */}
+      {selectedIds.size > 0 && (
+        <div
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl"
+          style={{ background: "var(--bg2)", border: "1px solid var(--border)" }}
+        >
+          <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+            {selectedIds.size} selected
+          </span>
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="text-xs px-3 py-1.5 rounded-lg transition-colors hover:bg-white/[0.06]"
+            style={{ color: "var(--muted)" }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleBulkDelete}
+            disabled={deleting}
+            className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-all disabled:opacity-50 hover:brightness-110"
+            style={{ background: "rgba(239,68,68,.12)", color: "var(--red)", border: "1px solid rgba(239,68,68,.25)" }}
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            {deleting ? "Deleting…" : `Delete ${selectedIds.size}`}
+          </button>
+        </div>
       )}
 
       {showModal && (
