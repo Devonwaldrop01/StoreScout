@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock, Target, TrendingUp, ChevronDown, ChevronUp, ArrowRight, Check } from "lucide-react";
+import { Lock, Target, TrendingUp, ChevronDown, ChevronUp, ArrowRight, Check, DollarSign, Package, Grid3X3, Tag, Rocket } from "lucide-react";
 import { competitors as api, type GapsResponse, type Gap } from "@/lib/api";
 import UpgradeModal from "@/components/UpgradeModal";
 
@@ -29,14 +29,14 @@ function getGapAction(type: string): string {
   }
 }
 
-function getGapIcon(type: string): string {
+function getGapIcon(type: string): React.ElementType {
   switch (type) {
-    case "price_band":       return "$";
-    case "availability":     return "📦";
-    case "category":         return "🗂";
-    case "discount":         return "🏷";
-    case "launch_momentum":  return "🚀";
-    default:                 return "→";
+    case "price_band":       return DollarSign;
+    case "availability":     return Package;
+    case "category":         return Grid3X3;
+    case "discount":         return Tag;
+    case "launch_momentum":  return Rocket;
+    default:                 return ArrowRight;
   }
 }
 
@@ -70,6 +70,7 @@ function GapCard({ gap, index, reviewed, onReviewed }: GapCardProps) {
   const { label, color } = opportunityLabel(gap.opportunity);
   const action = getGapAction(gap.type || "");
   const isReviewed = reviewed.has(index);
+  const GapIcon = getGapIcon(gap.type || "");
 
   return (
     <div
@@ -136,9 +137,7 @@ function GapCard({ gap, index, reviewed, onReviewed }: GapCardProps) {
             }}
           >
             <div className="flex items-start gap-3">
-              <span className="text-base shrink-0 leading-none mt-0.5">
-                {getGapIcon(gap.type || "")}
-              </span>
+              <GapIcon className="w-4 h-4 shrink-0 mt-0.5" style={{ color }} />
               <div className="flex-1">
                 <p
                   className="text-[10px] font-bold uppercase tracking-wider mb-1.5"

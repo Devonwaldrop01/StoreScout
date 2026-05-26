@@ -1,21 +1,21 @@
 "use client";
 
 import { useEffect, useState, use, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft, RefreshCw, Trash2, Share2, Check, Download,
   Sparkles, Lock, Zap, ChevronDown, ChevronUp, Bell, TrendingUp,
-  Package, Tag, Clock, Brain,
+  Package, Tag, Clock, Brain, Target, Eye,
 } from "lucide-react";
 import Link from "next/link";
 import {
   competitors as api, user as userApi,
-  type Snapshot, type ChangeEvent, type AiSummary,
+  type Snapshot, type SnapshotMeta, type ChangeEvent, type AiSummary,
 } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
 import {
   cn, formatRelativeTime, formatPrice, formatPct, formatDelta,
-  changeTypeIcon, getChangeAction,
+  changeTypeIcon, changeTypeColor, changeTypeLabel, getChangeAction,
 } from "@/lib/utils";
 import { PriceDistributionChart } from "@/components/charts/PriceDistributionChart";
 import { PriceHistoryChart } from "@/components/charts/PriceHistoryChart";
@@ -36,13 +36,15 @@ type IntelSub = "ai" | "brand" | "compare";
 
 // ── Expandable KPI card ───────────────────────────────────────────────────────
 function KpiCard({
-  label, value, sub, accent, insight, actionLabel, onAction, locked = false,
+  label, value, sub, accent, delta, insight, actionLabel, onAction, locked = false,
 }: {
   label: string; value: string; sub?: string; accent?: string;
+  delta?: { label: string; up: boolean | null };
   insight?: string; actionLabel?: string; onAction?: () => void; locked?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const clickable = !!insight;
+  const deltaColor = delta?.up === true ? "var(--emerald)" : delta?.up === false ? "var(--red)" : "var(--muted)";
 
   return (
     <div
@@ -59,7 +61,12 @@ function KpiCard({
           {label}
         </p>
         <p className="text-2xl font-bold font-mono" style={{ color: "var(--text)" }}>{value}</p>
-        {sub && <p className="text-xs mt-1.5" style={{ color: "var(--muted)" }}>{sub}</p>}
+        {delta && (
+          <p className="text-[11px] font-medium mt-1" style={{ color: deltaColor }}>
+            {delta.label}
+          </p>
+        )}
+        {!delta && sub && <p className="text-xs mt-1.5" style={{ color: "var(--muted)" }}>{sub}</p>}
         {clickable && (
           <div className="flex items-center gap-1 mt-2.5">
             {expanded
@@ -108,40 +115,137 @@ function KpiCard({
   );
 }
 
-// ── Signal badge ──────────────────────────────────────────────────────────────
-function SignalBadge({ label, scoreLabel, score }: { label: string; scoreLabel: string; score: number }) {
-  const color = score < 34 ? "var(--cyan)" : score < 67 ? "var(--accent)" : "var(--red)";
-  const bg    = score < 34 ? "rgba(34,211,238,.1)" : score < 67 ? "rgba(168,255,0,.1)" : "rgba(239,68,68,.1)";
+// ── Positioning bar ───────────────────────────────────────────────────────────
+function positioningDescription(label: string, score: number): string {
+  switch (label) {
+    case "Market Position":
+      return score < 34 ? "Budget-focused — price is their primary lever."
+           : score < 67 ? "Mid-market — competes on value and quality."
+           :               "Premium — margin-focused, aspirational positioning.";
+    case "Promo Intensity":
+      return score < 34 ? "Rarely discounts — full-price brand."
+           : score < 67 ? "Selective discounting — strategic promotions."
+           :               "Heavy discounter — frequent sales and markdowns.";
+    case "Launch Velocity":
+      return score < 34 ? "Slow launches — stable, focused catalog."
+           : score < 67 ? "Steady launch pace — measured expansion."
+           :               "Aggressive expansion — launching frequently.";
+    case "Catalog Complexity":
+      return score < 34 ? "Focused catalog — tight product range."
+           : score < 67 ? "Moderate variety — several categories."
+           :               "Very broad catalog — many categories and variants.";
+    default: return "";
+  }
+}
+
+function PositioningBar({ label, score, scoreLabel }: { label: string; score: number; scoreLabel: string }) {
+  const color = score < 34 ? "#60a5fa" : score < 67 ? "#facc15" : "#fb923c";
+  const desc  = positioningDescription(label, score);
   return (
     <div
-      className="flex items-center justify-between px-4 py-3 rounded-xl"
+      className="rounded-xl p-4"
       style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
     >
-      <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>{label}</span>
-      <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ color, background: bg }}>
-        {scoreLabel}
-      </span>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>{label}</span>
+        <span className="text-xs font-semibold" style={{ color }}>{scoreLabel}</span>
+      </div>
+      <div className="h-1.5 rounded-full overflow-hidden mb-2" style={{ background: "var(--bg3)" }}>
+        <div className="h-full rounded-full transition-all" style={{ width: `${score}%`, background: color }} />
+      </div>
+      {desc && <p className="text-[11px] leading-snug" style={{ color: "var(--muted)" }}>{desc}</p>}
+    </div>
+  );
+}
+
+// ── Top alert banner ──────────────────────────────────────────────────────────
+function TopAlertBanner({ change, hostname, onViewAll }: { change: ChangeEvent; hostname?: string; onViewAll: () => void }) {
+  const isCritical = change.severity === "critical";
+  // Orange for "urgent intelligence" — red is reserved for errors/broken states
+  const color      = isCritical ? "#f97316" : "#fbbf24";
+  const bg         = isCritical ? "rgba(249,115,22,.06)" : "rgba(251,191,36,.06)";
+  const border     = isCritical ? "rgba(249,115,22,.22)" : "rgba(251,191,36,.22)";
+  const old_v      = change.old_value || {};
+  const new_v      = change.new_value || {};
+  const action     = getChangeAction(change.change_type, change.delta_pct, change.severity, hostname);
+  let detail = "";
+  if (change.change_type === "price_change" && change.delta_pct != null)
+    detail = `${formatPrice(old_v.price as number)} → ${formatPrice(new_v.price as number)} (${formatDelta(change.delta_pct)})`;
+  else if (change.change_type === "discount_start" || change.change_type === "discount_end")
+    detail = `${formatPct(old_v.discounted_pct as number)} → ${formatPct(new_v.discounted_pct as number)} of catalog`;
+
+  return (
+    <div className="rounded-2xl p-4" style={{ background: bg, border: `1px solid ${border}` }}>
+      <div className="flex items-start gap-3">
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+          style={{ background: `${color}1a` }}
+        >
+          <Bell className="w-4 h-4" style={{ color }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color }}>
+                {isCritical ? "Critical change" : "Recent alert"}
+              </span>
+              <span className="text-[10px]" style={{ color: "var(--muted)" }}>
+                {formatRelativeTime(change.detected_at)}
+              </span>
+            </div>
+            <button
+              onClick={onViewAll}
+              className="text-[11px] font-medium hover:underline shrink-0"
+              style={{ color: "var(--accent)" }}
+            >
+              View all →
+            </button>
+          </div>
+          <p className="text-sm font-semibold mt-0.5" style={{ color: "var(--text)" }}>
+            {change.product_title || change.change_type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+          </p>
+          {detail && <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>{detail}</p>}
+          {action && (
+            <p
+              className="text-xs mt-2.5 px-2.5 py-1.5 rounded-lg inline-block"
+              style={{ background: "rgba(168,255,0,.07)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.14)" }}
+            >
+              ▶ {action}
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
 
 // ── Change row ────────────────────────────────────────────────────────────────
 function ChangeRow({ change, hostname }: { change: ChangeEvent; hostname?: string }) {
-  const icon  = changeTypeIcon(change.change_type);
+  const Icon    = changeTypeIcon(change.change_type);
+  const color   = changeTypeColor(change.change_type);
+  const label   = changeTypeLabel(change.change_type);
   const old_v = change.old_value || {};
   const new_v = change.new_value || {};
   let detail  = "";
   if (change.change_type === "price_change" && change.delta_pct != null) {
     detail = `${formatPrice(old_v.price as number)} → ${formatPrice(new_v.price as number)} (${formatDelta(change.delta_pct)})`;
   } else if (change.change_type === "new_product") {
-    detail = new_v.price_min ? `from ${formatPrice(new_v.price_min as number)}` : "";
-  } else if (change.change_type === "discount_start" || change.change_type === "discount_end") {
-    detail = `${formatPct(old_v.discounted_pct as number)} → ${formatPct(new_v.discounted_pct as number)} of catalog`;
+    detail = new_v.price_min ? `from ${formatPrice(new_v.price_min as number)}` : "added to catalog";
+  } else if (change.change_type === "discount_start") {
+    const pct = new_v.discounted_pct as number;
+    detail = pct ? `${formatPct(pct)} of catalog on sale` : "";
+  } else if (change.change_type === "discount_end") {
+    const pct = old_v.discounted_pct as number;
+    detail = pct ? `${formatPct(pct)} back to full price` : "";
+  } else if (change.change_type === "product_removed") {
+    detail = "removed from catalog";
+  } else if (change.change_type === "availability_change") {
+    const inStock = new_v.available as boolean;
+    detail = inStock === false ? "went out of stock" : inStock === true ? "back in stock" : "";
   }
   const borderColor =
-    change.severity === "critical" ? "var(--red)" :
+    change.severity === "critical" ? "#f97316" :
     change.severity === "warning"  ? "var(--amber)" : "transparent";
-  const detailColor = change.delta_pct != null && change.delta_pct < 0 ? "var(--red)" : "var(--emerald)";
 
   const action = getChangeAction(change.change_type, change.delta_pct, change.severity, hostname);
 
@@ -150,13 +254,21 @@ function ChangeRow({ change, hostname }: { change: ChangeEvent; hostname?: strin
       className="flex items-start gap-3 py-3 pl-3 border-b last:border-0"
       style={{ borderColor: "var(--border)", borderLeft: `3px solid ${borderColor}`, marginLeft: "-1px" }}
     >
-      <span className="text-base leading-none mt-0.5 shrink-0">{icon}</span>
+      <div
+        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+        style={{ background: `color-mix(in srgb, ${color} 12%, transparent)` }}
+      >
+        <Icon className="w-3.5 h-3.5" style={{ color }} />
+      </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate" style={{ color: "var(--text)" }}>
-          {change.product_title || change.change_type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
-        </p>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-semibold" style={{ color }}>{label}</span>
+          {change.product_title && (
+            <span className="text-xs truncate" style={{ color: "var(--text-2)" }}>· {change.product_title}</span>
+          )}
+        </div>
         {detail && (
-          <p className="text-xs font-mono mt-0.5" style={{ color: detailColor }}>{detail}</p>
+          <p className="text-[11px] mt-0.5" style={{ color: "var(--muted)" }}>{detail}</p>
         )}
         {action && (change.severity === "critical" || change.severity === "warning") && (
           <p
@@ -262,8 +374,27 @@ function TabBar<T extends string>({
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function CompetitorDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id }   = use(params);
-  const router   = useRouter();
+  const { id }       = use(params);
+  const router       = useRouter();
+  const searchParams = useSearchParams();
+
+  function resolveInitialTab(): Tab {
+    const raw = searchParams.get("tab");
+    const valid: Tab[] = ["overview", "catalog", "pricing", "changes", "intelligence"];
+    return valid.includes(raw as Tab) ? (raw as Tab) : "overview";
+  }
+
+  function resolveInitialCatalogSub(): CatalogSub {
+    const raw = searchParams.get("catalogSub");
+    return raw === "gaps" ? "gaps" : "winning";
+  }
+
+  function resolveInitialIntelSub(): IntelSub {
+    const raw = searchParams.get("intelSub");
+    return (["ai", "brand", "compare"] as IntelSub[]).includes(raw as IntelSub)
+      ? (raw as IntelSub)
+      : "ai";
+  }
 
   const [competitor,     setCompetitor]     = useState<import("@/lib/api").Competitor | null>(null);
   const [snapshot,       setSnapshot]       = useState<Snapshot | null>(null);
@@ -273,9 +404,10 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const aiPollRef    = useRef<ReturnType<typeof setInterval> | null>(null);
   const aiPollCount  = useRef(0);
   const [loading,        setLoading]        = useState(true);
-  const [tab,            setTab]            = useState<Tab>("overview");
-  const [catalogSub,     setCatalogSub]     = useState<CatalogSub>("winning");
-  const [intelSub,       setIntelSub]       = useState<IntelSub>("ai");
+  const [prevMeta,       setPrevMeta]       = useState<SnapshotMeta | null>(null);
+  const [tab,            setTab]            = useState<Tab>(resolveInitialTab);
+  const [catalogSub,     setCatalogSub]     = useState<CatalogSub>(resolveInitialCatalogSub);
+  const [intelSub,       setIntelSub]       = useState<IntelSub>(resolveInitialIntelSub);
   const [rescanning,     setRescanning]     = useState(false);
   const [scanPending,    setScanPending]    = useState(true);
   const [brief,          setBrief]          = useState<BriefData | null | false>(null);
@@ -311,6 +443,14 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
     const interval = setInterval(load, scanPending ? 3000 : 15000);
     return () => clearInterval(interval);
   }, [id, scanPending]);
+
+  // Fetch previous snapshot meta for trend deltas (once per page load)
+  useEffect(() => {
+    if (!snapshot) return;
+    api.snapshots(id, 2)
+      .then((r) => { if (r.data.length >= 2) setPrevMeta(r.data[1]); })
+      .catch(() => {});
+  }, [id, snapshot?.id]);
 
   // Fetch AI summary when landing on the AI insights sub-tab
   useEffect(() => {
@@ -380,10 +520,16 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
     return () => { cancelled = true; };
   }, [id, scanPending, brief, briefDismissed]);
 
+  const isScanning = competitor?.scan_status === "scanning" || competitor?.scan_status === "pending";
+
+  // Clear queued state once the scan actually picks up
+  useEffect(() => {
+    if (isScanning) setRescanning(false);
+  }, [isScanning]);
+
   async function handleRescan() {
     setRescanning(true);
-    await api.rescan(id).catch(() => {});
-    setTimeout(() => setRescanning(false), 3000);
+    await api.rescan(id).catch(() => { setRescanning(false); });
   }
 
   function handleDismissBrief() {
@@ -441,6 +587,21 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const discounts   = (data?.discounts   || {}) as Record<string, unknown>;
   const positioning = (data?.positioning || {}) as Record<string, unknown>;
   const launch      = (data?.launch_timeline || {}) as Record<string, unknown>;
+
+  // KPI trend deltas vs previous scan
+  function kpiDelta(curr: number | null | undefined, prev: number | null | undefined, fmt: (n: number) => string): { label: string; up: boolean | null } | undefined {
+    if (curr == null || prev == null || curr === prev) return undefined;
+    const diff = curr - prev;
+    const sign = diff > 0 ? "▲ +" : "▼ ";
+    return { label: `${sign}${fmt(Math.abs(diff))} vs last scan`, up: diff > 0 ? true : false };
+  }
+  const deltaProd   = kpiDelta(snapshot?.product_count, prevMeta?.product_count, (n) => n.toLocaleString());
+  const deltaPrice  = kpiDelta(snapshot?.median_price,  prevMeta?.median_price,  formatPrice);
+  const deltaPromo  = kpiDelta(snapshot?.promo_rate,    prevMeta?.promo_rate,    formatPct);
+  const deltaNew30d = kpiDelta(snapshot?.new_30d,       prevMeta?.new_30d,       (n) => n.toLocaleString());
+
+  // Top critical/warning change for the alert banner
+  const topAlert = changes.find((c) => c.severity === "critical" || c.severity === "warning");
   const takeaways   = (data?.takeaways   || []) as string[];
   const hostname    = (data?.hostname as string) || competitor?.display_name || competitor?.hostname || id;
 
@@ -534,12 +695,12 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
             </button>
             <button
               onClick={handleRescan}
-              disabled={rescanning}
+              disabled={rescanning || isScanning}
               className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.2)" }}
             >
-              <RefreshCw className={cn("w-3.5 h-3.5", rescanning && "animate-spin")} />
-              Rescan
+              <RefreshCw className={cn("w-3.5 h-3.5", (rescanning || isScanning) && "animate-spin")} />
+              {isScanning ? "Scanning…" : rescanning ? "Queued…" : "Rescan"}
             </button>
             <button
               onClick={handleDelete}
@@ -554,12 +715,48 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
       {/* ── No snapshot yet ───────────────────────────────────────────────── */}
       {!snapshot ? (
-        <div
-          className="rounded-2xl p-8 text-center"
-          style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-        >
-          <p style={{ color: "var(--muted)" }}>Scan in progress — usually takes about 20 seconds.</p>
-        </div>
+        competitor?.scan_status === "error" ? (
+          <div
+            className="rounded-2xl p-8 text-center space-y-3"
+            style={{ background: "var(--bg-card)", border: "1px solid rgba(239,68,68,.25)" }}
+          >
+            <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Scan failed</p>
+            <p className="text-xs max-w-xs mx-auto" style={{ color: "var(--muted)" }}>
+              {competitor.error_message || "We couldn't reach this store. It may be offline or blocking our scanner."}
+            </p>
+            <button
+              onClick={handleRescan}
+              disabled={rescanning || isScanning}
+              className="text-xs font-bold px-4 py-2 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
+              style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.2)" }}
+            >
+              {rescanning ? "Queued…" : "Try again"}
+            </button>
+          </div>
+        ) : (
+          <div
+            className="rounded-2xl p-10 text-center space-y-4"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+          >
+            <div className="flex items-center justify-center gap-2 mx-auto">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="w-2 h-2 rounded-full animate-bounce"
+                  style={{ background: "var(--accent)", animationDelay: `${i * 0.15}s` }}
+                />
+              ))}
+            </div>
+            <div>
+              <p className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>
+                Scanning {hostname}…
+              </p>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>
+                We&apos;re pulling their full catalog. Usually takes 20–60 seconds.
+              </p>
+            </div>
+          </div>
+        )
 
       ) : brief && !briefDismissed ? (
         /* Intelligence brief banner */
@@ -584,12 +781,23 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
             ══════════════════════════════════════════════════════════════ */}
             {tab === "overview" && (
               <div className="space-y-6 fade-up">
-                {/* Expandable KPI cards */}
+
+                {/* Top alert banner — most urgent change first */}
+                {topAlert && (
+                  <TopAlertBanner
+                    change={topAlert}
+                    hostname={hostname}
+                    onViewAll={() => setTab("changes")}
+                  />
+                )}
+
+                {/* KPI cards with trend deltas */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <KpiCard
                     label="Products"
                     value={(catalog.total_products as number)?.toLocaleString() ?? "—"}
                     accent="var(--blue)"
+                    delta={deltaProd}
                     insight={`This store has ${(catalog.total_products as number)?.toLocaleString() ?? "an unknown number of"} active products. Compare this to your own catalog size to gauge competitive breadth.`}
                     actionLabel="Alert me when count changes"
                     onAction={() => isFree ? setUpgradeOpen(true) : router.push("/settings#notifications")}
@@ -599,6 +807,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     label="Median Price"
                     value={formatPrice(pricing.median as number)}
                     accent="var(--accent)"
+                    delta={deltaPrice}
                     insight={`Their median price is ${formatPrice(pricing.median as number)}, ranging from ${formatPrice(pricing.min as number)} to ${formatPrice(pricing.max as number)}. This positions them in the ${(positioning.market_position as Record<string, unknown>)?.label ?? "mid-market"} segment.`}
                     actionLabel="See 90-day price history"
                     onAction={() => { if (isFree) setUpgradeOpen(true); else setTab("pricing"); }}
@@ -608,6 +817,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     label="Promo Rate"
                     value={formatPct(discounts.discounted_pct as number)}
                     accent="var(--amber)"
+                    delta={deltaPromo}
                     insight={`${formatPct(discounts.discounted_pct as number)} of their catalog is currently discounted — average discount depth is ${formatPct(discounts.avg_discount_pct as number)}. A high promo rate can signal pricing pressure or clearance cycles.`}
                     actionLabel="Alert me on flash sales"
                     onAction={() => isFree ? setUpgradeOpen(true) : router.push("/settings#notifications")}
@@ -617,6 +827,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     label="New (30d)"
                     value={((launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? "—").toString()}
                     accent="var(--emerald)"
+                    delta={deltaNew30d}
                     insight={`They launched ${((launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? 0)} products in the last 30 days. A high velocity often signals an aggressive growth phase or seasonal push.`}
                     actionLabel="Alert me when they launch"
                     onAction={() => isFree ? setUpgradeOpen(true) : router.push("/settings#notifications")}
@@ -624,23 +835,45 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   />
                 </div>
 
+                {/* Recent changes — moved up, most time-sensitive after KPIs */}
+                {changes.length > 0 && (
+                  <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+                    <div
+                      className="flex items-center justify-between px-5 py-3.5"
+                      style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
+                    >
+                      <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Recent changes</h3>
+                      <button
+                        onClick={() => setTab("changes")}
+                        className="text-xs font-medium hover:underline"
+                        style={{ color: "var(--accent)" }}
+                      >
+                        View all {changes.length} →
+                      </button>
+                    </div>
+                    <div className="px-5" style={{ background: "var(--bg-card)" }}>
+                      {changes.slice(0, 4).map((c) => <ChangeRow key={c.id} change={c} hostname={hostname} />)}
+                    </div>
+                  </div>
+                )}
+
                 {/* Quick wins */}
                 <QuickWins competitorId={id} />
 
-                {/* Positioning signals */}
+                {/* Competitive positioning bars */}
                 {[positioning.market_position, positioning.promo_intensity, positioning.launch_velocity, positioning.catalog_complexity].some(Boolean) && (
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--muted)" }}>
-                      Competitive signals
+                      Competitive positioning
                     </p>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       {[
                         { label: "Market Position",    pos: positioning.market_position    as Record<string, unknown> },
                         { label: "Promo Intensity",    pos: positioning.promo_intensity    as Record<string, unknown> },
                         { label: "Launch Velocity",    pos: positioning.launch_velocity    as Record<string, unknown> },
                         { label: "Catalog Complexity", pos: positioning.catalog_complexity as Record<string, unknown> },
                       ].map(({ label, pos }) => pos ? (
-                        <SignalBadge
+                        <PositioningBar
                           key={label}
                           label={label}
                           score={(pos.score as number) ?? 50}
@@ -669,31 +902,6 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                         </li>
                       ))}
                     </ul>
-                  </div>
-                )}
-
-                {/* Recent changes preview */}
-                {changes.length > 0 && (
-                  <div
-                    className="rounded-2xl overflow-hidden"
-                    style={{ border: "1px solid var(--border)" }}
-                  >
-                    <div
-                      className="flex items-center justify-between px-5 py-3.5"
-                      style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
-                    >
-                      <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Recent changes</h3>
-                      <button
-                        onClick={() => setTab("changes")}
-                        className="text-xs font-medium hover:underline"
-                        style={{ color: "var(--accent)" }}
-                      >
-                        View all {changes.length} →
-                      </button>
-                    </div>
-                    <div className="px-5" style={{ background: "var(--bg-card)" }}>
-                      {changes.slice(0, 4).map((c) => <ChangeRow key={c.id} change={c} hostname={hostname} />)}
-                    </div>
                   </div>
                 )}
               </div>
@@ -1046,62 +1254,133 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                       ) : (() => {
                         if (!aiSummary) return null;
                         const parsed = parseSummaryText(aiSummary.summary_text);
-                        const CARD_CONFIG: Record<string, { color: string; bg: string; border: string; label: string }> = {
-                          signal:      { color: "#a8ff00", bg: "rgba(168,255,0,.07)",  border: "rgba(168,255,0,.18)",  label: "Most notable signal" },
-                          opportunity: { color: "#60a5fa", bg: "rgba(96,165,250,.07)", border: "rgba(96,165,250,.18)", label: "Your opening" },
-                          watch:       { color: "#f59e0b", bg: "rgba(245,158,11,.07)", border: "rgba(245,158,11,.18)", label: "Watch this" },
-                          action:      { color: "#4ade80", bg: "rgba(74,222,128,.07)", border: "rgba(74,222,128,.18)", label: "Your move" },
-                        };
+                        const INSIGHT_CONFIG = {
+                          signal:      { color: "#a8ff00", bg: "rgba(168,255,0,.05)",  border: "rgba(168,255,0,.15)",  label: "Notable signal",  Icon: Target },
+                          opportunity: { color: "#60a5fa", bg: "rgba(96,165,250,.05)", border: "rgba(96,165,250,.15)", label: "Your opening",   Icon: TrendingUp },
+                          watch:       { color: "#f59e0b", bg: "rgba(245,158,11,.05)", border: "rgba(245,158,11,.15)", label: "Watch closely",  Icon: Eye },
+                          action:      { color: "#4ade80", bg: "rgba(74,222,128,.05)", border: "rgba(74,222,128,.15)", label: "Your move",      Icon: Zap },
+                        } as const;
+                        type InsightKey = keyof typeof INSIGHT_CONFIG;
                         return (
                           <div className="space-y-5">
-                            <div className="flex items-center gap-2">
-                              <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
-                              <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>AI Strategic Summary</h3>
-                              <p className="text-xs" style={{ color: "var(--muted)" }}>{formatRelativeTime(aiSummary.generated_at)}</p>
+
+                            {/* AI analyst header */}
+                            <div className="flex items-center gap-3 pb-4" style={{ borderBottom: "1px solid var(--border)" }}>
+                              <div
+                                className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                                style={{
+                                  background: "linear-gradient(135deg, rgba(168,255,0,.25), rgba(96,165,250,.1))",
+                                  border: "1px solid rgba(168,255,0,.25)",
+                                }}
+                              >
+                                <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>Claude</span>
+                                  <span
+                                    className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                                    style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)" }}
+                                  >
+                                    AI Analyst
+                                  </span>
+                                  <span className="text-xs" style={{ color: "var(--muted)" }}>
+                                    {formatRelativeTime(aiSummary.generated_at)}
+                                  </span>
+                                </div>
+                                <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                                  Strategic analysis of {hostname}
+                                </p>
+                              </div>
                               <button
                                 onClick={handleRegenerate}
-                                className="ml-auto flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg transition-all hover:bg-white/5"
+                                className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-all hover:bg-white/5 shrink-0"
                                 style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
-                                title="Regenerate analysis"
                               >
                                 <RefreshCw className="w-3 h-3" />
                                 Refresh
                               </button>
                             </div>
+
+                            {/* Insights */}
                             {parsed.type === "cards" ? (
-                              <div className="space-y-4">
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                  {parsed.cards.filter((c) => c.type !== "action").map((card, i) => {
-                                    const cfg = CARD_CONFIG[card.type] ?? CARD_CONFIG.signal;
-                                    return (
-                                      <div key={i} className="rounded-xl p-5" style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
-                                        <span className="text-[10px] font-bold uppercase tracking-wider block mb-3" style={{ color: cfg.color }}>{cfg.label}</span>
-                                        <h4 className="font-bold text-sm mb-2 leading-snug" style={{ color: "var(--text)" }}>{card.headline}</h4>
-                                        <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{card.body}</p>
+                              <div className="space-y-3">
+                                {parsed.cards.filter((c) => c.type !== "action").map((card, i) => {
+                                  const cfg = INSIGHT_CONFIG[(card.type as InsightKey)] ?? INSIGHT_CONFIG.signal;
+                                  const { Icon } = cfg;
+                                  return (
+                                    <div
+                                      key={i}
+                                      className="rounded-xl p-4"
+                                      style={{
+                                        background: cfg.bg,
+                                        border: `1px solid ${cfg.border}`,
+                                        borderLeft: `3px solid ${cfg.color}`,
+                                      }}
+                                    >
+                                      <div className="flex items-center gap-2 mb-2.5">
+                                        <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: cfg.color }} />
+                                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: cfg.color }}>
+                                          {cfg.label}
+                                        </span>
                                       </div>
-                                    );
-                                  })}
-                                </div>
+                                      <h4 className="font-semibold text-sm leading-snug mb-1.5" style={{ color: "var(--text)" }}>
+                                        {card.headline}
+                                      </h4>
+                                      <p className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
+                                        {card.body}
+                                      </p>
+                                    </div>
+                                  );
+                                })}
+
+                                {/* Action card — bottom, elevated */}
                                 {parsed.cards.find((c) => c.type === "action") && (() => {
                                   const ac = parsed.cards.find((c) => c.type === "action")!;
-                                  const cfg = CARD_CONFIG.action;
                                   return (
-                                    <div className="rounded-xl p-5" style={{ background: cfg.bg, border: `2px solid ${cfg.border}` }}>
-                                      <span className="text-[10px] font-bold uppercase tracking-wider block mb-2" style={{ color: cfg.color }}>▶ {cfg.label}</span>
-                                      <h4 className="font-bold text-sm mb-2 leading-snug" style={{ color: "var(--text)" }}>{ac.headline}</h4>
-                                      <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{ac.body}</p>
+                                    <div
+                                      className="rounded-xl p-5 mt-1"
+                                      style={{
+                                        background: "rgba(74,222,128,.06)",
+                                        border: "1px solid rgba(74,222,128,.22)",
+                                        boxShadow: "0 0 24px rgba(74,222,128,.06)",
+                                      }}
+                                    >
+                                      <div className="flex items-start gap-3">
+                                        <div
+                                          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                                          style={{ background: "rgba(74,222,128,.15)" }}
+                                        >
+                                          <Zap className="w-4 h-4" style={{ color: "#4ade80" }} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#4ade80" }}>
+                                            ▶ Your move
+                                          </span>
+                                          <h4 className="font-semibold text-sm mt-1 mb-1.5 leading-snug" style={{ color: "var(--text)" }}>
+                                            {ac.headline}
+                                          </h4>
+                                          <p className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
+                                            {ac.body}
+                                          </p>
+                                        </div>
+                                      </div>
                                     </div>
                                   );
                                 })()}
                               </div>
                             ) : (
-                              <div className="rounded-2xl p-5 space-y-4" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+                              <div className="space-y-3">
                                 {parsed.text.split(/\n\n+/).filter(Boolean).map((para, i) => (
                                   <p key={i} className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>{para}</p>
                                 ))}
                               </div>
                             )}
-                            <p className="text-xs" style={{ color: "var(--muted)" }}>{aiSummary.model}</p>
+
+                            {/* Footer */}
+                            <p className="text-[11px]" style={{ color: "var(--muted)", opacity: 0.5 }}>
+                              {aiSummary.model} · Updates weekly
+                            </p>
                           </div>
                         );
                       })()}

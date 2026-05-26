@@ -58,6 +58,13 @@ const BRIEF_CARD_STYLES = {
     label: "Watch",
     Icon: Eye,
   },
+  action: {
+    color: "#4ade80",
+    bg: "rgba(74,222,128,.06)",
+    border: "rgba(74,222,128,.18)",
+    label: "Your move",
+    Icon: Zap,
+  },
 } as const;
 
 function AiBriefSection({ brief }: { brief: NonNullable<PublicReport["ai_brief"]> }) {

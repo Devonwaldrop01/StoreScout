@@ -511,6 +511,15 @@ export default function PlaybookPage() {
                   {activePlays.length} open
                 </span>
               )}
+              {data.ai_source && (
+                <span
+                  className="text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"
+                  style={{ background: "rgba(96,165,250,0.12)", color: "#60a5fa" }}
+                >
+                  <Zap className="w-3 h-3" />
+                  AI-powered
+                </span>
+              )}
             </div>
             <p className="text-sm" style={{ color: "var(--muted)" }}>
               What to do right now, based on what your competitors are doing —{" "}
@@ -529,6 +538,24 @@ export default function PlaybookPage() {
             Refresh
           </button>
         </div>
+
+        {/* ── AI generating banner ────────────────────────────────────────── */}
+        {data.ai_generating && !data.ai_source && (
+          <div
+            className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-xs"
+            style={{
+              background: "rgba(96,165,250,0.06)",
+              border: "1px solid rgba(96,165,250,0.18)",
+              color: "#60a5fa",
+            }}
+          >
+            <RefreshCw className="w-3.5 h-3.5 animate-spin shrink-0" />
+            <span>
+              <span className="font-bold">AI analysis in progress</span>
+              <span style={{ color: "var(--muted)" }}> — Claude is reviewing your competitors. Refresh in ~30 seconds for AI-powered plays.</span>
+            </span>
+          </div>
+        )}
 
         {/* ── Tabs ───────────────────────────────────────────────────────── */}
         <div

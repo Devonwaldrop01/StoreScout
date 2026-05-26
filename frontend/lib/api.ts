@@ -126,6 +126,17 @@ export const alerts = {
     apiFetch<{ status: string; marked: number }>("/alerts/mark-all-read", { method: "POST" }),
 };
 
+// ── Feedback ──────────────────────────────────────────────────
+export const feedback = {
+  submit: (data: { rating: number; message: string; allow_testimonial: boolean; page?: string }) =>
+    apiFetch<{ ok: boolean }>("/feedback", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  publicTestimonials: () =>
+    apiFetch<{ data: Array<{ id: string; rating: number; message: string; created_at: string; initials: string }> }>("/feedback/public"),
+};
+
 // ── Billing ───────────────────────────────────────────────────
 export const billing = {
   checkout: (plan: string, billingPeriod: "monthly" | "annual" = "monthly") =>
@@ -410,8 +421,8 @@ export interface PlaybookPlay {
   headline: string;
   action: string;
   deadline: string;
-  type: "availability" | "pricing" | "catalog" | "positioning" | "change" | "product";
-  source: "snapshot" | "change_event";
+  type: "availability" | "pricing" | "catalog" | "positioning" | "change" | "product" | "discounts" | "alert";
+  source: "snapshot" | "change_event" | "ai";
   tab?: string;
   detail?: PlaybookDetail;
 }
@@ -421,6 +432,8 @@ export interface PlaybookResponse {
   competitor_count: number;
   locked: boolean;
   locked_count?: number;
+  ai_source?: boolean;
+  ai_generating?: boolean;
 }
 
 export interface ActionItem {
@@ -491,7 +504,7 @@ export interface PublicReport {
   };
   takeaways: string[];
   ai_brief?: {
-    cards?: { type: "signal" | "opportunity" | "watch"; headline: string; body: string }[];
+    cards?: { type: "signal" | "opportunity" | "watch" | "action"; headline: string; body: string }[];
   } | null;
 }
 

@@ -135,89 +135,100 @@ function CollectionTag({ name }: { name: string }) {
 }
 
 function ProView({ data }: { data: StoreProfileResponse }) {
-  const col = data.collection_intel!;
-  const brand = data.brand_signals!;
-  const content = data.content_intel!;
+  const col = data.collection_intel;
+  const brand = data.brand_signals;
+  const content = data.content_intel;
 
   return (
     <div className="space-y-5">
       {/* Collections */}
-      <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4" style={{ color: "#a3f000" }} />
-            <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Collections ({col.count})</h4>
+      {col && (
+        <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4" style={{ color: "#a3f000" }} />
+              <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Collections ({col.count})</h4>
+            </div>
           </div>
-        </div>
 
-        {/* Key merchandising signals */}
-        <div className="grid grid-cols-2 gap-x-8 mb-4">
-          <div>
-            <Signal active={col.has_sale} label="Sale collection" />
-            <Signal active={col.has_new_arrivals} label="New arrivals" />
-            <Signal active={col.has_best_sellers} label="Best sellers" />
+          <div className="grid grid-cols-2 gap-x-8 mb-4">
+            <div>
+              <Signal active={col.has_sale} label="Sale collection" />
+              <Signal active={col.has_new_arrivals} label="New arrivals" />
+              <Signal active={col.has_best_sellers} label="Best sellers" />
+            </div>
+            <div>
+              <Signal active={col.has_bundles} label="Bundles / kits" />
+              <Signal active={col.has_subscription} label="Subscription" />
+              <Signal active={col.has_gift} label="Gift shop" />
+            </div>
           </div>
-          <div>
-            <Signal active={col.has_bundles} label="Bundles / kits" />
-            <Signal active={col.has_subscription} label="Subscription" />
-            <Signal active={col.has_gift} label="Gift shop" />
-          </div>
-        </div>
 
-        {/* Collection name tags */}
-        {col.names.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-3 border-t" style={{ borderColor: "var(--border)" }}>
-            {col.names.map((name) => <CollectionTag key={name} name={name} />)}
-          </div>
-        )}
-      </div>
+          {col.names.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-3 border-t" style={{ borderColor: "var(--border)" }}>
+              {col.names.map((name) => <CollectionTag key={name} name={name} />)}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Brand signals */}
-      <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <div className="flex items-center gap-2 mb-3">
-          <ChevronRight className="w-4 h-4" style={{ color: "#60a5fa" }} />
-          <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Brand signals ({brand.page_count} pages)</h4>
-        </div>
-        <div className="grid grid-cols-2 gap-x-8">
-          <div>
-            <Signal active={brand.has_wholesale} label="Wholesale / B2B" />
-            <Signal active={brand.has_affiliate} label="Affiliate / ambassador" />
-            <Signal active={brand.has_press} label="Press / media page" />
+      {brand && (
+        <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <div className="flex items-center gap-2 mb-3">
+            <ChevronRight className="w-4 h-4" style={{ color: "#60a5fa" }} />
+            <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Brand signals ({brand.page_count} pages)</h4>
           </div>
-          <div>
-            <Signal active={brand.has_sustainability} label="Sustainability page" />
-            <Signal active={brand.has_size_guide} label="Size guide" />
-            <Signal active={brand.has_rewards} label="Rewards / loyalty" />
+          <div className="grid grid-cols-2 gap-x-8">
+            <div>
+              <Signal active={brand.has_wholesale} label="Wholesale / B2B" />
+              <Signal active={brand.has_affiliate} label="Affiliate / ambassador" />
+              <Signal active={brand.has_press} label="Press / media page" />
+            </div>
+            <div>
+              <Signal active={brand.has_sustainability} label="Sustainability page" />
+              <Signal active={brand.has_size_guide} label="Size guide" />
+              <Signal active={brand.has_rewards} label="Rewards / loyalty" />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Content intelligence */}
-      <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <div className="flex items-center gap-2 mb-4">
-          <BookOpen className="w-4 h-4" style={{ color: "#c084fc" }} />
-          <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Content intelligence</h4>
+      {content && (
+        <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <div className="flex items-center gap-2 mb-4">
+            <BookOpen className="w-4 h-4" style={{ color: "#c084fc" }} />
+            <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Content intelligence</h4>
+          </div>
+          <ScoreBar score={content.content_investment_score} />
+          <div className="mt-4 grid grid-cols-2 gap-4 text-center">
+            <div>
+              <p className="text-xl font-bold font-mono" style={{ color: "var(--text)" }}>{content.blog_count}</p>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>blog{content.blog_count !== 1 ? "s" : ""}</p>
+            </div>
+            <div>
+              <p className="text-xl font-bold font-mono" style={{ color: "var(--text)" }}>{content.sampled_article_count}</p>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>recent articles</p>
+            </div>
+          </div>
+          {content.recent_article_titles.length > 0 && (
+            <div className="mt-4 pt-3 border-t space-y-1.5" style={{ borderColor: "var(--border)" }}>
+              <p className="text-xs font-medium mb-2" style={{ color: "var(--muted)" }}>Recent articles</p>
+              {content.recent_article_titles.map((title, i) => (
+                <p key={i} className="text-sm" style={{ color: "var(--text)" }}>· {title}</p>
+              ))}
+            </div>
+          )}
         </div>
-        <ScoreBar score={content.content_investment_score} />
-        <div className="mt-4 grid grid-cols-2 gap-4 text-center">
-          <div>
-            <p className="text-xl font-bold font-mono" style={{ color: "var(--text)" }}>{content.blog_count}</p>
-            <p className="text-xs" style={{ color: "var(--muted)" }}>blog{content.blog_count !== 1 ? "s" : ""}</p>
-          </div>
-          <div>
-            <p className="text-xl font-bold font-mono" style={{ color: "var(--text)" }}>{content.sampled_article_count}</p>
-            <p className="text-xs" style={{ color: "var(--muted)" }}>recent articles</p>
-          </div>
+      )}
+
+      {/* Fallback if all Pro fields are unexpectedly missing */}
+      {!col && !brand && !content && (
+        <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <p style={{ color: "var(--muted)" }}>Brand profile data will appear after the next full rescan.</p>
         </div>
-        {content.recent_article_titles.length > 0 && (
-          <div className="mt-4 pt-3 border-t space-y-1.5" style={{ borderColor: "var(--border)" }}>
-            <p className="text-xs font-medium mb-2" style={{ color: "var(--muted)" }}>Recent articles</p>
-            {content.recent_article_titles.map((title, i) => (
-              <p key={i} className="text-sm" style={{ color: "var(--text)" }}>· {title}</p>
-            ))}
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }

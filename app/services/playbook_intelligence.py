@@ -167,8 +167,10 @@ def snapshot_intelligence(competitors_data: list[dict]) -> list[dict]:
             action=(
                 f"{names_str} are all running sales simultaneously. "
                 f"When the whole market discounts, full-price is the differentiator. "
-                f"Open Meta Ads Manager, duplicate your best ad set, narrow the audience to followers "
-                f"of any of these brands, and change the headline to '[Their brand] is on sale. We never are.' "
+                f"{names_str} are all running sales simultaneously. "
+                f"When the whole market discounts, full-price positioning is the differentiator. "
+                f"Open Meta Ads Manager, duplicate your best ad set, add their brand names as Interests "
+                f"in the audience, and test 'Still full price. Still worth it.' as a headline copy angle. "
                 f"Run $10/day for 5 days and compare CTR to your control."
             ),
             deadline="this week",
@@ -178,15 +180,15 @@ def snapshot_intelligence(competitors_data: list[dict]) -> list[dict]:
             detail={
                 "competitors": comp_rows,
                 "steps": [
-                    "Open Meta Ads Manager → go to Ad Sets",
-                    f"Find your best-performing ad set (highest CTR or lowest CPA in the last 30 days)",
-                    "Click Duplicate on that ad set",
-                    f"In the new ad set, open Audience → add Interests or Pages for: {brand_list}",
-                    "Go to the Ad level → edit the headline",
-                    "Try: '[Brand] is on sale. We never are.' or 'Still full price. Still worth it.'",
+                    "Open Meta Ads Manager → Campaigns → find your best-performing campaign (sort by CPA or CTR)",
+                    "Go to the Ad Set level and click Duplicate",
+                    f"In the new ad set, open Detailed Targeting → search each of these brand names: {brand_list}",
+                    "If their brand appears as an Interest, add it. If not, add their product categories as interests instead (e.g. 'activewear', 'yoga pants' — whatever category they're in)",
+                    "Go to the Ad level → duplicate your best creative → edit the headline",
+                    "Test headline copy: 'Still full price. Still worth it.' or 'No sale. No games. Just [your product].'",
                     "Set daily budget: $10/day",
-                    "Run for 5 days, then compare CTR to your original ad set",
-                    "If CTR is >15% higher — you have a repeatable campaign to run every time they discount",
+                    "Run for 5 days, then compare CTR % to your original ad set",
+                    "If CTR is >15% higher — save this ad set. Reactivate it every time these brands run a sale",
                 ],
                 "why": (
                     f"When {len(heavy_discounters)} competitors discount simultaneously, their shared audience "
@@ -259,14 +261,14 @@ def snapshot_intelligence(competitors_data: list[dict]) -> list[dict]:
             detail={
                 "competitors": all_slow,
                 "steps": [
-                    f"Go to Google.com/shopping (or google.com → Shopping tab)",
-                    f"Search: '[main product category they sell]' — use their core product type, not their brand name",
+                    "Go to google.com → Shopping tab (or google.com/shopping)",
+                    f"Search {s['hostname']}'s core product type — use a category term, not their brand name (e.g. 'resistance bands' not 'brand X bands')",
                     "Click Tools → Any time → Past 90 days",
-                    f"Count how many results are from {s['hostname']} vs other brands",
-                    "If their listings are thin or dated: you have an opening",
-                    "Draft a new listing in your store for your most relevant product — focus on title (include the search term) and first image",
-                    "Submit your product feed to Google Merchant Center if not already",
-                    "New listings with original content typically appear in Shopping results in 2–4 weeks",
+                    f"Count how many Shopping results are from {s['hostname']} vs other brands",
+                    "If their listings are thin, dated, or absent: you have a recency opening",
+                    "Open your Shopify admin → Products → pick your most relevant product for this category",
+                    "Rewrite the SEO title to lead with the category term you searched (Shopify admin → Edit website SEO)",
+                    "Submit your updated product feed to Google Merchant Center — new listings with original content typically appear in Shopping results in 2–4 weeks",
                 ],
                 "why": (
                     f"New product launches from competitors create Google Shopping ranking pressure. "
@@ -291,9 +293,9 @@ def snapshot_intelligence(competitors_data: list[dict]) -> list[dict]:
             hostname=f["hostname"],
             headline=f"{f['hostname']} launched {f.get('launch_count', 'many')} products this month{others_note}",
             action=(
-                f"Go to {f['hostname']}/collections/new right now. "
-                f"Find any products that are: full price, have 8+ variants, and are outside their usual range. "
-                f"Those are their conviction bets. Research those categories for sourcing "
+                f"Go to {f['hostname']} and filter or sort by newest products right now. "
+                f"Find any that are: full price, have 8+ variants, and outside their usual range — "
+                f"those are their conviction bets. Research those categories for sourcing "
                 f"before they build organic momentum over the next 4–6 weeks."
             ),
             deadline="right now",
@@ -303,7 +305,7 @@ def snapshot_intelligence(competitors_data: list[dict]) -> list[dict]:
             detail={
                 "competitors": all_fast,
                 "steps": [
-                    f"Go to {f['hostname']}/collections/new (if that 404s, try /collections/all?sort_by=created-descending)",
+                    f"Go to {f['hostname']} → find their 'New Arrivals' or 'New In' nav link, or add ?sort_by=created-descending to their main collection URL",
                     "Look at the last 10 products added",
                     "For each product, check: (1) Is it full price, not discounted? (2) How many variants? (3) Is it in their usual category or something new?",
                     "Make a note of any that are: full price + 8+ variants + different from their usual range",
@@ -472,9 +474,9 @@ def change_event_play(change: dict, hostname: str, comp_id: str) -> Optional[dic
                     "Note the old vs new price — that delta is your headline",
                     "Open Google Ads → find or create a Search campaign",
                     f"Add keyword: '{hostname.split('.')[0]} {title or 'product'}' (exact match)",
-                    "Ad headline: '[Their product] just went up. Ours is still $[your price].'",
+                    "Ad headline: '[Their product name] just went up in price. Ours hasn't.' — use your actual price in the ad body",
                     "Budget: $15–20/day for 7 days",
-                    "Also try Meta: duplicate your best ad set → narrow audience to their brand followers",
+                    f"Also try Meta: duplicate your best ad set → in Detailed Targeting, search '{hostname.split('.')[0]}' — if it appears as an Interest, add it; otherwise add their product category as an interest",
                     "Measure clicks and conversions for 7 days before deciding to scale",
                 ],
                 "why": f"Price increases create a 1–2 week window where their loyal customers reconsider. People who were loyal because of value are suddenly in the market.",
@@ -656,21 +658,23 @@ def change_event_play(change: dict, hostname: str, comp_id: str) -> Optional[dic
             id=f"change-oos-{change['id']}", section="act_now", priority=75,
             headline=f"{hostname} has products going out of stock",
             action=(
-                f"Open Meta Ads Manager and create an audience of {hostname} followers. "
-                f"Run 'Ready to ship' copy with your product, fully in stock. "
-                f"$15/day until they restock — usually 1–2 weeks. OOS windows are the fastest-converting moments."
+                f"{hostname} has products going out of stock — their shoppers are actively looking for alternatives right now. "
+                f"Open Meta Ads Manager, add their brand or product category as a targeting Interest, "
+                f"and run 'In stock, ships today' copy at $15/day until they restock (usually 1–3 weeks). "
+                f"OOS windows are the fastest-converting moments for competitors."
             ),
             deadline="right now", play_type="availability", **base,
             detail={
                 "steps": [
-                    "Open Meta Ads Manager → Audiences",
-                    f"Create a new Saved Audience: Interests → search '{hostname.split('.')[0]}' and select their brand page",
-                    "Create a new campaign with this audience",
-                    "Creative: your product photo, in stock, with copy 'Ready to ship — no waitlist'",
-                    "Headline: 'In stock now' or 'Ships today' (contrast with their OOS state)",
+                    "Open Meta Ads Manager → go to your Campaigns tab",
+                    "Create a new campaign (Awareness or Traffic objective to start, or Sales if you have pixel data)",
+                    f"At the Ad Set level → Detailed Targeting → search '{hostname.split('.')[0]}' — if it shows as a Facebook Interest, select it. If not, search their main product category (e.g. 'resistance bands', 'yoga wear') and target that instead",
+                    "Creative: use your best product photo, clearly in-stock, no discount needed",
+                    "Copy: 'In stock now. Ships [your lead time].' — contrast is the hook, not a discount",
+                    "Headline: 'In stock now' or 'Ships today' or 'No waitlist here'",
                     "Budget: $15/day",
-                    "Run until you see their products restock (check their site every few days)",
-                    "OOS windows typically last 1–3 weeks for established brands",
+                    "Run until you see their OOS products restock — check their site every 3–4 days",
+                    "OOS windows typically last 1–3 weeks — stop the campaign when they're back",
                 ],
                 "why": f"{hostname} shoppers who hit an out-of-stock page are immediately in the market for alternatives. They've already decided to buy — they just need a place to buy from.",
                 "outcome": "OOS retargeting campaigns typically see 2–4x higher CTR than standard prospecting because the audience is already purchase-ready.",

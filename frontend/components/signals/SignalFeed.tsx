@@ -7,7 +7,7 @@ import { type SignalGroup, SIGNAL_CONFIG } from "@/lib/signals";
 import { formatDelta } from "@/lib/utils";
 import { type AlertEvent } from "@/lib/api";
 import { SignalCard } from "./SignalCard";
-import { formatRelativeTime, formatPrice, changeTypeIcon } from "@/lib/utils";
+import { formatRelativeTime, formatPrice, formatPct, changeTypeIcon, changeTypeColor, changeTypeLabel } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 // ── Tactical group row ────────────────────────────────────────────────────
@@ -78,20 +78,33 @@ function TacticalGroup({ group }: { group: SignalGroup }) {
 // ── Raw event row ─────────────────────────────────────────────────────────
 
 function RawEventRow({ event, indent = false }: { event: AlertEvent; indent?: boolean }) {
-  const icon = changeTypeIcon(event.change_type);
+  const Icon   = changeTypeIcon(event.change_type);
+  const color  = changeTypeColor(event.change_type);
+  const label  = changeTypeLabel(event.change_type);
   const ov = (event.old_value || {}) as Record<string, unknown>;
   const nv = (event.new_value || {}) as Record<string, unknown>;
 
   let detail = "";
   if (event.change_type === "price_change" && event.delta_pct != null) {
     detail = `${formatPrice(ov.price as number)} → ${formatPrice(nv.price as number)} (${formatDelta(event.delta_pct)})`;
-  } else if (event.change_type === "new_product" && nv.price_min) {
-    detail = formatPrice(nv.price_min as number);
+  } else if (event.change_type === "new_product") {
+    detail = nv.price_min ? `from ${formatPrice(nv.price_min as number)}` : "added to catalog";
+  } else if (event.change_type === "product_removed") {
+    detail = "removed from catalog";
+  } else if (event.change_type === "discount_start") {
+    const pct = nv.discounted_pct as number;
+    detail = pct ? `${formatPct(pct)} of catalog on sale` : "markdown applied";
+  } else if (event.change_type === "discount_end") {
+    const pct = ov.discounted_pct as number;
+    detail = pct ? `${formatPct(pct)} back to full price` : "sale ended";
+  } else if (event.change_type === "availability_change") {
+    const inStock = nv.available as boolean;
+    detail = inStock === false ? "went out of stock" : inStock === true ? "back in stock" : "stock status changed";
   }
 
-  const severityColor =
-    event.severity === "critical" ? "var(--red)" :
-    event.severity === "warning" ? "var(--amber)" : "transparent";
+  const severityBorder =
+    event.severity === "critical" ? "#f97316" :
+    event.severity === "warning"  ? "var(--amber)" : "transparent";
 
   return (
     <Link
@@ -100,20 +113,30 @@ function RawEventRow({ event, indent = false }: { event: AlertEvent; indent?: bo
         "flex items-start gap-3 py-2.5 border-b last:border-0 transition-colors hover:bg-white/[0.02]",
         indent ? "px-4" : "px-3"
       )}
-      style={{ borderColor: "var(--border)", borderLeft: `2px solid ${severityColor}` }}
+      style={{ borderColor: "var(--border)", borderLeft: `2px solid ${severityBorder}` }}
     >
-      <span className="text-sm leading-none mt-0.5 shrink-0">{icon}</span>
+      <div
+        className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 mt-0.5"
+        style={{ background: `color-mix(in srgb, ${color} 12%, transparent)` }}
+      >
+        <Icon className="w-3 h-3" style={{ color }} />
+      </div>
       <div className="flex-1 min-w-0">
         {!indent && (
           <p className="text-[11px] font-semibold mb-0.5" style={{ color: "var(--muted)" }}>
             {event.hostname}
           </p>
         )}
-        <p className="text-xs truncate" style={{ color: "var(--text-2)" }}>
-          {event.product_title || event.change_type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
-        </p>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-semibold" style={{ color }}>{label}</span>
+          {event.product_title && (
+            <span className="text-xs truncate" style={{ color: "var(--text-2)" }}>
+              · {event.product_title}
+            </span>
+          )}
+        </div>
         {detail && (
-          <p className="text-[11px] font-mono mt-0.5" style={{ color: "var(--blue)" }}>{detail}</p>
+          <p className="text-[11px] mt-0.5" style={{ color: "var(--muted)" }}>{detail}</p>
         )}
       </div>
       <span className="text-[11px] shrink-0" style={{ color: "var(--muted)" }}>

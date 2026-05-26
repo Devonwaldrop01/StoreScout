@@ -1,5 +1,7 @@
+import type { ElementType } from "react";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { TrendingDown, Plus, Trash2, Tag, CheckCircle2, Package, HelpCircle } from "lucide-react";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -72,13 +74,38 @@ export function getChangeAction(
   return null;
 }
 
-export function changeTypeIcon(type: string): string {
-  return {
-    price_change: "📉",
-    new_product: "🆕",
-    product_removed: "🗑️",
-    discount_start: "🏷️",
-    discount_end: "✅",
-    availability_change: "📦",
-  }[type] || "•";
+export function changeTypeIcon(type: string): ElementType {
+  return ({
+    price_change:        TrendingDown,
+    new_product:         Plus,
+    product_removed:     Trash2,
+    discount_start:      Tag,
+    discount_end:        CheckCircle2,
+    availability_change: Package,
+  } as Record<string, ElementType>)[type] ?? HelpCircle;
+}
+
+export function changeTypeColor(type: string): string {
+  return ({
+    price_change:        "var(--red)",
+    new_product:         "var(--emerald)",
+    product_removed:     "var(--muted)",
+    discount_start:      "var(--amber)",
+    discount_end:        "var(--blue)",
+    availability_change: "var(--amber)",
+  } as Record<string, string>)[type] ?? "var(--muted)";
+}
+
+export function changeTypeLabel(type: string): string {
+  return ({
+    price_change:        "Price changed",
+    new_product:         "New product",
+    product_removed:     "Delisted",
+    discount_start:      "Sale started",
+    discount_end:        "Sale ended",
+    availability_change: "Stock changed",
+    bulk_price_change:   "Prices repriced",
+    bulk_new_products:   "Products added",
+    bulk_removal:        "Products delisted",
+  } as Record<string, string>)[type] ?? type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
