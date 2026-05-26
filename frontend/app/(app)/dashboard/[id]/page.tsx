@@ -380,6 +380,8 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
     return () => { cancelled = true; };
   }, [id, scanPending, brief, briefDismissed]);
 
+  const isScanning = competitor?.scan_status === "scanning" || competitor?.scan_status === "pending";
+
   async function handleRescan() {
     setRescanning(true);
     await api.rescan(id).catch(() => {});
@@ -534,12 +536,12 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
             </button>
             <button
               onClick={handleRescan}
-              disabled={rescanning}
+              disabled={rescanning || isScanning}
               className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.2)" }}
             >
-              <RefreshCw className={cn("w-3.5 h-3.5", rescanning && "animate-spin")} />
-              Rescan
+              <RefreshCw className={cn("w-3.5 h-3.5", (rescanning || isScanning) && "animate-spin")} />
+              {isScanning ? "Scanning…" : "Rescan"}
             </button>
             <button
               onClick={handleDelete}

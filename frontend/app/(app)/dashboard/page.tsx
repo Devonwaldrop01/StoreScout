@@ -485,8 +485,8 @@ function DiscoverySuggestions({
           {isCurated ? "Popular stores to track" : "Similar to what you're tracking"}
         </p>
         {!isCurated && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(168,255,0,.12)", color: "var(--accent)" }}>
-            AI matched
+          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(168,255,0,.08)", color: "var(--muted)" }}>
+            Based on your catalog
           </span>
         )}
       </div>
