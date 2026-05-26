@@ -141,6 +141,7 @@ export const billing = {
 export const user = {
   subscription: () => apiFetch<{ data: UserSubscription }>("/user/subscription"),
   actionItems: () => apiFetch<{ data: ActionItem[]; locked?: boolean }>("/action-items"),
+  playbook: () => apiFetch<PlaybookResponse>("/playbook"),
   prefs: () => apiFetch<{ data: NotificationPrefs }>("/user/notification-prefs"),
   updatePrefs: (prefs: Partial<NotificationPrefs>) =>
     apiFetch<{ status: string }>("/user/notification-prefs", {
@@ -391,6 +392,27 @@ export interface BriefCard {
   type: "signal" | "opportunity" | "watch" | "action";
   headline: string;
   body: string;
+}
+
+export interface PlaybookPlay {
+  id: string;
+  section: "act_now" | "right_now" | "this_week" | "watch";
+  priority: number;
+  competitor_id: string;
+  hostname: string;
+  headline: string;
+  action: string;
+  deadline: string;
+  type: "availability" | "pricing" | "catalog" | "positioning" | "change" | "product";
+  source: "snapshot" | "change_event";
+  tab?: string;
+}
+
+export interface PlaybookResponse {
+  plays: PlaybookPlay[];
+  competitor_count: number;
+  locked: boolean;
+  locked_count?: number;
 }
 
 export interface ActionItem {
