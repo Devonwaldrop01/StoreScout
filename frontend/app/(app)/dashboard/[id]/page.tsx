@@ -556,12 +556,48 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
       {/* ── No snapshot yet ───────────────────────────────────────────────── */}
       {!snapshot ? (
-        <div
-          className="rounded-2xl p-8 text-center"
-          style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-        >
-          <p style={{ color: "var(--muted)" }}>Scan in progress — usually takes about 20 seconds.</p>
-        </div>
+        competitor?.scan_status === "error" ? (
+          <div
+            className="rounded-2xl p-8 text-center space-y-3"
+            style={{ background: "var(--bg-card)", border: "1px solid rgba(239,68,68,.25)" }}
+          >
+            <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Scan failed</p>
+            <p className="text-xs max-w-xs mx-auto" style={{ color: "var(--muted)" }}>
+              {competitor.error_message || "We couldn't reach this store. It may be offline or blocking our scanner."}
+            </p>
+            <button
+              onClick={handleRescan}
+              disabled={rescanning}
+              className="text-xs font-bold px-4 py-2 rounded-xl transition-all hover:brightness-110"
+              style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.2)" }}
+            >
+              Try again
+            </button>
+          </div>
+        ) : (
+          <div
+            className="rounded-2xl p-10 text-center space-y-4"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+          >
+            <div className="flex items-center justify-center gap-2 mx-auto">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="w-2 h-2 rounded-full animate-bounce"
+                  style={{ background: "var(--accent)", animationDelay: `${i * 0.15}s` }}
+                />
+              ))}
+            </div>
+            <div>
+              <p className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>
+                Scanning {hostname}…
+              </p>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>
+                We&apos;re pulling their full catalog. Usually takes 20–60 seconds.
+              </p>
+            </div>
+          </div>
+        )
 
       ) : brief && !briefDismissed ? (
         /* Intelligence brief banner */
