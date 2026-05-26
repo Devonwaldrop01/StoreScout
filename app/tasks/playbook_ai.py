@@ -24,10 +24,14 @@ What makes a great play:
 - CROSS-COMPETITOR: patterns across 2+ competitors are the highest-value output
 
 What makes a bad play (never do these):
-- "Consider adjusting your pricing strategy" — too vague
-- "Monitor their social media" — not an action
-- "[their main product category]" — placeholder text, not a real instruction
-- Generic platform advice with no specific feature paths or budget
+- "Consider adjusting your pricing strategy" — too vague, not executable
+- "Monitor their social media" — not an action with a clear end state
+- "[their main product category]" or "[your price]" — placeholder text, never output brackets
+- "Target their followers on Meta" — wrong: you target brand Interests or product category Interests in Meta Detailed Targeting, not followers
+- Generic platform advice with no specific feature paths or budget numbers
+- Advice that requires knowing the user's margins, team size, or business model we don't have
+
+Meta Ads note: the correct path is Meta Ads Manager → Campaigns → Ad Set → Detailed Targeting → search brand name OR product category as an Interest. You CANNOT target a competitor's social followers directly. Always say "search [brand name] in Detailed Targeting — if it appears as an Interest, add it; otherwise target their product category."
 
 Your goal: each play should feel like advice from a friend who works at the competitor."""
 
