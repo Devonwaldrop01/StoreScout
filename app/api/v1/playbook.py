@@ -26,11 +26,9 @@ def get_playbook(user_id: str = Depends(get_effective_user_id)):
 def _build_playbook(user_id: str) -> dict:
     db = get_supabase()
 
-    # Get user tier
     user_res = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
     tier = (user_res.data or {}).get("tier", "free")
 
-    # Get active, scanned competitors
     comps_res = (
         db.table("competitors")
         .select("id, hostname")
@@ -39,39 +37,37 @@ def _build_playbook(user_id: str) -> dict:
         .eq("scan_status", "done")
         .execute()
     )
-    # Filter out my_store if column exists
-    competitors = [
-        c for c in (comps_res.data or [])
-        if not c.get("is_my_store")
-    ]
+    competitors = [c for c in (comps_res.data or []) if not c.get("is_my_store")]
 
     if not competitors:
         return {"plays": [], "competitor_count": 0, "locked": False}
 
-    comp_ids  = [c["id"] for c in competitors]
-    comp_map  = {c["id"]: c["hostname"] for c in competitors}
+    comp_ids = [c["id"] for c in competitors]
+    comp_map = {c["id"]: c["hostname"] for c in competitors}
 
-    plays: list[dict] = []
-
-    # ── 1. Snapshot intelligence (always available) ───────────────────────────
+    # ── Fetch latest snapshot per competitor ──────────────────────────────────
+    competitors_data: list[dict] = []
     for comp in competitors:
-        cid  = comp["id"]
-        host = comp["hostname"]
         snap_res = (
             db.table("scan_snapshots")
             .select("product_count, median_price, promo_rate, new_30d, snapshot_data, scanned_at")
-            .eq("competitor_id", cid)
+            .eq("competitor_id", comp["id"])
             .order("scanned_at", desc=True)
             .limit(1)
             .maybe_single()
             .execute()
         )
-        snap = snap_res.data
-        if not snap:
-            continue
-        plays.extend(snapshot_intelligence(snap, host, cid))
+        if snap_res.data:
+            competitors_data.append({
+                "competitor_id": comp["id"],
+                "hostname": comp["hostname"],
+                "snap": snap_res.data,
+            })
 
-    # ── 2. Change-event plays (reactive, last 7 days) ─────────────────────────
+    # ── 1. Snapshot intelligence (cross-competitor synthesis) ─────────────────
+    plays: list[dict] = list(snapshot_intelligence(competitors_data))
+
+    # ── 2. Change-event plays (reactive) ─────────────────────────────────────
     cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
     changes_res = (
         db.table("change_events")
@@ -87,31 +83,29 @@ def _build_playbook(user_id: str) -> dict:
         if c.get("severity") in ("critical", "warning")
     ]
 
-    # Deduplicate change plays per competitor (max 2 change plays per competitor)
+    # Max 2 change plays per competitor to avoid flooding
     change_count: dict[str, int] = {}
     for chg in sorted(raw_changes, key=lambda c: c.get("detected_at", ""), reverse=True):
         cid  = chg["competitor_id"]
         host = comp_map.get(cid)
-        if not host:
-            continue
-        if change_count.get(cid, 0) >= 2:
+        if not host or change_count.get(cid, 0) >= 2:
             continue
         play = change_event_play(chg, host, cid)
         if play:
             plays.append(play)
             change_count[cid] = change_count.get(cid, 0) + 1
 
-    # ── 3. Deduplicate by id, sort by priority ────────────────────────────────
-    seen_ids: set[str] = set()
+    # ── 3. Deduplicate + sort ─────────────────────────────────────────────────
+    seen: set[str] = set()
     unique: list[dict] = []
     for p in sorted(plays, key=lambda x: x.get("priority", 0), reverse=True):
-        if p["id"] not in seen_ids:
-            seen_ids.add(p["id"])
+        if p["id"] not in seen:
+            seen.add(p["id"])
             unique.append(p)
 
-    # Free users: show 4 plays, mark rest as locked_count
+    # Free tier: show 4 plays
     if tier == "free":
-        shown   = unique[:4]
+        shown = unique[:4]
         locked_count = max(0, len(unique) - 4)
         return {
             "plays": shown,
