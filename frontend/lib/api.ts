@@ -394,6 +394,13 @@ export interface BriefCard {
   body: string;
 }
 
+export interface PlaybookDetail {
+  steps: string[];
+  competitors?: Array<{ hostname: string; metric: string }>;
+  why?: string;
+  outcome?: string;
+}
+
 export interface PlaybookPlay {
   id: string;
   section: "act_now" | "right_now" | "this_week" | "watch";
@@ -406,6 +413,7 @@ export interface PlaybookPlay {
   type: "availability" | "pricing" | "catalog" | "positioning" | "change" | "product";
   source: "snapshot" | "change_event";
   tab?: string;
+  detail?: PlaybookDetail;
 }
 
 export interface PlaybookResponse {
