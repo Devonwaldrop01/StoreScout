@@ -126,6 +126,17 @@ export const alerts = {
     apiFetch<{ status: string; marked: number }>("/alerts/mark-all-read", { method: "POST" }),
 };
 
+// ── Feedback ──────────────────────────────────────────────────
+export const feedback = {
+  submit: (data: { rating: number; message: string; allow_testimonial: boolean; page?: string }) =>
+    apiFetch<{ ok: boolean }>("/feedback", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  publicTestimonials: () =>
+    apiFetch<{ data: Array<{ id: string; rating: number; message: string; created_at: string; initials: string }> }>("/feedback/public"),
+};
+
 // ── Billing ───────────────────────────────────────────────────
 export const billing = {
   checkout: (plan: string, billingPeriod: "monthly" | "annual" = "monthly") =>

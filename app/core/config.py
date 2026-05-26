@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     # Email
     resend_api_key: str = ""
     resend_from: str = "StoreScout <hello@getstorescout.com>"
+    owner_email: str = "devonwaldrop0131@gmail.com"
 
     # Supabase
     supabase_url: str = ""

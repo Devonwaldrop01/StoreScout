@@ -9,6 +9,7 @@ import { LayoutDashboard, Bell, Settings, LogOut, Plus, Zap, Store, ChevronRight
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { alerts, user as userApi } from "@/lib/api";
+import { FeedbackWidget } from "@/components/FeedbackWidget";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -161,6 +162,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </main>
+
+      <FeedbackWidget />
 
       {/* ── Mobile bottom nav ─────────────────────────────────────────────── */}
       <nav
