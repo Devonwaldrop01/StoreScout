@@ -65,10 +65,10 @@ export function FeedbackWidget() {
 
   return (
     <>
-      {/* Floating trigger button */}
+      {/* Floating trigger button — above mobile nav on small screens */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-3.5 py-2.5 rounded-full font-medium text-xs shadow-lg transition-all hover:scale-105 active:scale-95"
+        className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 flex items-center gap-2 px-3.5 py-2.5 rounded-full font-medium text-xs shadow-lg transition-all hover:scale-105 active:scale-95"
         style={{
           background: "var(--bg-card)",
           border: "1px solid var(--border)",
