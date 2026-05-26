@@ -13,6 +13,7 @@ interface Props {
 export function SignalCard({ group }: Props) {
   const [expanded, setExpanded] = useState(false);
   const cfg = SIGNAL_CONFIG[group.type];
+  const Icon = cfg.icon;
 
   return (
     <div
@@ -26,7 +27,7 @@ export function SignalCard({ group }: Props) {
       {/* Header row */}
       <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <span className="text-base leading-none shrink-0">{cfg.icon}</span>
+          <Icon className="w-4 h-4 shrink-0" style={{ color: cfg.color }} />
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span
@@ -67,6 +68,17 @@ export function SignalCard({ group }: Props) {
         >
           <span className="font-semibold" style={{ color: cfg.color }}>Why this matters · </span>
           {group.why_this_matters}
+        </div>
+      )}
+
+      {/* Your move */}
+      {group.your_move && (
+        <div
+          className="mx-5 mb-3 px-3.5 py-3 rounded-xl text-xs leading-relaxed"
+          style={{ background: "rgba(163,240,0,.05)", border: "1px solid rgba(163,240,0,.18)" }}
+        >
+          <span className="font-bold" style={{ color: "#a3f000" }}>▶ Your move · </span>
+          <span style={{ color: "var(--text-2)" }}>{group.your_move}</span>
         </div>
       )}
 

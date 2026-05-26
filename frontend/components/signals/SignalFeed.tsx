@@ -4,9 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { type SignalGroup, SIGNAL_CONFIG } from "@/lib/signals";
+import { formatDelta } from "@/lib/utils";
 import { type AlertEvent } from "@/lib/api";
 import { SignalCard } from "./SignalCard";
-import { formatRelativeTime, formatPrice, formatDelta, changeTypeIcon } from "@/lib/utils";
+import { formatRelativeTime, formatPrice, changeTypeIcon } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 // ── Tactical group row ────────────────────────────────────────────────────
@@ -14,6 +15,7 @@ import { cn } from "@/lib/utils";
 function TacticalGroup({ group }: { group: SignalGroup }) {
   const [expanded, setExpanded] = useState(false);
   const cfg = SIGNAL_CONFIG[group.type];
+  const Icon = cfg.icon;
 
   return (
     <div
@@ -24,7 +26,7 @@ function TacticalGroup({ group }: { group: SignalGroup }) {
         onClick={() => setExpanded((v) => !v)}
         className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-black/10 transition-colors"
       >
-        <span className="text-sm leading-none shrink-0">{cfg.icon}</span>
+        <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: cfg.color }} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span
@@ -37,9 +39,19 @@ function TacticalGroup({ group }: { group: SignalGroup }) {
               {group.hostname}
             </span>
           </div>
-          <p className="text-xs font-semibold mt-0.5" style={{ color: "var(--text-2)" }}>
-            {group.label}
-          </p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <p className="text-xs font-semibold" style={{ color: "var(--text-2)" }}>
+              {group.label}
+            </p>
+            {group.avg_delta_pct != null && group.type !== "tactical_launches" && (
+              <span className="text-[11px] font-mono" style={{ color: (group.avg_delta_pct ?? 0) < 0 ? "var(--red)" : "var(--emerald)" }}>
+                avg {formatDelta(group.avg_delta_pct)}
+              </span>
+            )}
+            {group.category_hint && (
+              <span className="text-[11px]" style={{ color: "var(--muted)" }}>· {group.category_hint}</span>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-[11px]" style={{ color: "var(--muted)" }}>
