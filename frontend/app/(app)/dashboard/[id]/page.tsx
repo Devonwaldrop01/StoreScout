@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft, RefreshCw, Trash2, Share2, Check, Download,
   Sparkles, Lock, Zap, ChevronDown, ChevronUp, Bell, TrendingUp,
-  Package, Tag, Clock, Brain,
+  Package, Tag, Clock, Brain, Target, Eye,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -1046,62 +1046,133 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                       ) : (() => {
                         if (!aiSummary) return null;
                         const parsed = parseSummaryText(aiSummary.summary_text);
-                        const CARD_CONFIG: Record<string, { color: string; bg: string; border: string; label: string }> = {
-                          signal:      { color: "#a8ff00", bg: "rgba(168,255,0,.07)",  border: "rgba(168,255,0,.18)",  label: "Most notable signal" },
-                          opportunity: { color: "#60a5fa", bg: "rgba(96,165,250,.07)", border: "rgba(96,165,250,.18)", label: "Your opening" },
-                          watch:       { color: "#f59e0b", bg: "rgba(245,158,11,.07)", border: "rgba(245,158,11,.18)", label: "Watch this" },
-                          action:      { color: "#4ade80", bg: "rgba(74,222,128,.07)", border: "rgba(74,222,128,.18)", label: "Your move" },
-                        };
+                        const INSIGHT_CONFIG = {
+                          signal:      { color: "#a8ff00", bg: "rgba(168,255,0,.05)",  border: "rgba(168,255,0,.15)",  label: "Notable signal",  Icon: Target },
+                          opportunity: { color: "#60a5fa", bg: "rgba(96,165,250,.05)", border: "rgba(96,165,250,.15)", label: "Your opening",   Icon: TrendingUp },
+                          watch:       { color: "#f59e0b", bg: "rgba(245,158,11,.05)", border: "rgba(245,158,11,.15)", label: "Watch closely",  Icon: Eye },
+                          action:      { color: "#4ade80", bg: "rgba(74,222,128,.05)", border: "rgba(74,222,128,.15)", label: "Your move",      Icon: Zap },
+                        } as const;
+                        type InsightKey = keyof typeof INSIGHT_CONFIG;
                         return (
                           <div className="space-y-5">
-                            <div className="flex items-center gap-2">
-                              <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
-                              <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>AI Strategic Summary</h3>
-                              <p className="text-xs" style={{ color: "var(--muted)" }}>{formatRelativeTime(aiSummary.generated_at)}</p>
+
+                            {/* AI analyst header */}
+                            <div className="flex items-center gap-3 pb-4" style={{ borderBottom: "1px solid var(--border)" }}>
+                              <div
+                                className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                                style={{
+                                  background: "linear-gradient(135deg, rgba(168,255,0,.25), rgba(96,165,250,.1))",
+                                  border: "1px solid rgba(168,255,0,.25)",
+                                }}
+                              >
+                                <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>Claude</span>
+                                  <span
+                                    className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                                    style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)" }}
+                                  >
+                                    AI Analyst
+                                  </span>
+                                  <span className="text-xs" style={{ color: "var(--muted)" }}>
+                                    {formatRelativeTime(aiSummary.generated_at)}
+                                  </span>
+                                </div>
+                                <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                                  Strategic analysis of {hostname}
+                                </p>
+                              </div>
                               <button
                                 onClick={handleRegenerate}
-                                className="ml-auto flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg transition-all hover:bg-white/5"
+                                className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-all hover:bg-white/5 shrink-0"
                                 style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
-                                title="Regenerate analysis"
                               >
                                 <RefreshCw className="w-3 h-3" />
                                 Refresh
                               </button>
                             </div>
+
+                            {/* Insights */}
                             {parsed.type === "cards" ? (
-                              <div className="space-y-4">
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                  {parsed.cards.filter((c) => c.type !== "action").map((card, i) => {
-                                    const cfg = CARD_CONFIG[card.type] ?? CARD_CONFIG.signal;
-                                    return (
-                                      <div key={i} className="rounded-xl p-5" style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
-                                        <span className="text-[10px] font-bold uppercase tracking-wider block mb-3" style={{ color: cfg.color }}>{cfg.label}</span>
-                                        <h4 className="font-bold text-sm mb-2 leading-snug" style={{ color: "var(--text)" }}>{card.headline}</h4>
-                                        <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{card.body}</p>
+                              <div className="space-y-3">
+                                {parsed.cards.filter((c) => c.type !== "action").map((card, i) => {
+                                  const cfg = INSIGHT_CONFIG[(card.type as InsightKey)] ?? INSIGHT_CONFIG.signal;
+                                  const { Icon } = cfg;
+                                  return (
+                                    <div
+                                      key={i}
+                                      className="rounded-xl p-4"
+                                      style={{
+                                        background: cfg.bg,
+                                        border: `1px solid ${cfg.border}`,
+                                        borderLeft: `3px solid ${cfg.color}`,
+                                      }}
+                                    >
+                                      <div className="flex items-center gap-2 mb-2.5">
+                                        <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: cfg.color }} />
+                                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: cfg.color }}>
+                                          {cfg.label}
+                                        </span>
                                       </div>
-                                    );
-                                  })}
-                                </div>
+                                      <h4 className="font-semibold text-sm leading-snug mb-1.5" style={{ color: "var(--text)" }}>
+                                        {card.headline}
+                                      </h4>
+                                      <p className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
+                                        {card.body}
+                                      </p>
+                                    </div>
+                                  );
+                                })}
+
+                                {/* Action card — bottom, elevated */}
                                 {parsed.cards.find((c) => c.type === "action") && (() => {
                                   const ac = parsed.cards.find((c) => c.type === "action")!;
-                                  const cfg = CARD_CONFIG.action;
                                   return (
-                                    <div className="rounded-xl p-5" style={{ background: cfg.bg, border: `2px solid ${cfg.border}` }}>
-                                      <span className="text-[10px] font-bold uppercase tracking-wider block mb-2" style={{ color: cfg.color }}>▶ {cfg.label}</span>
-                                      <h4 className="font-bold text-sm mb-2 leading-snug" style={{ color: "var(--text)" }}>{ac.headline}</h4>
-                                      <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{ac.body}</p>
+                                    <div
+                                      className="rounded-xl p-5 mt-1"
+                                      style={{
+                                        background: "rgba(74,222,128,.06)",
+                                        border: "1px solid rgba(74,222,128,.22)",
+                                        boxShadow: "0 0 24px rgba(74,222,128,.06)",
+                                      }}
+                                    >
+                                      <div className="flex items-start gap-3">
+                                        <div
+                                          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                                          style={{ background: "rgba(74,222,128,.15)" }}
+                                        >
+                                          <Zap className="w-4 h-4" style={{ color: "#4ade80" }} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#4ade80" }}>
+                                            ▶ Your move
+                                          </span>
+                                          <h4 className="font-semibold text-sm mt-1 mb-1.5 leading-snug" style={{ color: "var(--text)" }}>
+                                            {ac.headline}
+                                          </h4>
+                                          <p className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
+                                            {ac.body}
+                                          </p>
+                                        </div>
+                                      </div>
                                     </div>
                                   );
                                 })()}
                               </div>
                             ) : (
-                              <div className="rounded-2xl p-5 space-y-4" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+                              <div className="space-y-3">
                                 {parsed.text.split(/\n\n+/).filter(Boolean).map((para, i) => (
                                   <p key={i} className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>{para}</p>
                                 ))}
                               </div>
                             )}
-                            <p className="text-xs" style={{ color: "var(--muted)" }}>{aiSummary.model}</p>
+
+                            {/* Footer */}
+                            <p className="text-[11px]" style={{ color: "var(--muted)", opacity: 0.5 }}>
+                              {aiSummary.model} · Updates weekly
+                            </p>
                           </div>
                         );
                       })()}
