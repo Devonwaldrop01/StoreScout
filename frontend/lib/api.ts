@@ -421,8 +421,8 @@ export interface PlaybookPlay {
   headline: string;
   action: string;
   deadline: string;
-  type: "availability" | "pricing" | "catalog" | "positioning" | "change" | "product";
-  source: "snapshot" | "change_event";
+  type: "availability" | "pricing" | "catalog" | "positioning" | "change" | "product" | "discounts" | "alert";
+  source: "snapshot" | "change_event" | "ai";
   tab?: string;
   detail?: PlaybookDetail;
 }
@@ -432,6 +432,8 @@ export interface PlaybookResponse {
   competitor_count: number;
   locked: boolean;
   locked_count?: number;
+  ai_source?: boolean;
+  ai_generating?: boolean;
 }
 
 export interface ActionItem {

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 from datetime import datetime, timezone, timedelta
 
@@ -8,6 +9,8 @@ from fastapi import APIRouter, Depends
 from app.core.auth import get_effective_user_id
 from app.core.database import get_supabase
 from app.services.playbook_intelligence import snapshot_intelligence, change_event_play
+
+_AI_FRESHNESS_HOURS = 23
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +47,53 @@ def _build_playbook(user_id: str) -> dict:
 
     comp_ids = [c["id"] for c in competitors]
     comp_map = {c["id"]: c["hostname"] for c in competitors}
+
+    # ── Prefer fresh AI-generated plays ──────────────────────────────────────
+    ai_cutoff = (datetime.now(timezone.utc) - timedelta(hours=_AI_FRESHNESS_HOURS)).isoformat()
+    ai_res = (
+        db.table("ai_summaries")
+        .select("summary_text, generated_at")
+        .in_("competitor_id", comp_ids)
+        .eq("summary_type", "playbook")
+        .gte("generated_at", ai_cutoff)
+        .order("generated_at", desc=True)
+        .limit(1)
+        .maybe_single()
+        .execute()
+    )
+    if ai_res.data:
+        try:
+            ai_data = json.loads(ai_res.data["summary_text"])
+            ai_plays = ai_data.get("plays") or []
+            if ai_plays:
+                if tier == "free":
+                    shown = ai_plays[:4]
+                    locked_count = max(0, len(ai_plays) - 4)
+                    return {
+                        "plays": shown,
+                        "competitor_count": len(competitors),
+                        "locked": locked_count > 0,
+                        "locked_count": locked_count,
+                        "ai_source": True,
+                        "ai_generating": False,
+                    }
+                return {
+                    "plays": ai_plays,
+                    "competitor_count": len(competitors),
+                    "locked": False,
+                    "locked_count": 0,
+                    "ai_source": True,
+                    "ai_generating": False,
+                }
+        except Exception:
+            pass  # fall through to template plays
+
+    # No fresh AI plays — trigger background generation and serve templates
+    try:
+        from app.tasks.playbook_ai import generate_ai_playbook
+        generate_ai_playbook.delay(user_id)
+    except Exception as exc:
+        logger.warning("Could not enqueue generate_ai_playbook for %s: %s", user_id, exc)
 
     # ── Fetch latest snapshot per competitor ──────────────────────────────────
     competitors_data: list[dict] = []
@@ -112,6 +162,8 @@ def _build_playbook(user_id: str) -> dict:
             "competitor_count": len(competitors),
             "locked": locked_count > 0,
             "locked_count": locked_count,
+            "ai_source": False,
+            "ai_generating": True,
         }
 
     return {
@@ -119,4 +171,6 @@ def _build_playbook(user_id: str) -> dict:
         "competitor_count": len(competitors),
         "locked": False,
         "locked_count": 0,
+        "ai_source": False,
+        "ai_generating": True,
     }

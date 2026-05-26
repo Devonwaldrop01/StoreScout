@@ -41,23 +41,29 @@ def scan_competitor(self, competitor_id: str) -> dict:
         if data.get("status") == "ok" and data.get("snapshot_id"):
             from app.tasks.detect_changes import detect_changes
             from app.tasks.ai_summaries import generate_brief
+            from app.tasks.playbook_ai import generate_ai_playbook
             detect_changes.delay(competitor_id, data["snapshot_id"])
             generate_brief.delay(competitor_id, data["snapshot_id"])
 
-            # Detect first scan → trigger onboarding drip sequence
-            snap_count = db.table("scan_snapshots")\
-                .select("id", count="exact")\
-                .eq("competitor_id", competitor_id)\
+            comp = db.table("competitors")\
+                .select("user_id, is_my_store")\
+                .eq("id", competitor_id)\
+                .maybe_single()\
                 .execute()
-            if (snap_count.count or 0) == 1:
-                comp = db.table("competitors")\
-                    .select("user_id, is_my_store")\
-                    .eq("id", competitor_id)\
-                    .maybe_single()\
+
+            if comp.data and not comp.data.get("is_my_store"):
+                user_id = comp.data["user_id"]
+                # Refresh AI playbook after every scan (task skips if already fresh)
+                generate_ai_playbook.delay(user_id)
+
+                # First scan → trigger onboarding drip sequence
+                snap_count = db.table("scan_snapshots")\
+                    .select("id", count="exact")\
+                    .eq("competitor_id", competitor_id)\
                     .execute()
-                if comp.data and not comp.data.get("is_my_store"):
+                if (snap_count.count or 0) == 1:
                     from app.tasks.drip import schedule_drip_sequence
-                    schedule_drip_sequence(comp.data["user_id"], competitor_id)
+                    schedule_drip_sequence(user_id, competitor_id)
 
         return data
 
