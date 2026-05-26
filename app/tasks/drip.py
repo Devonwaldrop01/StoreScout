@@ -297,11 +297,20 @@ def _d14_html(hostname: str, competitor_id: str, snapshot_data: dict, settings) 
 @celery.task(name="app.tasks.drip.send_drip_d0")
 def send_drip_d0(user_id: str, competitor_id: str) -> dict:
     """Day 0 (+5 min) — first scan complete. Fires for all tiers."""
+    from datetime import timezone
     settings = get_settings()
     db = get_supabase()
 
     if _has_sent(db, user_id, "d0"):
         return {"status": "already_sent"}
+
+    # Skip if the AI brief batch email was already sent this hour (better, more detailed email)
+    hour_key = f"first_scan_{datetime.now(timezone.utc).strftime('%Y%m%d_%H')}"
+    recent_brief_email = db.table("drip_log").select("id")\
+        .eq("user_id", user_id).eq("drip_type", hour_key).limit(1).execute()
+    if recent_brief_email.data:
+        _record_sent(db, user_id, "d0")  # mark as done so it won't retry
+        return {"status": "brief_email_handled_d0_skipped"}
 
     email = _resolve_email(db, user_id)
     if not email:

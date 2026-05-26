@@ -22,6 +22,18 @@ _SEVERITY_STYLES = {
     "info":     ("#60a5fa", "rgba(96,165,250,.15)",   "INFO"),
 }
 
+_CHANGE_TYPE_PREF = {
+    "price_change":        "email_price_changes",
+    "bulk_price_change":   "email_price_changes",
+    "new_product":         "email_new_products",
+    "bulk_new_products":   "email_new_products",
+    "product_removed":     "email_new_products",
+    "bulk_removal":        "email_new_products",
+    "discount_start":      "email_discount_changes",
+    "discount_end":        "email_discount_changes",
+    "availability_change": "email_price_changes",
+}
+
 
 def _interpret_changes(hostname: str, change_list: list, settings) -> Optional[str]:
     """1-2 sentence Claude Haiku interpretation of a batch of changes. Non-fatal if it fails."""
@@ -320,8 +332,6 @@ def send_change_alert(self, user_id: str, competitor_id: str, change_ids: List[s
 
     prefs = db.table("notification_prefs").select("*").eq("user_id", user_id).maybe_single().execute()
     prefs_data = prefs.data or {}
-    if not prefs_data.get("email_price_changes", True):
-        return {"status": "alerts_disabled"}
 
     competitor = db.table("competitors").select("hostname, store_url").eq("id", competitor_id).maybe_single().execute()
     if not competitor.data:
@@ -337,6 +347,14 @@ def send_change_alert(self, user_id: str, competitor_id: str, change_ids: List[s
     change_list = changes.data or []
     if not change_list:
         return {"status": "no_changes"}
+
+    # Filter change list by per-type notification preferences
+    change_list = [
+        c for c in change_list
+        if prefs_data.get(_CHANGE_TYPE_PREF.get(c.get("change_type", ""), "email_price_changes"), True)
+    ]
+    if not change_list:
+        return {"status": "all_change_types_disabled"}
 
     # Build subject
     n = len(change_list)
@@ -671,18 +689,107 @@ def _build_brief_card_html(card: dict) -> str:
     )
 
 
+def _build_multi_first_scan_html(ready_comps: list, briefs_by_comp: dict, settings) -> tuple:
+    """Build subject + HTML for a combined first-scan email covering 2+ competitors."""
+    import json as _json
+
+    n = len(ready_comps)
+    subject = f"{n} competitor scans ready — here’s what we found"
+
+    comp_sections = []
+    for i, comp in enumerate(ready_comps):
+        comp_id = comp["id"]
+        hostname = comp.get("hostname", comp_id)
+        product_count = comp.get("product_count") or 0
+        dashboard_url = f"{settings.public_base_url}/dashboard/{comp_id}"
+
+        # Parse cards from brief
+        cards = []
+        brief_row = briefs_by_comp.get(comp_id)
+        if brief_row:
+            try:
+                brief_data = _json.loads(brief_row["summary_text"])
+                cards = brief_data.get("cards", [])
+            except Exception:
+                cards = []
+
+        # Pick best card: type "signal" first, else first card
+        best_card = None
+        for card in cards:
+            if card.get("type") == "signal":
+                best_card = card
+                break
+        if best_card is None and cards:
+            best_card = cards[0]
+
+        product_label = (
+            f"<span style='color:#6b7fa3;font-size:13px;margin-left:10px'>"
+            f"{product_count:,} products</span>"
+            if product_count else ""
+        )
+
+        card_html = _build_brief_card_html(best_card) if best_card else ""
+
+        divider = (
+            "<div style='border-top:1px solid #0e1d35;margin:20px 0'></div>"
+            if i < n - 1 else ""
+        )
+
+        comp_sections.append(
+            f"<div>"
+            f"<div style='margin-bottom:12px'>"
+            f"<span style='color:#eef3fa;font-size:15px;font-weight:700'>{hostname}</span>"
+            f"{product_label}"
+            f"</div>"
+            f"{card_html}"
+            f"<a href='{dashboard_url}' style='display:inline-block;background:#1e3a5f;"
+            f"color:#a3f000;padding:7px 14px;border-radius:8px;font-size:13px;"
+            f"font-weight:600;text-decoration:none'>View {hostname} →</a>"
+            f"</div>"
+            f"{divider}"
+        )
+
+    sections_html = "\n".join(comp_sections)
+    settings_url = f"{settings.public_base_url}/settings"
+
+    html = f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#060d18;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px">
+
+    <div style="margin-bottom:28px">
+      <div style="color:#a3f000;font-weight:700;font-size:18px;margin-bottom:16px">StoreScout</div>
+      <h1 style="color:#eef3fa;font-size:22px;font-weight:700;margin:0 0 8px;line-height:1.3">
+        Your {n} competitor scans are ready
+      </h1>
+      <p style="color:#6b7fa3;font-size:13px;margin:0">Here's the top finding from each</p>
+    </div>
+
+    {sections_html}
+
+    <p style="color:#3a5068;font-size:11px;text-align:center;margin-top:24px">
+      StoreScout &nbsp;·&nbsp;
+      <a href="{settings_url}" style="color:#3a5068">Manage notifications</a>
+    </p>
+  </div>
+</body></html>"""
+
+    return subject, html
+
+
 @celery.task(name="app.tasks.alerts.send_first_scan_email", queue="priority",
              bind=True, max_retries=3)
 def send_first_scan_email(self, competitor_id: str) -> dict:
     """
-    Fires once, 2+ minutes after a competitor's first scan completes.
-    Sends the 3-card Intelligence Brief via email.
+    Fires 10 minutes after a competitor's first scan brief is generated.
+    Batches all ready competitors for the same user into a single email (one per hour).
     """
     import json as _json
 
     settings = get_settings()
     db = get_supabase()
 
+    # Resolve user_id from this competitor
     comp = db.table("competitors")\
         .select("hostname, user_id, is_my_store, product_count")\
         .eq("id", competitor_id)\
@@ -691,42 +798,81 @@ def send_first_scan_email(self, competitor_id: str) -> dict:
     if not comp or not comp.data or comp.data.get("is_my_store"):
         return {"status": "skipped"}
 
-    hostname = comp.data["hostname"]
     user_id = comp.data["user_id"]
-    product_count = comp.data.get("product_count") or 0
 
     email = _resolve_email(db, user_id)
     if not email:
         return {"status": "no_email"}
 
-    # Fetch the brief
-    brief_res = db.table("ai_summaries")\
-        .select("summary_text")\
-        .eq("competitor_id", competitor_id)\
+    # Hourly rate-limit: at most one batch email per user per hour
+    hour_key = f"first_scan_{datetime.now(timezone.utc).strftime('%Y%m%d_%H')}"
+    try:
+        db.table("drip_log").insert({"user_id": user_id, "drip_type": hour_key}).execute()
+    except Exception:
+        # Unique constraint violation — another concurrent task already claimed this slot
+        return {"status": "race_condition_skip"}
+
+    # Gather ALL ready competitors for this user
+    comps_res = db.table("competitors")\
+        .select("id, hostname, product_count")\
+        .eq("user_id", user_id)\
+        .eq("is_my_store", False)\
+        .eq("is_active", True)\
+        .eq("scan_status", "done")\
+        .execute()
+    comps = comps_res.data or []
+
+    if not comps:
+        return {"status": "no_ready_competitors"}
+
+    comp_ids = [c["id"] for c in comps]
+
+    # Fetch briefs for all of them
+    briefs_res = db.table("ai_summaries")\
+        .select("competitor_id, summary_text")\
+        .in_("competitor_id", comp_ids)\
         .eq("summary_type", "brief")\
         .order("generated_at", desc=True)\
-        .limit(1)\
         .execute()
 
-    if not brief_res.data:
-        if self.request.retries < self.max_retries:
-            raise self.retry(countdown=30 * (2 ** self.request.retries))
-        return {"status": "no_brief_after_retries"}
+    # Build a dict keyed by competitor_id (latest brief per competitor)
+    briefs_by_comp: dict = {}
+    for row in (briefs_res.data or []):
+        cid = row["competitor_id"]
+        if cid not in briefs_by_comp:
+            briefs_by_comp[cid] = row
 
-    try:
-        brief_data = _json.loads(brief_res.data[0]["summary_text"])
-        cards = brief_data.get("cards", [])
-    except Exception:
-        cards = []
+    # Only include competitors that have a brief ready
+    ready_comps = [c for c in comps if c["id"] in briefs_by_comp]
 
-    if not cards:
-        return {"status": "empty_cards"}
+    if not ready_comps:
+        return {"status": "no_briefs_ready"}
 
-    cards_html = "".join(_build_brief_card_html(c) for c in cards[:4])
-    dashboard_url = f"{settings.public_base_url}/dashboard/{competitor_id}"
-    product_label = f"{product_count:,} products analyzed · " if product_count else ""
+    if len(ready_comps) == 1:
+        # Single-competitor email — existing dark design
+        sole = ready_comps[0]
+        hostname = sole["hostname"]
+        product_count = sole.get("product_count") or 0
+        dashboard_url = f"{settings.public_base_url}/dashboard/{sole['id']}"
 
-    html = f"""<!DOCTYPE html>
+        try:
+            brief_data = _json.loads(briefs_by_comp[sole["id"]]["summary_text"])
+            cards = brief_data.get("cards", [])
+        except Exception:
+            cards = []
+
+        if not cards:
+            return {"status": "empty_cards"}
+
+        cards_html = "".join(_build_brief_card_html(c) for c in cards[:4])
+        product_label = f"{product_count:,} products analyzed · " if product_count else ""
+
+        if product_count > 0:
+            subject = f"Your first scan of {hostname} is ready — {product_count:,} products analyzed"
+        else:
+            subject = f"Your first scan of {hostname} is ready"
+
+        html = f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#060d18;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px">
@@ -755,16 +901,23 @@ def send_first_scan_email(self, competitor_id: str) -> dict:
   </div>
 </body></html>"""
 
+    else:
+        # Multi-competitor batch email
+        subject, html = _build_multi_first_scan_html(ready_comps, briefs_by_comp, settings)
+
     try:
         resend.api_key = settings.resend_api_key
         resend.Emails.send({
             "from": settings.resend_from,
             "to": email,
-            "subject": f"Your first scan of {hostname} is ready",
+            "subject": subject,
             "html": html,
         })
-        logger.info("First-scan email sent to %s for competitor %s", email, competitor_id)
-        return {"status": "sent"}
+        logger.info(
+            "First-scan batch email sent to %s covering %d competitor(s)",
+            email, len(ready_comps),
+        )
+        return {"status": "sent", "competitors": len(ready_comps)}
     except Exception as exc:
         logger.error("First-scan email failed (attempt %d): %s", self.request.retries + 1, exc)
         raise self.retry(exc=exc, countdown=30 * (2 ** self.request.retries))

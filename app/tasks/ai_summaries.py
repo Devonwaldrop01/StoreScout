@@ -274,7 +274,7 @@ Store data:
     if is_first_scan:
         try:
             from app.tasks.alerts import send_first_scan_email
-            send_first_scan_email.delay(competitor_id)
+            send_first_scan_email.apply_async(args=[competitor_id], countdown=600)
         except Exception as exc:
             logger.warning("Could not enqueue first-scan email for %s: %s", competitor_id, exc)
 
