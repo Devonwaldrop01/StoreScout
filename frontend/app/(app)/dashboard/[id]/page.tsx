@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, use, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft, RefreshCw, Trash2, Share2, Check, Download,
   Sparkles, Lock, Zap, ChevronDown, ChevronUp, Bell, TrendingUp,
@@ -262,8 +262,27 @@ function TabBar<T extends string>({
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function CompetitorDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id }   = use(params);
-  const router   = useRouter();
+  const { id }       = use(params);
+  const router       = useRouter();
+  const searchParams = useSearchParams();
+
+  function resolveInitialTab(): Tab {
+    const raw = searchParams.get("tab");
+    const valid: Tab[] = ["overview", "catalog", "pricing", "changes", "intelligence"];
+    return valid.includes(raw as Tab) ? (raw as Tab) : "overview";
+  }
+
+  function resolveInitialCatalogSub(): CatalogSub {
+    const raw = searchParams.get("catalogSub");
+    return raw === "gaps" ? "gaps" : "winning";
+  }
+
+  function resolveInitialIntelSub(): IntelSub {
+    const raw = searchParams.get("intelSub");
+    return (["ai", "brand", "compare"] as IntelSub[]).includes(raw as IntelSub)
+      ? (raw as IntelSub)
+      : "ai";
+  }
 
   const [competitor,     setCompetitor]     = useState<import("@/lib/api").Competitor | null>(null);
   const [snapshot,       setSnapshot]       = useState<Snapshot | null>(null);
@@ -273,9 +292,9 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const aiPollRef    = useRef<ReturnType<typeof setInterval> | null>(null);
   const aiPollCount  = useRef(0);
   const [loading,        setLoading]        = useState(true);
-  const [tab,            setTab]            = useState<Tab>("overview");
-  const [catalogSub,     setCatalogSub]     = useState<CatalogSub>("winning");
-  const [intelSub,       setIntelSub]       = useState<IntelSub>("ai");
+  const [tab,            setTab]            = useState<Tab>(resolveInitialTab);
+  const [catalogSub,     setCatalogSub]     = useState<CatalogSub>(resolveInitialCatalogSub);
+  const [intelSub,       setIntelSub]       = useState<IntelSub>(resolveInitialIntelSub);
   const [rescanning,     setRescanning]     = useState(false);
   const [scanPending,    setScanPending]    = useState(true);
   const [brief,          setBrief]          = useState<BriefData | null | false>(null);
