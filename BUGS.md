@@ -116,7 +116,7 @@ Living document. Add new bugs as found; update Status when fixed.
 - **Expected**: Error is caught; user sees a friendly "Something went wrong" screen with a retry option.
 - **Actual**: Entire page goes white/blank with no feedback.
 - **Root cause**: No `<ErrorBoundary>` component wrapping the app or individual route segments.
-- **Status**: Open
+- **Status**: Fixed (e40b00f — `frontend/components/ErrorBoundary.tsx` wraps children in `app/(app)/layout.tsx`)
 
 ---
 

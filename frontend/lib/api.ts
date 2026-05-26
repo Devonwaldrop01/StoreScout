@@ -502,7 +502,7 @@ export interface PublicReport {
   };
   takeaways: string[];
   ai_brief?: {
-    cards?: { type: "signal" | "opportunity" | "watch"; headline: string; body: string }[];
+    cards?: { type: "signal" | "opportunity" | "watch" | "action"; headline: string; body: string }[];
   } | null;
 }
 
