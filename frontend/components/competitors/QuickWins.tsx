@@ -31,7 +31,8 @@ interface Props {
 }
 
 export function QuickWins({ competitorId }: Props) {
-  const [data, setData] = useState<QuickWinsResponse | null>(null);
+  const [data,    setData]    = useState<QuickWinsResponse | null>(null);
+  const [loading, setLoading] = useState(true);
   const [dismissed, setDismissed] = useState<string[]>([]);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
@@ -39,8 +40,20 @@ export function QuickWins({ competitorId }: Props) {
     setDismissed(getStoredDismissals(competitorId));
     api.quickWins(competitorId)
       .then((r) => setData(r.data))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [competitorId]);
+
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        <div className="h-3 w-20 rounded animate-pulse" style={{ background: "var(--bg3)" }} />
+        {[1, 2].map((i) => (
+          <div key={i} className="h-20 rounded-2xl animate-pulse" style={{ background: "var(--bg3)" }} />
+        ))}
+      </div>
+    );
+  }
 
   if (!data) return null;
 

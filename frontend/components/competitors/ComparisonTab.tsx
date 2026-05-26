@@ -173,8 +173,9 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
     );
   }
 
-  const overallColor = data.overall.verdict.includes("ahead") ? "#a3f000"
-    : data.overall.verdict.includes("behind") ? "#f87171" : "#facc15";
+  const verdict = data.overall.verdict || "";
+  const overallColor = verdict.includes("ahead") ? "#a3f000"
+    : verdict.includes("behind") ? "#f87171" : "#facc15";
 
   return (
     <div className="space-y-5">
@@ -194,7 +195,7 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
       {/* Overall verdict */}
       <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: `1px solid ${overallColor}40` }}>
         <div className="flex items-center justify-between mb-2">
-          <span className="font-bold text-lg" style={{ color: overallColor }}>{data.overall.verdict}</span>
+          <span className="font-bold text-lg" style={{ color: overallColor }}>{verdict}</span>
           <div className="flex gap-3 text-xs font-mono">
             <span style={{ color: "#a3f000" }}>{data.overall.score.winning}W</span>
             <span style={{ color: "#f87171" }}>{data.overall.score.losing}L</span>
