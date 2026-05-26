@@ -16,6 +16,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import { groupAlertEvents, type SignalGroup } from "@/lib/signals";
 import { SignalFeed } from "@/components/signals/SignalFeed";
 import { AddCompetitorModal } from "@/components/competitors/AddCompetitorModal";
+import { ActionPlaybook } from "@/components/competitors/ActionPlaybook";
 import UpgradeModal from "@/components/UpgradeModal";
 
 // ── Helpers ───────────────────────────────────────────────────────────────
@@ -777,6 +778,9 @@ function DashboardContent() {
         <>
           {/* Stats bar */}
           {!alertsLoading && <StatsBar competitorList={competitorList} signalGroups={signalGroups} />}
+
+          {/* Your Move action panel */}
+          <ActionPlaybook competitorCount={competitorList.length} />
 
           {/* ── 3-column layout ── */}
           <div className="flex gap-5 items-start">

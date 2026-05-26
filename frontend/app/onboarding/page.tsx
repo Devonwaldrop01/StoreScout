@@ -278,6 +278,13 @@ function OnboardingContent() {
     return () => { clearInterval(poll); clearTimeout(timeoutTimer); };
   }, [newCompetitorId, scanDone]);
 
+  function normalizeUrl(raw: string): string {
+    const s = raw.trim();
+    if (s.startsWith("https://")) return s;
+    if (s.startsWith("http://")) return s.replace("http://", "https://");
+    return `https://${s}`;
+  }
+
   async function checkStore(value: string) {
     if (!value.trim()) return;
     setChecking(true);
@@ -313,9 +320,9 @@ function OnboardingContent() {
     setSubmitting(true);
     setAddError("");
     try {
-      const { data } = await competitorsApi.add(url.trim());
+      const { data } = await competitorsApi.add(normalizeUrl(url));
       setNewCompetitorId(data.id);
-      setTrackedHostname(data.hostname || url.trim().replace(/^https?:\/\//, "").replace(/\/$/, ""));
+      setTrackedHostname(data.hostname || normalizeUrl(url).replace(/^https?:\/\//, "").replace(/\/$/, ""));
       setSkipped(false);
       setStep(2);
     } catch (err: unknown) {
@@ -332,7 +339,7 @@ function OnboardingContent() {
   async function handleQuickAdd(storeUrl: string, storeName: string) {
     setQuickAdding(storeUrl);
     try {
-      const { data } = await competitorsApi.add(storeUrl);
+      const { data } = await competitorsApi.add(normalizeUrl(storeUrl));
       setNewCompetitorId(data.id);
       setTrackedHostname(data.hostname || storeName);
       setUrl(storeUrl);
