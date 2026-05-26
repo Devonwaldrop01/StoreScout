@@ -259,14 +259,14 @@ def snapshot_intelligence(competitors_data: list[dict]) -> list[dict]:
             detail={
                 "competitors": all_slow,
                 "steps": [
-                    f"Go to Google.com/shopping (or google.com → Shopping tab)",
-                    f"Search: '[main product category they sell]' — use their core product type, not their brand name",
+                    "Go to google.com → Shopping tab (or google.com/shopping)",
+                    f"Search {s['hostname']}'s core product type — use a category term, not their brand name (e.g. 'resistance bands' not 'brand X bands')",
                     "Click Tools → Any time → Past 90 days",
-                    f"Count how many results are from {s['hostname']} vs other brands",
-                    "If their listings are thin or dated: you have an opening",
-                    "Draft a new listing in your store for your most relevant product — focus on title (include the search term) and first image",
-                    "Submit your product feed to Google Merchant Center if not already",
-                    "New listings with original content typically appear in Shopping results in 2–4 weeks",
+                    f"Count how many Shopping results are from {s['hostname']} vs other brands",
+                    "If their listings are thin, dated, or absent: you have a recency opening",
+                    "Open your Shopify admin → Products → pick your most relevant product for this category",
+                    "Rewrite the SEO title to lead with the category term you searched (Shopify admin → Edit website SEO)",
+                    "Submit your updated product feed to Google Merchant Center — new listings with original content typically appear in Shopping results in 2–4 weeks",
                 ],
                 "why": (
                     f"New product launches from competitors create Google Shopping ranking pressure. "

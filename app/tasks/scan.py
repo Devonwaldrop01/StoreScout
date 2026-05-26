@@ -57,13 +57,17 @@ def scan_competitor(self, competitor_id: str) -> dict:
                 generate_ai_playbook.delay(user_id)
 
                 # First scan → trigger onboarding drip sequence
-                snap_count = db.table("scan_snapshots")\
-                    .select("id", count="exact")\
-                    .eq("competitor_id", competitor_id)\
-                    .execute()
-                if (snap_count.count or 0) == 1:
-                    from app.tasks.drip import schedule_drip_sequence
-                    schedule_drip_sequence(user_id, competitor_id)
+                # Isolated try-except so a DB error here doesn't reset scan_status to error
+                try:
+                    snap_count = db.table("scan_snapshots")\
+                        .select("id", count="exact")\
+                        .eq("competitor_id", competitor_id)\
+                        .execute()
+                    if (snap_count.count or 0) == 1:
+                        from app.tasks.drip import schedule_drip_sequence
+                        schedule_drip_sequence(user_id, competitor_id)
+                except Exception as drip_exc:
+                    logger.warning("snap_count/drip failed for %s: %s", competitor_id, drip_exc)
 
         return data
 

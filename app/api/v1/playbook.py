@@ -66,9 +66,16 @@ def _build_playbook(user_id: str) -> dict:
             ai_data = json.loads(ai_res.data["summary_text"])
             ai_plays = ai_data.get("plays") or []
             if ai_plays:
+                # Re-validate competitor_ids — guard against stale references post-deletion
+                valid_ids = set(comp_ids)
+                for p in ai_plays:
+                    if p.get("competitor_id") and p["competitor_id"] not in valid_ids:
+                        p["competitor_id"] = comp_ids[0]
+                # Sort by priority so free-tier slice always gets highest-urgency plays
+                ai_plays_sorted = sorted(ai_plays, key=lambda x: x.get("priority", 0), reverse=True)
                 if tier == "free":
-                    shown = ai_plays[:4]
-                    locked_count = max(0, len(ai_plays) - 4)
+                    shown = ai_plays_sorted[:4]
+                    locked_count = max(0, len(ai_plays_sorted) - 4)
                     return {
                         "plays": shown,
                         "competitor_count": len(competitors),
@@ -78,7 +85,7 @@ def _build_playbook(user_id: str) -> dict:
                         "ai_generating": False,
                     }
                 return {
-                    "plays": ai_plays,
+                    "plays": ai_plays_sorted,
                     "competitor_count": len(competitors),
                     "locked": False,
                     "locked_count": 0,
@@ -89,9 +96,11 @@ def _build_playbook(user_id: str) -> dict:
             pass  # fall through to template plays
 
     # No fresh AI plays — trigger background generation and serve templates
+    ai_generating = False
     try:
         from app.tasks.playbook_ai import generate_ai_playbook
         generate_ai_playbook.delay(user_id)
+        ai_generating = True
     except Exception as exc:
         logger.warning("Could not enqueue generate_ai_playbook for %s: %s", user_id, exc)
 
@@ -153,7 +162,7 @@ def _build_playbook(user_id: str) -> dict:
             seen.add(p["id"])
             unique.append(p)
 
-    # Free tier: show 4 plays
+    # Free tier: show 4 plays (already sorted by priority above)
     if tier == "free":
         shown = unique[:4]
         locked_count = max(0, len(unique) - 4)
@@ -163,7 +172,7 @@ def _build_playbook(user_id: str) -> dict:
             "locked": locked_count > 0,
             "locked_count": locked_count,
             "ai_source": False,
-            "ai_generating": True,
+            "ai_generating": ai_generating,
         }
 
     return {
@@ -172,5 +181,5 @@ def _build_playbook(user_id: str) -> dict:
         "locked": False,
         "locked_count": 0,
         "ai_source": False,
-        "ai_generating": True,
+        "ai_generating": ai_generating,
     }
