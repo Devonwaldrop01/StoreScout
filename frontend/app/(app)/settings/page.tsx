@@ -14,7 +14,7 @@ import { AddCompetitorModal } from "@/components/competitors/AddCompetitorModal"
 import { createClient } from "@/lib/supabase/client";
 import {
   Store, Hash, Globe, Users, X, Loader2, Key, Copy, Check, Terminal,
-  Plus, RefreshCw, Target, User, Zap,
+  Plus, RefreshCw, Target, User, Zap, Bell,
 } from "lucide-react";
 
 function SettingsContent() {
@@ -114,18 +114,21 @@ function SettingsContent() {
   }, [searchParams, supabase]);
 
   // ── Prefs ──────────────────────────────────────────────────────────────────
-  async function handleSavePrefs() {
+  async function handleTogglePref(key: keyof NotificationPrefs) {
     if (!prefs) return;
+    const newValue = !prefs[key];
+    const newPrefs = { ...prefs, [key]: newValue };
+    setPrefs(newPrefs);
     setSaving(true);
-    await userApi.updatePrefs(prefs).catch(() => {});
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  }
-
-  function toggle(key: keyof NotificationPrefs) {
-    if (!prefs) return;
-    setPrefs({ ...prefs, [key]: !prefs[key] });
+    try {
+      await userApi.updatePrefs({ [key]: newValue });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch {
+      setPrefs(prefs); // revert on error
+    } finally {
+      setSaving(false);
+    }
   }
 
   // ── Billing ────────────────────────────────────────────────────────────────
@@ -550,21 +553,43 @@ function SettingsContent() {
             className="rounded-2xl p-6"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
           >
-            <h2 className="font-semibold mb-4" style={{ color: "var(--text)" }}>Email notifications</h2>
-            <div className="space-y-3">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <Bell className="w-4 h-4" style={{ color: "#a3f000" }} />
+                <h2 className="font-semibold" style={{ color: "var(--text)" }}>Email notifications</h2>
+              </div>
+              <span
+                className="text-xs font-medium transition-opacity"
+                style={{ color: "#4ade80", opacity: saved ? 1 : 0 }}
+              >
+                ✓ Saved
+              </span>
+            </div>
+            <p className="text-sm mb-4" style={{ color: "var(--muted)" }}>
+              Choose which events trigger an email. Changes save automatically.
+            </p>
+            <div className="space-y-2">
               {[
-                { key: "email_price_changes" as const,   label: "Price changes",        desc: "Alert when a product price changes ≥10%" },
-                { key: "email_new_products" as const,    label: "New product launches", desc: "Alert when a new product is published" },
-                { key: "email_discount_changes" as const,label: "Discount campaigns",   desc: "Alert when a sale starts or ends" },
-                { key: "email_weekly_digest" as const,   label: "Weekly digest",        desc: "Monday morning summary with AI insights (Pro+)" },
+                { key: "email_price_changes" as const,   label: "Price changes",        desc: "When a competitor changes prices by 10% or more" },
+                { key: "email_new_products" as const,    label: "New product launches", desc: "When a competitor publishes a new product" },
+                { key: "email_discount_changes" as const,label: "Discount campaigns",   desc: "When a sale starts or ends at a competitor" },
+                { key: "email_weekly_digest" as const,   label: "Weekly digest",        desc: "Monday morning AI summary across all your competitors (Pro+)" },
               ].map(({ key, label, desc }) => (
-                <div key={key} className="flex items-start justify-between gap-4 py-3 border-b last:border-0" style={{ borderColor: "var(--border)" }}>
-                  <div>
+                <button
+                  key={key}
+                  onClick={() => handleTogglePref(key)}
+                  disabled={saving}
+                  className="w-full flex items-center justify-between gap-4 px-4 py-3.5 rounded-xl text-left transition-all"
+                  style={{
+                    background: prefs[key] ? "rgba(163,240,0,.06)" : "var(--bg3)",
+                    border: `1px solid ${prefs[key] ? "rgba(163,240,0,.2)" : "var(--border)"}`,
+                  }}
+                >
+                  <div className="min-w-0">
                     <p className="text-sm font-medium" style={{ color: "var(--text)" }}>{label}</p>
                     <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>{desc}</p>
                   </div>
-                  <button
-                    onClick={() => toggle(key)}
+                  <div
                     className="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none"
                     style={{ background: prefs[key] ? "#a3f000" : "rgba(255,255,255,.12)" }}
                   >
@@ -572,18 +597,10 @@ function SettingsContent() {
                       className="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg transition-transform"
                       style={{ transform: prefs[key] ? "translateX(1.375rem)" : "translateX(0.25rem)" }}
                     />
-                  </button>
-                </div>
+                  </div>
+                </button>
               ))}
             </div>
-            <button
-              onClick={handleSavePrefs}
-              disabled={saving}
-              className="mt-4 font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
-              style={{ background: "#a3f000", color: "#060d18" }}
-            >
-              {saved ? "Saved ✓" : saving ? "Saving…" : "Save preferences"}
-            </button>
           </section>
         )}
 

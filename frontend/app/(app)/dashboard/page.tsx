@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, Suspense } from "react";
+import { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import {
   Plus, RefreshCw, TrendingUp, ArrowRight, Sparkles,
   Activity, Package, Zap, Clock, X, Trash2, Check, Lock,
@@ -623,12 +623,28 @@ function DashboardContent() {
     });
   }
 
+  const scanAllStartRef = useRef<number>(0);
+
   async function handleScanAll() {
     if (scanningAll) return;
     setScanningAll(true);
-    await Promise.allSettled(competitorList.map((c) => api.rescan(c.id)));
-    setTimeout(() => { setScanningAll(false); load(); }, 1500);
+    scanAllStartRef.current = Date.now();
+    // Stagger requests 150ms apart to avoid concurrent DB issues
+    for (const c of competitorList) {
+      await api.rescan(c.id).catch(() => {});
+      await new Promise<void>((r) => setTimeout(r, 150));
+    }
+    load();
   }
+
+  // Clear scanningAll once no competitors are actively scanning and a
+  // minimum window has elapsed (so Celery has time to pick up the tasks)
+  useEffect(() => {
+    if (!scanningAll) return;
+    const elapsed = Date.now() - scanAllStartRef.current;
+    const anyScanning = competitorList.some((c) => c.scan_status === "scanning");
+    if (elapsed > 15_000 && !anyScanning) setScanningAll(false);
+  }, [competitorList, scanningAll]);
 
   async function handleBulkDelete() {
     if (deleting || selectedIds.size === 0) return;
