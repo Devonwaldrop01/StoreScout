@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { X, Search, AlertCircle, CheckCircle2, AlertTriangle } from "lucide-react";
 import { competitors as api, type Competitor } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,7 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
   const [storeStatus, setStoreStatus] = useState<"idle" | "ok" | "restricted" | "error">("idle");
   const [error, setError] = useState("");
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const checkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function checkStore(value: string) {
     if (!value.trim()) return;
@@ -48,14 +49,13 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
     }
   }
 
-  let checkTimer: ReturnType<typeof setTimeout>;
   function handleUrlChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     setUrl(value);
     setStoreStatus("idle");
-    clearTimeout(checkTimer);
+    if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
     if (value.length > 5) {
-      checkTimer = setTimeout(() => checkStore(value), 700);
+      checkTimerRef.current = setTimeout(() => checkStore(value), 700);
     }
   }
 
@@ -142,7 +142,7 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
               <p className="text-xs mt-1 text-yellow-400">This store restricts public access — we&apos;ll still attempt to scan it</p>
             )}
             {storeStatus === "error" && (
-              <p className="text-xs mt-1 text-red-400">{error || "Doesn&apos;t look like a Shopify store"}</p>
+              <p className="text-xs mt-1 text-red-400">{error || "Doesn't look like a Shopify store"}</p>
             )}
           </div>
 
