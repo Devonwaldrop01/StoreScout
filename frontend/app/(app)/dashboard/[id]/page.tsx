@@ -15,7 +15,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import {
   cn, formatRelativeTime, formatPrice, formatPct, formatDelta,
-  changeTypeIcon, getChangeAction,
+  changeTypeIcon, changeTypeColor, changeTypeLabel, getChangeAction,
 } from "@/lib/utils";
 import { PriceDistributionChart } from "@/components/charts/PriceDistributionChart";
 import { PriceHistoryChart } from "@/components/charts/PriceHistoryChart";
@@ -220,21 +220,31 @@ function TopAlertBanner({ change, hostname, onViewAll }: { change: ChangeEvent; 
 
 // ── Change row ────────────────────────────────────────────────────────────────
 function ChangeRow({ change, hostname }: { change: ChangeEvent; hostname?: string }) {
-  const icon  = changeTypeIcon(change.change_type);
+  const Icon    = changeTypeIcon(change.change_type);
+  const color   = changeTypeColor(change.change_type);
+  const label   = changeTypeLabel(change.change_type);
   const old_v = change.old_value || {};
   const new_v = change.new_value || {};
   let detail  = "";
   if (change.change_type === "price_change" && change.delta_pct != null) {
     detail = `${formatPrice(old_v.price as number)} → ${formatPrice(new_v.price as number)} (${formatDelta(change.delta_pct)})`;
   } else if (change.change_type === "new_product") {
-    detail = new_v.price_min ? `from ${formatPrice(new_v.price_min as number)}` : "";
-  } else if (change.change_type === "discount_start" || change.change_type === "discount_end") {
-    detail = `${formatPct(old_v.discounted_pct as number)} → ${formatPct(new_v.discounted_pct as number)} of catalog`;
+    detail = new_v.price_min ? `from ${formatPrice(new_v.price_min as number)}` : "added to catalog";
+  } else if (change.change_type === "discount_start") {
+    const pct = new_v.discounted_pct as number;
+    detail = pct ? `${formatPct(pct)} of catalog on sale` : "";
+  } else if (change.change_type === "discount_end") {
+    const pct = old_v.discounted_pct as number;
+    detail = pct ? `${formatPct(pct)} back to full price` : "";
+  } else if (change.change_type === "product_removed") {
+    detail = "removed from catalog";
+  } else if (change.change_type === "availability_change") {
+    const inStock = new_v.available as boolean;
+    detail = inStock === false ? "went out of stock" : inStock === true ? "back in stock" : "";
   }
   const borderColor =
     change.severity === "critical" ? "var(--red)" :
     change.severity === "warning"  ? "var(--amber)" : "transparent";
-  const detailColor = change.delta_pct != null && change.delta_pct < 0 ? "var(--red)" : "var(--emerald)";
 
   const action = getChangeAction(change.change_type, change.delta_pct, change.severity, hostname);
 
@@ -243,13 +253,21 @@ function ChangeRow({ change, hostname }: { change: ChangeEvent; hostname?: strin
       className="flex items-start gap-3 py-3 pl-3 border-b last:border-0"
       style={{ borderColor: "var(--border)", borderLeft: `3px solid ${borderColor}`, marginLeft: "-1px" }}
     >
-      <span className="text-base leading-none mt-0.5 shrink-0">{icon}</span>
+      <div
+        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+        style={{ background: `color-mix(in srgb, ${color} 12%, transparent)` }}
+      >
+        <Icon className="w-3.5 h-3.5" style={{ color }} />
+      </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate" style={{ color: "var(--text)" }}>
-          {change.product_title || change.change_type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
-        </p>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-semibold" style={{ color }}>{label}</span>
+          {change.product_title && (
+            <span className="text-xs truncate" style={{ color: "var(--text-2)" }}>· {change.product_title}</span>
+          )}
+        </div>
         {detail && (
-          <p className="text-xs font-mono mt-0.5" style={{ color: detailColor }}>{detail}</p>
+          <p className="text-[11px] mt-0.5" style={{ color: "var(--muted)" }}>{detail}</p>
         )}
         {action && (change.severity === "critical" || change.severity === "warning") && (
           <p

@@ -12,8 +12,8 @@ import {
   competitors as api, alerts as alertsApi, user as userApi,
   type Competitor, type AlertEvent, type DiscoverySuggestion, type PlaybookPlay,
 } from "@/lib/api";
-import { cn, formatPrice } from "@/lib/utils";
-import { groupAlertEvents, type SignalGroup } from "@/lib/signals";
+import { cn, formatPrice, formatRelativeTime } from "@/lib/utils";
+import { groupAlertEvents, type SignalGroup, SIGNAL_CONFIG } from "@/lib/signals";
 import { SignalFeed } from "@/components/signals/SignalFeed";
 import { AddCompetitorModal } from "@/components/competitors/AddCompetitorModal";
 import { ActionPlaybook } from "@/components/competitors/ActionPlaybook";
@@ -242,6 +242,9 @@ function CompetitorMonitor({
     setTimeout(() => setRescanning(false), 3000);
   }
 
+  const topStrategic = recentSignals.find((g) => g.tier === "strategic");
+  const topSignalCfg = topStrategic ? SIGNAL_CONFIG[topStrategic.type] : null;
+
   const statusColor = isScanning ? "var(--accent)" : hasStrategic ? "var(--red)" : "var(--emerald)";
 
   const borderColor = isSelected
@@ -306,14 +309,30 @@ function CompetitorMonitor({
         </div>
       </div>
 
-      {/* Next scan + rescan */}
-      <div className="flex items-center gap-2 shrink-0">
-        {!selectMode && (
-          <span className="text-[11px]" style={{ color: "var(--muted)" }}>
-            {isScanning ? "Scanning…" : `Scan in ${formatNextScan(competitor.next_scan_at)}`}
-          </span>
-        )}
-        {!selectMode && (
+      {/* Right side: signal pill or last-scan time + rescan */}
+      {!selectMode && (
+        <div className="flex items-center gap-2 shrink-0">
+          {isScanning ? (
+            <span className="text-[11px]" style={{ color: "var(--accent)" }}>Scanning…</span>
+          ) : topSignalCfg && topStrategic ? (
+            <span
+              className="text-[10px] font-bold px-2 py-1 rounded-md whitespace-nowrap"
+              style={{ background: `color-mix(in srgb, ${topSignalCfg.color} 12%, transparent)`, color: topSignalCfg.color }}
+            >
+              {topStrategic.headline}
+            </span>
+          ) : changeCount > 0 ? (
+            <span
+              className="text-[10px] font-semibold px-2 py-1 rounded-md"
+              style={{ background: "rgba(168,255,0,.08)", color: "var(--accent)" }}
+            >
+              {changeCount} change{changeCount !== 1 ? "s" : ""}
+            </span>
+          ) : competitor.last_scanned_at ? (
+            <span className="text-[11px]" style={{ color: "var(--muted)" }}>
+              {formatRelativeTime(competitor.last_scanned_at)}
+            </span>
+          ) : null}
           <button
             onClick={handleRescan}
             className="p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10"
@@ -321,8 +340,8 @@ function CompetitorMonitor({
           >
             <RefreshCw className={cn("w-3 h-3", (rescanning || isScanning) && "animate-spin")} />
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 
@@ -581,6 +600,9 @@ function DashboardContent() {
   const [maxCompetitors, setMaxCompetitors] = useState<number | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [scanningAll, setScanningAll] = useState(false);
+  const [showAllCompetitors, setShowAllCompetitors] = useState(false);
+
+  const COMPETITOR_PREVIEW = 6;
   const [deleting, setDeleting] = useState(false);
 
   const selectMode = selectedIds.size > 0;
@@ -787,19 +809,49 @@ function DashboardContent() {
 
             {/* ── Center: intelligence stream ── */}
             <div className="flex-1 min-w-0">
-              {/* Competitor monitors */}
-              <div className="space-y-2 mb-5">
-                {competitorList.map((c) => (
-                  <CompetitorMonitor
-                    key={c.id}
-                    competitor={c}
-                    signalGroups={signalGroups}
-                    selectMode={selectMode}
-                    isSelected={selectedIds.has(c.id)}
-                    onToggle={() => toggleSelect(c.id)}
-                  />
-                ))}
-              </div>
+              {/* Competitor monitors — sorted by activity, capped for agency users */}
+              {(() => {
+                const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                const sorted = [...competitorList].sort((a, b) => {
+                  const aCount = signalGroups.filter((g) => g.competitor_id === a.id && new Date(g.detected_at).getTime() > weekAgo).reduce((s, g) => s + g.count, 0);
+                  const bCount = signalGroups.filter((g) => g.competitor_id === b.id && new Date(g.detected_at).getTime() > weekAgo).reduce((s, g) => s + g.count, 0);
+                  return bCount - aCount;
+                });
+                const visible = selectMode || showAllCompetitors ? sorted : sorted.slice(0, COMPETITOR_PREVIEW);
+                const hiddenCount = sorted.length - COMPETITOR_PREVIEW;
+                return (
+                  <div className="space-y-2 mb-5">
+                    {visible.map((c) => (
+                      <CompetitorMonitor
+                        key={c.id}
+                        competitor={c}
+                        signalGroups={signalGroups}
+                        selectMode={selectMode}
+                        isSelected={selectedIds.has(c.id)}
+                        onToggle={() => toggleSelect(c.id)}
+                      />
+                    ))}
+                    {!selectMode && hiddenCount > 0 && !showAllCompetitors && (
+                      <button
+                        onClick={() => setShowAllCompetitors(true)}
+                        className="w-full py-2 rounded-xl text-xs font-semibold transition-colors hover:bg-white/[0.04]"
+                        style={{ color: "var(--muted)", border: "1px dashed var(--border)" }}
+                      >
+                        Show {hiddenCount} more store{hiddenCount !== 1 ? "s" : ""}
+                      </button>
+                    )}
+                    {!selectMode && showAllCompetitors && sorted.length > COMPETITOR_PREVIEW && (
+                      <button
+                        onClick={() => setShowAllCompetitors(false)}
+                        className="w-full py-2 rounded-xl text-xs font-semibold transition-colors hover:bg-white/[0.04]"
+                        style={{ color: "var(--muted)", border: "1px dashed var(--border)" }}
+                      >
+                        Collapse list
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Signal feed — the hero */}
               {!alertsLoading && (
