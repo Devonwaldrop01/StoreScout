@@ -670,9 +670,6 @@ function DashboardContent() {
               {/* Most active today */}
               {!alertsLoading && <MostActive competitorList={competitorList} signalGroups={signalGroups} />}
 
-              {/* Watch list */}
-              <WatchPanel competitorList={competitorList} />
-
               {/* Discovery suggestions */}
               <DiscoverySuggestions
                 suggestions={suggestions}
@@ -688,7 +685,6 @@ function DashboardContent() {
           <div className="lg:hidden mt-6 space-y-3">
             {!alertsLoading && <WeeklyChart alertList={alertList} />}
             {!alertsLoading && <MostActive competitorList={competitorList} signalGroups={signalGroups} />}
-            <WatchPanel competitorList={competitorList} />
             {/* Discovery on mobile — below the rest */}
             <DiscoverySuggestions
               suggestions={suggestions}
