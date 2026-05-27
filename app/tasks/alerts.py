@@ -335,7 +335,7 @@ def _send_generic_webhook(url: str, hostname: str, competitor_id: str,
 def _resolve_email(db, user_id: str) -> Optional[str]:
     """Return the user's email, falling back to Auth admin API if user_profiles.email is blank."""
     user = db.table("user_profiles").select("email, tier").eq("id", user_id).maybe_single().execute()
-    email = ((user.data or {}).get("email") or "").strip()
+    email = (((user and user.data) or {}).get("email") or "").strip()
     if not email:
         try:
             auth_user = db.auth.admin.get_user_by_id(user_id)
@@ -368,7 +368,7 @@ def send_change_alert(self, user_id: str, competitor_id: str, change_ids: List[s
 
     # Fetch user prefs and tier
     user = db.table("user_profiles").select("email, tier").eq("id", user_id).maybe_single().execute()
-    if not user.data or user.data.get("tier", "free") == "free":
+    if not (user and user.data) or user.data.get("tier", "free") == "free":
         return {"status": "no_alerts_free_tier"}
 
     email = _resolve_email(db, user_id)
@@ -377,10 +377,10 @@ def send_change_alert(self, user_id: str, competitor_id: str, change_ids: List[s
         return {"status": "no_email"}
 
     prefs = db.table("notification_prefs").select("*").eq("user_id", user_id).maybe_single().execute()
-    prefs_data = prefs.data or {}
+    prefs_data = (prefs and prefs.data) or {}
 
     competitor = db.table("competitors").select("hostname, store_url").eq("id", competitor_id).maybe_single().execute()
-    if not competitor.data:
+    if not (competitor and competitor.data):
         return {"status": "competitor_not_found"}
 
     hostname = competitor.data["hostname"]
@@ -609,7 +609,7 @@ def send_weekly_digest_email(user_id: str) -> dict:
 
     # Check digest pref
     prefs = db.table("notification_prefs").select("email_weekly_digest").eq("user_id", user_id).maybe_single().execute()
-    if not (prefs.data or {}).get("email_weekly_digest", True):
+    if not ((prefs and prefs.data) or {}).get("email_weekly_digest", True):
         return {"status": "digest_disabled"}
 
     # Get all active competitors (not my_store)
