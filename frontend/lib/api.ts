@@ -412,6 +412,15 @@ export interface PlaybookDetail {
   outcome?: string;
 }
 
+export interface DraftAsset {
+  type: "email" | "ad" | "none";
+  label?: string;
+  subject?: string;
+  body_opening?: string;
+  headlines?: string[];
+  ad_body?: string;
+}
+
 export interface PlaybookPlay {
   id: string;
   section: "act_now" | "right_now" | "this_week" | "watch";
@@ -425,6 +434,7 @@ export interface PlaybookPlay {
   source: "snapshot" | "change_event" | "ai";
   tab?: string;
   detail?: PlaybookDetail;
+  draft_asset?: DraftAsset | null;
 }
 
 export interface PlaybookResponse {

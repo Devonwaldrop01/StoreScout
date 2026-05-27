@@ -134,14 +134,16 @@ def generate_ai_playbook(user_id: str) -> dict:
 
     comps_res = (
         db.table("competitors")
-        .select("id, hostname")
+        .select("id, hostname, is_my_store")
         .eq("user_id", user_id)
         .eq("is_active", True)
         .eq("scan_status", "done")
         .order("created_at", desc=False)  # deterministic ordering for comp_ids[0]
         .execute()
     )
-    competitors = [c for c in (comps_res.data or []) if not c.get("is_my_store")]
+    all_comps = comps_res.data or []
+    my_store_comp = next((c for c in all_comps if c.get("is_my_store")), None)
+    competitors = [c for c in all_comps if not c.get("is_my_store")]
     if not competitors:
         return {"status": "no_competitors"}
 
@@ -161,6 +163,27 @@ def generate_ai_playbook(user_id: str) -> dict:
     )
     if existing.data:
         return {"status": "fresh_exists"}
+
+    # Build user's own store context (if available) — makes plays specific to their situation
+    my_store_section = ""
+    if my_store_comp:
+        snap_res = (
+            db.table("scan_snapshots")
+            .select("product_count, median_price, promo_rate, new_30d, snapshot_data")
+            .eq("competitor_id", my_store_comp["id"])
+            .order("scanned_at", desc=True)
+            .limit(1)
+            .maybe_single()
+            .execute()
+        )
+        if snap_res.data:
+            my_store_section = (
+                "YOUR STORE (the user's own Shopify store — use these numbers to make every play "
+                "specific to their situation: reference their prices, categories, and products by name "
+                "when writing email copy or ad headlines):\n"
+                + _format_competitor_block(my_store_comp, snap_res.data)
+                + "\n"
+            )
 
     # Build rich per-competitor blocks
     comp_blocks: list[str] = []
@@ -215,15 +238,25 @@ def generate_ai_playbook(user_id: str) -> dict:
         else "No critical or warning changes detected in the last 7 days."
     )
 
-    prompt = f"""Analyze this Shopify competitor intelligence and generate 5-8 plays for a store owner who is competing against these brands.
+    my_store_prompt = (
+        f"{my_store_section}\n" if my_store_section else ""
+    )
+    my_store_instruction = (
+        "You have the user's own store data above. Write email copy and ad headlines AS IF you are "
+        "their copywriter — use their actual price points, categories, and products by name. "
+        "The contrast between their store and the competitor's move is the story.\n\n"
+        if my_store_section else ""
+    )
 
-COMPETITOR DATA:
+    prompt = f"""Analyze this Shopify competitor intelligence and generate 5-8 plays for a store owner.
+
+{my_store_prompt}COMPETITOR DATA (stores they are tracking):
 {chr(10).join(comp_blocks)}
 
 RECENT ALERTS (last 7 days — critical/warning only):
 {changes_section}
 
-Return ONLY valid JSON — no markdown fences, no preamble, no explanation:
+{my_store_instruction}Return ONLY valid JSON — no markdown fences, no preamble, no explanation:
 {{
   "plays": [
     {{
@@ -233,33 +266,49 @@ Return ONLY valid JSON — no markdown fences, no preamble, no explanation:
       "deadline": "right now|today|within 48h|this week",
       "type": "pricing|catalog|positioning|discounts|alert",
       "tab": "overview|pricing|launches|discounts|changes",
-      "competitor_hostname": "exact hostname from the data above, or 'multiple' for cross-competitor plays",
+      "competitor_hostname": "exact hostname, or 'multiple' for cross-competitor plays",
       "detail": {{
         "steps": [
           "Open [exact platform name] → [specific path or feature]",
-          "... 5-7 more steps, each naming exact platforms/features, dollar amounts, and measurable criteria ...",
+          "... 5-7 more steps naming exact platforms, dollar amounts, measurable criteria ...",
           "Measure [specific metric] after [timeframe] — success looks like [threshold]"
         ],
-        "why": "1-2 sentences: what is happening at this competitor RIGHT NOW and why that creates a window for the user",
-        "outcome": "1 sentence: specific measurable result if the play works (e.g. 'A CTR lift >15% confirms the angle works — save this ad set and reuse it every time they run a sale')",
-        "competitor_metrics": "paste the exact data point(s) from above that make this play valid"
+        "why": "1-2 sentences on what is happening at this competitor RIGHT NOW and why it creates a window",
+        "outcome": "1 sentence: specific measurable result if the play works",
+        "competitor_metrics": "exact data point(s) from above that validate this play"
+      }},
+      "draft_asset": {{
+        "type": "email|ad|none",
+        "label": "e.g. 'Counter-campaign email' or 'Ad headline options'",
+        "subject": "email subject line — compelling, 6-10 words, no clickbait (only if type=email)",
+        "body_opening": "opening 2-3 sentences of the email body — write it specifically for this situation using the actual prices, categories, and products from the data. No placeholders like [name] or [your product]. If you have the user's store data, write from their brand's voice. (only if type=email)",
+        "headlines": ["headline 1 ≤30 chars", "headline 2 ≤30 chars", "headline 3 ≤30 chars"],
+        "ad_body": "1-2 sentence ad description using actual product/price details from the data (only if type=ad)"
       }}
     }}
   ]
 }}
 
-Section rules:
-- act_now: competitor is doing something RIGHT NOW creating a < 48h window — ONLY generate if there are actual recent alerts above
-- right_now: current competitor state reveals an opportunity to act in the next 2-3 days
-- this_week: strategic gap or compounding trend where every day of delay costs something
-- If there are no recent alerts, generate only right_now and this_week plays
+Draft asset rules:
+- type=email: for plays where the primary action is sending to your email list (flash sales, discount windows, price increases)
+- type=ad: for plays where the primary action is running paid ads (OOS windows, price gaps, launch opportunities)
+- type=none: for research/sourcing plays where no copy asset makes sense
+- If you have the user's OWN STORE data, make the email/ad copy SPECIFIC to their prices and categories
+- Email body_opening must be complete sentences a user can paste directly into Klaviyo — not a template
 
-Quality checklist for each play before you output it:
-- Does the headline name a specific number from the data? ✓/✗
-- Do the steps name a specific platform path? ✓/✗
-- Is there a dollar amount or time window in at least one step? ✓/✗
-- Is there a measurable success criterion in the outcome? ✓/✗
-- If any answer is ✗, rewrite the play before including it"""
+Section rules:
+- act_now: competitor doing something RIGHT NOW, < 48h window — ONLY if actual recent alerts exist above
+- right_now: current competitor state reveals an opportunity, act in 2-3 days
+- this_week: strategic gap or compounding trend (7 days)
+- No recent alerts = no act_now plays
+
+Quality checklist — verify each play before outputting:
+- Headline has a specific number from the data? ✓/✗
+- Steps name a specific platform path? ✓/✗
+- Dollar amount or time window in at least one step? ✓/✗
+- Measurable success criterion in outcome? ✓/✗
+- Draft asset copy is specific (uses real data, no placeholders)? ✓/✗
+- Rewrite any play that fails a check"""
 
     try:
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
@@ -297,6 +346,21 @@ Quality checklist for each play before you output it:
                     for c in competitors[:4]
                 ]
 
+            draft_raw = p.get("draft_asset") or {}
+            da_type = draft_raw.get("type", "none")
+            draft_asset = (
+                {
+                    "type": da_type,
+                    "label": draft_raw.get("label") or "",
+                    "subject": draft_raw.get("subject"),
+                    "body_opening": draft_raw.get("body_opening"),
+                    "headlines": draft_raw.get("headlines") or [],
+                    "ad_body": draft_raw.get("ad_body"),
+                }
+                if da_type in ("email", "ad")
+                else None
+            )
+
             normalised.append({
                 "id": f"ai-{section}-{i}",
                 "section": section,
@@ -315,6 +379,7 @@ Quality checklist for each play before you output it:
                     "outcome": detail.get("outcome", ""),
                     "competitors": competitors_row,
                 },
+                "draft_asset": draft_asset,
             })
 
         db.table("ai_summaries").insert({
