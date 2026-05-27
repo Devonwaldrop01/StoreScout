@@ -22,8 +22,16 @@ def get_playbook(user_id: str = Depends(get_effective_user_id)):
     try:
         return _build_playbook(user_id)
     except Exception as exc:
-        logger.error("playbook failed for user %s: %s", user_id, exc)
-        return {"plays": [], "competitor_count": 0, "locked": False}
+        logger.error("playbook failed for user %s: %s", user_id, exc, exc_info=True)
+        # Try to return a meaningful competitor_count even on failure
+        try:
+            db = get_supabase()
+            r = db.table("competitors").select("id", count="exact")\
+                .eq("user_id", user_id).eq("is_active", True).eq("is_my_store", False).execute()
+            count = r.count or 0
+        except Exception:
+            count = 0
+        return {"plays": [], "competitor_count": count, "locked": False}
 
 
 def _build_playbook(user_id: str) -> dict:

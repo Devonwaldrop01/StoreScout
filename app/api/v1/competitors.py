@@ -184,6 +184,23 @@ def discover_similar(user_id: str = Depends(get_effective_user_id)):
     with the user's currently tracked competitors. Falls back to curated
     popular stores for new users or when no tag data is available.
     """
+    try:
+        return _discover_similar_inner(user_id)
+    except Exception as exc:
+        logger.error("discover failed for user %s: %s", user_id, exc, exc_info=True)
+        curated = [
+            {
+                "hostname": s["hostname"], "competitor_id": s["hostname"],
+                "score": 0, "match_reasons": [s["tag"]],
+                "product_count": None, "median_price": None,
+                "market_position": None, "is_curated": True, "category": s["category"],
+            }
+            for s in _CURATED_STORES
+        ][:6]
+        return {"data": {"suggestions": curated}}
+
+
+def _discover_similar_inner(user_id: str) -> dict:
     db = get_supabase()
 
     # User's current competitors
@@ -248,7 +265,7 @@ def discover_similar(user_id: str = Depends(get_effective_user_id)):
 
     candidate_ids = list({
         s["competitor_id"] for s in (recent_snaps.data or [])
-        if s["competitor_id"] not in tracked_ids
+        if s.get("competitor_id") and s["competitor_id"] not in tracked_ids
     })[:60]
 
     if not candidate_ids:
