@@ -21,6 +21,7 @@ celery = Celery(
         "app.tasks.detect_changes",
         "app.tasks.alerts",
         "app.tasks.ai_summaries",
+        "app.tasks.playbook_ai",
         "app.tasks.drip",
         "app.tasks.scheduler",
     ],
