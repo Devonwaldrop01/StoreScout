@@ -836,13 +836,23 @@ export default function PlaybookPage() {
         {tab === "active" && (
           <>
             {activePlays.length === 0 ? (
-              <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-                <Check className="w-6 h-6 mx-auto mb-2" style={{ color: "#a3f000" }} />
-                <p className="font-semibold mb-1" style={{ color: "var(--text)" }}>All caught up</p>
-                <p className="text-sm" style={{ color: "var(--muted)" }}>
-                  Everything&apos;s marked done. Your playbook refreshes after each competitor scan.
-                </p>
-              </div>
+              plays.length === 0 && data.ai_generating ? (
+                <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                  <RefreshCw className="w-6 h-6 mx-auto mb-3 animate-spin" style={{ color: "#60a5fa" }} />
+                  <p className="font-semibold mb-1" style={{ color: "var(--text)" }}>Generating your first AI-powered plays</p>
+                  <p className="text-sm" style={{ color: "var(--muted)" }}>
+                    Claude is reviewing your {data.competitor_count} competitor{data.competitor_count !== 1 ? "s" : ""}. Refresh in ~30 seconds.
+                  </p>
+                </div>
+              ) : (
+                <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                  <Check className="w-6 h-6 mx-auto mb-2" style={{ color: "#a3f000" }} />
+                  <p className="font-semibold mb-1" style={{ color: "var(--text)" }}>All caught up</p>
+                  <p className="text-sm" style={{ color: "var(--muted)" }}>
+                    Everything&apos;s marked done. Your playbook refreshes after each competitor scan.
+                  </p>
+                </div>
+              )
             ) : (
               <div className="space-y-8">
                 {SECTION_ORDER.map((section) => (
