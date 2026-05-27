@@ -195,6 +195,19 @@ def _aggregate_bulk(changes: List[dict], threshold: int) -> List[dict]:
 
 @celery.task(name="app.tasks.detect_changes.detect_changes")
 def detect_changes(competitor_id: str, snapshot_id: str) -> dict:
+    # Idempotency guard: skip if this snapshot has already been diffed.
+    # Handles accidental double-enqueuing (two Beat workers racing) and Celery
+    # retries on a task that already succeeded. TTL is 2 h — covers any retry window.
+    try:
+        from app.core.config import get_settings
+        import redis as redis_lib
+        _r = redis_lib.from_url(get_settings().redis_url, socket_connect_timeout=1)
+        if not _r.set(f"detect_changes:done:{snapshot_id}", "1", nx=True, ex=7200):
+            logger.info("[DETECT %s] snapshot %s already processed — skipping", competitor_id, snapshot_id)
+            return {"status": "already_processed"}
+    except Exception:
+        pass  # Redis unavailable — proceed without guard; duplicate events are low severity
+
     db = get_supabase()
     logger.info("[DETECT %s] starting for snapshot %s", competitor_id, snapshot_id)
 

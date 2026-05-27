@@ -72,9 +72,14 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_effect
                 "scan_interval_hours": settings.free_scan_interval_hours,
                 "subscription_status": "inactive",
             }).execute()
-        except Exception:
-            pass  # already exists (race condition) or RLS blocked — fall through with free defaults
-    tier = (user.data or {}).get("tier", "free") if user else "free"
+        except Exception as provision_exc:
+            # Likely a race (row already exists) or an RLS policy mismatch. Log it so
+            # we can diagnose paid-user-gets-free-defaults incidents, then re-fetch so
+            # we read the real tier rather than blindly defaulting.
+            logger.warning("user_profiles auto-provision failed for %s: %s", user_id, provision_exc)
+        # Re-fetch after provision attempt — picks up the real tier even if insert failed
+        user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
+    tier = (user.data or {}).get("tier", "free") if (user and user.data) else "free"
     limits = _tier_limits(tier)
 
     existing = db.table("competitors").select("id").eq("user_id", user_id).eq("is_active", True).eq("is_my_store", False).execute()

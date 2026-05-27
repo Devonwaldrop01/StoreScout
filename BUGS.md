@@ -94,7 +94,7 @@ Living document. Add new bugs as found; update Status when fixed.
 - **Expected**: Each competitor scan enqueued exactly once per cycle.
 - **Actual**: Both processes query `next_scan_at <= now()` simultaneously and enqueue the same competitors twice.
 - **Root cause**: No Redis lock around the enqueue loop in `scheduler.py`.
-- **Status**: Open
+- **Status**: Fixed — Redis `SET NX ex=300` lock acquired at task start; second process skips cycle if lock held.
 
 ---
 
@@ -102,10 +102,10 @@ Living document. Add new bugs as found; update Status when fixed.
 - **Severity**: Medium
 - **Route/Page**: `POST /api/v1/competitors`
 - **Steps to reproduce**: Cause a DB error during user auto-provision (e.g., RLS policy mismatch).
-- **Expected**: Error surfaced; user shown a clear failure message.
-- **Actual**: `except: pass` at `competitors.py:75` swallows the error; `tier` falls back to "free" regardless of actual paid status.
-- **Root cause**: Overly broad exception suppression in the auto-provision block.
-- **Status**: Open
+- **Expected**: Error logged; tier re-fetched so paid users are not silently demoted to free.
+- **Actual**: `except: pass` swallows the error; tier falls back to "free" regardless of actual paid status.
+- **Root cause**: Overly broad exception suppression with no re-fetch after failure.
+- **Status**: Fixed — `except Exception as provision_exc` logs the error + unconditional re-fetch after provision attempt picks up real tier.
 
 ---
 
@@ -126,8 +126,8 @@ Living document. Add new bugs as found; update Status when fixed.
 - **Steps to reproduce**: Manually enqueue `detect_changes(competitor_id, snapshot_id)` twice (or simulate a Celery retry on a successful task).
 - **Expected**: Idempotent — second run produces no new rows.
 - **Actual**: Second run diffs the same two snapshots and inserts duplicate change_events.
-- **Root cause**: No `UNIQUE(competitor_id, change_type, product_handle, scanned_at)` constraint on `change_events`.
-- **Status**: Open
+- **Root cause**: No deduplication guard on the task.
+- **Status**: Fixed — Redis `SET NX ex=7200` on `detect_changes:done:{snapshot_id}` at task start; second invocation returns `already_processed` immediately.
 
 ---
 
@@ -146,6 +146,9 @@ Living document. Add new bugs as found; update Status when fixed.
 
 | ID | Title | Fixed in |
 |----|-------|----------|
+| BUG-007 | `enqueue_due_scans` double-enqueues with two Beat processes | this commit |
+| BUG-008 | `user_profiles` provision failure silently gave paid user free tier | this commit |
+| BUG-010 | `detect_changes` not idempotent — retries created duplicate events | this commit |
 | BUG-013 | `/competitors/discover` → 500 (route order) | 62a1861 |
 | BUG-014 | `/competitors/{id}/price-history` → 500 (`asc=True`) | 62a1861 |
 | BUG-015 | `/user/notification-prefs` → 500 (missing table columns) | 62a1861 |
