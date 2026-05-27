@@ -15,7 +15,7 @@ settings = get_settings()
 celery = Celery(
     "storescout",
     broker=settings.redis_url,
-    backend=settings.redis_url,
+    backend=None,
     include=[
         "app.tasks.scan",
         "app.tasks.detect_changes",
@@ -37,9 +37,14 @@ celery.conf.update(
     # Reduce Redis request volume — default polling is ~1/s which burns Upstash free tier fast.
     # At 5s interval, two worker processes use ~35K requests/day for polling vs ~175K at default.
     broker_transport_options={"polling_interval": 5},
-    # Don't store task results — cuts Redis writes by ~50% (results are not read by the app).
+    # Don't store task results — no backend is wired so results go nowhere (not read by the app).
     task_ignore_result=True,
     result_expires=1800,
+    # Heartbeats every 2s (default) = ~86K Redis commands/day per worker.
+    # 5-minute heartbeat + no task-state events cuts this to ~288/day per worker.
+    worker_heartbeat=300,
+    worker_send_task_events=False,
+    task_send_sent_event=False,
     **({"broker_use_ssl": _ssl_config, "redis_backend_use_ssl": _ssl_config} if _ssl_config else {}),
     task_routes={
         "app.tasks.alerts.*": {"queue": "priority"},
