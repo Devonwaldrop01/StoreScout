@@ -5,6 +5,7 @@ import re
 from datetime import datetime, timezone, timedelta
 
 import anthropic
+import redis as _redis_lib
 
 from .celery_app import celery
 from app.core.config import get_settings
@@ -12,28 +13,13 @@ from app.core.database import get_supabase
 
 logger = logging.getLogger(__name__)
 
-_SYSTEM_PROMPT = """You are a combat-ready Shopify competitive intelligence advisor. You take real competitor data and turn it into specific, 30-minute executable plays.
+_SYSTEM_PROMPT = """You are a Shopify competitive intelligence advisor. Turn real competitor data into specific, executable plays.
 
-You know these platforms cold: Meta Ads Manager, Google Shopping, Klaviyo, Shopify admin, Alibaba, Google Analytics, TikTok Ads.
+Platforms you know: Meta Ads Manager, Google Shopping, Klaviyo, Shopify admin, Alibaba, TikTok Ads.
 
-What makes a great play:
-- SPECIFIC: "Go to Meta Ads Manager → Ad Sets → duplicate your best CPA ad set" not "run some ads"
-- NUMBERS: dollar amounts ($10/day budget), timeframes (5-day test), success thresholds (>15% CTR lift)
-- CATEGORY-AWARE: when you see product categories or tags, name them in the steps
-- PRODUCT-SPECIFIC: when you see product titles, use them in your copy examples and ad suggestions
-- CROSS-COMPETITOR: patterns across 2+ competitors are the highest-value output
+Great plays are SPECIFIC (exact platform paths), have NUMBERS (dollar budgets, timeframes), and use PRODUCT NAMES from the data.
 
-What makes a bad play (never do these):
-- "Consider adjusting your pricing strategy" — too vague, not executable
-- "Monitor their social media" — not an action with a clear end state
-- "[their main product category]" or "[your price]" — placeholder text, never output brackets
-- "Target their followers on Meta" — wrong: you target brand Interests or product category Interests in Meta Detailed Targeting, not followers
-- Generic platform advice with no specific feature paths or budget numbers
-- Advice that requires knowing the user's margins, team size, or business model we don't have
-
-Meta Ads note: the correct path is Meta Ads Manager → Campaigns → Ad Set → Detailed Targeting → search brand name OR product category as an Interest. You CANNOT target a competitor's social followers directly. Always say "search [brand name] in Detailed Targeting — if it appears as an Interest, add it; otherwise target their product category."
-
-Your goal: each play should feel like advice from a friend who works at the competitor."""
+Meta Ads: go to Campaigns → Ad Set → Detailed Targeting → search brand name or product category as an Interest. You cannot target followers directly."""
 
 _SECTION_PRIORITY = {"act_now": 95, "right_now": 75, "this_week": 55}
 _FRESHNESS_HOURS = 23
@@ -143,6 +129,18 @@ def _format_competitor_block(comp: dict, snap: dict) -> str:
 @celery.task(name="app.tasks.playbook_ai.generate_ai_playbook")
 def generate_ai_playbook(user_id: str) -> dict:
     settings = get_settings()
+
+    # Rate-limit: prevent re-enqueue storm when generation fails
+    _rkey = f"playbook_gen:{user_id}"
+    try:
+        _r = _redis_lib.from_url(settings.redis_url, socket_connect_timeout=2)
+        if _r.exists(_rkey):
+            logger.info("generate_ai_playbook: rate-limited for %s, skipping", user_id)
+            return {"status": "rate_limited"}
+        _r.setex(_rkey, 900, "1")  # 15-minute cooldown
+    except Exception as _re:
+        logger.debug("generate_ai_playbook: redis rate-limit unavailable: %s", _re)
+
     db = get_supabase()
 
     comps_res = (
@@ -261,73 +259,47 @@ def generate_ai_playbook(user_id: str) -> dict:
         if my_store_section else ""
     )
 
-    prompt = f"""Analyze this Shopify competitor intelligence and generate 5-8 plays for a store owner.
+    prompt = f"""Analyze this Shopify competitor intelligence and generate exactly 3 plays for a store owner.
 
-{my_store_prompt}COMPETITOR DATA (stores they are tracking):
+{my_store_prompt}COMPETITOR DATA:
 {chr(10).join(comp_blocks)}
 
 RECENT ALERTS (last 7 days — critical/warning only):
 {changes_section}
 
-{my_store_instruction}Return ONLY valid JSON — no markdown fences, no preamble, no explanation:
+{my_store_instruction}Return ONLY valid JSON — no markdown, no preamble, no explanation after the closing brace:
 {{
   "plays": [
     {{
       "section": "act_now|right_now|this_week",
-      "headline": "6-12 words — include a specific number from the data and name the competitor or category",
-      "action": "2-3 sentences — name a specific platform, name a product or category from the data, give one concrete next step with a budget or timeframe",
+      "headline": "6-10 words with a specific number from the data",
+      "action": "1 sentence max 40 words — name a platform, a product or category, one concrete next step with budget or timeframe",
       "deadline": "right now|today|within 48h|this week",
       "type": "pricing|catalog|positioning|discounts|alert",
       "tab": "overview|pricing|launches|discounts|changes",
-      "competitor_hostname": "exact hostname, or 'multiple' for cross-competitor plays",
+      "competitor_hostname": "exact hostname or 'multiple'",
       "detail": {{
-        "steps": [
-          "Open [exact platform name] → [specific path or feature]",
-          "... 5-7 more steps naming exact platforms, dollar amounts, measurable criteria ...",
-          "Measure [specific metric] after [timeframe] — success looks like [threshold]"
-        ],
-        "why": "1-2 sentences on what is happening at this competitor RIGHT NOW and why it creates a window",
-        "outcome": "1 sentence: specific measurable result if the play works",
-        "competitor_metrics": "exact data point(s) from above that validate this play"
-      }},
-      "draft_asset": {{
-        "type": "email|ad|none",
-        "label": "e.g. 'Counter-campaign email' or 'Ad headline options'",
-        "subject": "email subject line — compelling, 6-10 words, no clickbait (only if type=email)",
-        "body_opening": "opening 2-3 sentences of the email body — write it specifically for this situation using the actual prices, categories, and products from the data. No placeholders like [name] or [your product]. If you have the user's store data, write from their brand's voice. (only if type=email)",
-        "headlines": ["headline 1 ≤30 chars", "headline 2 ≤30 chars", "headline 3 ≤30 chars"],
-        "ad_body": "1-2 sentence ad description using actual product/price details from the data (only if type=ad)"
+        "steps": ["step 1 under 15 words", "step 2 under 15 words", "step 3 under 15 words"],
+        "why": "1 sentence on why this window exists right now",
+        "outcome": "1 sentence measurable result",
+        "competitor_metrics": "the exact data point that validates this play"
       }}
     }}
   ]
 }}
 
-Draft asset rules:
-- type=email: for plays where the primary action is sending to your email list (flash sales, discount windows, price increases)
-- type=ad: for plays where the primary action is running paid ads (OOS windows, price gaps, launch opportunities)
-- type=none: for research/sourcing plays where no copy asset makes sense
-- If you have the user's OWN STORE data, make the email/ad copy SPECIFIC to their prices and categories
-- Email body_opening must be complete sentences a user can paste directly into Klaviyo — not a template
-
-Section rules:
-- act_now: competitor doing something RIGHT NOW, < 48h window — ONLY if actual recent alerts exist above
-- right_now: current competitor state reveals an opportunity, act in 2-3 days
-- this_week: strategic gap or compounding trend (7 days)
+Rules:
+- act_now: competitor doing something RIGHT NOW, <48h window — only if recent alerts exist above
+- right_now: current state reveals an opportunity, act in 2-3 days
+- this_week: strategic gap or trend (7 days)
 - No recent alerts = no act_now plays
-
-Quality checklist — verify each play before outputting:
-- Headline has a specific number from the data? ✓/✗
-- Steps name a specific platform path? ✓/✗
-- Dollar amount or time window in at least one step? ✓/✗
-- Measurable success criterion in outcome? ✓/✗
-- Draft asset copy is specific (uses real data, no placeholders)? ✓/✗
-- Rewrite any play that fails a check"""
+- Output exactly 3 plays, no more, no less"""
 
     try:
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         message = client.messages.create(
             model="claude-sonnet-4-6",
-            max_tokens=6000,
+            max_tokens=3000,
             system=_SYSTEM_PROMPT,
             messages=[{"role": "user", "content": prompt}],
         )
