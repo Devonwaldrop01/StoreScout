@@ -38,7 +38,7 @@ def _build_playbook(user_id: str) -> dict:
     db = get_supabase()
 
     user_res = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
-    tier = (user_res.data or {}).get("tier", "free")
+    tier = ((user_res and user_res.data) or {}).get("tier", "free")
 
     comps_res = (
         db.table("competitors")
@@ -70,7 +70,7 @@ def _build_playbook(user_id: str) -> dict:
         .maybe_single()
         .execute()
     )
-    if ai_res.data:
+    if ai_res and ai_res.data:
         try:
             ai_data = json.loads(ai_res.data["summary_text"])
             ai_plays = ai_data.get("plays") or []
@@ -125,7 +125,7 @@ def _build_playbook(user_id: str) -> dict:
             .maybe_single()
             .execute()
         )
-        if snap_res.data:
+        if snap_res and snap_res.data:
             competitors_data.append({
                 "competitor_id": comp["id"],
                 "hostname": comp["hostname"],
