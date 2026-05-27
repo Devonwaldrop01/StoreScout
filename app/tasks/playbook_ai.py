@@ -40,21 +40,34 @@ _FRESHNESS_HOURS = 23
 
 
 def _extract_json(text: str) -> dict:
-    """Parse JSON from Claude output, handling markdown fences gracefully."""
-    # Strip markdown code fences
+    """Parse JSON from Claude output, handling markdown fences and trailing content."""
+    # Strip markdown code fences (``` or ```json)
     cleaned = re.sub(r"```(?:json)?\s*", "", text).strip()
     cleaned = re.sub(r"\s*```", "", cleaned).strip()
+
+    # Try direct parse first
     try:
         return json.loads(cleaned)
     except json.JSONDecodeError:
         pass
-    # Find the first complete JSON object
+
+    # Find the first { and use raw_decode so trailing text after } is ignored
     start = cleaned.find("{")
     if start != -1:
         try:
-            return json.loads(cleaned[start:])
+            obj, _ = json.JSONDecoder().raw_decode(cleaned, start)
+            return obj
         except json.JSONDecodeError:
             pass
+
+    # Last resort: regex-extract the outermost {...} block
+    m = re.search(r"\{.*\}", cleaned, re.DOTALL)
+    if m:
+        try:
+            return json.loads(m.group())
+        except json.JSONDecodeError:
+            pass
+
     raise ValueError("No valid JSON found in Claude response")
 
 
