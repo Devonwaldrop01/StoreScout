@@ -327,16 +327,18 @@ Quality checklist — verify each play before outputting:
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         message = client.messages.create(
             model="claude-sonnet-4-6",
-            max_tokens=3000,
+            max_tokens=6000,
             system=_SYSTEM_PROMPT,
             messages=[{"role": "user", "content": prompt}],
         )
         raw_text = message.content[0].text.strip()
+        if message.stop_reason == "max_tokens":
+            logger.warning("generate_ai_playbook: response truncated at max_tokens for %s", user_id)
 
         try:
             parsed = _extract_json(raw_text)
         except (ValueError, json.JSONDecodeError) as exc:
-            logger.error("generate_ai_playbook: bad JSON from Claude for %s: %s — raw: %r", user_id, exc, raw_text[:300])
+            logger.error("generate_ai_playbook: bad JSON from Claude for %s: %s — raw: %r", user_id, exc, raw_text[:500])
             return {"status": "error", "reason": "invalid_json"}
 
         plays = parsed.get("plays") or []
