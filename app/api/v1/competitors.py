@@ -116,14 +116,23 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_effect
     hostname = urlparse(body.store_url).netloc
     now = datetime.now(timezone.utc)
 
-    row = db.table("competitors").insert({
-        "user_id": user_id,
-        "store_url": body.store_url,
-        "hostname": hostname,
-        "display_name": body.display_name,
-        "scan_status": "pending",
-        "next_scan_at": now.isoformat(),
-    }).execute()
+    try:
+        row = db.table("competitors").insert({
+            "user_id": user_id,
+            "store_url": body.store_url,
+            "hostname": hostname,
+            "display_name": body.display_name,
+            "scan_status": "pending",
+            "next_scan_at": now.isoformat(),
+        }).execute()
+    except Exception as exc:
+        # Unique constraint violation (user_id, store_url) — treat as duplicate.
+        # Also catches the limit race: two concurrent requests that both passed the
+        # count check; whichever inserts second hits 23505 and gets a clean 409.
+        err_str = str(exc)
+        if "23505" in err_str or "duplicate" in err_str.lower() or "unique" in err_str.lower():
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Competitor already tracked")
+        raise
 
     competitor_id = row.data[0]["id"]
 
