@@ -356,8 +356,15 @@ def manual_rescan(competitor_id: str, user_id: str = Depends(get_effective_user_
     except Exception:
         pass  # Redis unavailable — allow the rescan
 
-    from app.tasks.scan import manual_rescan as _rescan
-    _rescan.apply_async(args=[competitor_id], queue="priority")
+    try:
+        from app.tasks.scan import manual_rescan as _rescan
+        _rescan.apply_async(args=[competitor_id], queue="priority")
+    except Exception as exc:
+        logger.warning("Could not enqueue rescan for %s: %s", competitor_id, exc)
+        raise HTTPException(
+            status_code=503,
+            detail="Scan queue temporarily unavailable — the worker may be restarting. Please try again in a minute.",
+        )
     return {"status": "queued"}
 
 
@@ -449,8 +456,11 @@ def get_ai_summary(competitor_id: str, user_id: str = Depends(get_effective_user
         .limit(1)\
         .execute()
     if not result.data:
-        from app.tasks.ai_summaries import generate_weekly_summary
-        generate_weekly_summary.delay(competitor_id, "weekly")
+        try:
+            from app.tasks.ai_summaries import generate_weekly_summary
+            generate_weekly_summary.delay(competitor_id, "weekly")
+        except Exception as exc:
+            logger.warning("Could not enqueue ai_summary for %s: %s", competitor_id, exc)
         return {"data": None, "status": "generating"}
     return {"data": result.data[0], "status": "ok"}
 

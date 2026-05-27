@@ -34,12 +34,13 @@ def _build_playbook(user_id: str) -> dict:
 
     comps_res = (
         db.table("competitors")
-        .select("id, hostname")
+        .select("id, hostname, is_my_store")
         .eq("user_id", user_id)
         .eq("is_active", True)
-        .eq("scan_status", "done")
         .execute()
     )
+    # Include competitors regardless of current scan_status — worker outages shouldn't
+    # blank the playbook. Snapshot availability is checked per-competitor below.
     competitors = [c for c in (comps_res.data or []) if not c.get("is_my_store")]
 
     if not competitors:
