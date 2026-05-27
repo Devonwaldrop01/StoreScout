@@ -34,6 +34,12 @@ celery.conf.update(
     result_serializer="json",
     timezone="UTC",
     enable_utc=True,
+    # Reduce Redis request volume — default polling is ~1/s which burns Upstash free tier fast.
+    # At 5s interval, two worker processes use ~35K requests/day for polling vs ~175K at default.
+    broker_transport_options={"polling_interval": 5},
+    # Don't store task results — cuts Redis writes by ~50% (results are not read by the app).
+    task_ignore_result=True,
+    result_expires=1800,
     **({"broker_use_ssl": _ssl_config, "redis_backend_use_ssl": _ssl_config} if _ssl_config else {}),
     task_routes={
         "app.tasks.alerts.*": {"queue": "priority"},

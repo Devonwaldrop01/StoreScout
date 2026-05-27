@@ -34,31 +34,57 @@ _CHANGE_TYPE_PREF = {
     "availability_change": "email_price_changes",
 }
 
+_BULK_TYPES = {"bulk_price_change", "bulk_new_products", "bulk_removal"}
+
+
+def _effective_count(c: dict) -> int:
+    """Return the number of products this change event represents."""
+    if c.get("change_type") in _BULK_TYPES:
+        cnt = (c.get("old_value") or {}).get("count")
+        return cnt if isinstance(cnt, int) and cnt > 0 else 1
+    return 1
+
 
 def _interpret_changes(hostname: str, change_list: list, settings) -> Optional[str]:
     """1-2 sentence Claude Haiku interpretation of a batch of changes. Non-fatal if it fails."""
     try:
         import anthropic
-        price_drops = [c for c in change_list if c["change_type"] == "price_change"
-                       and (c.get("delta_pct") or 0) < 0]
-        new_products = [c for c in change_list if c["change_type"] == "new_product"]
+        price_drop_events = [c for c in change_list
+                             if c["change_type"] in ("price_change", "bulk_price_change")
+                             and (c.get("delta_pct") or 0) < 0]
+        n_price_drops = sum(_effective_count(c) for c in price_drop_events)
+        n_new = sum(_effective_count(c) for c in change_list
+                    if c["change_type"] in ("new_product", "bulk_new_products"))
         critical = any(c["severity"] == "critical" for c in change_list)
 
         lines = []
-        if critical and price_drops:
-            avg_drop = sum(abs(c.get("delta_pct") or 0) for c in price_drops) / len(price_drops)
-            lines.append(f"Flash sale: {len(price_drops)} products dropped avg {avg_drop:.0f}%")
-        elif price_drops:
-            avg_drop = sum(abs(c.get("delta_pct") or 0) for c in price_drops) / len(price_drops)
-            lines.append(f"{len(price_drops)} price drops averaging -{avg_drop:.0f}%")
-        if new_products:
-            lines.append(f"{len(new_products)} new products launched")
+        if critical and price_drop_events:
+            avg_drop = sum(abs(c.get("delta_pct") or 0) for c in price_drop_events) / len(price_drop_events)
+            lines.append(f"Flash sale: {n_price_drops} products dropped avg {avg_drop:.0f}%")
+        elif price_drop_events:
+            avg_drop = sum(abs(c.get("delta_pct") or 0) for c in price_drop_events) / len(price_drop_events)
+            lines.append(f"{n_price_drops} price drops averaging -{avg_drop:.0f}%")
+        if n_new:
+            lines.append(f"{n_new} new products launched")
         for c in change_list[:3]:
-            if c["change_type"] == "price_change":
+            ct = c.get("change_type", "")
+            if ct == "price_change":
                 ov = c.get("old_value") or {}
                 nv = c.get("new_value") or {}
                 lines.append(f"  - {(c.get('product_title') or '?')[:40]}: "
                               f"${ov.get('price','?')} → ${nv.get('price','?')}")
+            elif ct == "bulk_price_change":
+                ov = c.get("old_value") or {}
+                count = ov.get("count", "several")
+                sample = ov.get("sample") or []
+                first = (sample[0].get("title") or "")[:30] if sample else ""
+                lines.append(f"  - {count} products repriced" + (f" (e.g. {first})" if first else ""))
+            elif ct == "bulk_new_products":
+                count = (c.get("old_value") or {}).get("count", "several")
+                lines.append(f"  - {count} new products added")
+            elif ct == "bulk_removal":
+                count = (c.get("old_value") or {}).get("count", "several")
+                lines.append(f"  - {count} products removed from catalog")
 
         prompt = (
             f"Shopify competitor intelligence. {hostname} just triggered alerts.\n\n"
@@ -101,32 +127,52 @@ def _build_alert_html(hostname: str, subject: str, n: int, change_list: list,
         sev = "warning"
     sev_color, sev_bg, sev_label = _SEVERITY_STYLES[sev]
 
-    _icon = {"price_change_down": "↓", "price_change_up": "↑",
-             "new_product": "+", "product_removed": "−",
-             "discount_start": "Sale", "discount_end": "↑", "availability_change": "Stock"}
-
     rows_html = ""
     for c in change_list[:10]:
         c_sev = c.get("severity", "info")
         c_color = _SEVERITY_STYLES.get(c_sev, _SEVERITY_STYLES["info"])[0]
         ct = c["change_type"]
-        if ct == "price_change":
-            icon = "↓" if (c.get("delta_pct") or 0) < 0 else "↑"
-        else:
-            icon = _icon.get(ct, "·")
-        title = (c.get("product_title") or ct.replace("_", " ").title())[:55]
         ov = c.get("old_value") or {}
         nv = c.get("new_value") or {}
-        if ct == "price_change":
+
+        if ct == "bulk_price_change":
+            count = ov.get("count", "several")
+            sample = ov.get("sample") or []
+            sample_names = [s.get("title") or s.get("handle") or "" for s in sample[:3]]
+            icon, title = "~", f"{count} products repriced"
+            detail = " · ".join(n[:25] for n in sample_names if n) or ""
+        elif ct == "bulk_new_products":
+            count = ov.get("count", "several")
+            sample = ov.get("sample") or []
+            sample_names = [s.get("title") or s.get("handle") or "" for s in sample[:3]]
+            icon, title = "+", f"{count} new products"
+            detail = " · ".join(n[:25] for n in sample_names if n) or ""
+        elif ct == "bulk_removal":
+            count = ov.get("count", "several")
+            sample = ov.get("sample") or []
+            sample_names = [s.get("title") or s.get("handle") or "" for s in sample[:3]]
+            icon, title = "−", f"{count} products removed"
+            detail = " · ".join(n[:25] for n in sample_names if n) or ""
+        elif ct == "price_change":
+            icon = "↓" if (c.get("delta_pct") or 0) < 0 else "↑"
+            title = (c.get("product_title") or ct.replace("_", " ").title())[:55]
             delta = c.get("delta_pct") or 0
             detail = f"${ov.get('price','?')} → ${nv.get('price','?')} ({delta:+.0f}%)"
         elif ct == "new_product":
+            icon = "+"
+            title = (c.get("product_title") or ct.replace("_", " ").title())[:55]
             p = nv.get("price_min")
             detail = f"${p}" if p else ""
         elif ct in ("discount_start", "discount_end"):
+            icon = "Sale" if ct == "discount_start" else "↑"
+            title = (c.get("product_title") or ct.replace("_", " ").title())[:55]
             detail = f"{ov.get('discounted_pct',0):.0f}% → {nv.get('discounted_pct',0):.0f}% of catalog"
         else:
+            _fallback = {"product_removed": "−", "availability_change": "Stock"}
+            icon = _fallback.get(ct, "·")
+            title = (c.get("product_title") or ct.replace("_", " ").title())[:55]
             detail = ""
+
         rows_html += (
             f"<tr>"
             f"<td style='padding:8px 0;border-bottom:1px solid #1e3a5f'>"
@@ -356,22 +402,25 @@ def send_change_alert(self, user_id: str, competitor_id: str, change_ids: List[s
     if not change_list:
         return {"status": "all_change_types_disabled"}
 
-    # Build subject
+    # Build subject using effective counts (bulk rows represent many products)
     n = len(change_list)
+    n_effective = sum(_effective_count(c) for c in change_list)
     critical = [c for c in change_list if c["severity"] == "critical"]
     if critical:
-        subject = f"Flash sale detected at {hostname} — {n} price changes"
+        subject = f"Flash sale detected at {hostname} — {n_effective} price changes"
     else:
-        price_changes = [c for c in change_list if c["change_type"] == "price_change"]
-        new_products = [c for c in change_list if c["change_type"] == "new_product"]
-        if price_changes and new_products:
-            subject = f"{hostname} — {len(price_changes)} price changes + {len(new_products)} new products"
-        elif price_changes:
-            subject = f"Price change detected at {hostname} ({len(price_changes)} products)"
-        elif new_products:
-            subject = f"{hostname} launched {len(new_products)} new product{'s' if len(new_products) > 1 else ''}"
+        price_events = [c for c in change_list if c["change_type"] in ("price_change", "bulk_price_change")]
+        new_events = [c for c in change_list if c["change_type"] in ("new_product", "bulk_new_products")]
+        n_prices = sum(_effective_count(c) for c in price_events)
+        n_new = sum(_effective_count(c) for c in new_events)
+        if price_events and new_events:
+            subject = f"{hostname} — {n_prices} price changes + {n_new} new products"
+        elif price_events:
+            subject = f"Price change detected at {hostname} ({n_prices} products)"
+        elif new_events:
+            subject = f"{hostname} launched {n_new} new product{'s' if n_new > 1 else ''}"
         else:
-            subject = f"Competitor update at {hostname} ({n} changes)"
+            subject = f"Competitor update at {hostname} ({n_effective} changes)"
 
     dashboard_url = f"{settings.public_base_url}/dashboard/{competitor_id}"
     interpretation = _interpret_changes(hostname, change_list, settings)
@@ -416,17 +465,19 @@ def send_change_alert(self, user_id: str, competitor_id: str, change_ids: List[s
 
 def _change_icon(change_type: str, delta_pct: float) -> str:
     return {
-        "price_change": "↓" if delta_pct < 0 else "↑",
-        "new_product": "＋",
-        "product_removed": "−",
-        "discount_start": "Sale",
-        "discount_end": "Sale ended",
+        "price_change":      "↓" if delta_pct < 0 else "↑",
+        "bulk_price_change": "~",
+        "new_product":       "＋",
+        "bulk_new_products": "＋",
+        "product_removed":   "−",
+        "bulk_removal":      "−",
+        "discount_start":    "Sale",
+        "discount_end":      "Sale ended",
         "availability_change": "Stock",
     }.get(change_type, "·")
 
 
 def _format_change_row(c: dict) -> str:
-    title = (c.get("product_title") or c.get("change_type", "").replace("_", " ").title())[:60]
     ctype = c.get("change_type", "")
     old_v = c.get("old_value") or {}
     new_v = c.get("new_value") or {}
@@ -434,14 +485,32 @@ def _format_change_row(c: dict) -> str:
     icon = _change_icon(ctype, delta)
 
     if ctype == "price_change":
+        title = (c.get("product_title") or "Product")[:60]
         detail = f"${old_v.get('price','?')} → ${new_v.get('price','?')} ({delta:+.1f}%)"
     elif ctype == "new_product":
+        title = (c.get("product_title") or "New Product")[:60]
         p = new_v.get("price_min")
         detail = f"${p}" if p else "New"
     elif ctype in ("discount_start", "discount_end"):
+        title = (c.get("product_title") or ctype.replace("_", " ").title())[:60]
         detail = f"{old_v.get('discounted_pct',0):.0f}% → {new_v.get('discounted_pct',0):.0f}% of catalog"
+    elif ctype == "bulk_price_change":
+        count = old_v.get("count", "several")
+        title = f"{count} products repriced"
+        detail = f"avg {delta:+.1f}%" if delta else ""
+    elif ctype == "bulk_new_products":
+        count = old_v.get("count", "several")
+        title = f"{count} new products"
+        sample = old_v.get("sample") or []
+        detail = (sample[0].get("title") or "")[:40] if sample else ""
+    elif ctype == "bulk_removal":
+        count = old_v.get("count", "several")
+        title = f"{count} products removed"
+        sample = old_v.get("sample") or []
+        detail = (sample[0].get("title") or "")[:40] if sample else ""
     else:
-        detail = ctype.replace("_", " ").title()
+        title = (c.get("product_title") or ctype.replace("_", " ").title())[:60]
+        detail = ""
 
     return (
         f"<tr>"

@@ -72,9 +72,14 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_effect
                 "scan_interval_hours": settings.free_scan_interval_hours,
                 "subscription_status": "inactive",
             }).execute()
-        except Exception:
-            pass  # already exists (race condition) or RLS blocked — fall through with free defaults
-    tier = (user.data or {}).get("tier", "free") if user else "free"
+        except Exception as provision_exc:
+            # Likely a race (row already exists) or an RLS policy mismatch. Log it so
+            # we can diagnose paid-user-gets-free-defaults incidents, then re-fetch so
+            # we read the real tier rather than blindly defaulting.
+            logger.warning("user_profiles auto-provision failed for %s: %s", user_id, provision_exc)
+        # Re-fetch after provision attempt — picks up the real tier even if insert failed
+        user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
+    tier = (user.data or {}).get("tier", "free") if (user and user.data) else "free"
     limits = _tier_limits(tier)
 
     existing = db.table("competitors").select("id").eq("user_id", user_id).eq("is_active", True).eq("is_my_store", False).execute()
@@ -116,14 +121,23 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_effect
     hostname = urlparse(body.store_url).netloc
     now = datetime.now(timezone.utc)
 
-    row = db.table("competitors").insert({
-        "user_id": user_id,
-        "store_url": body.store_url,
-        "hostname": hostname,
-        "display_name": body.display_name,
-        "scan_status": "pending",
-        "next_scan_at": now.isoformat(),
-    }).execute()
+    try:
+        row = db.table("competitors").insert({
+            "user_id": user_id,
+            "store_url": body.store_url,
+            "hostname": hostname,
+            "display_name": body.display_name,
+            "scan_status": "pending",
+            "next_scan_at": now.isoformat(),
+        }).execute()
+    except Exception as exc:
+        # Unique constraint violation (user_id, store_url) — treat as duplicate.
+        # Also catches the limit race: two concurrent requests that both passed the
+        # count check; whichever inserts second hits 23505 and gets a clean 409.
+        err_str = str(exc)
+        if "23505" in err_str or "duplicate" in err_str.lower() or "unique" in err_str.lower():
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Competitor already tracked")
+        raise
 
     competitor_id = row.data[0]["id"]
 
@@ -356,8 +370,15 @@ def manual_rescan(competitor_id: str, user_id: str = Depends(get_effective_user_
     except Exception:
         pass  # Redis unavailable — allow the rescan
 
-    from app.tasks.scan import manual_rescan as _rescan
-    _rescan.apply_async(args=[competitor_id], queue="priority")
+    try:
+        from app.tasks.scan import manual_rescan as _rescan
+        _rescan.apply_async(args=[competitor_id], queue="priority")
+    except Exception as exc:
+        logger.warning("Could not enqueue rescan for %s: %s", competitor_id, exc)
+        raise HTTPException(
+            status_code=503,
+            detail="Scan queue temporarily unavailable — the worker may be restarting. Please try again in a minute.",
+        )
     return {"status": "queued"}
 
 
@@ -449,8 +470,11 @@ def get_ai_summary(competitor_id: str, user_id: str = Depends(get_effective_user
         .limit(1)\
         .execute()
     if not result.data:
-        from app.tasks.ai_summaries import generate_weekly_summary
-        generate_weekly_summary.delay(competitor_id, "weekly")
+        try:
+            from app.tasks.ai_summaries import generate_weekly_summary
+            generate_weekly_summary.delay(competitor_id, "weekly")
+        except Exception as exc:
+            logger.warning("Could not enqueue ai_summary for %s: %s", competitor_id, exc)
         return {"data": None, "status": "generating"}
     return {"data": result.data[0], "status": "ok"}
 

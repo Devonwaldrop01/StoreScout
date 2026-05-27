@@ -32,6 +32,19 @@ def recover_stuck_scans() -> dict:
 @celery.task(name="app.tasks.scheduler.enqueue_due_scans")
 def enqueue_due_scans() -> dict:
     """Runs every 15 minutes. Finds competitors whose next_scan_at is past due and enqueues them."""
+    # Distributed lock: prevents two Beat processes racing and double-queuing the same scans.
+    # TTL is 5 min — less than the 15-min Beat interval so a stalled task never permanently
+    # blocks the next cycle.
+    try:
+        from app.core.config import get_settings
+        import redis as redis_lib
+        _r = redis_lib.from_url(get_settings().redis_url, socket_connect_timeout=2)
+        if not _r.set("lock:enqueue_due_scans", "1", nx=True, ex=300):
+            logger.info("enqueue_due_scans: lock held by another process — skipping cycle")
+            return {"enqueued": 0, "status": "skipped_lock"}
+    except Exception as exc:
+        logger.warning("enqueue_due_scans: Redis unavailable (%s) — running without lock", exc)
+
     db = get_supabase()
     now = datetime.now(timezone.utc).isoformat()
 

@@ -194,6 +194,21 @@ function makeYourMove(type: SignalType, count: number, hostname: string, avgDelt
 
 // ── Main export ───────────────────────────────────────────────────────────
 
+// Backend collapses N same-type changes into one DB row when count > 10:
+//   bulk_removal / bulk_new_products / bulk_price_change
+// Map them back to their base type so classify() thresholds work correctly,
+// and extract the real count from old_value.count instead of using 1.
+const BULK_TYPE_MAP: Record<string, string> = {
+  bulk_removal:      "product_removed",
+  bulk_new_products: "new_product",
+  bulk_price_change: "price_change",
+};
+
+function bulkEffectiveCount(event: AlertEvent): number {
+  const stored = ((event.old_value || {}) as Record<string, unknown>).count;
+  return typeof stored === "number" && stored > 0 ? stored : 1;
+}
+
 export function groupAlertEvents(alerts: AlertEvent[]): SignalGroup[] {
   if (alerts.length === 0) return [];
 
@@ -207,10 +222,12 @@ export function groupAlertEvents(alerts: AlertEvent[]): SignalGroup[] {
 
   for (const event of sorted) {
     const t = new Date(event.detected_at).getTime();
+    // Normalise bulk types so they bucket with their base siblings (rare but possible)
+    const normalizedType = BULK_TYPE_MAP[event.change_type] ?? event.change_type;
     const bucket = buckets.find(
       (b) =>
         b.competitorId === event.competitor_id &&
-        b.changeType === event.change_type &&
+        (BULK_TYPE_MAP[b.changeType] ?? b.changeType) === normalizedType &&
         t - b.windowStart <= FOUR_HOURS_MS
     );
     if (bucket) {
@@ -221,14 +238,19 @@ export function groupAlertEvents(alerts: AlertEvent[]): SignalGroup[] {
   }
 
   const groups: SignalGroup[] = buckets.map((b, i) => {
-    const count = b.events.length;
+    // For a single bulk event, use the count stored in old_value.count
+    const rawCount = b.events.length;
+    const isSingleBulk = rawCount === 1 && b.changeType in BULK_TYPE_MAP;
+    const count = isSingleBulk ? bulkEffectiveCount(b.events[0]) : rawCount;
+
+    const classifyType = BULK_TYPE_MAP[b.changeType] ?? b.changeType;
     const avgDelta = computeAvgDelta(b.events);
     const avgPrice = computeAvgPrice(b.events);
     const category = inferCategory(b.events);
     const maxSeverity: "info" | "warning" | "critical" =
       b.events.some((e) => e.severity === "critical") ? "critical" :
       b.events.some((e) => e.severity === "warning")  ? "warning"  : "info";
-    const { type, tier, headline } = classify(b.changeType, count, avgDelta, maxSeverity);
+    const { type, tier, headline } = classify(classifyType, count, avgDelta, maxSeverity);
 
     const times = b.events.map((e) => e.detected_at).sort();
     const detected_at = times[times.length - 1];

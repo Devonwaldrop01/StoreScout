@@ -82,6 +82,9 @@ export function changeTypeIcon(type: string): ElementType {
     discount_start:      Tag,
     discount_end:        CheckCircle2,
     availability_change: Package,
+    bulk_price_change:   TrendingDown,
+    bulk_new_products:   Plus,
+    bulk_removal:        Trash2,
   } as Record<string, ElementType>)[type] ?? HelpCircle;
 }
 
@@ -93,6 +96,9 @@ export function changeTypeColor(type: string): string {
     discount_start:      "var(--amber)",
     discount_end:        "var(--blue)",
     availability_change: "var(--amber)",
+    bulk_price_change:   "var(--red)",
+    bulk_new_products:   "var(--emerald)",
+    bulk_removal:        "var(--muted)",
   } as Record<string, string>)[type] ?? "var(--muted)";
 }
 
