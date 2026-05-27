@@ -146,7 +146,32 @@ export function ActionPlaybook({ competitorCount }: Props) {
     );
   }
 
-  if (!loading && visible.length === 0) return null;
+  if (!loading && visible.length === 0) {
+    return (
+      <div
+        className="mb-6 rounded-xl px-5 py-3 fade-in flex items-center justify-between gap-3"
+        style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <Zap className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--muted)" }} />
+          <p className="text-xs" style={{ color: "var(--muted)" }}>
+            <span className="font-medium" style={{ color: "var(--text-2)" }}>Your Move</span>
+            {" · "}All recommendations reviewed.
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            try { localStorage.removeItem(DISMISSED_KEY); } catch {}
+            setDismissed(new Set());
+          }}
+          className="shrink-0 text-[11px] font-medium px-2.5 py-1 rounded-lg transition-all hover:bg-white/[0.06]"
+          style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+        >
+          Show again
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="mb-6 fade-up">
