@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import {
-  Plus, RefreshCw, TrendingUp, ArrowRight, Sparkles,
-  Activity, Package, Zap, Clock, X, Trash2, Check, Lock,
+  RefreshCw, TrendingUp, ArrowRight, Sparkles,
+  Activity, Package, Zap, Clock, X, Lock, Target, Plus, Check,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -15,7 +15,6 @@ import {
 import { cn, formatPrice, formatRelativeTime } from "@/lib/utils";
 import { groupAlertEvents, type SignalGroup, SIGNAL_CONFIG } from "@/lib/signals";
 import { SignalFeed } from "@/components/signals/SignalFeed";
-import { AddCompetitorModal } from "@/components/competitors/AddCompetitorModal";
 import { ActionPlaybook } from "@/components/competitors/ActionPlaybook";
 import UpgradeModal from "@/components/UpgradeModal";
 
@@ -471,24 +470,24 @@ function WatchPanel({ competitorList }: { competitorList: Competitor[] }) {
 
 // ── Empty state ───────────────────────────────────────────────────────────
 
-function EmptyState({ onAdd }: { onAdd: () => void }) {
+function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] text-center px-6 fade-in">
       <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6" style={{ background: "rgba(59,130,246,.08)", border: "1px solid rgba(59,130,246,.18)" }}>
-        <TrendingUp className="w-8 h-8" style={{ color: "var(--accent)" }} />
+        <Target className="w-8 h-8" style={{ color: "var(--accent)" }} />
       </div>
-      <h2 className="text-2xl font-black mb-3" style={{ color: "var(--text)" }}>Track your first competitor</h2>
+      <h2 className="text-2xl font-black mb-3" style={{ color: "var(--text)" }}>No competitors tracked yet</h2>
       <p className="text-sm mb-8 max-w-xs leading-relaxed" style={{ color: "var(--muted)" }}>
-        Enter any Shopify store URL and we&apos;ll start monitoring their prices, new launches, and discount campaigns automatically.
+        Add competitors to start monitoring price changes, product launches, and discounts.
       </p>
-      <button
-        onClick={onAdd}
+      <Link
+        href="/competitors"
         className="flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all hover:brightness-110"
         style={{ background: "var(--accent)", color: "#ffffff" }}
       >
-        <Plus className="w-4 h-4" />
-        Add competitor
-      </button>
+        <TrendingUp className="w-4 h-4" />
+        Add your first competitor →
+      </Link>
     </div>
   );
 }
@@ -609,27 +608,10 @@ function DashboardContent() {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [alertsLoading, setAlertsLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [addPrefilledUrl, setAddPrefilledUrl] = useState("");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [trackingHostname, setTrackingHostname] = useState<string | null>(null);
   const [maxCompetitors, setMaxCompetitors] = useState<number | null>(null);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [scanningAll, setScanningAll] = useState(false);
-  const [showAllCompetitors, setShowAllCompetitors] = useState(false);
-
-  const COMPETITOR_PREVIEW = 6;
-  const [deleting, setDeleting] = useState(false);
-
-  const selectMode = selectedIds.size > 0;
-
-  function toggleSelect(id: string) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  }
 
   const scanAllStartRef = useRef<number>(0);
 
@@ -654,28 +636,11 @@ function DashboardContent() {
     if (elapsed > 15_000 && !anyScanning) setScanningAll(false);
   }, [competitorList, scanningAll]);
 
-  async function handleBulkDelete() {
-    if (deleting || selectedIds.size === 0) return;
-    setDeleting(true);
-    await Promise.allSettled([...selectedIds].map((id) => api.remove(id)));
-    setCompetitorList((prev) => prev.filter((c) => !selectedIds.has(c.id)));
-    setSelectedIds(new Set());
-    setDeleting(false);
-  }
-
   // Auto-open upgrade modal when onboarding sends ?upgrade=pro or ?upgrade=agency
   useEffect(() => {
     const plan = searchParams.get("upgrade");
     if (plan === "pro" || plan === "agency") {
       setUpgradeOpen(true);
-      router.replace("/dashboard");
-    }
-    // ?add=hostname — pre-open Add Competitor modal (from shareable report CTA)
-    const addHostname = searchParams.get("add");
-    if (addHostname) {
-      const normalizedHostname = addHostname.replace(/^https?:\/\//, "");
-      setAddPrefilledUrl(`https://${normalizedHostname}`);
-      setShowModal(true);
       router.replace("/dashboard");
     }
   }, [searchParams, router]);
@@ -713,15 +678,7 @@ function DashboardContent() {
     if (!loading) loadSuggestions();
   }, [loading, loadSuggestions]);
 
-  function handleAdded(competitor: Competitor) {
-    setCompetitorList((prev) => [competitor, ...prev]);
-    setSuggestions((prev) => prev.filter((s) => s.hostname !== competitor.hostname));
-    setShowModal(false);
-    loadSuggestions();
-  }
-
   async function handleTrack(hostname: string) {
-    // Proactive limit check — avoids a round-trip for free users who are at their cap
     if (maxCompetitors !== null && competitorList.length >= maxCompetitors) {
       setUpgradeOpen(true);
       return;
@@ -802,20 +759,20 @@ function DashboardContent() {
               {scanningAll ? "Scanning…" : "Scan all"}
             </button>
           )}
-          <button
-            onClick={() => setShowModal(true)}
+          <Link
+            href="/competitors"
             className="flex items-center gap-2 font-bold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-110"
             style={{ background: "var(--accent)", color: "#ffffff" }}
           >
-            <Plus className="w-4 h-4" />
-            Add competitor
-          </button>
+            <Target className="w-4 h-4" />
+            Competitors
+          </Link>
         </div>
       </div>
 
       {competitorList.length === 0 ? (
         <>
-          <EmptyState onAdd={() => setShowModal(true)} />
+          <EmptyState />
           {suggestions.filter((s) => !dismissed.has(s.hostname)).length > 0 && (
             <div className="mt-6 max-w-sm">
               <DiscoverySuggestions
@@ -836,56 +793,13 @@ function DashboardContent() {
           {/* Your Move action panel */}
           <ActionPlaybook competitorCount={competitorList.length} />
 
-          {/* ── 3-column layout ── */}
+          {/* ── 2-column layout ── */}
           <div className="flex gap-5 items-start">
 
             {/* ── Center: intelligence stream ── */}
             <div className="flex-1 min-w-0">
-              {/* Competitor monitors — sorted by activity, capped for agency users */}
-              {(() => {
-                const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-                const sorted = [...competitorList].sort((a, b) => {
-                  const aCount = signalGroups.filter((g) => g.competitor_id === a.id && new Date(g.detected_at).getTime() > weekAgo).reduce((s, g) => s + g.count, 0);
-                  const bCount = signalGroups.filter((g) => g.competitor_id === b.id && new Date(g.detected_at).getTime() > weekAgo).reduce((s, g) => s + g.count, 0);
-                  return bCount - aCount;
-                });
-                const visible = selectMode || showAllCompetitors ? sorted : sorted.slice(0, COMPETITOR_PREVIEW);
-                const hiddenCount = sorted.length - COMPETITOR_PREVIEW;
-                return (
-                  <div className="space-y-2 mb-5">
-                    {visible.map((c) => (
-                      <CompetitorMonitor
-                        key={c.id}
-                        competitor={c}
-                        signalGroups={signalGroups}
-                        selectMode={selectMode}
-                        isSelected={selectedIds.has(c.id)}
-                        onToggle={() => toggleSelect(c.id)}
-                      />
-                    ))}
-                    {!selectMode && hiddenCount > 0 && !showAllCompetitors && (
-                      <button
-                        onClick={() => setShowAllCompetitors(true)}
-                        className="w-full py-2 rounded-xl text-xs font-semibold transition-colors hover:bg-white/[0.04]"
-                        style={{ color: "var(--muted)", border: "1px dashed var(--border)" }}
-                      >
-                        Show {hiddenCount} more store{hiddenCount !== 1 ? "s" : ""}
-                      </button>
-                    )}
-                    {!selectMode && showAllCompetitors && sorted.length > COMPETITOR_PREVIEW && (
-                      <button
-                        onClick={() => setShowAllCompetitors(false)}
-                        className="w-full py-2 rounded-xl text-xs font-semibold transition-colors hover:bg-white/[0.04]"
-                        style={{ color: "var(--muted)", border: "1px dashed var(--border)" }}
-                      >
-                        Collapse list
-                      </button>
-                    )}
-                  </div>
-                );
-              })()}
 
-              {/* Signal feed — the hero */}
+              {/* Signal feed */}
               {!alertsLoading && (
                 <>
                   <div className="flex items-center justify-between mb-3">
@@ -957,41 +871,6 @@ function DashboardContent() {
         </>
       )}
 
-      {/* ── Bulk action bar ── */}
-      {selectedIds.size > 0 && (
-        <div
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl"
-          style={{ background: "var(--bg2)", border: "1px solid var(--border)" }}
-        >
-          <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-            {selectedIds.size} selected
-          </span>
-          <button
-            onClick={() => setSelectedIds(new Set())}
-            className="text-xs px-3 py-1.5 rounded-lg transition-colors hover:bg-white/[0.06]"
-            style={{ color: "var(--muted)" }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleBulkDelete}
-            disabled={deleting}
-            className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-all disabled:opacity-50 hover:brightness-110"
-            style={{ background: "rgba(239,68,68,.12)", color: "var(--red)", border: "1px solid rgba(239,68,68,.25)" }}
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            {deleting ? "Deleting…" : `Delete ${selectedIds.size}`}
-          </button>
-        </div>
-      )}
-
-      {showModal && (
-        <AddCompetitorModal
-          onClose={() => { setShowModal(false); setAddPrefilledUrl(""); }}
-          onAdded={handleAdded}
-          initialUrl={addPrefilledUrl || undefined}
-        />
-      )}
       {upgradeOpen && <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="competitor_limit" />}
     </div>
   );

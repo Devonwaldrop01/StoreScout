@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Bell, Settings, LogOut, Plus, Zap, Store, ChevronRight, BookOpen } from "lucide-react";
+import { LayoutDashboard, Bell, Settings, LogOut, Plus, Zap, Store, ChevronRight, BookOpen, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { alerts, user as userApi } from "@/lib/api";
@@ -30,16 +30,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   const nav = [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/playbook",  icon: BookOpen,        label: "Playbook"  },
-    { href: "/alerts",    icon: Bell,            label: "Alerts",   badge: unread },
+    { href: "/dashboard",   icon: LayoutDashboard, label: "Dashboard"   },
+    { href: "/competitors", icon: Target,          label: "Competitors" },
+    { href: "/playbook",    icon: BookOpen,        label: "Playbook"    },
+    { href: "/alerts",      icon: Bell,            label: "Alerts",     badge: unread },
   ];
 
   const isFree = tier === "free" || tier === null;
 
   function isActive(href: string) {
-    if (href === "/dashboard") return pathname === "/dashboard" || pathname.startsWith("/dashboard/");
-    if (href === "/playbook")  return pathname === "/playbook";
+    if (href === "/dashboard")   return pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+    if (href === "/competitors") return pathname === "/competitors";
+    if (href === "/playbook")    return pathname === "/playbook";
     return pathname.startsWith(href);
   }
 
