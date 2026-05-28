@@ -4,9 +4,9 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   user as userApi, billing, myStore as myStoreApi, team as teamApi,
-  apiKeys as apiKeysApi, competitors as competitorsApi,
+  apiKeys as apiKeysApi, competitors as competitorsApi, shopify as shopifyApi,
   type UserSubscription, type NotificationPrefs, type Competitor,
-  type TeamMember, type ApiKey,
+  type TeamMember, type ApiKey, type ShopifyConnection,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import UpgradeModal from "@/components/UpgradeModal";
@@ -39,6 +39,11 @@ function SettingsContent() {
   const [storeUrl, setStoreUrl] = useState("");
   const [storeSaving, setStoreSaving] = useState(false);
   const [storeError, setStoreError] = useState("");
+  const [shopifyConnection, setShopifyConnection] = useState<ShopifyConnection | null>(null);
+  const [shopifyShop, setShopifyShop] = useState("");
+  const [shopifyConnecting, setShopifyConnecting] = useState(false);
+  const [shopifyConnectedBanner, setShopifyConnectedBanner] = useState(false);
+  const [showManualStore, setShowManualStore] = useState(false);
 
   // Integrations
   const [slackUrl, setSlackUrl] = useState("");
@@ -91,6 +96,15 @@ function SettingsContent() {
 
     competitorsApi.list().then((r) => setMyCompetitors(r.data || [])).catch(() => {});
     myStoreApi.get().then((r) => setStore(r.data)).catch(() => {});
+    shopifyApi.connection().then((r) => setShopifyConnection(r.data)).catch(() => {});
+
+    if (searchParams.get("connected") === "true") {
+      setShopifyConnectedBanner(true);
+      setTimeout(() => setShopifyConnectedBanner(false), 5000);
+      // Refresh store data after OAuth connection
+      myStoreApi.get().then((r) => setStore(r.data)).catch(() => {});
+      shopifyApi.connection().then((r) => setShopifyConnection(r.data)).catch(() => {});
+    }
 
     supabase.auth.getUser().then(({ data }) => {
       if (data.user?.email) setUserEmail(data.user.email);
@@ -181,6 +195,27 @@ function SettingsContent() {
 
   async function handleRemoveStore() {
     await myStoreApi.remove().catch(() => {});
+    setStore(null);
+  }
+
+  async function handleShopifyConnect() {
+    const shop = shopifyShop.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/$/, "");
+    if (!shop) { setStoreError("Enter your myshopify.com domain."); return; }
+    const normalized = shop.includes(".myshopify.com") ? shop : `${shop}.myshopify.com`;
+    setShopifyConnecting(true);
+    setStoreError("");
+    try {
+      const { url } = await shopifyApi.connectUrl(normalized);
+      window.location.href = url;
+    } catch {
+      setStoreError("Could not start Shopify connection. Check the domain and try again.");
+      setShopifyConnecting(false);
+    }
+  }
+
+  async function handleShopifyDisconnect() {
+    await shopifyApi.disconnect().catch(() => {});
+    setShopifyConnection(null);
     setStore(null);
   }
 
@@ -502,45 +537,131 @@ function SettingsContent() {
             <h2 className="font-semibold" style={{ color: "var(--text)" }}>Your store</h2>
           </div>
           <p className="text-sm mb-4" style={{ color: "var(--muted)" }}>
-            Connect your Shopify store to unlock head-to-head comparisons on every competitor.
+            Connect via Shopify OAuth to verify ownership and unlock personalised playbook recommendations.
             Doesn&apos;t count against your tracking limit.
           </p>
 
-          {store ? (
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <div>
-                <p className="text-sm font-medium" style={{ color: "var(--text)" }}>{store.hostname}</p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
-                  {store.product_count != null ? `${store.product_count} products · ` : ""}
-                  {store.scan_status === "done" ? "Connected" : store.scan_status === "error" ? "Scan failed" : "Scanning…"}
-                </p>
-              </div>
-              <button
-                onClick={handleRemoveStore}
-                className="font-semibold text-sm px-4 py-2 rounded-xl transition-all hover:opacity-80"
-                style={{ background: "var(--bg3)", color: "#f87171", border: "1px solid var(--border)" }}
+          {/* Success banner */}
+          {shopifyConnectedBanner && (
+            <div
+              className="flex items-center gap-2 px-4 py-3 rounded-xl mb-4 text-sm font-medium"
+              style={{ background: "rgba(163,240,0,0.08)", border: "1px solid rgba(163,240,0,0.2)", color: "#a3f000" }}
+            >
+              <Check className="w-4 h-4 shrink-0" />
+              Shopify store connected successfully.
+            </div>
+          )}
+
+          {shopifyConnection ? (
+            /* ── Connected via OAuth ── */
+            <div className="space-y-3">
+              <div
+                className="flex items-center justify-between gap-4 px-4 py-3 rounded-xl"
+                style={{ background: "rgba(163,240,0,0.05)", border: "1px solid rgba(163,240,0,0.18)" }}
               >
-                Disconnect
-              </button>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: "rgba(163,240,0,0.12)" }}
+                  >
+                    <Store className="w-4 h-4" style={{ color: "#a3f000" }} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold truncate" style={{ color: "var(--text)" }}>
+                      {shopifyConnection.shop_name || shopifyConnection.shop}
+                    </p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                      {shopifyConnection.shop} · Verified via Shopify OAuth
+                      {store?.product_count != null ? ` · ${store.product_count} products` : ""}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleShopifyDisconnect}
+                  className="shrink-0 text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:opacity-80"
+                  style={{ background: "var(--bg3)", color: "#f87171", border: "1px solid var(--border)" }}
+                >
+                  Disconnect
+                </button>
+              </div>
             </div>
           ) : (
-            <div className="flex gap-2">
-              <input
-                value={storeUrl}
-                onChange={(e) => setStoreUrl(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSaveStore()}
-                placeholder="yourstore.com"
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none"
-                style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
-              />
-              <button
-                onClick={handleSaveStore}
-                disabled={storeSaving}
-                className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-60"
-                style={{ background: "#a3f000", color: "#060d18" }}
-              >
-                {storeSaving ? "Adding…" : "Connect"}
-              </button>
+            /* ── Not connected ── */
+            <div className="space-y-3">
+              {/* Shopify OAuth connect */}
+              <div className="flex gap-2">
+                <input
+                  value={shopifyShop}
+                  onChange={(e) => setShopifyShop(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleShopifyConnect()}
+                  placeholder="yourstore.myshopify.com"
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none"
+                  style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                />
+                <button
+                  onClick={handleShopifyConnect}
+                  disabled={shopifyConnecting}
+                  className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-60 flex items-center gap-2"
+                  style={{ background: "#a3f000", color: "#060d18" }}
+                >
+                  {shopifyConnecting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                  {shopifyConnecting ? "Connecting…" : "Connect via Shopify"}
+                </button>
+              </div>
+
+              {/* Manual fallback */}
+              {store ? (
+                <div
+                  className="flex items-center justify-between gap-4 px-4 py-2.5 rounded-xl"
+                  style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+                >
+                  <div>
+                    <p className="text-xs font-medium" style={{ color: "var(--text)" }}>{store.hostname}</p>
+                    <p className="text-[11px] mt-0.5" style={{ color: "var(--muted)" }}>
+                      Manually connected{store.product_count != null ? ` · ${store.product_count} products` : ""}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleRemoveStore}
+                    className="text-[11px] font-medium px-3 py-1.5 rounded-lg transition-all hover:opacity-70"
+                    style={{ color: "#f87171" }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : showManualStore ? (
+                <div className="flex gap-2">
+                  <input
+                    value={storeUrl}
+                    onChange={(e) => setStoreUrl(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSaveStore()}
+                    placeholder="yourstore.com"
+                    className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none"
+                    style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                    autoFocus
+                  />
+                  <button
+                    onClick={handleSaveStore}
+                    disabled={storeSaving}
+                    className="font-semibold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-105 disabled:opacity-60"
+                    style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
+                  >
+                    {storeSaving ? "Adding…" : "Add"}
+                  </button>
+                </div>
+              ) : (
+                <p className="text-xs" style={{ color: "var(--muted)" }}>
+                  Or{" "}
+                  <button
+                    onClick={() => setShowManualStore(true)}
+                    className="underline underline-offset-2 hover:opacity-70 transition-opacity"
+                    style={{ color: "var(--muted)" }}
+                  >
+                    add manually
+                  </button>
+                  {" "}with any store URL — ownership not verified.
+                </p>
+              )}
             </div>
           )}
           {storeError && <p className="text-xs mt-3" style={{ color: "#f87171" }}>{storeError}</p>}
