@@ -15,11 +15,16 @@ logger = logging.getLogger(__name__)
 
 _SYSTEM_PROMPT = """You are a Shopify competitive intelligence advisor. Turn real competitor data into specific, executable plays.
 
-Platforms you know: Meta Ads Manager, Google Shopping, Klaviyo, Shopify admin, Alibaba, TikTok Ads.
+Platforms you know: Meta Ads Manager, Google Shopping, Klaviyo, Shopify admin, TikTok Ads.
 
-Great plays are SPECIFIC (exact platform paths), have NUMBERS (dollar budgets, timeframes), and use PRODUCT NAMES from the data.
+Great plays have all three: (1) exact navigation paths a complete beginner can follow step-by-step, (2) dollar budgets with a scale trigger, (3) specific product names, categories, or search terms from the data.
 
-Meta Ads: go to Campaigns → Ad Set → Detailed Targeting → search brand name or product category as an Interest. You cannot target followers directly."""
+Step structure — every play's 3 steps must follow this format:
+• Step 1: platform name + exact menu path + the action to take ("In Meta Ads Manager → Campaigns → + Create → choose Traffic objective → proceed to Ad Set")
+• Step 2: the specific content to create — exact headline copy, search term to use, product handle, or Klaviyo segment name (use product names from the data)
+• Step 3: budget + scale trigger ("Start $15/day → scale to $50/day once CTR exceeds 1.8% after 4 days" or "Spend 30 min this week → measure with [specific metric]")
+
+Meta Ads: Campaigns → Ad Set → Detailed Targeting → type brand name or product category as Interest. Cannot target followers directly. Audience size 500K–2M is ideal."""
 
 _SECTION_PRIORITY = {"act_now": 95, "right_now": 75, "this_week": 55}
 _FRESHNESS_HOURS = 23
@@ -175,6 +180,37 @@ def generate_ai_playbook(user_id: str) -> dict:
     if existing.data:
         return {"status": "fresh_exists"}
 
+    # Read last playbook to avoid repeating the same types/sections/competitors
+    last_themes_str = ""
+    try:
+        last_pb = (
+            db.table("ai_summaries")
+            .select("summary_text")
+            .in_("competitor_id", comp_ids)
+            .eq("summary_type", "playbook")
+            .order("generated_at", desc=True)
+            .limit(1)
+            .maybe_single()
+            .execute()
+        )
+        if last_pb and last_pb.data:
+            lp_data = json.loads(last_pb.data.get("summary_text") or "{}")
+            lp_plays = lp_data.get("plays") or []
+            if lp_plays:
+                lp_types    = sorted({p.get("type", "")    for p in lp_plays if p.get("type")})
+                lp_sections = sorted({p.get("section", "") for p in lp_plays if p.get("section")})
+                lp_hosts    = sorted({p.get("hostname", "") for p in lp_plays if p.get("hostname") and p.get("hostname") != "multiple"})
+                last_themes_str = (
+                    "\nDIVERSITY REQUIREMENT — last playbook covered these (do NOT repeat them):\n"
+                    f"  Types used: {', '.join(lp_types) or 'none'}\n"
+                    f"  Sections used: {', '.join(lp_sections) or 'none'}\n"
+                    f"  Competitors featured: {', '.join(lp_hosts[:4]) or 'none'}\n"
+                    "  This time: choose DIFFERENT play types, rotate to sections not used last time, "
+                    "and spotlight competitors not featured in the last batch.\n"
+                )
+    except Exception as _lpe:
+        logger.debug("generate_ai_playbook: last-themes read failed: %s", _lpe)
+
     # Build user's own store context (if available) — makes plays specific to their situation
     my_store_section = ""
     if my_store_comp:
@@ -274,7 +310,7 @@ def generate_ai_playbook(user_id: str) -> dict:
     )
 
     prompt = f"""Analyze this Shopify competitor intelligence and generate exactly 3 plays for a store owner.
-
+{last_themes_str}
 {my_store_prompt}COMPETITOR DATA:
 {chr(10).join(comp_blocks)}
 
@@ -287,17 +323,22 @@ RECENT ALERTS (last 7 days — critical/warning only):
     {{
       "section": "act_now|right_now|this_week",
       "headline": "6-10 words with a specific number from the data",
-      "action": "1 sentence max 40 words — name a platform, a product or category, one concrete next step with budget or timeframe",
+      "action": "1 sentence max 40 words — platform name + product or category + one concrete action with budget or timeframe",
       "deadline": "right now|today|within 48h|this week",
       "type": "pricing|catalog|positioning|discounts|alert",
       "tab": "overview|pricing|launches|discounts|changes",
       "competitor_hostname": "exact hostname or 'multiple'",
       "detail": {{
-        "steps": ["step 1 under 15 words", "step 2 under 15 words", "step 3 under 15 words"],
+        "steps": [
+          "Step 1: [Platform → exact menu path] — [action to take]",
+          "Step 2: [exact content to create — headline copy, search term, or product name from the data]",
+          "Step 3: Budget $[X]/day — scale to $[Y]/day when [metric > threshold after N days] OR [time-based: spend 30 min + track with metric]"
+        ],
         "why": "1 sentence on why this window exists right now",
-        "outcome": "1 sentence measurable result",
-        "competitor_metrics": "the exact data point that validates this play"
-      }}
+        "outcome": "1 sentence measurable result with a number (e.g. '10-20% CTR lift within 5 days')",
+        "competitor_metrics": "the exact data point from the competitor data that validates this play"
+      }},
+      "draft_asset": null
     }}
   ]
 }}
@@ -307,6 +348,8 @@ Rules:
 - right_now: current state reveals an opportunity, act in 2-3 days
 - this_week: strategic gap or trend (7 days)
 - No recent alerts = no act_now plays
+- Steps must follow the exact 3-step format above — Step 1 always has platform + nav path, Step 3 always has budget + scale trigger
+- Each play must spotlight a DIFFERENT competitor — do not feature the same hostname twice
 - Output exactly 3 plays, no more, no less"""
 
     try:

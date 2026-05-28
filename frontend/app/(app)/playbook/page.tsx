@@ -244,9 +244,9 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
   return null;
 }
 
-// ── detail drawer ─────────────────────────────────────────────────────────────
+// ── detail modal ──────────────────────────────────────────────────────────────
 
-function DetailDrawer({ play, onClose, onDone, isDone, feedback, onFeedback }: {
+function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
   play: PlaybookPlay;
   onClose: () => void;
   onDone: () => void;
@@ -263,18 +263,24 @@ function DetailDrawer({ play, onClose, onDone, isDone, feedback, onFeedback }: {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Drawer */}
+      {/* Centered modal */}
       <div
-        className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-lg overflow-y-auto flex flex-col"
-        style={{ background: "var(--bg2)", borderLeft: "1px solid var(--border)" }}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        onClick={onClose}
       >
+        <div
+          className="w-full max-w-xl max-h-[90vh] overflow-y-auto flex flex-col rounded-2xl"
+          style={{ background: "var(--bg2)", border: "1px solid var(--border)" }}
+          onClick={(e) => e.stopPropagation()}
+        >
+
         {/* Header */}
         <div
-          className="flex items-start gap-3 p-5 sticky top-0"
+          className="flex items-start gap-3 p-5 sticky top-0 rounded-t-2xl"
           style={{ background: "var(--bg2)", borderBottom: "1px solid var(--border)" }}
         >
           <div
@@ -461,7 +467,9 @@ function DetailDrawer({ play, onClose, onDone, isDone, feedback, onFeedback }: {
             <FeedbackRow playId={play.id} feedback={feedback} onFeedback={onFeedback} />
           )}
         </div>
-      </div>
+
+        </div>{/* end modal inner */}
+      </div>{/* end centering container */}
     </>
   );
 }
@@ -959,9 +967,9 @@ export default function PlaybookPage() {
 
       </div>
 
-      {/* ── Detail drawer ──────────────────────────────────────────────────── */}
+      {/* ── Detail modal ───────────────────────────────────────────────────── */}
       {detailPlay && (
-        <DetailDrawer
+        <DetailModal
           play={detailPlay}
           onClose={() => setDetailPlay(null)}
           onDone={() => markDone(detailPlay.id)}
