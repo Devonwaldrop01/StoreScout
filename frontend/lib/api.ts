@@ -566,3 +566,28 @@ export const shopify = {
   disconnect: () =>
     apiFetch<void>("/shopify/connection", { method: "DELETE" }),
 };
+
+export interface KlaviyoStatus {
+  connected: boolean;
+  key_preview: string | null;
+}
+
+export interface KlaviyoTestResult {
+  status: string;
+  list_count: number;
+  total_profiles: number;
+  lists: { name: string; profile_count: number }[];
+}
+
+export const integrations = {
+  get: () => apiFetch<{ data: { klaviyo: KlaviyoStatus } }>("/integrations"),
+  klaviyo: {
+    save: (api_key: string) =>
+      apiFetch<{ data: KlaviyoStatus }>("/integrations/klaviyo", {
+        method: "PUT",
+        body: JSON.stringify({ api_key }),
+      }),
+    remove: () => apiFetch<void>("/integrations/klaviyo", { method: "DELETE" }),
+    test: () => apiFetch<KlaviyoTestResult>("/integrations/klaviyo/test", { method: "POST" }),
+  },
+};

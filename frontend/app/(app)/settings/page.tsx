@@ -5,8 +5,9 @@ import { useSearchParams } from "next/navigation";
 import {
   user as userApi, billing, myStore as myStoreApi, team as teamApi,
   apiKeys as apiKeysApi, competitors as competitorsApi, shopify as shopifyApi,
+  integrations as integrationsApi,
   type UserSubscription, type NotificationPrefs, type Competitor,
-  type TeamMember, type ApiKey, type ShopifyConnection,
+  type TeamMember, type ApiKey, type ShopifyConnection, type KlaviyoStatus, type KlaviyoTestResult,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import UpgradeModal from "@/components/UpgradeModal";
@@ -44,6 +45,14 @@ function SettingsContent() {
   const [shopifyConnecting, setShopifyConnecting] = useState(false);
   const [shopifyConnectedBanner, setShopifyConnectedBanner] = useState(false);
   const [showManualStore, setShowManualStore] = useState(false);
+
+  // Klaviyo
+  const [klaviyoStatus, setKlaviyoStatus] = useState<KlaviyoStatus | null>(null);
+  const [klaviyoKey, setKlaviyoKey] = useState("");
+  const [klaviyoSaving, setKlaviyoSaving] = useState(false);
+  const [klaviyoTesting, setKlaviyoTesting] = useState(false);
+  const [klaviyoTestResult, setKlaviyoTestResult] = useState<KlaviyoTestResult | null>(null);
+  const [klaviyoError, setKlaviyoError] = useState("");
 
   // Integrations
   const [slackUrl, setSlackUrl] = useState("");
@@ -97,6 +106,7 @@ function SettingsContent() {
     competitorsApi.list().then((r) => setMyCompetitors(r.data || [])).catch(() => {});
     myStoreApi.get().then((r) => setStore(r.data)).catch(() => {});
     shopifyApi.connection().then((r) => setShopifyConnection(r.data)).catch(() => {});
+    integrationsApi.get().then((r) => setKlaviyoStatus(r.data.klaviyo)).catch(() => {});
 
     if (searchParams.get("connected") === "true") {
       setShopifyConnectedBanner(true);
@@ -217,6 +227,41 @@ function SettingsContent() {
     await shopifyApi.disconnect().catch(() => {});
     setShopifyConnection(null);
     setStore(null);
+  }
+
+  // ── Klaviyo ────────────────────────────────────────────────────────────────
+  async function handleSaveKlaviyo() {
+    if (!klaviyoKey.trim()) return;
+    setKlaviyoSaving(true);
+    setKlaviyoError("");
+    try {
+      const { data } = await integrationsApi.klaviyo.save(klaviyoKey.trim());
+      setKlaviyoStatus(data);
+      setKlaviyoKey("");
+    } catch {
+      setKlaviyoError("Could not save key. Make sure it's a valid Klaviyo private API key.");
+    }
+    setKlaviyoSaving(false);
+  }
+
+  async function handleTestKlaviyo() {
+    setKlaviyoTesting(true);
+    setKlaviyoTestResult(null);
+    setKlaviyoError("");
+    try {
+      const result = await integrationsApi.klaviyo.test();
+      setKlaviyoTestResult(result);
+    } catch (err: unknown) {
+      const msg = (err as { data?: { detail?: string } })?.data?.detail || "Test failed — check your API key.";
+      setKlaviyoError(msg);
+    }
+    setKlaviyoTesting(false);
+  }
+
+  async function handleRemoveKlaviyo() {
+    await integrationsApi.klaviyo.remove().catch(() => {});
+    setKlaviyoStatus(null);
+    setKlaviyoTestResult(null);
   }
 
   // ── Integrations ───────────────────────────────────────────────────────────
@@ -734,6 +779,85 @@ function SettingsContent() {
           <p className="text-sm mb-5" style={{ color: "var(--muted)" }}>
             Receive alerts in Slack or any tool that accepts a webhook. Pro and Agency plans only.
           </p>
+
+          {/* Klaviyo */}
+          <div className="mb-6 pb-6" style={{ borderBottom: "1px solid var(--border)" }}>
+            <div className="flex items-center gap-2 mb-2">
+              <Zap className="w-4 h-4" style={{ color: "#f97316" }} />
+              <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Klaviyo</p>
+              {klaviyoStatus?.connected && (
+                <span
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  style={{ background: "rgba(163,240,0,0.1)", color: "#a3f000" }}
+                >
+                  Connected
+                </span>
+              )}
+            </div>
+            <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
+              Connect your Klaviyo account so the AI knows your email list size when generating plays.
+              Use a <strong style={{ color: "var(--text-2, var(--muted))" }}>Private API key</strong> from
+              {" "}Klaviyo → Account → API Keys.
+            </p>
+
+            {klaviyoStatus?.connected ? (
+              <div className="space-y-3">
+                <div
+                  className="flex items-center justify-between gap-4 px-4 py-3 rounded-xl"
+                  style={{ background: "rgba(163,240,0,0.05)", border: "1px solid rgba(163,240,0,0.18)" }}
+                >
+                  <div>
+                    <p className="text-xs font-mono font-medium" style={{ color: "var(--text)" }}>
+                      {klaviyoStatus.key_preview}
+                    </p>
+                    {klaviyoTestResult && (
+                      <p className="text-xs mt-0.5" style={{ color: "#a3f000" }}>
+                        {klaviyoTestResult.total_profiles.toLocaleString()} subscribers
+                        {" · "}{klaviyoTestResult.list_count} list{klaviyoTestResult.list_count !== 1 ? "s" : ""}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={handleTestKlaviyo}
+                      disabled={klaviyoTesting}
+                      className="text-xs font-medium px-3 py-1.5 rounded-lg transition-all hover:bg-white/[0.06] disabled:opacity-40"
+                      style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+                    >
+                      {klaviyoTesting ? "Testing…" : "Test"}
+                    </button>
+                    <button
+                      onClick={handleRemoveKlaviyo}
+                      className="text-xs font-medium px-3 py-1.5 rounded-lg transition-all hover:opacity-70"
+                      style={{ color: "#f87171" }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <input
+                  value={klaviyoKey}
+                  onChange={(e) => setKlaviyoKey(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSaveKlaviyo()}
+                  placeholder="pk_••••••••••••••••••••••••••••••••"
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-mono outline-none"
+                  style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                />
+                <button
+                  onClick={handleSaveKlaviyo}
+                  disabled={klaviyoSaving || !klaviyoKey.trim()}
+                  className="font-semibold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
+                  style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
+                >
+                  {klaviyoSaving ? "Saving…" : "Save"}
+                </button>
+              </div>
+            )}
+            {klaviyoError && <p className="text-xs mt-2" style={{ color: "#f87171" }}>{klaviyoError}</p>}
+          </div>
 
           {/* Slack */}
           <div className="mb-6">
