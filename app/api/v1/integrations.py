@@ -1,10 +1,13 @@
 from __future__ import annotations
 import logging
-from datetime import datetime, timezone
+import secrets
+from datetime import datetime, timedelta, timezone
 from typing import Optional
+from urllib.parse import urlencode
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
 from app.core.auth import get_current_user_id
@@ -164,3 +167,335 @@ def get_klaviyo_context(user_id: str) -> Optional[str]:
     except Exception as exc:
         logger.debug("Klaviyo context fetch failed for user %s: %s", user_id, exc)
         return None
+
+
+# ── Google OAuth (GA4 + Search Console) ───────────────────────────────────────
+
+_GOOGLE_AUTH_URL  = "https://accounts.google.com/o/oauth2/v2/auth"
+_GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+_GOOGLE_SCOPES = " ".join([
+    "https://www.googleapis.com/auth/analytics.readonly",
+    "https://www.googleapis.com/auth/webmasters.readonly",
+    "openid email",
+])
+
+
+def _get_google_settings():
+    from app.core.config import get_settings
+    return get_settings()
+
+
+def _redis():
+    import redis as _r
+    return _r.from_url(_get_google_settings().redis_url, socket_connect_timeout=2)
+
+
+def _google_access_token(row: dict) -> Optional[str]:
+    """Return a valid access token, refreshing if needed. Updates DB row in-place."""
+    access_token = row.get("google_access_token") or ""
+    refresh_token = row.get("google_refresh_token") or ""
+    expiry_raw = row.get("google_token_expiry")
+
+    if not access_token and not refresh_token:
+        return None
+
+    # Refresh if expired or within 5 minutes of expiry
+    needs_refresh = True
+    if expiry_raw:
+        try:
+            expiry = datetime.fromisoformat(expiry_raw.replace("Z", "+00:00"))
+            needs_refresh = expiry < datetime.now(timezone.utc) + timedelta(minutes=5)
+        except Exception:
+            pass
+
+    if needs_refresh and refresh_token:
+        settings = _get_google_settings()
+        try:
+            resp = httpx.post(_GOOGLE_TOKEN_URL, data={
+                "client_id": settings.google_client_id,
+                "client_secret": settings.google_client_secret,
+                "refresh_token": refresh_token,
+                "grant_type": "refresh_token",
+            }, timeout=10.0)
+            resp.raise_for_status()
+            data = resp.json()
+            access_token = data["access_token"]
+            expiry = datetime.now(timezone.utc) + timedelta(seconds=data.get("expires_in", 3600))
+            # Update DB
+            user_id = row.get("user_id")
+            if user_id:
+                get_supabase().table("user_integrations").update({
+                    "google_access_token": access_token,
+                    "google_token_expiry": expiry.isoformat(),
+                }).eq("user_id", user_id).execute()
+            row["google_access_token"] = access_token
+        except Exception as exc:
+            logger.warning("Google token refresh failed: %s", exc)
+            return None
+
+    return access_token or None
+
+
+@router.get("/google/connect-url")
+def google_connect_url(user_id: str = Depends(get_current_user_id)):
+    """Return a Google OAuth URL. Stores user_id in Redis keyed by state (10-min TTL)."""
+    settings = _get_google_settings()
+    if not settings.google_client_id:
+        raise HTTPException(503, "Google integration not configured")
+
+    state = secrets.token_hex(16)
+    try:
+        r = _redis()
+        r.setex(f"google_oauth_state:{state}", 600, user_id)
+    except Exception as exc:
+        logger.warning("Redis unavailable for Google state: %s", exc)
+        raise HTTPException(503, "OAuth state storage unavailable")
+
+    params = urlencode({
+        "client_id": settings.google_client_id,
+        "redirect_uri": f"{settings.public_base_url}/api/v1/integrations/google/callback",
+        "response_type": "code",
+        "scope": _GOOGLE_SCOPES,
+        "access_type": "offline",
+        "prompt": "consent",
+        "state": state,
+    })
+    return {"url": f"{_GOOGLE_AUTH_URL}?{params}"}
+
+
+@router.get("/google/callback")
+def google_callback(code: str = "", state: str = "", error: str = ""):
+    """Google redirects here after user approves OAuth."""
+    settings = _get_google_settings()
+
+    if error or not code:
+        return RedirectResponse(
+            f"{settings.public_base_url}/settings?google_error={error or 'cancelled'}",
+            status_code=302,
+        )
+
+    # Recover user_id from Redis
+    user_id = None
+    try:
+        r = _redis()
+        raw = r.get(f"google_oauth_state:{state}")
+        user_id = raw.decode() if raw else None
+        r.delete(f"google_oauth_state:{state}")
+    except Exception as exc:
+        logger.warning("Redis unavailable reading Google state: %s", exc)
+
+    if not user_id:
+        return RedirectResponse(
+            f"{settings.public_base_url}/settings?google_error=session_expired",
+            status_code=302,
+        )
+
+    # Exchange code for tokens
+    try:
+        resp = httpx.post(_GOOGLE_TOKEN_URL, data={
+            "code": code,
+            "client_id": settings.google_client_id,
+            "client_secret": settings.google_client_secret,
+            "redirect_uri": f"{settings.public_base_url}/api/v1/integrations/google/callback",
+            "grant_type": "authorization_code",
+        }, timeout=15.0)
+        resp.raise_for_status()
+        token_data = resp.json()
+    except Exception as exc:
+        logger.error("Google token exchange failed: %s", exc)
+        return RedirectResponse(
+            f"{settings.public_base_url}/settings?google_error=token_exchange_failed",
+            status_code=302,
+        )
+
+    access_token  = token_data.get("access_token", "")
+    refresh_token = token_data.get("refresh_token", "")
+    expires_in    = token_data.get("expires_in", 3600)
+    expiry        = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
+
+    db = get_supabase()
+    db.table("user_integrations").upsert({
+        "user_id": user_id,
+        "google_access_token": access_token,
+        "google_refresh_token": refresh_token or None,
+        "google_token_expiry": expiry.isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }, on_conflict="user_id").execute()
+
+    return RedirectResponse(
+        f"{settings.public_base_url}/settings?google_connected=true",
+        status_code=302,
+    )
+
+
+@router.get("/google/properties")
+def google_properties(user_id: str = Depends(get_current_user_id)):
+    """List available GA4 properties and GSC sites for the connected Google account."""
+    db = get_supabase()
+    row_res = db.table("user_integrations").select("*").eq("user_id", user_id).maybe_single().execute()
+    row = (row_res.data or {}) if row_res else {}
+    row["user_id"] = user_id
+
+    access_token = _google_access_token(row)
+    if not access_token:
+        raise HTTPException(400, "Google account not connected")
+
+    headers = {"Authorization": f"Bearer {access_token}"}
+    ga4_properties = []
+    gsc_sites = []
+
+    # GA4 properties
+    try:
+        resp = httpx.get(
+            "https://analyticsadmin.googleapis.com/v1beta/properties",
+            headers=headers,
+            params={"filter": "ancestor:accounts/-"},
+            timeout=10.0,
+        )
+        if resp.status_code == 200:
+            for prop in resp.json().get("properties", []):
+                ga4_properties.append({
+                    "id": prop.get("name", "").replace("properties/", ""),
+                    "display_name": prop.get("displayName", ""),
+                    "website_url": prop.get("websiteUrl", ""),
+                })
+    except Exception as exc:
+        logger.warning("GA4 property list failed: %s", exc)
+
+    # GSC sites
+    try:
+        resp = httpx.get(
+            "https://www.googleapis.com/webmasters/v3/sites",
+            headers=headers,
+            timeout=10.0,
+        )
+        if resp.status_code == 200:
+            for site in resp.json().get("siteEntry", []):
+                if site.get("permissionLevel") in ("siteOwner", "siteFullUser", "siteRestrictedUser"):
+                    gsc_sites.append({
+                        "url": site.get("siteUrl", ""),
+                        "permission": site.get("permissionLevel", ""),
+                    })
+    except Exception as exc:
+        logger.warning("GSC site list failed: %s", exc)
+
+    return {"ga4_properties": ga4_properties, "gsc_sites": gsc_sites}
+
+
+class GooglePropertyRequest(BaseModel):
+    ga4_property_id: Optional[str] = None
+    gsc_site_url: Optional[str] = None
+
+
+@router.put("/google/property")
+def save_google_property(body: GooglePropertyRequest, user_id: str = Depends(get_current_user_id)):
+    """Save the user's selected GA4 property and/or GSC site."""
+    db = get_supabase()
+    update: dict = {"updated_at": datetime.now(timezone.utc).isoformat()}
+    if body.ga4_property_id is not None:
+        update["google_ga4_property_id"] = body.ga4_property_id or None
+    if body.gsc_site_url is not None:
+        update["google_gsc_site_url"] = body.gsc_site_url or None
+    db.table("user_integrations").upsert(
+        {"user_id": user_id, **update}, on_conflict="user_id"
+    ).execute()
+    return {"status": "ok"}
+
+
+@router.delete("/google", status_code=204)
+def disconnect_google(user_id: str = Depends(get_current_user_id)):
+    """Disconnect Google — clear tokens and property selections."""
+    db = get_supabase()
+    db.table("user_integrations").update({
+        "google_access_token": None, "google_refresh_token": None,
+        "google_token_expiry": None, "google_ga4_property_id": None,
+        "google_gsc_site_url": None,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }).eq("user_id", user_id).execute()
+
+
+# ── Google context for playbook AI ────────────────────────────────────────────
+
+def get_google_context(user_id: str) -> Optional[str]:
+    """Fetch GA4 + GSC data and return a context string for the AI prompt."""
+    db = get_supabase()
+    row_res = db.table("user_integrations").select("*").eq("user_id", user_id).maybe_single().execute()
+    row = (row_res.data or {}) if row_res else {}
+    if not row:
+        return None
+    row["user_id"] = user_id
+
+    access_token     = _google_access_token(row)
+    ga4_property_id  = row.get("google_ga4_property_id") or ""
+    gsc_site_url     = row.get("google_gsc_site_url") or ""
+
+    if not access_token or (not ga4_property_id and not gsc_site_url):
+        return None
+
+    headers = {"Authorization": f"Bearer {access_token}"}
+    parts: list[str] = []
+
+    # GA4: sessions + top pages
+    if ga4_property_id:
+        try:
+            today = datetime.now(timezone.utc).date().isoformat()
+            thirty_ago = (datetime.now(timezone.utc) - timedelta(days=30)).date().isoformat()
+            resp = httpx.post(
+                f"https://analyticsdata.googleapis.com/v1beta/properties/{ga4_property_id}:runReport",
+                headers=headers,
+                json={
+                    "dateRanges": [{"startDate": thirty_ago, "endDate": today}],
+                    "dimensions": [{"name": "pagePath"}],
+                    "metrics": [{"name": "sessions"}, {"name": "conversions"}],
+                    "limit": 5,
+                    "orderBys": [{"metric": {"metricName": "sessions"}, "desc": True}],
+                },
+                timeout=10.0,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                rows = data.get("rows", [])
+                totals = data.get("totals", [{}])[0].get("metricValues", [])
+                total_sessions = int((totals[0].get("value") or "0") if totals else 0)
+                if total_sessions:
+                    parts.append(f"GA4 (last 30d): {total_sessions:,} sessions")
+                top_pages = []
+                for r in rows[:3]:
+                    path   = r["dimensionValues"][0]["value"]
+                    sess   = int(r["metricValues"][0]["value"] or 0)
+                    top_pages.append(f"{path} ({sess:,} sessions)")
+                if top_pages:
+                    parts.append(f"top pages: {', '.join(top_pages)}")
+        except Exception as exc:
+            logger.debug("GA4 context failed for user %s: %s", user_id, exc)
+
+    # GSC: top queries
+    if gsc_site_url:
+        try:
+            today = datetime.now(timezone.utc).date().isoformat()
+            thirty_ago = (datetime.now(timezone.utc) - timedelta(days=30)).date().isoformat()
+            resp = httpx.post(
+                f"https://www.googleapis.com/webmasters/v3/sites/{gsc_site_url}/searchAnalytics/query".replace(
+                    "//sites/", "/sites/"
+                ),
+                headers=headers,
+                json={
+                    "startDate": thirty_ago, "endDate": today,
+                    "dimensions": ["query"], "rowLimit": 8,
+                },
+                timeout=10.0,
+            )
+            if resp.status_code == 200:
+                rows = resp.json().get("rows", [])
+                queries = []
+                for r in rows[:5]:
+                    query   = r.get("keys", [""])[0]
+                    impr    = int(r.get("impressions", 0))
+                    pos     = round(r.get("position", 0), 1)
+                    queries.append(f'"{query}" ({impr:,} impr, pos {pos})')
+                if queries:
+                    parts.append(f"top search queries: {'; '.join(queries)}")
+        except Exception as exc:
+            logger.debug("GSC context failed for user %s: %s", user_id, exc)
+
+    return "\n  ".join(parts) if parts else None

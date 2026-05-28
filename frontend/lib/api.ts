@@ -579,6 +579,17 @@ export interface KlaviyoTestResult {
   lists: { name: string; profile_count: number }[];
 }
 
+export interface GoogleStatus {
+  connected: boolean;
+  ga4_property_id: string | null;
+  gsc_site_url: string | null;
+}
+
+export interface GoogleProperties {
+  ga4_properties: { id: string; display_name: string; website_url: string }[];
+  gsc_sites: { url: string; permission: string }[];
+}
+
 export const integrations = {
   get: () => apiFetch<{ data: { klaviyo: KlaviyoStatus } }>("/integrations"),
   klaviyo: {
@@ -589,5 +600,15 @@ export const integrations = {
       }),
     remove: () => apiFetch<void>("/integrations/klaviyo", { method: "DELETE" }),
     test: () => apiFetch<KlaviyoTestResult>("/integrations/klaviyo/test", { method: "POST" }),
+  },
+  google: {
+    connectUrl: () => apiFetch<{ url: string }>("/integrations/google/connect-url"),
+    properties: () => apiFetch<GoogleProperties>("/integrations/google/properties"),
+    saveProperty: (ga4_property_id: string | null, gsc_site_url: string | null) =>
+      apiFetch<{ status: string }>("/integrations/google/property", {
+        method: "PUT",
+        body: JSON.stringify({ ga4_property_id, gsc_site_url }),
+      }),
+    disconnect: () => apiFetch<void>("/integrations/google", { method: "DELETE" }),
   },
 };
