@@ -550,3 +550,19 @@ export interface DiscoverySuggestion {
   is_curated?: boolean;
   category?: string | null;
 }
+
+export interface ShopifyConnection {
+  shop: string;
+  shop_name: string;
+  scope: string;
+  created_at: string;
+}
+
+export const shopify = {
+  connectUrl: (shop: string) =>
+    apiFetch<{ url: string }>(`/shopify/connect-url?shop=${encodeURIComponent(shop)}`),
+  connection: () =>
+    apiFetch<{ data: ShopifyConnection | null }>("/shopify/connection"),
+  disconnect: () =>
+    apiFetch<void>("/shopify/connection", { method: "DELETE" }),
+};
