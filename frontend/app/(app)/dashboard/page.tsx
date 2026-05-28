@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BarChart, Bar, XAxis, ResponsiveContainer, Cell } from "recharts";
+import { BarChart, Bar, XAxis, ResponsiveContainer, Cell, AreaChart, Area } from "recharts";
 import {
   competitors as api, alerts as alertsApi, user as userApi,
   type Competitor, type AlertEvent, type DiscoverySuggestion, type PlaybookPlay,
@@ -47,10 +47,16 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
   }).length;
   const todayChanges = alertList.filter((e) => new Date(e.detected_at).getTime() > dayAgo).length;
 
-  // pct delta vs last week; null when no prev data (fallback to "N today")
   const weeklyDelta = prevWeekChanges > 0
     ? Math.round(((thisWeekChanges - prevWeekChanges) / prevWeekChanges) * 100)
     : null;
+
+  // 7-day daily counts for the "Changes" sparkline
+  const dailyCounts = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return alertList.filter((a) => new Date(a.detected_at).toDateString() === d.toDateString()).length;
+  });
 
   const criticals = signalGroups
     .filter((g) => g.tier === "strategic")
@@ -67,8 +73,8 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
     value: string;
     color: string;
     highlight?: boolean;
-    // delta: pct number, or "today:N" string, or null
     delta?: number | string | null;
+    sparkline?: number[];
   };
 
   const stats: Stat[] = [
@@ -79,6 +85,7 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
       color: thisWeekChanges > 0 ? "var(--accent)" : "var(--muted)",
       highlight: thisWeekChanges > 0,
       delta: weeklyDelta !== null ? weeklyDelta : todayChanges > 0 ? `today:${todayChanges}` : null,
+      sparkline: dailyCounts,
     },
     {
       icon: Zap,
@@ -94,7 +101,7 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
     if (typeof delta === "string" && delta.startsWith("today:")) {
       const n = delta.slice(6);
       return (
-        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md ml-auto shrink-0"
+        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md shrink-0"
           style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)" }}>
           {n} today
         </span>
@@ -104,7 +111,7 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
     const up = pct > 0;
     const down = pct < 0;
     return (
-      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md ml-auto shrink-0"
+      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0"
         style={{
           background: up ? "rgba(249,115,22,.1)" : down ? "rgba(16,185,129,.1)" : "rgba(255,255,255,.06)",
           color: up ? "#f97316" : down ? "#10b981" : "var(--muted)",
@@ -116,23 +123,41 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-      {stats.map(({ icon: Icon, label, value, color, highlight, delta }) => (
+      {stats.map(({ icon: Icon, label, value, color, highlight, delta, sparkline }) => (
         <div
           key={label}
-          className="rounded-xl px-4 py-3 flex items-center gap-3"
+          className="rounded-xl px-4 py-3"
           style={{
             background: highlight ? "rgba(59,130,246,.05)" : "var(--bg3)",
             border: highlight ? "1px solid rgba(59,130,246,.18)" : "1px solid var(--border)",
           }}
         >
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${color}18` }}>
-            <Icon className="w-4 h-4" style={{ color }} />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${color}18` }}>
+              <Icon className="w-4 h-4" style={{ color }} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-lg font-bold font-mono leading-none" style={{ color: "var(--text)" }}>{value}</p>
+              <p className="text-[11px] mt-0.5 truncate" style={{ color: "var(--muted)" }}>{label}</p>
+            </div>
+            {renderDelta(delta)}
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-lg font-bold font-mono leading-none" style={{ color: "var(--text)" }}>{value}</p>
-            <p className="text-[11px] mt-0.5 truncate" style={{ color: "var(--muted)" }}>{label}</p>
-          </div>
-          {renderDelta(delta)}
+          {sparkline && sparkline.some((v) => v > 0) && (
+            <div className="mt-2 -mx-1">
+              <ResponsiveContainer width="100%" height={28}>
+                <AreaChart data={sparkline.map((v, i) => ({ v, i }))} margin={{ top: 1, right: 0, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="dash-spark" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="v" stroke="#3b82f6" strokeWidth={1.5}
+                    fill="url(#dash-spark)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
       ))}
     </div>

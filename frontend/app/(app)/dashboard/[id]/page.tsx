@@ -8,9 +8,11 @@ import {
   Package, Tag, Clock, Brain, Target, Eye,
 } from "lucide-react";
 import Link from "next/link";
+import { AreaChart, Area, ResponsiveContainer } from "recharts";
 import {
   competitors as api, user as userApi,
   type Snapshot, type SnapshotMeta, type ChangeEvent, type AiSummary,
+  type PriceHistoryPoint,
 } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -37,14 +39,26 @@ type IntelSub = "ai" | "brand" | "compare";
 // ── Expandable KPI card ───────────────────────────────────────────────────────
 function KpiCard({
   label, value, sub, accent, delta, insight, actionLabel, onAction, locked = false,
+  sparkline,
 }: {
   label: string; value: string; sub?: string; accent?: string;
   delta?: { label: string; up: boolean | null };
   insight?: string; actionLabel?: string; onAction?: () => void; locked?: boolean;
+  sparkline?: number[];
 }) {
   const [expanded, setExpanded] = useState(false);
   const clickable = !!insight;
-  const deltaColor = delta?.up === true ? "var(--emerald)" : delta?.up === false ? "var(--red)" : "var(--muted)";
+  const deltaUp   = delta?.up === true;
+  const deltaDown = delta?.up === false;
+  const accentHex = accent?.startsWith("var(") ? "#3b82f6" : (accent ?? "#3b82f6");
+
+  // Extract the numeric part: "▲ +5 vs last scan" → "+5"
+  const badgeText = delta
+    ? delta.label.replace(/^[▲▼±→\s]+/, "").replace(/ vs last scan$/, "").trim()
+    : null;
+
+  const sparkId = `sg-${label.replace(/\W+/g, "-").toLowerCase()}`;
+  const showSpark = sparkline && sparkline.filter(v => v > 0).length >= 3;
 
   return (
     <div
@@ -52,23 +66,69 @@ function KpiCard({
       style={{
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
-        borderTop: accent ? `2px solid ${accent}` : "1px solid var(--border)",
+        borderTop: accent ? `2px solid ${accentHex}` : "1px solid var(--border)",
       }}
       onClick={() => clickable && setExpanded((v) => !v)}
     >
-      <div className="p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--muted)" }}>
-          {label}
-        </p>
-        <p className="text-2xl font-bold font-mono" style={{ color: "var(--text)" }}>{value}</p>
-        {delta && (
-          <p className="text-[11px] font-medium mt-1" style={{ color: deltaColor }}>
-            {delta.label}
+      <div className="p-4">
+        {/* Header: label + delta pill */}
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
+            {label}
           </p>
+          {badgeText && (
+            <span
+              className="text-[10px] font-bold px-1.5 py-0.5 rounded-md"
+              style={{
+                background: deltaUp
+                  ? "rgba(16,185,129,.15)"
+                  : deltaDown
+                  ? "rgba(239,68,68,.15)"
+                  : "rgba(255,255,255,.06)",
+                color: deltaUp ? "#10b981" : deltaDown ? "#ef4444" : "var(--muted)",
+              }}
+            >
+              {deltaUp ? "↑" : deltaDown ? "↓" : "→"} {badgeText}
+            </span>
+          )}
+        </div>
+
+        {/* Value */}
+        <p className="text-2xl font-bold font-mono" style={{ color: "var(--text)" }}>{value}</p>
+
+        {!delta && sub && <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>{sub}</p>}
+
+        {/* Sparkline */}
+        {showSpark && (
+          <div className="mt-2 -mx-1">
+            <ResponsiveContainer width="100%" height={36}>
+              <AreaChart
+                data={sparkline!.map((v, i) => ({ v, i }))}
+                margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id={sparkId} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={accentHex} stopOpacity={0.35} />
+                    <stop offset="100%" stopColor={accentHex} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <Area
+                  type="monotone"
+                  dataKey="v"
+                  stroke={accentHex}
+                  strokeWidth={1.5}
+                  fill={`url(#${sparkId})`}
+                  dot={false}
+                  isAnimationActive={false}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         )}
-        {!delta && sub && <p className="text-xs mt-1.5" style={{ color: "var(--muted)" }}>{sub}</p>}
+
+        {/* Expand toggle */}
         {clickable && (
-          <div className="flex items-center gap-1 mt-2.5">
+          <div className="flex items-center gap-1 mt-2">
             {expanded
               ? <ChevronUp className="w-3 h-3" style={{ color: "var(--muted)" }} />
               : <ChevronDown className="w-3 h-3" style={{ color: "var(--muted)" }} />}
@@ -81,7 +141,7 @@ function KpiCard({
 
       {expanded && (
         <div
-          className="px-5 pb-4 border-t"
+          className="px-4 pb-4 border-t"
           style={{ borderColor: "var(--border)", background: "rgba(0,0,0,.25)" }}
         >
           <p className="text-xs leading-relaxed mt-3" style={{ color: "var(--text-2)" }}>
@@ -417,6 +477,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const [upgradeOpen,    setUpgradeOpen]    = useState(false);
   const [tier,           setTier]           = useState<string>("free");
   const [showAllChanges, setShowAllChanges] = useState(false);
+  const [priceHistory,   setPriceHistory]   = useState<PriceHistoryPoint[]>([]);
 
   const isFree = tier === "free";
 
@@ -451,6 +512,13 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
       .then((r) => { if (r.data.length >= 2) setPrevMeta(r.data[1]); })
       .catch(() => {});
   }, [id, snapshot?.id]);
+
+  // Fetch price history for KPI sparklines (Pro: up to 90 days; free: 2 points)
+  useEffect(() => {
+    api.priceHistory(id)
+      .then((r) => setPriceHistory(r.data.points))
+      .catch(() => {});
+  }, [id]);
 
   // Fetch AI summary when landing on the AI insights sub-tab
   useEffect(() => {
@@ -599,6 +667,11 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const deltaPrice  = kpiDelta(snapshot?.median_price,  prevMeta?.median_price,  formatPrice);
   const deltaPromo  = kpiDelta(snapshot?.promo_rate,    prevMeta?.promo_rate,    formatPct);
   const deltaNew30d = kpiDelta(snapshot?.new_30d,       prevMeta?.new_30d,       (n) => n.toLocaleString());
+
+  // Sparkline arrays from price history (oldest → newest)
+  const sparkProducts = priceHistory.map((p) => p.product_count ?? 0);
+  const sparkPrice    = priceHistory.map((p) => p.median_price ?? 0);
+  const sparkPromo    = priceHistory.map((p) => (p.promo_rate ?? 0) * 100);
 
   // Top critical/warning change for the alert banner
   const topAlert = changes.find((c) => c.severity === "critical" || c.severity === "warning");
@@ -796,8 +869,9 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   <KpiCard
                     label="Products"
                     value={(catalog.total_products as number)?.toLocaleString() ?? "—"}
-                    accent="var(--blue)"
+                    accent="#60a5fa"
                     delta={deltaProd}
+                    sparkline={sparkProducts}
                     insight={`This store has ${(catalog.total_products as number)?.toLocaleString() ?? "an unknown number of"} active products. Compare this to your own catalog size to gauge competitive breadth.`}
                     actionLabel="Alert me when count changes"
                     onAction={() => isFree ? setUpgradeOpen(true) : router.push("/settings#notifications")}
@@ -806,8 +880,9 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   <KpiCard
                     label="Median Price"
                     value={formatPrice(pricing.median as number)}
-                    accent="var(--accent)"
+                    accent="#3b82f6"
                     delta={deltaPrice}
+                    sparkline={sparkPrice}
                     insight={`Their median price is ${formatPrice(pricing.median as number)}, ranging from ${formatPrice(pricing.min as number)} to ${formatPrice(pricing.max as number)}. This positions them in the ${(positioning.market_position as Record<string, unknown>)?.label ?? "mid-market"} segment.`}
                     actionLabel="See 90-day price history"
                     onAction={() => { if (isFree) setUpgradeOpen(true); else setTab("pricing"); }}
@@ -816,8 +891,9 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   <KpiCard
                     label="Promo Rate"
                     value={formatPct(discounts.discounted_pct as number)}
-                    accent="var(--amber)"
+                    accent="#fb923c"
                     delta={deltaPromo}
+                    sparkline={sparkPromo}
                     insight={`${formatPct(discounts.discounted_pct as number)} of their catalog is currently discounted — average discount depth is ${formatPct(discounts.avg_discount_pct as number)}. A high promo rate can signal pricing pressure or clearance cycles.`}
                     actionLabel="Alert me on flash sales"
                     onAction={() => isFree ? setUpgradeOpen(true) : router.push("/settings#notifications")}
@@ -826,7 +902,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   <KpiCard
                     label="New (30d)"
                     value={((launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? "—").toString()}
-                    accent="var(--emerald)"
+                    accent="#10b981"
                     delta={deltaNew30d}
                     insight={`They launched ${((launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? 0)} products in the last 30 days. A high velocity often signals an aggressive growth phase or seasonal push.`}
                     actionLabel="Alert me when they launch"
