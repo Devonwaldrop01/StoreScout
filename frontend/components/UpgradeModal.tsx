@@ -17,11 +17,11 @@ const PLANS = [
     price: 29,
     annualPrice: 23,
     icon: Zap,
-    color: "#a8ff00",
-    colorBg: "rgba(168,255,0,.06)",
-    colorBorder: "rgba(168,255,0,.3)",
+    color: "#3b82f6",
+    colorBg: "rgba(59,130,246,.06)",
+    colorBorder: "rgba(59,130,246,.3)",
     checkColor: "var(--accent)",
-    glowShadow: "0 0 0 1px rgba(168,255,0,.3), 0 8px 32px rgba(168,255,0,.06)",
+    glowShadow: "0 0 0 1px rgba(59,130,246,.3), 0 8px 32px rgba(59,130,246,.06)",
     popular: true,
     features: [
       "10 competitors",
@@ -93,7 +93,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general" }: Pro
         style={{
           background: "var(--bg2)",
           border: "1px solid var(--border)",
-          boxShadow: "0 -1px 0 0 rgba(168,255,0,.15), 0 24px 80px rgba(0,0,0,.6)",
+          boxShadow: "0 -1px 0 0 rgba(59,130,246,.15), 0 24px 80px rgba(0,0,0,.6)",
         }}
       >
         {/* Close button */}
@@ -111,8 +111,8 @@ export default function UpgradeModal({ open, onClose, trigger = "general" }: Pro
           <div
             className="flex items-center justify-center w-10 h-10 rounded-full mb-4"
             style={{
-              background: "rgba(168,255,0,.12)",
-              border: "1px solid rgba(168,255,0,.2)",
+              background: "rgba(59,130,246,.12)",
+              border: "1px solid rgba(59,130,246,.2)",
             }}
           >
             <Zap className="w-5 h-5" style={{ color: "var(--accent)" }} />
@@ -152,7 +152,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general" }: Pro
               <span
                 className="text-xs font-bold px-1.5 py-0.5 rounded-md"
                 style={{
-                  background: annual ? "rgba(0,0,0,.18)" : "rgba(168,255,0,.12)",
+                  background: annual ? "rgba(0,0,0,.18)" : "rgba(59,130,246,.12)",
                   color: annual ? "#0a0a0f" : "var(--accent)",
                 }}
               >
@@ -182,9 +182,9 @@ export default function UpgradeModal({ open, onClose, trigger = "general" }: Pro
                   <span
                     className="absolute top-4 right-4 text-xs font-bold px-2 py-0.5 rounded-full tracking-wide"
                     style={{
-                      background: "rgba(168,255,0,.12)",
+                      background: "rgba(59,130,246,.12)",
                       color: "var(--accent)",
-                      border: "1px solid rgba(168,255,0,.2)",
+                      border: "1px solid rgba(59,130,246,.2)",
                     }}
                   >
                     MOST POPULAR
@@ -229,7 +229,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general" }: Pro
                   onClick={() => handleUpgrade(plan.key)}
                   disabled={!!loading}
                   className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all hover:brightness-110 disabled:opacity-50"
-                  style={{ background: plan.color, color: "#0a0a0f" }}
+                  style={{ background: plan.color, color: "#ffffff" }}
                 >
                   {loading === plan.key ? "Redirecting…" : `Upgrade to ${plan.name}`}
                 </button>

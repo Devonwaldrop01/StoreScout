@@ -11,7 +11,7 @@ function Signal({ active, label }: { active: boolean; label: string }) {
   return (
     <div className="flex items-center gap-2 py-1.5">
       {active
-        ? <CheckCircle className="w-4 h-4 shrink-0" style={{ color: "#a3f000" }} />
+        ? <CheckCircle className="w-4 h-4 shrink-0" style={{ color: "#3b82f6" }} />
         : <XCircle className="w-4 h-4 shrink-0" style={{ color: "var(--muted)" }} />
       }
       <span className="text-sm" style={{ color: active ? "var(--text)" : "var(--muted)" }}>{label}</span>
@@ -20,7 +20,7 @@ function Signal({ active, label }: { active: boolean; label: string }) {
 }
 
 function ScoreBar({ score }: { score: number }) {
-  const color = score >= 70 ? "#a3f000" : score >= 40 ? "#facc15" : "#94a3b8";
+  const color = score >= 70 ? "#3b82f6" : score >= 40 ? "#facc15" : "#94a3b8";
   const label = score >= 70 ? "High investment" : score >= 40 ? "Moderate" : "Low investment";
   return (
     <div>
@@ -53,7 +53,7 @@ function FreeTierView({
       {/* Teasers */}
       <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2 mb-4">
-          <Building2 className="w-4 h-4" style={{ color: "#a3f000" }} />
+          <Building2 className="w-4 h-4" style={{ color: "#3b82f6" }} />
           <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Catalog structure</h4>
         </div>
         <div className="grid grid-cols-2 gap-x-6">
@@ -88,9 +88,9 @@ function FreeTierView({
       {/* Upgrade CTA */}
       <div
         className="rounded-2xl p-6 text-center"
-        style={{ background: "rgba(163,240,0,.06)", border: "1px dashed rgba(163,240,0,.3)" }}
+        style={{ background: "rgba(59,130,246,.06)", border: "1px dashed rgba(59,130,246,.3)" }}
       >
-        <Lock className="w-5 h-5 mx-auto mb-2" style={{ color: "#a3f000" }} />
+        <Lock className="w-5 h-5 mx-auto mb-2" style={{ color: "#3b82f6" }} />
         <p className="text-sm font-medium mb-1" style={{ color: "var(--text)" }}>
           Full brand intelligence locked
         </p>
@@ -101,7 +101,7 @@ function FreeTierView({
         <button
           onClick={onUpgrade}
           className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110"
-          style={{ background: "#a3f000", color: "#060d18" }}
+          style={{ background: "#3b82f6", color: "#060d18" }}
         >
           Unlock Brand Intelligence
         </button>
@@ -119,7 +119,7 @@ function CollectionTag({ name }: { name: string }) {
   const isBest = lower.includes("best") || lower.includes("popular") || lower.includes("trend");
   const isBundle = lower.includes("bundle") || lower.includes("kit") || lower.includes("combo");
 
-  const accent = isSale ? "#f87171" : isNew ? "#60a5fa" : isBest ? "#a3f000" : isBundle ? "#c084fc" : undefined;
+  const accent = isSale ? "#f87171" : isNew ? "#60a5fa" : isBest ? "#3b82f6" : isBundle ? "#c084fc" : undefined;
 
   return (
     <span
@@ -146,7 +146,7 @@ function ProView({ data }: { data: StoreProfileResponse }) {
         <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4" style={{ color: "#a3f000" }} />
+              <Building2 className="w-4 h-4" style={{ color: "#3b82f6" }} />
               <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Collections ({col.count})</h4>
             </div>
           </div>
@@ -266,7 +266,7 @@ export default function StoreProfileTab({ competitorId }: { competitorId: string
   return (
     <div className="space-y-4">
       <div className="flex items-start gap-2">
-        <Building2 className="w-5 h-5 mt-0.5" style={{ color: "#a3f000" }} />
+        <Building2 className="w-5 h-5 mt-0.5" style={{ color: "#3b82f6" }} />
         <div>
           <h3 className="font-semibold" style={{ color: "var(--text)" }}>Brand Intelligence</h3>
           <p className="text-sm" style={{ color: "var(--muted)" }}>

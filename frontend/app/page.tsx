@@ -83,8 +83,8 @@ function BrowserChrome({ url, children }: { url: string; children: React.ReactNo
           {url}
         </div>
         <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" style={{ color: "#a3f000" }} />
-          <span className="text-[10px] font-semibold" style={{ color: "#a3f000" }}>LIVE</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" style={{ color: "#3b82f6" }} />
+          <span className="text-[10px] font-semibold" style={{ color: "#3b82f6" }}>LIVE</span>
         </div>
       </div>
       {children}
@@ -125,8 +125,8 @@ function FlashSaleCard() {
         Summer clearance or aggressive acquisition push. Flash sales this size typically run 48–72h and are often paired with Meta spend within hours.
       </div>
       <div className="mx-5 mb-4 px-3.5 py-3 rounded-xl text-xs leading-relaxed"
-        style={{ background: "rgba(163,240,0,.05)", border: "1px solid rgba(163,240,0,.18)" }}>
-        <span className="font-bold" style={{ color: "#a3f000" }}>▶ Your move · </span>
+        style={{ background: "rgba(59,130,246,.05)", border: "1px solid rgba(59,130,246,.18)" }}>
+        <span className="font-bold" style={{ color: "#3b82f6" }}>▶ Your move · </span>
         <span style={{ color: "#94a3b8" }}>Open Meta Ads Manager, duplicate your best ad set targeting Gymshark followers. Test &ldquo;Gymshark is on sale. We never are.&rdquo; as headline copy — run $10/day for 5 days and compare CTR to your control.</span>
       </div>
       <div className="flex items-center justify-between px-5 py-2 text-xs font-semibold border-t"
@@ -144,18 +144,18 @@ function LaunchBurstCard() {
     <div
       className="rounded-2xl overflow-hidden"
       style={{
-        background: "rgba(163,240,0,.04)",
-        border: "1px solid rgba(163,240,0,.2)",
-        boxShadow: "0 0 0 1px rgba(163,240,0,.06), 0 8px 32px rgba(0,0,0,.3)",
+        background: "rgba(59,130,246,.04)",
+        border: "1px solid rgba(59,130,246,.2)",
+        boxShadow: "0 0 0 1px rgba(59,130,246,.06), 0 8px 32px rgba(0,0,0,.3)",
       }}
     >
       <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <Rocket className="w-4 h-4 shrink-0" style={{ color: "#a3f000" }} />
+          <Rocket className="w-4 h-4 shrink-0" style={{ color: "#3b82f6" }} />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full shrink-0"
-                style={{ background: "rgba(163,240,0,.2)", color: "#a3f000" }}>Launch Burst</span>
+                style={{ background: "rgba(59,130,246,.2)", color: "#3b82f6" }}>Launch Burst</span>
               <span className="text-xs font-semibold" style={{ color: "#eef3fa" }}>fashionnova.com</span>
             </div>
             <p className="text-sm font-bold mt-1 leading-snug" style={{ color: "#eef3fa" }}>
@@ -167,16 +167,16 @@ function LaunchBurstCard() {
       </div>
       <div className="mx-5 mb-3 px-3.5 py-3 rounded-xl text-xs leading-relaxed"
         style={{ background: "rgba(0,0,0,.2)", color: "#94a3b8" }}>
-        <span className="font-semibold" style={{ color: "#a3f000" }}>Why this matters · </span>
+        <span className="font-semibold" style={{ color: "#3b82f6" }}>Why this matters · </span>
         A burst this large usually precedes a paid push. Expect heavy Meta spend on these SKUs within 48 hours — their best-case launch window.
       </div>
       <div className="mx-5 mb-4 px-3.5 py-3 rounded-xl text-xs leading-relaxed"
-        style={{ background: "rgba(163,240,0,.05)", border: "1px solid rgba(163,240,0,.18)" }}>
-        <span className="font-bold" style={{ color: "#a3f000" }}>▶ Your move · </span>
+        style={{ background: "rgba(59,130,246,.05)", border: "1px solid rgba(59,130,246,.18)" }}>
+        <span className="font-bold" style={{ color: "#3b82f6" }}>▶ Your move · </span>
         <span style={{ color: "#94a3b8" }}>Watch fashionnova.com&apos;s social and email over the next 72h. If they&apos;re entering a category you cover, get your version into ads before their campaign peaks.</span>
       </div>
       <div className="flex items-center justify-between px-5 py-2 text-xs font-semibold border-t"
-        style={{ borderColor: "rgba(163,240,0,.15)", color: "#3a5070" }}>
+        style={{ borderColor: "rgba(59,130,246,.15)", color: "#3a5070" }}>
         <span>View 19 new products</span>
         <span>↓</span>
       </div>
@@ -217,8 +217,8 @@ function PriceIncreaseCard() {
         Allbirds raised prices on 8 core styles. Their price-sensitive customers are now actively comparison shopping — this is your window.
       </div>
       <div className="mx-5 mb-4 px-3.5 py-3 rounded-xl text-xs leading-relaxed"
-        style={{ background: "rgba(163,240,0,.05)", border: "1px solid rgba(163,240,0,.18)" }}>
-        <span className="font-bold" style={{ color: "#a3f000" }}>▶ Your move · </span>
+        style={{ background: "rgba(59,130,246,.05)", border: "1px solid rgba(59,130,246,.18)" }}>
+        <span className="font-bold" style={{ color: "#3b82f6" }}>▶ Your move · </span>
         <span style={{ color: "#94a3b8" }}>Launch a Google Shopping campaign targeting their product names — their price-sensitive customers are now actively looking for alternatives.</span>
       </div>
       <div className="flex items-center justify-between px-5 py-2 text-xs font-semibold border-t"
@@ -236,29 +236,29 @@ function IntelligenceBriefPreview() {
     <div
       className="relative rounded-2xl overflow-hidden"
       style={{
-        background: "linear-gradient(135deg, rgba(168,255,0,.06) 0%, rgba(168,255,0,.02) 40%, transparent 70%), #080f1e",
-        border: "1px solid rgba(168,255,0,.2)",
-        boxShadow: "0 0 0 1px rgba(168,255,0,.06), 0 20px 60px rgba(0,0,0,.5)",
+        background: "linear-gradient(135deg, rgba(59,130,246,.06) 0%, rgba(59,130,246,.02) 40%, transparent 70%), #080f1e",
+        border: "1px solid rgba(59,130,246,.2)",
+        boxShadow: "0 0 0 1px rgba(59,130,246,.06), 0 20px 60px rgba(0,0,0,.5)",
       }}
     >
       <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full blur-3xl pointer-events-none"
-        style={{ background: "rgba(168,255,0,.08)" }} />
+        style={{ background: "rgba(59,130,246,.08)" }} />
       <div className="relative p-6 sm:p-8">
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "rgba(168,255,0,.12)", border: "1px solid rgba(168,255,0,.2)" }}>
-              <Sparkles className="w-4 h-4" style={{ color: "#a3f000" }} />
+              style={{ background: "rgba(59,130,246,.12)", border: "1px solid rgba(59,130,246,.2)" }}>
+              <Sparkles className="w-4 h-4" style={{ color: "#3b82f6" }} />
             </div>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
-                style={{ background: "rgba(168,255,0,.12)", color: "#a3f000" }}>
+                style={{ background: "rgba(59,130,246,.12)", color: "#3b82f6" }}>
                 AI Intelligence Brief
               </span>
               <h3 className="text-base font-bold mt-1" style={{ color: "#eef3fa" }}>
                 4 things you should know about{" "}
-                <span style={{ color: "#a3f000" }}>gymshark.com</span>
+                <span style={{ color: "#3b82f6" }}>gymshark.com</span>
               </h3>
             </div>
           </div>
@@ -267,13 +267,13 @@ function IntelligenceBriefPreview() {
         {/* 3 cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           {/* Signal card */}
-          <div className="rounded-xl p-5" style={{ background: "rgba(168,255,0,.07)", border: "1px solid rgba(168,255,0,.18)" }}>
+          <div className="rounded-xl p-5" style={{ background: "rgba(59,130,246,.07)", border: "1px solid rgba(59,130,246,.18)" }}>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: "rgba(168,255,0,.18)" }}>
-                <Target className="w-4 h-4" style={{ color: "#a8ff00" }} />
+                style={{ background: "rgba(59,130,246,.18)" }}>
+                <Target className="w-4 h-4" style={{ color: "#3b82f6" }} />
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#a8ff00" }}>Most notable signal</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#3b82f6" }}>Most notable signal</span>
             </div>
             <h4 className="font-bold text-sm leading-snug mb-2" style={{ color: "#eef3fa" }}>
               Seasonal discount cycle is accelerating
@@ -338,7 +338,7 @@ function IntelligenceBriefPreview() {
         </div>
 
         <div className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
-          style={{ background: "#a3f000", color: "#0a0a0f" }}>
+          style={{ background: "#3b82f6", color: "#ffffff" }}>
           View full analysis
           <ArrowRight className="w-4 h-4" />
         </div>
@@ -371,10 +371,10 @@ function AlertEmailPreview() {
       <div style={{ background: "#060d18", padding: "20px 20px 24px" }}>
         {/* Logo */}
         <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 24, height: 24, background: "#a3f000", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 24, height: 24, background: "#3b82f6", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Zap className="w-3.5 h-3.5" style={{ color: "#060d18" }} />
           </div>
-          <span style={{ color: "#a3f000", fontWeight: 700, fontSize: 14, letterSpacing: -0.3 }}>StoreScout</span>
+          <span style={{ color: "#3b82f6", fontWeight: 700, fontSize: 14, letterSpacing: -0.3 }}>StoreScout</span>
           <span style={{ color: "#3a5070", fontSize: 11, marginLeft: "auto" }}>14 minutes ago</span>
         </div>
 
@@ -412,7 +412,7 @@ function AlertEmailPreview() {
         </div>
 
         <a href="#"
-          style={{ display: "inline-block", background: "#a3f000", color: "#060d18", fontWeight: 700, fontSize: 13, padding: "9px 20px", borderRadius: 8, textDecoration: "none" }}>
+          style={{ display: "inline-block", background: "#3b82f6", color: "#060d18", fontWeight: 700, fontSize: 13, padding: "9px 20px", borderRadius: 8, textDecoration: "none" }}>
           View full dashboard →
         </a>
       </div>
@@ -432,7 +432,7 @@ function ComparisonTable() {
     { feature: "Starts free, no card",       ext: false, report: false, us: true },
   ];
   const col = (v: boolean) => v
-    ? <span className="text-base" style={{ color: "#a3f000" }}>✓</span>
+    ? <span className="text-base" style={{ color: "#3b82f6" }}>✓</span>
     : <span className="text-base opacity-20" style={{ color: "#94a3b8" }}>✕</span>;
 
   return (
@@ -445,7 +445,7 @@ function ComparisonTable() {
             <th className="text-center py-3 px-4 font-semibold text-xs" style={{ color: "var(--muted)" }}>One-time reports</th>
             <th
               className="text-center py-3 px-4 font-semibold text-xs rounded-t-xl"
-              style={{ color: "#a3f000", background: "rgba(163,240,0,.07)", border: "1px solid rgba(163,240,0,.2)", borderBottom: "none" }}
+              style={{ color: "#3b82f6", background: "rgba(59,130,246,.07)", border: "1px solid rgba(59,130,246,.2)", borderBottom: "none" }}
             >
               StoreScout
             </th>
@@ -459,7 +459,7 @@ function ComparisonTable() {
               <td className="text-center py-3 px-4">{col(report)}</td>
               <td
                 className={`text-center py-3 px-4 ${i === rows.length - 1 ? "rounded-b-xl" : ""}`}
-                style={{ background: "rgba(163,240,0,.07)", border: "1px solid rgba(163,240,0,.2)", borderTop: "none", borderBottom: i === rows.length - 1 ? undefined : "none" }}
+                style={{ background: "rgba(59,130,246,.07)", border: "1px solid rgba(59,130,246,.2)", borderTop: "none", borderBottom: i === rows.length - 1 ? undefined : "none" }}
               >
                 {col(us)}
               </td>
@@ -485,9 +485,9 @@ export default function LandingPage() {
         <div className="flex items-center gap-2.5">
           <div
             className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-            style={{ background: "var(--accent)", boxShadow: "0 0 10px rgba(168,255,0,.3)" }}
+            style={{ background: "var(--accent)", boxShadow: "0 0 10px rgba(59,130,246,.3)" }}
           >
-            <Zap className="w-4 h-4" style={{ color: "#0a0a0f" }} />
+            <Zap className="w-4 h-4" style={{ color: "#ffffff" }} />
           </div>
           <span className="font-bold text-lg" style={{ color: "var(--text)" }}>StoreScout</span>
         </div>
@@ -503,7 +503,7 @@ export default function LandingPage() {
           <Link
             href="/auth/signup"
             className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110"
-            style={{ background: "#a3f000", color: "#060d18" }}
+            style={{ background: "#3b82f6", color: "#060d18" }}
           >
             Start free
           </Link>
@@ -514,7 +514,7 @@ export default function LandingPage() {
       <div className="max-w-5xl mx-auto px-6 pt-20 pb-14 text-center">
         <div
           className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-8"
-          style={{ background: "rgba(163,240,0,.1)", color: "#a3f000", border: "1px solid rgba(163,240,0,.2)" }}
+          style={{ background: "rgba(59,130,246,.1)", color: "#3b82f6", border: "1px solid rgba(59,130,246,.2)" }}
         >
           <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
           Live competitor intelligence for Shopify
@@ -526,7 +526,7 @@ export default function LandingPage() {
         >
           Your Shopify competitors<br />
           are making moves<br />
-          <span style={{ color: "#a3f000" }}>right now.</span>
+          <span style={{ color: "#3b82f6" }}>right now.</span>
         </h1>
 
         <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed" style={{ color: "var(--muted)" }}>
@@ -537,7 +537,7 @@ export default function LandingPage() {
           <Link
             href="/auth/signup"
             className="flex items-center gap-2 font-bold px-8 py-4 rounded-2xl text-lg transition-all hover:brightness-110"
-            style={{ background: "#a3f000", color: "#060d18" }}
+            style={{ background: "#3b82f6", color: "#060d18" }}
           >
             Start tracking free
             <ArrowRight className="w-5 h-5" />
@@ -620,7 +620,7 @@ export default function LandingPage() {
           <Link
             href="/auth/signup"
             className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all hover:brightness-110"
-            style={{ background: "#a3f000", color: "#060d18" }}
+            style={{ background: "#3b82f6", color: "#060d18" }}
           >
             Start monitoring for free
             <ArrowRight className="w-4 h-4" />
@@ -680,7 +680,7 @@ export default function LandingPage() {
                 "Catalog Complexity — breadth and variety of their range",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-sm" style={{ color: "var(--muted)" }}>
-                  <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#a3f000" }} />
+                  <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#3b82f6" }} />
                   {item}
                 </li>
               ))}
@@ -703,7 +703,7 @@ export default function LandingPage() {
         <div className="text-center mb-10">
           <div
             className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
-            style={{ background: "rgba(163,240,0,.1)", color: "#a3f000", border: "1px solid rgba(163,240,0,.2)" }}
+            style={{ background: "rgba(59,130,246,.1)", color: "#3b82f6", border: "1px solid rgba(59,130,246,.2)" }}
           >
             <Sparkles className="w-3 h-3" />
             AI-powered weekly brief
@@ -744,7 +744,7 @@ export default function LandingPage() {
                 "New launches and discount campaigns tracked start-to-finish",
               ].map((item) => (
                 <li key={item} className="flex items-center gap-3 text-sm" style={{ color: "var(--muted)" }}>
-                  <Check className="w-4 h-4 shrink-0" style={{ color: "#a3f000" }} />
+                  <Check className="w-4 h-4 shrink-0" style={{ color: "#3b82f6" }} />
                   {item}
                 </li>
               ))}
@@ -769,7 +769,7 @@ export default function LandingPage() {
           {/* Launch timeline */}
           <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #1a2744" }}>
             <div className="px-4 py-3 border-b flex items-center gap-2" style={{ background: "#080f1e", borderColor: "#1a2744" }}>
-              <Rocket className="w-3.5 h-3.5" style={{ color: "#a3f000" }} />
+              <Rocket className="w-3.5 h-3.5" style={{ color: "#3b82f6" }} />
               <span className="text-xs font-semibold" style={{ color: "#eef3fa" }}>Launch Velocity</span>
               <span className="text-[10px] ml-auto" style={{ color: "#3a5070" }}>gymshark.com</span>
             </div>
@@ -826,7 +826,7 @@ export default function LandingPage() {
         </div>
         <div className="grid md:grid-cols-3 gap-8 relative">
           <div className="hidden md:block absolute top-6 left-[calc(16.67%+24px)] right-[calc(16.67%+24px)] h-px"
-            style={{ background: "linear-gradient(90deg, transparent, rgba(163,240,0,.3), transparent)" }} />
+            style={{ background: "linear-gradient(90deg, transparent, rgba(59,130,246,.3), transparent)" }} />
           {[
             {
               step: "01", icon: Package, title: "Paste any Shopify URL",
@@ -844,11 +844,11 @@ export default function LandingPage() {
             <div key={step} className="text-center relative">
               <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 relative z-10"
-                style={{ background: "rgba(163,240,0,.1)", border: "1px solid rgba(163,240,0,.2)" }}
+                style={{ background: "rgba(59,130,246,.1)", border: "1px solid rgba(59,130,246,.2)" }}
               >
-                <Icon className="w-5 h-5" style={{ color: "#a3f000" }} />
+                <Icon className="w-5 h-5" style={{ color: "#3b82f6" }} />
               </div>
-              <div className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: "rgba(163,240,0,.4)" }}>
+              <div className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: "rgba(59,130,246,.4)" }}>
                 Step {step}
               </div>
               <h3 className="font-bold mb-2" style={{ color: "var(--text)" }}>{title}</h3>
@@ -869,9 +869,9 @@ export default function LandingPage() {
           </p>
         </div>
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="rounded-2xl p-7" style={{ background: "rgba(163,240,0,.04)", border: "1px solid rgba(163,240,0,.15)" }}>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(163,240,0,.12)" }}>
-              <Store className="w-5 h-5" style={{ color: "#a3f000" }} />
+          <div className="rounded-2xl p-7" style={{ background: "rgba(59,130,246,.04)", border: "1px solid rgba(59,130,246,.15)" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(59,130,246,.12)" }}>
+              <Store className="w-5 h-5" style={{ color: "#3b82f6" }} />
             </div>
             <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text)" }}>DTC brand operators</h3>
             <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--muted)" }}>
@@ -885,7 +885,7 @@ export default function LandingPage() {
                 "Up to 10 competitors on Pro",
               ].map((f) => (
                 <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "var(--muted)" }}>
-                  <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#a3f000" }} />
+                  <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#3b82f6" }} />
                   {f}
                 </li>
               ))}
@@ -929,11 +929,11 @@ export default function LandingPage() {
         <div className="grid md:grid-cols-2 gap-4">
           <div
             className="rounded-2xl p-7 flex flex-col justify-between md:row-span-2"
-            style={{ background: "rgba(163,240,0,.04)", border: "1px solid rgba(163,240,0,.15)" }}
+            style={{ background: "rgba(59,130,246,.04)", border: "1px solid rgba(59,130,246,.15)" }}
           >
             <div>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(163,240,0,.12)" }}>
-                <Bell className="w-5 h-5" style={{ color: "#a3f000" }} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(59,130,246,.12)" }}>
+                <Bell className="w-5 h-5" style={{ color: "#3b82f6" }} />
               </div>
               <h3 className="text-lg font-bold mb-3" style={{ color: "var(--text)" }}>
                 Flash sale detection in minutes
@@ -960,8 +960,8 @@ export default function LandingPage() {
             { icon: Tag, title: "Discount monitoring", desc: "Track what % of their catalog is on sale, the average depth, and when new sale events start and end." },
           ].map(({ icon: Icon, title, desc }) => (
             <div key={title} className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(163,240,0,.1)" }}>
-                <Icon className="w-5 h-5" style={{ color: "#a3f000" }} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(59,130,246,.1)" }}>
+                <Icon className="w-5 h-5" style={{ color: "#3b82f6" }} />
               </div>
               <h3 className="font-bold mb-2" style={{ color: "var(--text)" }}>{title}</h3>
               <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{desc}</p>
@@ -987,7 +987,7 @@ export default function LandingPage() {
             >
               <div className="flex gap-0.5">
                 {[1,2,3,4,5].map((s) => (
-                  <span key={s} className="text-sm" style={{ color: "#a3f000" }}>★</span>
+                  <span key={s} className="text-sm" style={{ color: "#3b82f6" }}>★</span>
                 ))}
               </div>
               <p className="text-sm leading-relaxed flex-1" style={{ color: "var(--muted)" }}>
@@ -1026,8 +1026,8 @@ export default function LandingPage() {
             { icon: Zap, label: "Alerts within 15 minutes", desc: "Change detection runs immediately after each scan — you hear about it before it hits social media." },
           ].map(({ icon: Icon, label, desc }) => (
             <div key={label} className="flex items-start gap-4 rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-              <div className="rounded-xl p-2 shrink-0" style={{ background: "rgba(163,240,0,.1)" }}>
-                <Icon className="w-4 h-4" style={{ color: "#a3f000" }} />
+              <div className="rounded-xl p-2 shrink-0" style={{ background: "rgba(59,130,246,.1)" }}>
+                <Icon className="w-4 h-4" style={{ color: "#3b82f6" }} />
               </div>
               <div>
                 <p className="font-semibold text-sm mb-1" style={{ color: "var(--text)" }}>{label}</p>
@@ -1057,21 +1057,21 @@ export default function LandingPage() {
               key={name}
               className="rounded-2xl p-6 flex flex-col relative"
               style={{
-                background: highlight ? "rgba(163,240,0,.05)" : "var(--bg-card)",
-                border: `1px solid ${highlight ? "rgba(163,240,0,.3)" : "var(--border)"}`,
+                background: highlight ? "rgba(59,130,246,.05)" : "var(--bg-card)",
+                border: `1px solid ${highlight ? "rgba(59,130,246,.3)" : "var(--border)"}`,
               }}
             >
               {highlight && (
                 <div
                   className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full"
-                  style={{ background: "#a3f000", color: "#060d18" }}
+                  style={{ background: "#3b82f6", color: "#060d18" }}
                 >
                   Most popular
                 </div>
               )}
               <h3 className="font-bold text-lg mb-1" style={{ color: "var(--text)" }}>{name}</h3>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-3xl font-black" style={{ color: highlight ? "#a3f000" : "var(--text)" }}>{price}</span>
+                <span className="text-3xl font-black" style={{ color: highlight ? "#3b82f6" : "var(--text)" }}>{price}</span>
                 <span className="text-sm" style={{ color: "var(--muted)" }}>{sub}</span>
               </div>
               {annualNote && (
@@ -1081,7 +1081,7 @@ export default function LandingPage() {
               <ul className="space-y-2.5 mb-6 flex-1">
                 {features.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "var(--muted)" }}>
-                    <Check className="w-4 h-4 shrink-0" style={{ color: highlight ? "#a3f000" : "var(--muted)" }} />
+                    <Check className="w-4 h-4 shrink-0" style={{ color: highlight ? "#3b82f6" : "var(--muted)" }} />
                     {f}
                   </li>
                 ))}
@@ -1090,7 +1090,7 @@ export default function LandingPage() {
                 href={href}
                 className="block text-center font-semibold py-3 rounded-xl transition-all hover:brightness-110"
                 style={highlight
-                  ? { background: "#a3f000", color: "#060d18" }
+                  ? { background: "#3b82f6", color: "#060d18" }
                   : { border: "1px solid var(--border)", color: "var(--text)" }}
               >
                 {cta}
@@ -1115,16 +1115,16 @@ export default function LandingPage() {
       <div className="max-w-3xl mx-auto px-6 pb-28 text-center">
         <div
           className="rounded-3xl p-12 relative overflow-hidden"
-          style={{ background: "rgba(163,240,0,.06)", border: "1px solid rgba(163,240,0,.2)" }}
+          style={{ background: "rgba(59,130,246,.06)", border: "1px solid rgba(59,130,246,.2)" }}
         >
           <div
             className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 rounded-full blur-3xl pointer-events-none"
-            style={{ background: "rgba(163,240,0,.12)" }}
+            style={{ background: "rgba(59,130,246,.12)" }}
           />
           <div className="relative">
             <h2 className="text-3xl md:text-4xl font-black mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
               Your competitors are already moving.<br />
-              <span style={{ color: "#a3f000" }}>Now you will be too.</span>
+              <span style={{ color: "#3b82f6" }}>Now you will be too.</span>
             </h2>
             <p className="mb-8 text-lg" style={{ color: "var(--muted)" }}>
               Free forever. No credit card. First scan ready in under 60 seconds.
@@ -1132,7 +1132,7 @@ export default function LandingPage() {
             <Link
               href="/auth/signup"
               className="inline-flex items-center gap-2 font-bold px-8 py-4 rounded-2xl text-lg transition-all hover:brightness-110"
-              style={{ background: "#a3f000", color: "#060d18" }}
+              style={{ background: "#3b82f6", color: "#060d18" }}
             >
               Start tracking free
               <ArrowRight className="w-5 h-5" />
@@ -1157,7 +1157,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "var(--accent)" }}>
-              <Zap className="w-3.5 h-3.5" style={{ color: "#0a0a0f" }} />
+              <Zap className="w-3.5 h-3.5" style={{ color: "#ffffff" }} />
             </div>
             <span className="font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
           </div>

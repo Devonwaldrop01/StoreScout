@@ -86,7 +86,7 @@ function Endpoint({
         {auth && (
           <span
             className="ml-auto shrink-0 text-xs px-2 py-0.5 rounded-md"
-            style={{ background: "rgba(163,240,0,.1)", color: "#a3f000", border: "1px solid rgba(163,240,0,.2)" }}
+            style={{ background: "rgba(59,130,246,.1)", color: "#3b82f6", border: "1px solid rgba(59,130,246,.2)" }}
           >
             Auth required
           </span>

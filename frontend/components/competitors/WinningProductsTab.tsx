@@ -21,9 +21,9 @@ function getVerdict(score: number): {
 } {
   if (score >= 75) return {
     label: "Worth Testing",
-    color: "#a3f000",
-    bg: "rgba(163,240,0,0.10)",
-    border: "rgba(163,240,0,0.22)",
+    color: "#3b82f6",
+    bg: "rgba(59,130,246,0.10)",
+    border: "rgba(59,130,246,0.22)",
   };
   if (score >= 50) return {
     label: "Watch First",
@@ -125,7 +125,7 @@ function CopyButton({ text }: { text: string }) {
       className="opacity-0 group-hover:opacity-60 hover:!opacity-100 shrink-0 transition-opacity p-0.5 rounded"
     >
       {copied
-        ? <Check className="w-3 h-3" style={{ color: "#a3f000" }} />
+        ? <Check className="w-3 h-3" style={{ color: "#3b82f6" }} />
         : <Copy className="w-3 h-3" style={{ color: "var(--muted)" }} />}
     </button>
   );
@@ -225,7 +225,7 @@ function WinnerRow({ product, rank, expanded, onToggle, isLast }: WinnerRowProps
             {product.locked && (
               <span
                 className="text-[10px] px-1.5 py-0.5 rounded-md"
-                style={{ background: "rgba(168,255,0,0.08)", color: "var(--accent)" }}
+                style={{ background: "rgba(59,130,246,0.08)", color: "var(--accent)" }}
               >
                 Upgrade to see verdict
               </span>
@@ -322,7 +322,7 @@ function LaunchRow({ p, isLast }: { p: NewestProduct; isLast: boolean }) {
   const deepVars  = (p.variants_count ?? 0) >= 8;
 
   let ageBadgeStyle: React.CSSProperties;
-  if (isVeryNew)   ageBadgeStyle = { background: "rgba(168,255,0,0.15)", color: "#a3f000" };
+  if (isVeryNew)   ageBadgeStyle = { background: "rgba(59,130,246,0.15)", color: "#3b82f6" };
   else if (isNew)  ageBadgeStyle = { background: "rgba(251,191,36,0.10)", color: "#fbbf24" };
   else             ageBadgeStyle = { background: "transparent", color: "var(--muted)" };
 
@@ -467,7 +467,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
           </h3>
           <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
             {worthCount > 0 && (
-              <span style={{ color: "#a3f000" }}>{worthCount} worth testing</span>
+              <span style={{ color: "#3b82f6" }}>{worthCount} worth testing</span>
             )}
             {worthCount > 0 && watchCount > 0 && <span> · </span>}
             {watchCount > 0 && (
@@ -508,7 +508,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
             {launches.length > 0 && (
               <span
                 className="text-[9px] px-1 py-0.5 rounded-full font-bold leading-none"
-                style={{ background: "rgba(168,255,0,0.15)", color: "var(--accent)" }}
+                style={{ background: "rgba(59,130,246,0.15)", color: "var(--accent)" }}
               >
                 {launches.length}
               </span>
@@ -530,9 +530,9 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
                   onClick={() => toggleFilter(f.key)}
                   className="text-[11px] px-2.5 py-1 rounded-lg font-medium transition-all"
                   style={{
-                    background: on ? "rgba(168,255,0,0.12)" : "var(--bg3)",
+                    background: on ? "rgba(59,130,246,0.12)" : "var(--bg3)",
                     color: on ? "var(--accent)" : "var(--muted)",
-                    border: on ? "1px solid rgba(168,255,0,0.22)" : "1px solid transparent",
+                    border: on ? "1px solid rgba(59,130,246,0.22)" : "1px solid transparent",
                   }}
                 >
                   {f.label}
@@ -606,11 +606,11 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
               <div
                 className="px-5 py-5 text-center"
                 style={{
-                  background: "rgba(163,240,0,.04)",
-                  borderTop: "1px dashed rgba(163,240,0,.2)",
+                  background: "rgba(59,130,246,.04)",
+                  borderTop: "1px dashed rgba(59,130,246,.2)",
                 }}
               >
-                <Lock className="w-4 h-4 mx-auto mb-2" style={{ color: "#a3f000" }} />
+                <Lock className="w-4 h-4 mx-auto mb-2" style={{ color: "#3b82f6" }} />
                 <p className="text-sm font-medium mb-0.5" style={{ color: "var(--text)" }}>
                   {data.locked_count} more products scored
                 </p>
@@ -620,7 +620,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
                 <button
                   onClick={() => setUpgradeOpen(true)}
                   className="font-semibold text-sm px-5 py-2 rounded-xl transition-all hover:brightness-110"
-                  style={{ background: "#a3f000", color: "#060d18" }}
+                  style={{ background: "#3b82f6", color: "#060d18" }}
                 >
                   Unlock all products
                 </button>
@@ -631,7 +631,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
           {/* Verdict legend */}
           <div className="flex items-center gap-4 text-[11px]" style={{ color: "var(--muted)" }}>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full inline-block" style={{ background: "#a3f000" }} />
+              <span className="w-2 h-2 rounded-full inline-block" style={{ background: "#3b82f6" }} />
               Worth Testing — score ≥ 75
             </span>
             <span className="flex items-center gap-1.5">
@@ -680,7 +680,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
 
           <div className="flex items-center gap-4 text-[11px]" style={{ color: "var(--muted)" }}>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full inline-block" style={{ background: "#a3f000" }} />
+              <span className="w-2 h-2 rounded-full inline-block" style={{ background: "#3b82f6" }} />
               ≤ 7 days
             </span>
             <span className="flex items-center gap-1.5">

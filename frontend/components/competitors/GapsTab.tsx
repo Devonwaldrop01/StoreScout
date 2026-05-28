@@ -7,7 +7,7 @@ import UpgradeModal from "@/components/UpgradeModal";
 
 function opportunityLabel(opp?: number): { label: string; color: string } {
   const o = opp ?? 0;
-  if (o >= 0.6) return { label: "High opportunity", color: "#a3f000" };
+  if (o >= 0.6) return { label: "High opportunity", color: "#3b82f6" };
   if (o >= 0.35) return { label: "Moderate opportunity", color: "#facc15" };
   return { label: "Opportunity", color: "#94a3b8" };
 }
@@ -166,7 +166,7 @@ function GapCard({ gap, index, reviewed, onReviewed }: GapCardProps) {
                 setExpanded(false);
               }}
               className="flex items-center gap-1.5 text-[11px] font-medium transition-opacity hover:opacity-70"
-              style={{ color: isReviewed ? "#a3f000" : "var(--muted)" }}
+              style={{ color: isReviewed ? "#3b82f6" : "var(--muted)" }}
             >
               <Check className="w-3.5 h-3.5" />
               {isReviewed ? "Reviewed" : "Mark as reviewed"}
@@ -228,7 +228,7 @@ export default function GapsTab({ competitorId }: { competitorId: string }) {
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-2">
-          <Target className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#a3f000" }} />
+          <Target className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#3b82f6" }} />
           <div>
             <h3 className="font-semibold" style={{ color: "var(--text)" }}>
               Where there&apos;s room to compete
@@ -243,7 +243,7 @@ export default function GapsTab({ competitorId }: { competitorId: string }) {
         {reviewedCount > 0 && (
           <span
             className="text-[11px] font-medium px-2.5 py-1 rounded-lg shrink-0 whitespace-nowrap"
-            style={{ background: "rgba(163,240,0,0.10)", color: "#a3f000" }}
+            style={{ background: "rgba(59,130,246,0.10)", color: "#3b82f6" }}
           >
             {reviewedCount} reviewed
           </span>
@@ -264,9 +264,9 @@ export default function GapsTab({ competitorId }: { competitorId: string }) {
       {data.locked && data.locked_count > 0 && (
         <div
           className="rounded-2xl p-6 text-center"
-          style={{ background: "rgba(163,240,0,.06)", border: "1px dashed rgba(163,240,0,.3)" }}
+          style={{ background: "rgba(59,130,246,.06)", border: "1px dashed rgba(59,130,246,.3)" }}
         >
-          <TrendingUp className="w-5 h-5 mx-auto mb-2" style={{ color: "#a3f000" }} />
+          <TrendingUp className="w-5 h-5 mx-auto mb-2" style={{ color: "#3b82f6" }} />
           <p className="text-sm font-medium mb-1" style={{ color: "var(--text)" }}>
             {data.locked_count} more gap{data.locked_count !== 1 ? "s" : ""} identified
           </p>
@@ -276,7 +276,7 @@ export default function GapsTab({ competitorId }: { competitorId: string }) {
           <button
             onClick={() => setUpgradeOpen(true)}
             className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 inline-flex items-center gap-2"
-            style={{ background: "#a3f000", color: "#060d18" }}
+            style={{ background: "#3b82f6", color: "#060d18" }}
           >
             Unlock Full Gap Analysis
             <ArrowRight className="w-3.5 h-3.5" />

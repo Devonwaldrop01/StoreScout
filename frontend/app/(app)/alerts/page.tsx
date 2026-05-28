@@ -84,7 +84,7 @@ export default function AlertsPage() {
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold tracking-tight" style={{ color: "var(--text)" }}>
+          <h1 className="text-2xl font-black tracking-tight" style={{ color: "var(--text)" }}>
             Alerts
           </h1>
           {!loading && strategicCount > 0 && (
@@ -98,7 +98,7 @@ export default function AlertsPage() {
           {!loading && strategicCount === 0 && alertList.length > 0 && (
             <span
               className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
-              style={{ background: "rgba(168,255,0,.12)", color: "var(--accent)" }}
+              style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)" }}
             >
               {alertList.length} change{alertList.length !== 1 ? "s" : ""}
             </span>
@@ -119,7 +119,7 @@ export default function AlertsPage() {
               Mark all read
               <span
                 className="px-1.5 py-0.5 rounded-full text-[10px] font-bold"
-                style={{ background: "rgba(168,255,0,.15)", color: "var(--accent)" }}
+                style={{ background: "rgba(59,130,246,.15)", color: "var(--accent)" }}
               >
                 {unreadCount}
               </span>
@@ -182,7 +182,7 @@ export default function AlertsPage() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
               style={
                 active
-                  ? { background: "var(--accent)", color: "#0a0a0f" }
+                  ? { background: "var(--accent)", color: "#ffffff" }
                   : { background: "var(--bg4)", color: "var(--muted)", border: "1px solid var(--border)" }
               }
             >
@@ -191,7 +191,7 @@ export default function AlertsPage() {
                 className="px-1.5 py-0.5 rounded-full text-[10px] font-bold tabular-nums"
                 style={
                   active
-                    ? { background: "rgba(0,0,0,.18)", color: "#0a0a0f" }
+                    ? { background: "rgba(0,0,0,.18)", color: "#ffffff" }
                     : { background: "rgba(255,255,255,.06)", color: "var(--muted)" }
                 }
               >
@@ -214,7 +214,7 @@ export default function AlertsPage() {
         <div className="rounded-2xl overflow-hidden fade-in" style={{ border: "1px solid var(--border)" }}>
           {/* Header */}
           <div className="flex flex-col items-center text-center px-6 pt-10 pb-6" style={{ background: "var(--bg3)" }}>
-            <div className="w-12 h-12 rounded-2xl mb-4 flex items-center justify-center" style={{ background: "rgba(168,255,0,.06)", border: "1px solid rgba(168,255,0,.14)" }}>
+            <div className="w-12 h-12 rounded-2xl mb-4 flex items-center justify-center" style={{ background: "rgba(59,130,246,.06)", border: "1px solid rgba(59,130,246,.14)" }}>
               <Bell className="w-6 h-6" style={{ color: "var(--accent)" }} />
             </div>
             <p className="text-base font-bold mb-2" style={{ color: "var(--text)" }}>No alerts yet</p>

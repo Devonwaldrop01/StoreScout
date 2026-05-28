@@ -21,7 +21,7 @@ function PositioningBar({ label, pos }: { label: string; pos: Record<string, unk
   if (!pos) return null;
   const score = (pos.score as number) ?? 50;
   const scoreLabel = (pos.label as string) ?? "—";
-  const color = score < 34 ? "#22d3ee" : score < 67 ? "#a3f000" : "#f87171";
+  const color = score < 34 ? "#22d3ee" : score < 67 ? "#3b82f6" : "#f87171";
   return (
     <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
       <p className="text-xs mb-2" style={{ color: "var(--muted)" }}>{label}</p>
@@ -38,9 +38,9 @@ function PositioningBar({ label, pos }: { label: string; pos: Record<string, unk
 
 const BRIEF_CARD_STYLES = {
   signal: {
-    color: "#a8ff00",
-    bg: "rgba(168,255,0,.06)",
-    border: "rgba(168,255,0,.18)",
+    color: "#3b82f6",
+    bg: "rgba(59,130,246,.06)",
+    border: "rgba(59,130,246,.18)",
     label: "Signal",
     Icon: TrendingUp,
   },
@@ -75,14 +75,14 @@ function AiBriefSection({ brief }: { brief: NonNullable<PublicReport["ai_brief"]
       <div className="flex items-center gap-2 mb-4">
         <div
           className="w-6 h-6 rounded-lg flex items-center justify-center"
-          style={{ background: "rgba(168,255,0,.12)" }}
+          style={{ background: "rgba(59,130,246,.12)" }}
         >
-          <Zap className="w-3.5 h-3.5" style={{ color: "#a8ff00" }} />
+          <Zap className="w-3.5 h-3.5" style={{ color: "#3b82f6" }} />
         </div>
         <h2 className="text-sm font-bold" style={{ color: "var(--text)" }}>AI Intelligence Brief</h2>
         <span
           className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
-          style={{ background: "rgba(168,255,0,.1)", color: "#a8ff00" }}
+          style={{ background: "rgba(59,130,246,.1)", color: "#3b82f6" }}
         >
           Powered by Claude
         </span>
@@ -188,7 +188,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
             className="w-6 h-6 rounded-lg flex items-center justify-center"
             style={{ background: "var(--accent)" }}
           >
-            <Zap className="w-3.5 h-3.5" style={{ color: "#0a0a0f" }} />
+            <Zap className="w-3.5 h-3.5" style={{ color: "#ffffff" }} />
           </div>
           <span className="font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
         </Link>
@@ -226,7 +226,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
         <div className="mb-8">
           <div
             className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-4"
-            style={{ background: "rgba(163,240,0,.1)", color: "#a3f000", border: "1px solid rgba(163,240,0,.2)" }}
+            style={{ background: "rgba(59,130,246,.1)", color: "#3b82f6", border: "1px solid rgba(59,130,246,.2)" }}
           >
             <span className="w-2 h-2 rounded-full bg-current" />
             StoreScout Intelligence Report
@@ -299,7 +299,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
         {/* CTA */}
         <div
           className="rounded-2xl p-8 text-center"
-          style={{ background: "rgba(163,240,0,.05)", border: "1px solid rgba(163,240,0,.2)" }}
+          style={{ background: "rgba(59,130,246,.05)", border: "1px solid rgba(59,130,246,.2)" }}
         >
           {isLoggedIn ? (
             <>
@@ -341,7 +341,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
         {/* Footer attribution */}
         <div className="mt-8 flex items-center justify-center gap-2 text-xs" style={{ color: "var(--muted)" }}>
           <span>Powered by</span>
-          <Link href="/" className="flex items-center gap-1 font-semibold hover:opacity-80" style={{ color: "#a3f000" }}>
+          <Link href="/" className="flex items-center gap-1 font-semibold hover:opacity-80" style={{ color: "#3b82f6" }}>
             <Zap className="w-3 h-3" />
             StoreScout
           </Link>

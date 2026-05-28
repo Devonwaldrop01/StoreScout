@@ -20,7 +20,7 @@ function GoogleIcon() {
 
 const AmbienceGlows = () => (
   <>
-    <div className="fixed pointer-events-none" style={{ top: "-80px", left: "-80px", width: "400px", height: "400px", borderRadius: "50%", background: "rgba(168,255,0,.06)", filter: "blur(80px)", zIndex: 0 }} />
+    <div className="fixed pointer-events-none" style={{ top: "-80px", left: "-80px", width: "400px", height: "400px", borderRadius: "50%", background: "rgba(59,130,246,.06)", filter: "blur(80px)", zIndex: 0 }} />
     <div className="fixed pointer-events-none" style={{ top: "-60px", right: "-60px", width: "300px", height: "300px", borderRadius: "50%", background: "rgba(96,165,250,.04)", filter: "blur(80px)", zIndex: 0 }} />
     <div className="fixed pointer-events-none" style={{ bottom: "-80px", left: "50%", transform: "translateX(-50%)", width: "350px", height: "350px", borderRadius: "50%", background: "rgba(167,139,250,.04)", filter: "blur(80px)", zIndex: 0 }} />
   </>
@@ -84,9 +84,9 @@ function SignupContent() {
 
   const inputStyle = (field: string) => ({
     background: "var(--bg3)",
-    border: `1px solid ${focusedField === field ? "rgba(168,255,0,.4)" : "var(--border)"}`,
+    border: `1px solid ${focusedField === field ? "rgba(59,130,246,.4)" : "var(--border)"}`,
     color: "var(--text)",
-    boxShadow: focusedField === field ? "0 0 0 3px rgba(168,255,0,.08)" : "none",
+    boxShadow: focusedField === field ? "0 0 0 3px rgba(59,130,246,.08)" : "none",
     outline: "none",
     transition: "border-color 0.15s, box-shadow 0.15s",
   });
@@ -101,7 +101,7 @@ function SignupContent() {
         >
           <div
             className="mx-auto mb-5 flex items-center justify-center"
-            style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(168,255,0,.1)" }}
+            style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(59,130,246,.1)" }}
           >
             <CheckCircle2 style={{ width: "28px", height: "28px", color: "var(--accent)" }} />
           </div>
@@ -136,8 +136,8 @@ function SignupContent() {
       <div className="relative w-full max-w-sm" style={{ zIndex: 1 }}>
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-5">
-          <div style={{ width: "32px", height: "32px", borderRadius: "12px", background: "var(--accent)", boxShadow: "0 0 20px rgba(168,255,0,.4)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Zap style={{ width: "16px", height: "16px", color: "#0a0a0f" }} />
+          <div style={{ width: "32px", height: "32px", borderRadius: "12px", background: "var(--accent)", boxShadow: "0 0 20px rgba(59,130,246,.4)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Zap style={{ width: "16px", height: "16px", color: "#ffffff" }} />
           </div>
           <span className="text-xl font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
         </div>
@@ -236,7 +236,7 @@ function SignupContent() {
               type="submit"
               disabled={loading || googleLoading}
               className="w-full font-bold py-3 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
-              style={{ background: "var(--accent)", color: "#0a0a0f" }}
+              style={{ background: "var(--accent)", color: "#ffffff" }}
             >
               {loading ? "Creating account…" : "Create free account"}
             </button>

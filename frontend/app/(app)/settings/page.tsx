@@ -441,7 +441,7 @@ function SettingsContent() {
   // ── UI helpers ─────────────────────────────────────────────────────────────
   const tierBadgeStyle: Record<string, { bg: string; color: string }> = {
     free:      { bg: "rgba(255,255,255,.06)",   color: "var(--muted)" },
-    pro:       { bg: "rgba(163,240,0,.12)",      color: "#a3f000" },
+    pro:       { bg: "rgba(59,130,246,.12)",      color: "#3b82f6" },
     agency:    { bg: "rgba(59,130,246,.12)",     color: "#60a5fa" },
     developer: { bg: "rgba(168,85,247,.12)",     color: "#c084fc" },
   };
@@ -468,7 +468,7 @@ function SettingsContent() {
       {upgraded && (
         <div
           className="mb-6 px-4 py-3 rounded-xl text-sm font-medium"
-          style={{ background: "rgba(163,240,0,.12)", border: "1px solid rgba(163,240,0,.25)", color: "#a3f000" }}
+          style={{ background: "rgba(59,130,246,.12)", border: "1px solid rgba(59,130,246,.25)", color: "#3b82f6" }}
         >
           Your plan has been upgraded. Welcome to Pro!
         </div>
@@ -513,7 +513,7 @@ function SettingsContent() {
                   <button
                     onClick={() => setUpgradeOpen(true)}
                     className="font-semibold text-sm px-4 py-2 rounded-xl transition-all hover:brightness-110"
-                    style={{ background: "#a3f000", color: "#060d18" }}
+                    style={{ background: "#3b82f6", color: "#060d18" }}
                   >
                     Upgrade
                   </button>
@@ -539,16 +539,16 @@ function SettingsContent() {
         >
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Target className="w-4 h-4" style={{ color: "#a3f000" }} />
+              <Target className="w-4 h-4" style={{ color: "#3b82f6" }} />
               <h2 className="font-semibold" style={{ color: "var(--text)" }}>Tracked competitors</h2>
             </div>
             {subscription && (
               <span
                 className="text-xs font-mono px-2 py-1 rounded-lg"
                 style={{
-                  background: atCompetitorLimit ? "rgba(163,240,0,.1)" : "var(--bg3)",
-                  color: atCompetitorLimit ? "#a3f000" : "var(--muted)",
-                  border: `1px solid ${atCompetitorLimit ? "rgba(163,240,0,.25)" : "var(--border)"}`,
+                  background: atCompetitorLimit ? "rgba(59,130,246,.1)" : "var(--bg3)",
+                  color: atCompetitorLimit ? "#3b82f6" : "var(--muted)",
+                  border: `1px solid ${atCompetitorLimit ? "rgba(59,130,246,.25)" : "var(--border)"}`,
                 }}
               >
                 {myCompetitors.length} / {subscription.limits.max_competitors}
@@ -608,7 +608,7 @@ function SettingsContent() {
             <button
               onClick={() => setUpgradeOpen(true)}
               className="flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-xl transition-all hover:brightness-110"
-              style={{ background: "rgba(163,240,0,.1)", color: "#a3f000", border: "1px solid rgba(163,240,0,.2)" }}
+              style={{ background: "rgba(59,130,246,.1)", color: "#3b82f6", border: "1px solid rgba(59,130,246,.2)" }}
             >
               <Zap className="w-4 h-4" />
               Upgrade to track more competitors
@@ -631,7 +631,7 @@ function SettingsContent() {
           style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
         >
           <div className="flex items-center gap-2 mb-2">
-            <Store className="w-4 h-4" style={{ color: "#a3f000" }} />
+            <Store className="w-4 h-4" style={{ color: "#3b82f6" }} />
             <h2 className="font-semibold" style={{ color: "var(--text)" }}>Your store</h2>
           </div>
           <p className="text-sm mb-4" style={{ color: "var(--muted)" }}>
@@ -643,7 +643,7 @@ function SettingsContent() {
           {shopifyConnectedBanner && (
             <div
               className="flex items-center gap-2 px-4 py-3 rounded-xl mb-4 text-sm font-medium"
-              style={{ background: "rgba(163,240,0,0.08)", border: "1px solid rgba(163,240,0,0.2)", color: "#a3f000" }}
+              style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", color: "#10b981" }}
             >
               <Check className="w-4 h-4 shrink-0" />
               Shopify store connected successfully.
@@ -655,14 +655,14 @@ function SettingsContent() {
             <div className="space-y-3">
               <div
                 className="flex items-center justify-between gap-4 px-4 py-3 rounded-xl"
-                style={{ background: "rgba(163,240,0,0.05)", border: "1px solid rgba(163,240,0,0.18)" }}
+                style={{ background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.18)" }}
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: "rgba(163,240,0,0.12)" }}
+                    style={{ background: "rgba(16,185,129,0.12)" }}
                   >
-                    <Store className="w-4 h-4" style={{ color: "#a3f000" }} />
+                    <Store className="w-4 h-4" style={{ color: "#10b981" }} />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold truncate" style={{ color: "var(--text)" }}>
@@ -700,7 +700,7 @@ function SettingsContent() {
                   onClick={handleShopifyConnect}
                   disabled={shopifyConnecting}
                   className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-60 flex items-center gap-2"
-                  style={{ background: "#a3f000", color: "#060d18" }}
+                  style={{ background: "#3b82f6", color: "#060d18" }}
                 >
                   {shopifyConnecting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                   {shopifyConnecting ? "Connecting…" : "Connect via Shopify"}
@@ -774,7 +774,7 @@ function SettingsContent() {
           >
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4" style={{ color: "#a3f000" }} />
+                <Bell className="w-4 h-4" style={{ color: "#3b82f6" }} />
                 <h2 className="font-semibold" style={{ color: "var(--text)" }}>Email notifications</h2>
               </div>
               <span
@@ -800,8 +800,8 @@ function SettingsContent() {
                   disabled={saving}
                   className="w-full flex items-center justify-between gap-4 px-4 py-3.5 rounded-xl text-left transition-all"
                   style={{
-                    background: prefs[key] ? "rgba(163,240,0,.06)" : "var(--bg3)",
-                    border: `1px solid ${prefs[key] ? "rgba(163,240,0,.2)" : "var(--border)"}`,
+                    background: prefs[key] ? "rgba(59,130,246,.06)" : "var(--bg3)",
+                    border: `1px solid ${prefs[key] ? "rgba(59,130,246,.2)" : "var(--border)"}`,
                   }}
                 >
                   <div className="min-w-0">
@@ -810,7 +810,7 @@ function SettingsContent() {
                   </div>
                   <div
                     className="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none"
-                    style={{ background: prefs[key] ? "#a3f000" : "rgba(255,255,255,.12)" }}
+                    style={{ background: prefs[key] ? "#3b82f6" : "rgba(255,255,255,.12)" }}
                   >
                     <span
                       className="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg transition-transform"
@@ -839,7 +839,7 @@ function SettingsContent() {
               <Globe className="w-4 h-4" style={{ color: "#4285f4" }} />
               <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Google Analytics + Search Console</p>
               {googleConnected && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(163,240,0,0.1)", color: "#a3f000" }}>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(59,130,246,0.1)", color: "#3b82f6" }}>
                   Connected
                 </span>
               )}
@@ -849,7 +849,7 @@ function SettingsContent() {
             </p>
 
             {googleConnectedBanner && (
-              <div className="flex items-center gap-2 px-4 py-3 rounded-xl mb-3 text-sm font-medium" style={{ background: "rgba(163,240,0,0.08)", border: "1px solid rgba(163,240,0,0.2)", color: "#a3f000" }}>
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl mb-3 text-sm font-medium" style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", color: "#10b981" }}>
                 <Check className="w-4 h-4 shrink-0" /> Google account connected. Select your property below.
               </div>
             )}
@@ -895,7 +895,7 @@ function SettingsContent() {
                     onClick={handleGoogleSaveProperty}
                     disabled={googleSavingProperty || (!googleGA4 && !googleGSC)}
                     className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
-                    style={{ background: "#a3f000", color: "#060d18" }}
+                    style={{ background: "#3b82f6", color: "#060d18" }}
                   >
                     {googleSavingProperty ? "Saving…" : "Save"}
                   </button>
@@ -929,7 +929,7 @@ function SettingsContent() {
               {klaviyoStatus?.connected && (
                 <span
                   className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: "rgba(163,240,0,0.1)", color: "#a3f000" }}
+                  style={{ background: "rgba(59,130,246,0.1)", color: "#3b82f6" }}
                 >
                   Connected
                 </span>
@@ -945,14 +945,14 @@ function SettingsContent() {
               <div className="space-y-3">
                 <div
                   className="flex items-center justify-between gap-4 px-4 py-3 rounded-xl"
-                  style={{ background: "rgba(163,240,0,0.05)", border: "1px solid rgba(163,240,0,0.18)" }}
+                  style={{ background: "rgba(59,130,246,0.05)", border: "1px solid rgba(59,130,246,0.18)" }}
                 >
                   <div>
                     <p className="text-xs font-mono font-medium" style={{ color: "var(--text)" }}>
                       {klaviyoStatus.key_preview}
                     </p>
                     {klaviyoTestResult && (
-                      <p className="text-xs mt-0.5" style={{ color: "#a3f000" }}>
+                      <p className="text-xs mt-0.5" style={{ color: "#3b82f6" }}>
                         {klaviyoTestResult.total_profiles.toLocaleString()} subscribers
                         {" · "}{klaviyoTestResult.list_count} list{klaviyoTestResult.list_count !== 1 ? "s" : ""}
                       </p>
@@ -1003,7 +1003,7 @@ function SettingsContent() {
           {/* Slack */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
-              <Hash className="w-4 h-4" style={{ color: "#a3f000" }} />
+              <Hash className="w-4 h-4" style={{ color: "#3b82f6" }} />
               <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Slack incoming webhook</p>
               {prefs && (
                 <button
@@ -1013,7 +1013,7 @@ function SettingsContent() {
                     userApi.updatePrefs({ slack_enabled: next }).catch(() => {});
                   }}
                   className="ml-auto relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors"
-                  style={{ background: prefs.slack_enabled ? "#a3f000" : "rgba(255,255,255,.12)" }}
+                  style={{ background: prefs.slack_enabled ? "#3b82f6" : "rgba(255,255,255,.12)" }}
                 >
                   <span
                     className="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg transition-transform"
@@ -1064,7 +1064,7 @@ function SettingsContent() {
                     userApi.updatePrefs({ webhook_enabled: next }).catch(() => {});
                   }}
                   className="ml-auto relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors"
-                  style={{ background: prefs.webhook_enabled ? "#a3f000" : "rgba(255,255,255,.12)" }}
+                  style={{ background: prefs.webhook_enabled ? "#3b82f6" : "rgba(255,255,255,.12)" }}
                 >
                   <span
                     className="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg transition-transform"

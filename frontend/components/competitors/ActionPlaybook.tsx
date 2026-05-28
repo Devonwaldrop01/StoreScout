@@ -16,8 +16,8 @@ const TYPE_CONFIG = {
   opportunity: {
     Icon: TrendingUp,
     color: "var(--accent)",
-    bg: "rgba(168,255,0,.07)",
-    border: "rgba(168,255,0,.18)",
+    bg: "rgba(59,130,246,.07)",
+    border: "rgba(59,130,246,.18)",
     label: "Opportunity",
   },
   gap: {
@@ -122,7 +122,7 @@ export function ActionPlaybook({ competitorCount }: Props) {
         <div className="flex items-center gap-3">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-            style={{ background: "rgba(168,255,0,.08)", border: "1px solid rgba(168,255,0,.14)" }}
+            style={{ background: "rgba(59,130,246,.08)", border: "1px solid rgba(59,130,246,.14)" }}
           >
             <Zap className="w-4 h-4" style={{ color: "var(--accent)" }} />
           </div>
@@ -138,7 +138,7 @@ export function ActionPlaybook({ competitorCount }: Props) {
         <Link
           href="/settings?tab=billing"
           className="shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg transition-all hover:brightness-110"
-          style={{ background: "var(--accent)", color: "#0a0a0f" }}
+          style={{ background: "var(--accent)", color: "#ffffff" }}
         >
           Upgrade
         </Link>

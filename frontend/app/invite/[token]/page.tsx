@@ -59,7 +59,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#060d18" }}>
-        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#a3f000" }} />
+        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#3b82f6" }} />
       </div>
     );
   }
@@ -67,7 +67,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: "#060d18" }}>
       <div className="mb-8">
-        <span style={{ color: "#a3f000", fontWeight: 700, fontSize: 18 }}>StoreScout</span>
+        <span style={{ color: "#3b82f6", fontWeight: 700, fontSize: 18 }}>StoreScout</span>
       </div>
 
       <div
@@ -79,13 +79,13 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
             <XCircle className="w-10 h-10 mx-auto mb-4" style={{ color: "#f87171" }} />
             <h1 className="text-lg font-bold mb-2" style={{ color: "#eef3fa" }}>Invite unavailable</h1>
             <p className="text-sm" style={{ color: "#6b7fa3" }}>{inviteError}</p>
-            <Link href="/" className="inline-block mt-6 text-sm font-medium hover:underline" style={{ color: "#a3f000" }}>
+            <Link href="/" className="inline-block mt-6 text-sm font-medium hover:underline" style={{ color: "#3b82f6" }}>
               Go to StoreScout →
             </Link>
           </div>
         ) : accepted ? (
           <div className="text-center">
-            <CheckCircle className="w-10 h-10 mx-auto mb-4" style={{ color: "#a3f000" }} />
+            <CheckCircle className="w-10 h-10 mx-auto mb-4" style={{ color: "#3b82f6" }} />
             <h1 className="text-lg font-bold mb-2" style={{ color: "#eef3fa" }}>You&apos;re in!</h1>
             <p className="text-sm" style={{ color: "#6b7fa3" }}>Redirecting to the dashboard…</p>
           </div>
@@ -94,9 +94,9 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
             <div className="flex items-center gap-3 mb-6">
               <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: "rgba(163,240,0,.1)", border: "1px solid rgba(163,240,0,.2)" }}
+                style={{ background: "rgba(59,130,246,.1)", border: "1px solid rgba(59,130,246,.2)" }}
               >
-                <Users className="w-5 h-5" style={{ color: "#a3f000" }} />
+                <Users className="w-5 h-5" style={{ color: "#3b82f6" }} />
               </div>
               <div>
                 <h1 className="font-bold text-base" style={{ color: "#eef3fa" }}>Team invite</h1>
@@ -119,7 +119,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                     onClick={handleAccept}
                     disabled={accepting}
                     className="w-full flex items-center justify-center gap-2 font-bold py-3 rounded-xl transition-all hover:brightness-110 disabled:opacity-60"
-                    style={{ background: "#a3f000", color: "#060d18" }}
+                    style={{ background: "#3b82f6", color: "#060d18" }}
                   >
                     {accepting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                     Accept invite
@@ -147,7 +147,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                 <Link
                   href={`/auth/sign-in?redirect=/invite/${token}`}
                   className="block w-full text-center font-bold py-3 rounded-xl transition-all hover:brightness-110"
-                  style={{ background: "#a3f000", color: "#060d18" }}
+                  style={{ background: "#3b82f6", color: "#060d18" }}
                 >
                   Sign in
                 </Link>

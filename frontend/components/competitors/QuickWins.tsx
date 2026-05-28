@@ -7,7 +7,7 @@ import UpgradeModal from "@/components/UpgradeModal";
 
 const TYPE_CONFIG = {
   opportunity: { Icon: TrendingUp, color: "#60a5fa", label: "Opportunity", bg: "rgba(96,165,250,.08)", border: "rgba(96,165,250,.2)" },
-  signal:      { Icon: Target,     color: "#a3f000", label: "Signal",      bg: "rgba(163,240,0,.08)",  border: "rgba(163,240,0,.2)"  },
+  signal:      { Icon: Target,     color: "#3b82f6", label: "Signal",      bg: "rgba(59,130,246,.08)",  border: "rgba(59,130,246,.2)"  },
   watch:       { Icon: Eye,        color: "#facc15", label: "Watch",       bg: "rgba(250,204,21,.08)", border: "rgba(250,204,21,.2)"  },
 } as const;
 
@@ -116,10 +116,10 @@ export function QuickWins({ competitorId }: Props) {
       {data.locked && data.locked_count > 0 && (
         <div
           className="rounded-2xl p-4 flex items-center justify-between"
-          style={{ background: "rgba(163,240,0,.06)", border: "1px dashed rgba(163,240,0,.25)" }}
+          style={{ background: "rgba(59,130,246,.06)", border: "1px dashed rgba(59,130,246,.25)" }}
         >
           <div className="flex items-center gap-2">
-            <Lock className="w-3.5 h-3.5" style={{ color: "#a3f000" }} />
+            <Lock className="w-3.5 h-3.5" style={{ color: "#3b82f6" }} />
             <p className="text-sm" style={{ color: "var(--muted)" }}>
               {data.locked_count} more quick win{data.locked_count !== 1 ? "s" : ""} identified
             </p>
@@ -127,7 +127,7 @@ export function QuickWins({ competitorId }: Props) {
           <button
             onClick={() => setUpgradeOpen(true)}
             className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all hover:brightness-110 shrink-0"
-            style={{ background: "#a3f000", color: "#060d18" }}
+            style={{ background: "#3b82f6", color: "#060d18" }}
           >
             Unlock
           </button>
