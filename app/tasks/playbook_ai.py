@@ -196,6 +196,20 @@ def generate_ai_playbook(user_id: str) -> dict:
                 + "\n"
             )
 
+    # Enrich with Klaviyo + Google data if connected
+    try:
+        from app.api.v1.integrations import get_klaviyo_context, get_google_context
+        klaviyo_ctx = get_klaviyo_context(user_id)
+        google_ctx  = get_google_context(user_id)
+        extra_lines = [l for l in [klaviyo_ctx, google_ctx] if l]
+        if extra_lines:
+            if my_store_section:
+                my_store_section = my_store_section.rstrip() + "\n  " + "\n  ".join(extra_lines) + "\n"
+            else:
+                my_store_section = "YOUR MARKETING DATA:\n  " + "\n  ".join(extra_lines) + "\n"
+    except Exception as _e:
+        logger.debug("Integration enrichment skipped: %s", _e)
+
     # Build rich per-competitor blocks
     comp_blocks: list[str] = []
     for comp in competitors:

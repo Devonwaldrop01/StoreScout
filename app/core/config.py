@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     shopify_api_key: str = ""
     shopify_api_secret: str = ""
 
+    # Google OAuth
+    google_client_id: str = ""
+    google_client_secret: str = ""
+
     # Email
     resend_api_key: str = ""
     resend_from: str = "StoreScout <hello@getstorescout.com>"

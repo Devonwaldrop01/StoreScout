@@ -5,8 +5,10 @@ import { useSearchParams } from "next/navigation";
 import {
   user as userApi, billing, myStore as myStoreApi, team as teamApi,
   apiKeys as apiKeysApi, competitors as competitorsApi, shopify as shopifyApi,
+  integrations as integrationsApi,
   type UserSubscription, type NotificationPrefs, type Competitor,
-  type TeamMember, type ApiKey, type ShopifyConnection,
+  type TeamMember, type ApiKey, type ShopifyConnection, type KlaviyoStatus, type KlaviyoTestResult,
+  type GoogleProperties,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import UpgradeModal from "@/components/UpgradeModal";
@@ -44,6 +46,23 @@ function SettingsContent() {
   const [shopifyConnecting, setShopifyConnecting] = useState(false);
   const [shopifyConnectedBanner, setShopifyConnectedBanner] = useState(false);
   const [showManualStore, setShowManualStore] = useState(false);
+
+  // Google
+  const [googleConnected, setGoogleConnected] = useState(false);
+  const [googleGA4, setGoogleGA4] = useState("");
+  const [googleGSC, setGoogleGSC] = useState("");
+  const [googleProperties, setGoogleProperties] = useState<GoogleProperties | null>(null);
+  const [googleConnecting, setGoogleConnecting] = useState(false);
+  const [googleConnectedBanner, setGoogleConnectedBanner] = useState(false);
+  const [googleSavingProperty, setGoogleSavingProperty] = useState(false);
+
+  // Klaviyo
+  const [klaviyoStatus, setKlaviyoStatus] = useState<KlaviyoStatus | null>(null);
+  const [klaviyoKey, setKlaviyoKey] = useState("");
+  const [klaviyoSaving, setKlaviyoSaving] = useState(false);
+  const [klaviyoTesting, setKlaviyoTesting] = useState(false);
+  const [klaviyoTestResult, setKlaviyoTestResult] = useState<KlaviyoTestResult | null>(null);
+  const [klaviyoError, setKlaviyoError] = useState("");
 
   // Integrations
   const [slackUrl, setSlackUrl] = useState("");
@@ -97,6 +116,23 @@ function SettingsContent() {
     competitorsApi.list().then((r) => setMyCompetitors(r.data || [])).catch(() => {});
     myStoreApi.get().then((r) => setStore(r.data)).catch(() => {});
     shopifyApi.connection().then((r) => setShopifyConnection(r.data)).catch(() => {});
+    integrationsApi.get().then((r) => setKlaviyoStatus(r.data.klaviyo)).catch(() => {});
+
+    // Google: check if tokens exist by attempting to list properties
+    integrationsApi.google.properties()
+      .then((r) => {
+        setGoogleConnected(true);
+        setGoogleProperties(r);
+      })
+      .catch(() => {});
+
+    if (searchParams.get("google_connected") === "true") {
+      setGoogleConnectedBanner(true);
+      setTimeout(() => setGoogleConnectedBanner(false), 5000);
+      integrationsApi.google.properties()
+        .then((r) => { setGoogleConnected(true); setGoogleProperties(r); })
+        .catch(() => {});
+    }
 
     if (searchParams.get("connected") === "true") {
       setShopifyConnectedBanner(true);
@@ -217,6 +253,68 @@ function SettingsContent() {
     await shopifyApi.disconnect().catch(() => {});
     setShopifyConnection(null);
     setStore(null);
+  }
+
+  // ── Google ─────────────────────────────────────────────────────────────────
+  async function handleGoogleConnect() {
+    setGoogleConnecting(true);
+    try {
+      const { url } = await integrationsApi.google.connectUrl();
+      window.location.href = url;
+    } catch {
+      setGoogleConnecting(false);
+    }
+  }
+
+  async function handleGoogleSaveProperty() {
+    setGoogleSavingProperty(true);
+    try {
+      await integrationsApi.google.saveProperty(googleGA4 || null, googleGSC || null);
+    } catch {}
+    setGoogleSavingProperty(false);
+  }
+
+  async function handleGoogleDisconnect() {
+    await integrationsApi.google.disconnect().catch(() => {});
+    setGoogleConnected(false);
+    setGoogleProperties(null);
+    setGoogleGA4("");
+    setGoogleGSC("");
+  }
+
+  // ── Klaviyo ────────────────────────────────────────────────────────────────
+  async function handleSaveKlaviyo() {
+    if (!klaviyoKey.trim()) return;
+    setKlaviyoSaving(true);
+    setKlaviyoError("");
+    try {
+      const { data } = await integrationsApi.klaviyo.save(klaviyoKey.trim());
+      setKlaviyoStatus(data);
+      setKlaviyoKey("");
+    } catch {
+      setKlaviyoError("Could not save key. Make sure it's a valid Klaviyo private API key.");
+    }
+    setKlaviyoSaving(false);
+  }
+
+  async function handleTestKlaviyo() {
+    setKlaviyoTesting(true);
+    setKlaviyoTestResult(null);
+    setKlaviyoError("");
+    try {
+      const result = await integrationsApi.klaviyo.test();
+      setKlaviyoTestResult(result);
+    } catch (err: unknown) {
+      const msg = (err as { data?: { detail?: string } })?.data?.detail || "Test failed — check your API key.";
+      setKlaviyoError(msg);
+    }
+    setKlaviyoTesting(false);
+  }
+
+  async function handleRemoveKlaviyo() {
+    await integrationsApi.klaviyo.remove().catch(() => {});
+    setKlaviyoStatus(null);
+    setKlaviyoTestResult(null);
   }
 
   // ── Integrations ───────────────────────────────────────────────────────────
@@ -734,6 +832,173 @@ function SettingsContent() {
           <p className="text-sm mb-5" style={{ color: "var(--muted)" }}>
             Receive alerts in Slack or any tool that accepts a webhook. Pro and Agency plans only.
           </p>
+
+          {/* Google Analytics + Search Console */}
+          <div className="mb-6 pb-6" style={{ borderBottom: "1px solid var(--border)" }}>
+            <div className="flex items-center gap-2 mb-2">
+              <Globe className="w-4 h-4" style={{ color: "#4285f4" }} />
+              <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Google Analytics + Search Console</p>
+              {googleConnected && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(163,240,0,0.1)", color: "#a3f000" }}>
+                  Connected
+                </span>
+              )}
+            </div>
+            <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
+              Lets the AI know your traffic, top pages, and organic keyword rankings when generating plays.
+            </p>
+
+            {googleConnectedBanner && (
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl mb-3 text-sm font-medium" style={{ background: "rgba(163,240,0,0.08)", border: "1px solid rgba(163,240,0,0.2)", color: "#a3f000" }}>
+                <Check className="w-4 h-4 shrink-0" /> Google account connected. Select your property below.
+              </div>
+            )}
+
+            {googleConnected && googleProperties ? (
+              <div className="space-y-3">
+                {/* GA4 property picker */}
+                {googleProperties.ga4_properties.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium mb-1.5" style={{ color: "var(--muted)" }}>GA4 property</p>
+                    <select
+                      value={googleGA4}
+                      onChange={(e) => setGoogleGA4(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
+                      style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                    >
+                      <option value="">— Select a property —</option>
+                      {googleProperties.ga4_properties.map((p) => (
+                        <option key={p.id} value={p.id}>{p.display_name} ({p.website_url || p.id})</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {/* GSC site picker */}
+                {googleProperties.gsc_sites.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium mb-1.5" style={{ color: "var(--muted)" }}>Search Console site</p>
+                    <select
+                      value={googleGSC}
+                      onChange={(e) => setGoogleGSC(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
+                      style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                    >
+                      <option value="">— Select a site —</option>
+                      {googleProperties.gsc_sites.map((s) => (
+                        <option key={s.url} value={s.url}>{s.url}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleGoogleSaveProperty}
+                    disabled={googleSavingProperty || (!googleGA4 && !googleGSC)}
+                    className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
+                    style={{ background: "#a3f000", color: "#060d18" }}
+                  >
+                    {googleSavingProperty ? "Saving…" : "Save"}
+                  </button>
+                  <button
+                    onClick={handleGoogleDisconnect}
+                    className="text-sm font-medium px-4 py-2 rounded-xl transition-all hover:opacity-70"
+                    style={{ color: "#f87171" }}
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={handleGoogleConnect}
+                disabled={googleConnecting}
+                className="flex items-center gap-2 font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-60"
+                style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
+              >
+                {googleConnecting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" style={{ color: "#4285f4" }} />}
+                {googleConnecting ? "Connecting…" : "Connect Google"}
+              </button>
+            )}
+          </div>
+
+          {/* Klaviyo */}
+          <div className="mb-6 pb-6" style={{ borderBottom: "1px solid var(--border)" }}>
+            <div className="flex items-center gap-2 mb-2">
+              <Zap className="w-4 h-4" style={{ color: "#f97316" }} />
+              <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Klaviyo</p>
+              {klaviyoStatus?.connected && (
+                <span
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  style={{ background: "rgba(163,240,0,0.1)", color: "#a3f000" }}
+                >
+                  Connected
+                </span>
+              )}
+            </div>
+            <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
+              Connect your Klaviyo account so the AI knows your email list size when generating plays.
+              Use a <strong style={{ color: "var(--text-2, var(--muted))" }}>Private API key</strong> from
+              {" "}Klaviyo → Account → API Keys.
+            </p>
+
+            {klaviyoStatus?.connected ? (
+              <div className="space-y-3">
+                <div
+                  className="flex items-center justify-between gap-4 px-4 py-3 rounded-xl"
+                  style={{ background: "rgba(163,240,0,0.05)", border: "1px solid rgba(163,240,0,0.18)" }}
+                >
+                  <div>
+                    <p className="text-xs font-mono font-medium" style={{ color: "var(--text)" }}>
+                      {klaviyoStatus.key_preview}
+                    </p>
+                    {klaviyoTestResult && (
+                      <p className="text-xs mt-0.5" style={{ color: "#a3f000" }}>
+                        {klaviyoTestResult.total_profiles.toLocaleString()} subscribers
+                        {" · "}{klaviyoTestResult.list_count} list{klaviyoTestResult.list_count !== 1 ? "s" : ""}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={handleTestKlaviyo}
+                      disabled={klaviyoTesting}
+                      className="text-xs font-medium px-3 py-1.5 rounded-lg transition-all hover:bg-white/[0.06] disabled:opacity-40"
+                      style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+                    >
+                      {klaviyoTesting ? "Testing…" : "Test"}
+                    </button>
+                    <button
+                      onClick={handleRemoveKlaviyo}
+                      className="text-xs font-medium px-3 py-1.5 rounded-lg transition-all hover:opacity-70"
+                      style={{ color: "#f87171" }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <input
+                  value={klaviyoKey}
+                  onChange={(e) => setKlaviyoKey(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSaveKlaviyo()}
+                  placeholder="pk_••••••••••••••••••••••••••••••••"
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-mono outline-none"
+                  style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                />
+                <button
+                  onClick={handleSaveKlaviyo}
+                  disabled={klaviyoSaving || !klaviyoKey.trim()}
+                  className="font-semibold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
+                  style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
+                >
+                  {klaviyoSaving ? "Saving…" : "Save"}
+                </button>
+              </div>
+            )}
+            {klaviyoError && <p className="text-xs mt-2" style={{ color: "#f87171" }}>{klaviyoError}</p>}
+          </div>
 
           {/* Slack */}
           <div className="mb-6">

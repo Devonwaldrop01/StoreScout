@@ -88,6 +88,7 @@ from app.api.v1.action_items import router as action_items_router
 from app.api.v1.playbook import router as playbook_router
 from app.api.v1.feedback import router as feedback_router
 from app.api.v1.shopify_app import router as shopify_router
+from app.api.v1.integrations import router as integrations_router
 
 app.include_router(competitors_router, prefix="/api/v1")
 app.include_router(alerts_router, prefix="/api/v1")
@@ -103,6 +104,7 @@ app.include_router(action_items_router, prefix="/api/v1")
 app.include_router(playbook_router, prefix="/api/v1")
 app.include_router(feedback_router, prefix="/api/v1")
 app.include_router(shopify_router, prefix="/api/v1")
+app.include_router(integrations_router, prefix="/api/v1")
 
 def extract_store_url_from_session(session: dict) -> str | None:
     fields = session.custom_fields or []
