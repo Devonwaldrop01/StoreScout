@@ -75,9 +75,9 @@ export function SignalCard({ group }: Props) {
       {group.your_move && (
         <div
           className="mx-5 mb-3 px-3.5 py-3 rounded-xl text-xs leading-relaxed"
-          style={{ background: "rgba(163,240,0,.05)", border: "1px solid rgba(163,240,0,.18)" }}
+          style={{ background: "rgba(59,130,246,.05)", border: "1px solid rgba(59,130,246,.18)" }}
         >
-          <span className="font-bold" style={{ color: "#a3f000" }}>▶ Your move · </span>
+          <span className="font-bold" style={{ color: "#3b82f6" }}>▶ Your move · </span>
           <span style={{ color: "var(--text-2)" }}>{group.your_move}</span>
         </div>
       )}

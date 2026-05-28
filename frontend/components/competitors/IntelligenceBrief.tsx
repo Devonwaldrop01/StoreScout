@@ -6,11 +6,11 @@ import { type BriefCard } from "@/lib/api";
 const CARD_CONFIG = {
   signal: {
     Icon: Target,
-    color: "#a8ff00",
+    color: "#3b82f6",
     label: "Most notable signal",
-    bg: "rgba(168,255,0,.07)",
-    border: "rgba(168,255,0,.18)",
-    glow: "rgba(168,255,0,.15)",
+    bg: "rgba(59,130,246,.07)",
+    border: "rgba(59,130,246,.18)",
+    glow: "rgba(59,130,246,.15)",
   },
   opportunity: {
     Icon: TrendingUp,
@@ -49,15 +49,15 @@ export function IntelligenceBrief({ hostname, cards, onDismiss }: Props) {
     <div
       className="relative rounded-2xl overflow-hidden mb-8 fade-in"
       style={{
-        background: "linear-gradient(135deg, rgba(168,255,0,.06) 0%, rgba(168,255,0,.02) 40%, transparent 70%), var(--bg3)",
-        border: "1px solid rgba(168,255,0,.2)",
-        boxShadow: "0 0 0 1px rgba(168,255,0,.06), 0 20px 60px rgba(0,0,0,.5)",
+        background: "linear-gradient(135deg, rgba(59,130,246,.06) 0%, rgba(59,130,246,.02) 40%, transparent 70%), var(--bg3)",
+        border: "1px solid rgba(59,130,246,.2)",
+        boxShadow: "0 0 0 1px rgba(59,130,246,.06), 0 20px 60px rgba(0,0,0,.5)",
       }}
     >
       {/* Ambient glow behind the card */}
       <div
         className="absolute -top-20 -left-20 w-64 h-64 rounded-full blur-3xl pointer-events-none"
-        style={{ background: "rgba(168,255,0,.08)" }}
+        style={{ background: "rgba(59,130,246,.08)" }}
       />
 
       <div className="relative p-6 sm:p-8">
@@ -66,7 +66,7 @@ export function IntelligenceBrief({ hostname, cards, onDismiss }: Props) {
           <div className="flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "rgba(168,255,0,.12)", border: "1px solid rgba(168,255,0,.2)" }}
+              style={{ background: "rgba(59,130,246,.12)", border: "1px solid rgba(59,130,246,.2)" }}
             >
               <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
             </div>
@@ -74,7 +74,7 @@ export function IntelligenceBrief({ hostname, cards, onDismiss }: Props) {
               <div className="flex items-center gap-2">
                 <span
                   className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
-                  style={{ background: "rgba(168,255,0,.12)", color: "var(--accent)" }}
+                  style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)" }}
                 >
                   AI Intelligence Brief
                 </span>
@@ -200,7 +200,7 @@ export function IntelligenceBrief({ hostname, cards, onDismiss }: Props) {
         <button
           onClick={onDismiss}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110"
-          style={{ background: "var(--accent)", color: "#0a0a0f" }}
+          style={{ background: "var(--accent)", color: "#ffffff" }}
         >
           View full analysis
           <ArrowRight className="w-4 h-4" />

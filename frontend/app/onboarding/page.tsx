@@ -118,7 +118,7 @@ const PLANS = [
     label: "Pro",
     price: "$29",
     per: "/mo",
-    accent: "#a3f000",
+    accent: "#3b82f6",
     features: [
       "10 competitors",
       "Daily auto-scans",
@@ -540,7 +540,7 @@ function OnboardingContent() {
               {newCompetitorId && (
                 <div
                   className="flex items-center gap-2 px-3 py-2 rounded-lg mb-6"
-                  style={{ background: "rgba(163,240,0,.07)", border: "1px solid rgba(163,240,0,.15)" }}
+                  style={{ background: "rgba(59,130,246,.07)", border: "1px solid rgba(59,130,246,.15)" }}
                 >
                   <div className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ background: "var(--green)" }} />
                   <p className="text-xs font-medium" style={{ color: "var(--green)" }}>
@@ -587,7 +587,7 @@ function OnboardingContent() {
                         onClick={() => setCategory(c)}
                         className="px-3 py-2.5 rounded-xl text-xs font-medium transition-all text-left"
                         style={{
-                          background: category === c ? "rgba(163,240,0,.1)" : "var(--bg3)",
+                          background: category === c ? "rgba(59,130,246,.1)" : "var(--bg3)",
                           border: `1px solid ${category === c ? "var(--green)" : "var(--border)"}`,
                           color: category === c ? "var(--green)" : "var(--muted)",
                         }}
@@ -663,7 +663,7 @@ function OnboardingContent() {
                           onClick={() => setGoalId(g.id)}
                           className="w-full flex items-start gap-3 px-4 py-3 rounded-xl transition-all text-left"
                           style={{
-                            background: selected ? "rgba(163,240,0,.07)" : "var(--bg3)",
+                            background: selected ? "rgba(59,130,246,.07)" : "var(--bg3)",
                             border: `1px solid ${selected ? "var(--green)" : "var(--border)"}`,
                           }}
                         >
@@ -721,7 +721,7 @@ function OnboardingContent() {
               {newCompetitorId && (
                 <div
                   className="flex items-center gap-2 px-3 py-2 rounded-lg mb-6"
-                  style={{ background: "rgba(163,240,0,.07)", border: "1px solid rgba(163,240,0,.15)" }}
+                  style={{ background: "rgba(59,130,246,.07)", border: "1px solid rgba(59,130,246,.15)" }}
                 >
                   <div className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ background: scanDone ? "#22c55e" : "var(--green)" }} />
                   <p className="text-xs font-medium" style={{ color: "var(--green)" }}>
@@ -753,7 +753,7 @@ function OnboardingContent() {
                       style={{
                         background: selected
                           ? plan.id === "pro"
-                            ? "rgba(163,240,0,.07)"
+                            ? "rgba(59,130,246,.07)"
                             : plan.id === "agency"
                             ? "rgba(56,189,248,.07)"
                             : "rgba(255,255,255,.04)"
@@ -783,7 +783,7 @@ function OnboardingContent() {
                           {plan.recommended && (
                             <span
                               className="text-xs px-2 py-0.5 rounded-full font-semibold"
-                              style={{ background: "rgba(163,240,0,.14)", color: "var(--green)" }}
+                              style={{ background: "rgba(59,130,246,.14)", color: "var(--green)" }}
                             >
                               Recommended
                             </span>
@@ -933,7 +933,7 @@ function OnboardingContent() {
                               <div
                                 className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-500"
                                 style={{
-                                  background: done ? "rgba(163,240,0,.14)" : "var(--bg3)",
+                                  background: done ? "rgba(59,130,246,.14)" : "var(--bg3)",
                                   border: `1px solid ${done ? "var(--green)" : "var(--border)"}`,
                                 }}
                               >

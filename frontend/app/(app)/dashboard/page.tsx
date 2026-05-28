@@ -74,8 +74,8 @@ function StatsBar({ competitorList, signalGroups }: { competitorList: Competitor
           key={label}
           className="rounded-xl px-4 py-3 flex items-center gap-3"
           style={{
-            background: highlight ? "rgba(168,255,0,.05)" : "var(--bg3)",
-            border: highlight ? "1px solid rgba(168,255,0,.18)" : "1px solid var(--border)",
+            background: highlight ? "rgba(59,130,246,.05)" : "var(--bg3)",
+            border: highlight ? "1px solid rgba(59,130,246,.18)" : "1px solid var(--border)",
           }}
         >
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${color}18` }}>
@@ -113,7 +113,7 @@ function WeeklyChart({ alertList }: { alertList: AlertEvent[] }) {
           <XAxis dataKey="day" tick={{ fill: "#5a6a82", fontSize: 9 }} axisLine={false} tickLine={false} />
           <Bar dataKey="count" radius={[3, 3, 0, 0]}>
             {days.map((d, i) => (
-              <Cell key={i} fill={d.count === 0 ? "rgba(255,255,255,.06)" : d.isToday ? "#a8ff00" : "rgba(96,165,250,.6)"} />
+              <Cell key={i} fill={d.count === 0 ? "rgba(255,255,255,.06)" : d.isToday ? "#3b82f6" : "rgba(96,165,250,.6)"} />
             ))}
           </Bar>
         </BarChart>
@@ -128,7 +128,7 @@ const DEADLINE_COLOR: Record<string, string> = {
   "right now": "#f87171",
   "today": "#fb923c",
   "within 48h": "#fb923c",
-  "this week": "#a3f000",
+  "this week": "#3b82f6",
 };
 
 function PlaybookWidget() {
@@ -254,7 +254,7 @@ function CompetitorMonitor({
   const statusColor = isScanning ? "var(--accent)" : hasStrategic ? ALERT_COLOR : "var(--emerald)";
 
   const borderColor = isSelected
-    ? "rgba(163,240,0,.3)"
+    ? "rgba(59,130,246,.3)"
     : hasStrategic
     ? "rgba(249,115,22,.2)"
     : "var(--border)";
@@ -273,7 +273,7 @@ function CompetitorMonitor({
         }}
         onClick={!selectMode ? (e) => { e.preventDefault(); e.stopPropagation(); onToggle(); } : undefined}
       >
-        {isSelected && <Check className="w-2.5 h-2.5" style={{ color: "#0a0a0f" }} />}
+        {isSelected && <Check className="w-2.5 h-2.5" style={{ color: "#ffffff" }} />}
       </div>
 
       {/* Status dot — hidden when checkbox is shown */}
@@ -296,20 +296,28 @@ function CompetitorMonitor({
           {changeCount > 0 && (
             <span
               className="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
-              style={{ background: hasStrategic ? "rgba(239,68,68,.15)" : "rgba(168,255,0,.1)", color: hasStrategic ? "var(--red)" : "var(--accent)" }}
+              style={{ background: hasStrategic ? "rgba(239,68,68,.15)" : "rgba(59,130,246,.1)", color: hasStrategic ? "var(--red)" : "var(--accent)" }}
             >
               {changeCount}
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-[11px]" style={{ color: "var(--muted)" }}>
+        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+          <span className="text-[11px] num" style={{ color: "var(--muted)" }}>
             {competitor.product_count?.toLocaleString() ?? "—"} products
           </span>
           {medianPrice != null && (
             <>
               <span style={{ color: "var(--border)" }}>·</span>
-              <span className="text-[11px] font-mono" style={{ color: "var(--muted)" }}>{formatPrice(medianPrice)} median</span>
+              <span className="text-[11px] num" style={{ color: "var(--muted)" }}>{formatPrice(medianPrice)} median</span>
+            </>
+          )}
+          {competitor.promo_rate != null && competitor.promo_rate > 0 && (
+            <>
+              <span style={{ color: "var(--border)" }}>·</span>
+              <span className="text-[11px] num" style={{ color: competitor.promo_rate >= 20 ? "#fb923c" : "var(--muted)" }}>
+                {competitor.promo_rate.toFixed(0)}% on sale
+              </span>
             </>
           )}
         </div>
@@ -332,7 +340,7 @@ function CompetitorMonitor({
           ) : changeCount > 0 ? (
             <span
               className="text-[10px] font-semibold px-2 py-1 rounded-md"
-              style={{ background: "rgba(168,255,0,.08)", color: "var(--accent)" }}
+              style={{ background: "rgba(59,130,246,.08)", color: "var(--accent)" }}
             >
               {changeCount} change{changeCount !== 1 ? "s" : ""}
             </span>
@@ -356,11 +364,11 @@ function CompetitorMonitor({
   const sharedClass = cn(
     "flex items-center gap-3 rounded-xl px-4 py-3 transition-colors group",
     isScanning && !selectMode && "scan-shimmer",
-    isSelected && "bg-[rgba(163,240,0,.03)]"
+    isSelected && "bg-[rgba(59,130,246,.03)]"
   );
   const sharedStyle = {
     border: `1px solid ${borderColor}`,
-    background: isSelected ? "rgba(163,240,0,.03)" : "var(--bg3)",
+    background: isSelected ? "rgba(59,130,246,.03)" : "var(--bg3)",
   };
 
   if (selectMode) {
@@ -466,17 +474,17 @@ function WatchPanel({ competitorList }: { competitorList: Competitor[] }) {
 function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] text-center px-6 fade-in">
-      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6" style={{ background: "rgba(168,255,0,.08)", border: "1px solid rgba(168,255,0,.18)" }}>
+      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6" style={{ background: "rgba(59,130,246,.08)", border: "1px solid rgba(59,130,246,.18)" }}>
         <TrendingUp className="w-8 h-8" style={{ color: "var(--accent)" }} />
       </div>
-      <h2 className="text-2xl font-bold mb-3" style={{ color: "var(--text)" }}>Track your first competitor</h2>
+      <h2 className="text-2xl font-black mb-3" style={{ color: "var(--text)" }}>Track your first competitor</h2>
       <p className="text-sm mb-8 max-w-xs leading-relaxed" style={{ color: "var(--muted)" }}>
         Enter any Shopify store URL and we&apos;ll start monitoring their prices, new launches, and discount campaigns automatically.
       </p>
       <button
         onClick={onAdd}
         className="flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all hover:brightness-110"
-        style={{ background: "var(--accent)", color: "#0a0a0f" }}
+        style={{ background: "var(--accent)", color: "#ffffff" }}
       >
         <Plus className="w-4 h-4" />
         Add competitor
@@ -513,7 +521,7 @@ function DiscoverySuggestions({
           {isCurated ? "Popular stores to track" : "Similar to what you're tracking"}
         </p>
         {!isCurated && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(168,255,0,.08)", color: "var(--muted)" }}>
+          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(59,130,246,.08)", color: "var(--muted)" }}>
             Based on your catalog
           </span>
         )}
@@ -575,7 +583,7 @@ function DiscoverySuggestions({
                 onClick={() => onTrack(s.hostname)}
                 disabled={tracking === s.hostname}
                 className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all hover:brightness-110 disabled:opacity-50"
-                style={{ background: "var(--accent)", color: "#0a0a0f" }}
+                style={{ background: "var(--accent)", color: "#ffffff" }}
               >
                 {tracking === s.hostname
                   ? <RefreshCw className="w-3 h-3 animate-spin" />
@@ -775,7 +783,7 @@ function DashboardContent() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>Dashboard</h1>
+          <h1 className="text-2xl font-black" style={{ color: "var(--text)" }}>Dashboard</h1>
           <p className="text-sm mt-0.5" style={{ color: "var(--muted)" }}>
             {competitorList.length === 0
               ? "No competitors tracked yet"
@@ -797,7 +805,7 @@ function DashboardContent() {
           <button
             onClick={() => setShowModal(true)}
             className="flex items-center gap-2 font-bold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-110"
-            style={{ background: "var(--accent)", color: "#0a0a0f" }}
+            style={{ background: "var(--accent)", color: "#ffffff" }}
           >
             <Plus className="w-4 h-4" />
             Add competitor

@@ -56,11 +56,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Link href="/dashboard" className="flex items-center gap-2.5 group">
             <div
               className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all group-hover:scale-110"
-              style={{ background: "var(--accent)", boxShadow: "0 0 12px rgba(168,255,0,.35)" }}
+              style={{ background: "var(--accent)", boxShadow: "0 0 12px rgba(59,130,246,.35)" }}
             >
-              <Zap className="w-4 h-4" style={{ color: "#0a0a0f" }} />
+              <Zap className="w-4 h-4" style={{ color: "#ffffff" }} />
             </div>
-            <span className="font-bold text-base tracking-tight" style={{ color: "var(--text)" }}>
+            <span className="font-extrabold text-base tracking-tight" style={{ color: "var(--text)" }}>
               StoreScout
             </span>
           </Link>
@@ -80,7 +80,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 )}
                 style={{
                   color: active ? "var(--accent)" : "var(--muted)",
-                  background: active ? "rgba(168,255,0,.07)" : undefined,
+                  background: active ? "rgba(59,130,246,.07)" : undefined,
                 }}
               >
                 {/* Active left border */}
@@ -95,7 +95,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 {badge != null && badge > 0 && (
                   <span
                     className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
-                    style={{ background: "var(--accent)", color: "#0a0a0f" }}
+                    style={{ background: "var(--accent)", color: "#ffffff" }}
                   >
                     {badge > 9 ? "9+" : badge}
                   </span>
@@ -117,7 +117,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             )}
             style={{
               color: pathname === "/settings" ? "var(--accent)" : "var(--muted)",
-              background: pathname === "/settings" ? "rgba(168,255,0,.07)" : undefined,
+              background: pathname === "/settings" ? "rgba(59,130,246,.07)" : undefined,
             }}
           >
             {pathname === "/settings" && (
@@ -138,7 +138,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Link
               href="/settings?upgrade=1"
               className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-semibold transition-all hover:brightness-110"
-              style={{ background: "rgba(168,255,0,.12)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.2)" }}
+              style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.2)" }}
             >
               <Zap className="w-4 h-4 shrink-0" />
               <span className="flex-1">Upgrade to Pro</span>
@@ -185,7 +185,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               {badge != null && badge > 0 && (
                 <span
                   className="absolute top-2 right-1/4 translate-x-1/2 text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full"
-                  style={{ background: "var(--accent)", color: "#0a0a0f" }}
+                  style={{ background: "var(--accent)", color: "#ffffff" }}
                 >
                   {badge > 9 ? "9+" : badge}
                 </span>

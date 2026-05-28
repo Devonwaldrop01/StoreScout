@@ -63,7 +63,7 @@ function computeStreak(ts: Record<string, string>): number {
 const SECTION_META = {
   act_now:   { label: "Act Now",                    desc: "Time-sensitive — competitor moves that need a response today",                                         color: "#f87171", dot: "#ef4444" },
   right_now: { label: "Your Position Right Now",    desc: "Derived from your competitors' current catalog — no new move needed to trigger these",                color: "#60a5fa", dot: "#3b82f6" },
-  this_week: { label: "Moves to Make This Week",    desc: "Opportunities that are open now and compound the longer you wait",                                    color: "#a3f000", dot: "#a3f000" },
+  this_week: { label: "Moves to Make This Week",    desc: "Opportunities that are open now and compound the longer you wait",                                    color: "#3b82f6", dot: "#3b82f6" },
 } as const;
 
 const SECTION_ORDER = ["act_now", "right_now", "this_week"] as const;
@@ -72,7 +72,7 @@ const DEADLINE_STYLE: Record<string, { bg: string; color: string }> = {
   "right now":  { bg: "rgba(239,68,68,0.12)",  color: "#f87171" },
   "today":      { bg: "rgba(239,68,68,0.10)",  color: "#fb923c" },
   "within 48h": { bg: "rgba(251,146,60,0.10)", color: "#fb923c" },
-  "this week":  { bg: "rgba(163,240,0,0.08)",  color: "#a3f000" },
+  "this week":  { bg: "rgba(59,130,246,0.08)",  color: "#3b82f6" },
 };
 
 function deadlineStyle(d: string) {
@@ -155,7 +155,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
             <button
               onClick={() => copy(asset.subject!, "subject")}
               className="shrink-0 p-1.5 rounded-lg transition-all hover:bg-white/[0.06] mt-0.5"
-              style={{ color: copied === "subject" ? "#a3f000" : "var(--muted)" }}
+              style={{ color: copied === "subject" ? "#3b82f6" : "var(--muted)" }}
               title="Copy to clipboard"
             >
               {copied === "subject" ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -174,7 +174,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
             <button
               onClick={() => copy(asset.body_opening!, "body")}
               className="shrink-0 p-1.5 rounded-lg transition-all hover:bg-white/[0.06] mt-0.5"
-              style={{ color: copied === "body" ? "#a3f000" : "var(--muted)" }}
+              style={{ color: copied === "body" ? "#3b82f6" : "var(--muted)" }}
               title="Copy to clipboard"
             >
               {copied === "body" ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -198,7 +198,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
               <button
                 onClick={() => copy(asset.headlines!.join("\n"), "headlines")}
                 className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-md transition-all hover:bg-white/[0.06]"
-                style={{ color: copied === "headlines" ? "#a3f000" : "var(--muted)" }}
+                style={{ color: copied === "headlines" ? "#3b82f6" : "var(--muted)" }}
               >
                 {copied === "headlines" ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                 {copied === "headlines" ? "Copied" : "Copy all"}
@@ -230,7 +230,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
             <button
               onClick={() => copy(asset.ad_body!, "ad_body")}
               className="shrink-0 p-1.5 rounded-lg transition-all hover:bg-white/[0.06] mt-0.5"
-              style={{ color: copied === "ad_body" ? "#a3f000" : "var(--muted)" }}
+              style={{ color: copied === "ad_body" ? "#3b82f6" : "var(--muted)" }}
               title="Copy to clipboard"
             >
               {copied === "ad_body" ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -407,9 +407,9 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
           {detail?.outcome && (
             <div
               className="rounded-xl p-4"
-              style={{ background: "rgba(163,240,0,0.05)", border: "1px solid rgba(163,240,0,0.15)" }}
+              style={{ background: "rgba(59,130,246,0.05)", border: "1px solid rgba(59,130,246,0.15)" }}
             >
-              <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "#a3f000" }}>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "#3b82f6" }}>
                 Expected outcome
               </p>
               <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
@@ -441,9 +441,9 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
               onClick={() => { onDone(); onClose(); }}
               className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110 flex-1 justify-center"
               style={{
-                background: isDone ? "rgba(163,240,0,0.12)" : "rgba(163,240,0,0.15)",
-                color: "#a3f000",
-                border: "1px solid rgba(163,240,0,0.25)",
+                background: isDone ? "rgba(59,130,246,0.12)" : "rgba(59,130,246,0.15)",
+                color: "#3b82f6",
+                border: "1px solid rgba(59,130,246,0.25)",
               }}
             >
               <Check className="w-4 h-4" />
@@ -533,9 +533,9 @@ function PlayCard({ play, done, onDone, onOpen, isLast }: {
                 onClick={onDone}
                 className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
                 style={{
-                  background: done ? "rgba(163,240,0,0.12)" : "rgba(255,255,255,0.06)",
-                  color: done ? "#a3f000" : "var(--muted)",
-                  border: done ? "1px solid rgba(163,240,0,0.2)" : "1px solid transparent",
+                  background: done ? "rgba(16,185,129,0.10)" : "rgba(255,255,255,0.06)",
+                  color: done ? "#10b981" : "var(--muted)",
+                  border: done ? "1px solid rgba(16,185,129,0.2)" : "1px solid transparent",
                 }}
               >
                 <Check className="w-3 h-3" />
@@ -702,7 +702,7 @@ export default function PlaybookPage() {
   if (!data || data.competitor_count === 0) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>Your Playbook</h1>
+        <h1 className="text-2xl font-black" style={{ color: "var(--text)" }}>Your Playbook</h1>
         <div className="rounded-2xl p-10 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <Zap className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--accent)" }} />
           <p className="font-semibold mb-1" style={{ color: "var(--text)" }}>No competitors tracked yet</p>
@@ -712,7 +712,7 @@ export default function PlaybookPage() {
           <Link
             href="/dashboard"
             className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110"
-            style={{ background: "var(--accent)", color: "#0a0a0f" }}
+            style={{ background: "var(--accent)", color: "#ffffff" }}
           >
             Add competitor <ArrowRight className="w-4 h-4" />
           </Link>
@@ -741,11 +741,11 @@ export default function PlaybookPage() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>Your Playbook</h1>
+              <h1 className="text-2xl font-black" style={{ color: "var(--text)" }}>Your Playbook</h1>
               {activePlays.length > 0 && (
                 <span
                   className="text-xs font-bold px-2 py-1 rounded-full"
-                  style={{ background: "rgba(163,240,0,0.12)", color: "#a3f000" }}
+                  style={{ background: "rgba(59,130,246,0.12)", color: "#3b82f6" }}
                 >
                   {activePlays.length} open
                 </span>
@@ -828,8 +828,8 @@ export default function PlaybookPage() {
                   <span
                     className="text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
                     style={{
-                      background: tab === t ? "rgba(163,240,0,0.15)" : "rgba(255,255,255,0.08)",
-                      color: tab === t ? "#a3f000" : "var(--muted)",
+                      background: tab === t ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.08)",
+                      color: tab === t ? "#3b82f6" : "var(--muted)",
                     }}
                   >
                     {count}
@@ -854,7 +854,7 @@ export default function PlaybookPage() {
                 </div>
               ) : (
                 <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-                  <Check className="w-6 h-6 mx-auto mb-2" style={{ color: "#a3f000" }} />
+                  <Check className="w-6 h-6 mx-auto mb-2" style={{ color: "#10b981" }} />
                   <p className="font-semibold mb-1" style={{ color: "var(--text)" }}>All caught up</p>
                   <p className="text-sm" style={{ color: "var(--muted)" }}>
                     Everything&apos;s marked done. Your playbook refreshes after each competitor scan.
@@ -880,10 +880,10 @@ export default function PlaybookPage() {
             {data.locked && (
               <div
                 className="rounded-2xl px-5 py-5 flex items-center justify-between gap-4"
-                style={{ background: "rgba(163,240,0,.06)", border: "1px dashed rgba(163,240,0,.3)" }}
+                style={{ background: "rgba(59,130,246,.06)", border: "1px dashed rgba(59,130,246,.3)" }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(168,255,0,.08)", border: "1px solid rgba(168,255,0,.14)" }}>
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(59,130,246,.08)", border: "1px solid rgba(59,130,246,.14)" }}>
                     <Lock className="w-4 h-4" style={{ color: "var(--accent)" }} />
                   </div>
                   <div>
@@ -898,7 +898,7 @@ export default function PlaybookPage() {
                 <button
                   onClick={() => setUpgradeOpen(true)}
                   className="shrink-0 text-xs font-bold px-4 py-2 rounded-xl transition-all hover:brightness-110"
-                  style={{ background: "var(--accent)", color: "#0a0a0f" }}
+                  style={{ background: "var(--accent)", color: "#ffffff" }}
                 >
                   Upgrade
                 </button>
@@ -930,7 +930,7 @@ export default function PlaybookPage() {
                     style={i < donePlays.length - 1 ? { borderBottom: "1px solid var(--border)" } : undefined}
                   >
                     <div className="flex items-center gap-3">
-                      <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#a3f000" }} />
+                      <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#10b981" }} />
                       <p className="text-sm flex-1 truncate" style={{ color: "var(--muted)" }}>
                         {p.headline}
                       </p>

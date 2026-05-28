@@ -48,7 +48,7 @@ export function PriceDistributionChart({ pricingData }: Props) {
         {dominantEntry && (
           <span
             className="inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-full mt-2"
-            style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.18)" }}
+            style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.18)" }}
           >
             Dominant band: {dominantEntry.name} · {dominantPct}% of products
           </span>
@@ -81,7 +81,7 @@ export function PriceDistributionChart({ pricingData }: Props) {
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry.count === maxCount ? "#a8ff00" : "rgba(96,165,250,.5)"}
+                fill={entry.count === maxCount ? "#3b82f6" : "rgba(96,165,250,.5)"}
               />
             ))}
           </Bar>

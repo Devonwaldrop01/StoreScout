@@ -94,7 +94,7 @@ function KpiCard({
               style={
                 locked
                   ? { background: "rgba(255,255,255,.04)", color: "var(--muted)", border: "1px solid var(--border)" }
-                  : { background: "rgba(168,255,0,.1)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.2)" }
+                  : { background: "rgba(59,130,246,.1)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.2)" }
               }
             >
               {locked && <Lock className="w-3 h-3" />}
@@ -102,7 +102,7 @@ function KpiCard({
               {locked && (
                 <span
                   className="text-[10px] px-1.5 py-0.5 rounded-full ml-0.5"
-                  style={{ background: "rgba(168,255,0,.15)", color: "var(--accent)" }}
+                  style={{ background: "rgba(59,130,246,.15)", color: "var(--accent)" }}
                 >
                   Pro
                 </span>
@@ -208,7 +208,7 @@ function TopAlertBanner({ change, hostname, onViewAll }: { change: ChangeEvent; 
           {action && (
             <p
               className="text-xs mt-2.5 px-2.5 py-1.5 rounded-lg inline-block"
-              style={{ background: "rgba(168,255,0,.07)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.14)" }}
+              style={{ background: "rgba(59,130,246,.07)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.14)" }}
             >
               ▶ {action}
             </p>
@@ -274,9 +274,9 @@ function ChangeRow({ change, hostname }: { change: ChangeEvent; hostname?: strin
           <p
             className="text-[11px] mt-1.5 px-2.5 py-1 rounded-md inline-block"
             style={{
-              background: "rgba(168,255,0,.07)",
+              background: "rgba(59,130,246,.07)",
               color: "var(--accent)",
-              border: "1px solid rgba(168,255,0,.15)",
+              border: "1px solid rgba(59,130,246,.15)",
             }}
           >
             ▶ {action}
@@ -300,14 +300,14 @@ function ProGate({ children, onUpgrade, label = "Unlock with Pro" }: {
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div
           className="flex flex-col items-center gap-3 px-6 py-5 rounded-2xl text-center"
-          style={{ background: "rgba(10,10,15,.85)", border: "1px solid rgba(168,255,0,.2)", backdropFilter: "blur(8px)" }}
+          style={{ background: "rgba(10,10,15,.85)", border: "1px solid rgba(59,130,246,.2)", backdropFilter: "blur(8px)" }}
         >
           <Lock className="w-5 h-5" style={{ color: "var(--accent)" }} />
           <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>{label}</p>
           <button
             onClick={onUpgrade}
             className="text-xs font-bold px-4 py-2 rounded-xl transition-all hover:brightness-110"
-            style={{ background: "var(--accent)", color: "#0a0a0f" }}
+            style={{ background: "var(--accent)", color: "#ffffff" }}
           >
             <Zap className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
             Upgrade to Pro — $29/mo
@@ -355,7 +355,7 @@ function TabBar<T extends string>({
           {t.pro && (
             <span
               className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-              style={{ background: "rgba(168,255,0,.12)", color: "var(--accent)" }}
+              style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)" }}
             >
               PRO
             </span>
@@ -646,7 +646,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
       <div
         className="-mx-4 sm:-mx-6 px-4 sm:px-6 pt-6 pb-5 mb-6 relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, rgba(168,255,0,.05) 0%, transparent 60%)",
+          background: "linear-gradient(135deg, rgba(59,130,246,.05) 0%, transparent 60%)",
           borderBottom: "1px solid var(--border)",
         }}
       >
@@ -697,7 +697,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
               onClick={handleRescan}
               disabled={rescanning || isScanning}
               className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.2)" }}
+              style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.2)" }}
             >
               <RefreshCw className={cn("w-3.5 h-3.5", (rescanning || isScanning) && "animate-spin")} />
               {isScanning ? "Scanning…" : rescanning ? "Queued…" : "Rescan"}
@@ -728,7 +728,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
               onClick={handleRescan}
               disabled={rescanning || isScanning}
               className="text-xs font-bold px-4 py-2 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
-              style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.2)" }}
+              style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.2)" }}
             >
               {rescanning ? "Queued…" : "Try again"}
             </button>
@@ -961,7 +961,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                         const toXY = (a: number) => ({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
                         const s    = toXY(sA); const e = toXY(eA - 0.001); const f = toXY(filled);
                         const la   = (eA - sA) * (pct / 100) > Math.PI ? 1 : 0;
-                        const color = pct > 50 ? "#f59e0b" : pct > 25 ? "#a8ff00" : "#22d3ee";
+                        const color = pct > 50 ? "#f59e0b" : pct > 25 ? "#3b82f6" : "#22d3ee";
                         return (
                           <svg viewBox="0 0 128 70" className="w-full h-full">
                             <path d={`M ${s.x} ${s.y} A ${r} ${r} 0 1 1 ${e.x} ${e.y}`} fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="10" strokeLinecap="round" />
@@ -995,13 +995,13 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     >
                       <Lock className="w-3.5 h-3.5" />
                       Get alerted when they run a flash sale
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: "rgba(168,255,0,.15)", color: "var(--accent)" }}>Pro</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: "rgba(59,130,246,.15)", color: "var(--accent)" }}>Pro</span>
                     </button>
                   ) : (
                     <button
                       onClick={() => router.push("/settings#notifications")}
                       className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 text-xs font-semibold rounded-xl transition-all hover:brightness-110"
-                      style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)", border: "1px solid rgba(168,255,0,.2)" }}
+                      style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.2)" }}
                     >
                       <Bell className="w-3.5 h-3.5" />
                       Set flash sale alert
@@ -1032,7 +1032,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     {isFree && (
                       <span
                         className="text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-auto"
-                        style={{ background: "rgba(168,255,0,.12)", color: "var(--accent)" }}
+                        style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)" }}
                       >
                         PRO
                       </span>
@@ -1064,7 +1064,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                       {changes.length} change{changes.length !== 1 ? "s" : ""} detected
                     </h3>
                     {isFree && changes.length > FREE_CHANGES_LIMIT && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(168,255,0,.12)", color: "var(--accent)" }}>
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)" }}>
                         PRO for full history
                       </span>
                     )}
@@ -1116,7 +1116,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           <button
                             onClick={() => setUpgradeOpen(true)}
                             className="flex items-center gap-1.5 text-xs font-bold px-5 py-2.5 rounded-xl transition-all hover:brightness-110"
-                            style={{ background: "var(--accent)", color: "#0a0a0f" }}
+                            style={{ background: "var(--accent)", color: "#ffffff" }}
                           >
                             <Zap className="w-3.5 h-3.5" />
                             Unlock full history — $29/mo
@@ -1143,11 +1143,11 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                       {isFree ? (
                         <div
                           className="rounded-2xl p-8 text-center relative overflow-hidden"
-                          style={{ background: "var(--bg-card)", border: "1px solid rgba(168,255,0,.2)" }}
+                          style={{ background: "var(--bg-card)", border: "1px solid rgba(59,130,246,.2)" }}
                         >
-                          <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(168,255,0,.06)" }} />
+                          <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(59,130,246,.06)" }} />
                           <div className="relative">
-                            <div className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(168,255,0,.1)", border: "1px solid rgba(168,255,0,.2)" }}>
+                            <div className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(59,130,246,.1)", border: "1px solid rgba(59,130,246,.2)" }}>
                               <Sparkles className="w-6 h-6" style={{ color: "var(--accent)" }} />
                             </div>
                             <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text)" }}>AI Strategic Summary</h3>
@@ -1165,7 +1165,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                             <button
                               onClick={() => setUpgradeOpen(true)}
                               className="font-semibold text-sm px-6 py-3 rounded-xl transition-all hover:brightness-110"
-                              style={{ background: "var(--accent)", color: "#0a0a0f" }}
+                              style={{ background: "var(--accent)", color: "#ffffff" }}
                             >
                               <Zap className="w-4 h-4 inline mr-1.5 -mt-0.5" />
                               Unlock AI Insights — from $29/mo
@@ -1183,7 +1183,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           <button
                             onClick={() => setAiStatus("idle")}
                             className="text-xs font-bold px-4 py-2 rounded-xl transition-all hover:brightness-110"
-                            style={{ background: "var(--accent)", color: "#0a0a0f" }}
+                            style={{ background: "var(--accent)", color: "#ffffff" }}
                           >
                             Try again
                           </button>
@@ -1193,7 +1193,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           <div className="flex items-center gap-3 mb-5">
                             <div
                               className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                              style={{ background: "rgba(168,255,0,.1)", border: "1px solid rgba(168,255,0,.15)" }}
+                              style={{ background: "rgba(59,130,246,.1)", border: "1px solid rgba(59,130,246,.15)" }}
                             >
                               <Sparkles className="w-4 h-4 animate-pulse" style={{ color: "var(--accent)" }} />
                             </div>
@@ -1221,7 +1221,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           className="rounded-2xl p-8 text-center"
                           style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
                         >
-                          <div className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(168,255,0,.06)", border: "1px solid rgba(168,255,0,.14)" }}>
+                          <div className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(59,130,246,.06)", border: "1px solid rgba(59,130,246,.14)" }}>
                             <Sparkles className="w-6 h-6" style={{ color: "var(--accent)" }} />
                           </div>
                           <h3 className="text-base font-bold mb-2" style={{ color: "var(--text)" }}>No analysis yet</h3>
@@ -1243,7 +1243,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           <button
                             onClick={handleRegenerate}
                             className="font-semibold text-sm px-6 py-3 rounded-xl transition-all hover:brightness-110"
-                            style={{ background: "var(--accent)", color: "#0a0a0f" }}
+                            style={{ background: "var(--accent)", color: "#ffffff" }}
                           >
                             <Sparkles className="w-4 h-4 inline mr-1.5 -mt-0.5" />
                             Generate analysis
@@ -1255,7 +1255,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                         if (!aiSummary) return null;
                         const parsed = parseSummaryText(aiSummary.summary_text);
                         const INSIGHT_CONFIG = {
-                          signal:      { color: "#a8ff00", bg: "rgba(168,255,0,.05)",  border: "rgba(168,255,0,.15)",  label: "Notable signal",  Icon: Target },
+                          signal:      { color: "#3b82f6", bg: "rgba(59,130,246,.05)",  border: "rgba(59,130,246,.15)",  label: "Notable signal",  Icon: Target },
                           opportunity: { color: "#60a5fa", bg: "rgba(96,165,250,.05)", border: "rgba(96,165,250,.15)", label: "Your opening",   Icon: TrendingUp },
                           watch:       { color: "#f59e0b", bg: "rgba(245,158,11,.05)", border: "rgba(245,158,11,.15)", label: "Watch closely",  Icon: Eye },
                           action:      { color: "#4ade80", bg: "rgba(74,222,128,.05)", border: "rgba(74,222,128,.15)", label: "Your move",      Icon: Zap },
@@ -1269,8 +1269,8 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                               <div
                                 className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
                                 style={{
-                                  background: "linear-gradient(135deg, rgba(168,255,0,.25), rgba(96,165,250,.1))",
-                                  border: "1px solid rgba(168,255,0,.25)",
+                                  background: "linear-gradient(135deg, rgba(59,130,246,.25), rgba(96,165,250,.1))",
+                                  border: "1px solid rgba(59,130,246,.25)",
                                 }}
                               >
                                 <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
@@ -1280,7 +1280,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                                   <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>Claude</span>
                                   <span
                                     className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                                    style={{ background: "rgba(168,255,0,.1)", color: "var(--accent)" }}
+                                    style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)" }}
                                   >
                                     AI Analyst
                                   </span>
