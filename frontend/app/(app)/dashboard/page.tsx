@@ -38,15 +38,19 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
   const now = Date.now();
   const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
   const twoWeeksAgo = now - 14 * 24 * 60 * 60 * 1000;
+  const dayAgo = now - 24 * 60 * 60 * 1000;
 
   const thisWeekChanges = alertList.filter((e) => new Date(e.detected_at).getTime() > weekAgo).length;
   const prevWeekChanges = alertList.filter((e) => {
     const t = new Date(e.detected_at).getTime();
     return t > twoWeeksAgo && t <= weekAgo;
   }).length;
-  const weeklyDelta = prevWeekChanges === 0
-    ? null
-    : Math.round(((thisWeekChanges - prevWeekChanges) / prevWeekChanges) * 100);
+  const todayChanges = alertList.filter((e) => new Date(e.detected_at).getTime() > dayAgo).length;
+
+  // pct delta vs last week; null when no prev data (fallback to "N today")
+  const weeklyDelta = prevWeekChanges > 0
+    ? Math.round(((thisWeekChanges - prevWeekChanges) / prevWeekChanges) * 100)
+    : null;
 
   const criticals = signalGroups
     .filter((g) => g.tier === "strategic")
@@ -57,24 +61,58 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
     .map((c) => new Date(c.next_scan_at!).getTime())
     .sort((a, b) => a - b)[0];
 
-  const stats = [
-    { icon: Package, label: "Products tracked", value: totalProducts.toLocaleString(), color: "var(--blue)", delta: null },
+  type Stat = {
+    icon: React.ElementType;
+    label: string;
+    value: string;
+    color: string;
+    highlight?: boolean;
+    // delta: pct number, or "today:N" string, or null
+    delta?: number | string | null;
+  };
+
+  const stats: Stat[] = [
+    { icon: Package, label: "Products tracked", value: totalProducts.toLocaleString(), color: "var(--blue)" },
     {
       icon: Activity, label: "Changes this week",
       value: thisWeekChanges.toString(),
       color: thisWeekChanges > 0 ? "var(--accent)" : "var(--muted)",
       highlight: thisWeekChanges > 0,
-      delta: weeklyDelta,
+      delta: weeklyDelta !== null ? weeklyDelta : todayChanges > 0 ? `today:${todayChanges}` : null,
     },
     {
       icon: Zap,
       label: criticals > 0 ? "Active signals" : "All clear",
       value: criticals > 0 ? criticals.toString() : "✓",
       color: criticals > 0 ? "var(--red)" : "var(--emerald)",
-      delta: null,
     },
-    ...(nextScanTs ? [{ icon: Clock, label: "Next auto-scan", value: formatNextScan(new Date(nextScanTs).toISOString()), color: "var(--muted)", delta: null }] : []),
+    ...(nextScanTs ? [{ icon: Clock, label: "Next auto-scan", value: formatNextScan(new Date(nextScanTs).toISOString()), color: "var(--muted)" } as Stat] : []),
   ];
+
+  function renderDelta(delta: number | string | null | undefined) {
+    if (delta === null || delta === undefined) return null;
+    if (typeof delta === "string" && delta.startsWith("today:")) {
+      const n = delta.slice(6);
+      return (
+        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md ml-auto shrink-0"
+          style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)" }}>
+          {n} today
+        </span>
+      );
+    }
+    const pct = delta as number;
+    const up = pct > 0;
+    const down = pct < 0;
+    return (
+      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md ml-auto shrink-0"
+        style={{
+          background: up ? "rgba(249,115,22,.1)" : down ? "rgba(16,185,129,.1)" : "rgba(255,255,255,.06)",
+          color: up ? "#f97316" : down ? "#10b981" : "var(--muted)",
+        }}>
+        {up ? `↑${pct}%` : down ? `↓${Math.abs(pct)}%` : "→"}
+      </span>
+    );
+  }
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
@@ -90,19 +128,11 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${color}18` }}>
             <Icon className="w-4 h-4" style={{ color }} />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-lg font-bold font-mono leading-none" style={{ color: "var(--text)" }}>{value}</p>
-            {delta !== null && delta !== undefined ? (
-              <p className="text-[10px] font-semibold mt-0.5" style={{ color: "var(--muted)" }}>
-                {delta > 0 ? `↑${delta}%` : delta < 0 ? `↓${Math.abs(delta)}%` : "→"} vs last week
-              </p>
-            ) : (
-              <p className="text-[11px] mt-0.5 truncate" style={{ color: "var(--muted)" }}>{label}</p>
-            )}
-            {delta !== null && delta !== undefined && (
-              <p className="text-[10px] truncate" style={{ color: "var(--muted)", opacity: 0.6 }}>{label}</p>
-            )}
+            <p className="text-[11px] mt-0.5 truncate" style={{ color: "var(--muted)" }}>{label}</p>
           </div>
+          {renderDelta(delta)}
         </div>
       ))}
     </div>
@@ -159,23 +189,21 @@ function SignalBreakdown({ groups }: { groups: SignalGroup[] }) {
     .reduce((s, g) => s + g.count, 0);
 
   const items = [
-    { label: "Price", count: price, color: "var(--accent)" },
-    { label: "Launch", count: launch, color: "var(--emerald)" },
-    { label: "Discount", count: discount, color: "#fb923c" },
-    { label: "Stock", count: stock, color: "var(--muted)" },
+    { label: "price changes", count: price, color: "var(--accent)", hex: "#3b82f6" },
+    { label: "launches", count: launch, color: "var(--emerald)", hex: "#10b981" },
+    { label: "discounts", count: discount, color: "#fb923c", hex: "#fb923c" },
+    { label: "stock events", count: stock, color: "var(--muted)", hex: "#64748b" },
   ].filter((i) => i.count > 0);
 
   if (items.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-1.5 mb-3">
-      {items.map(({ label, count, color }) => (
-        <span
-          key={label}
-          className="text-[11px] font-semibold px-2.5 py-1 rounded-lg"
-          style={{ background: `color-mix(in srgb, ${color} 12%, transparent)`, color }}
-        >
-          {label} · {count}
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mb-3 px-0.5">
+      {items.map(({ label, count, hex }) => (
+        <span key={label} className="flex items-center gap-1.5 text-xs">
+          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: hex }} />
+          <span className="font-bold tabular-nums" style={{ color: "var(--text)" }}>{count}</span>
+          <span style={{ color: "var(--muted)" }}>{label}</span>
         </span>
       ))}
     </div>
@@ -489,11 +517,19 @@ function MostActive({ competitorList, signalGroups }: { competitorList: Competit
 // ── Watch list panel ──────────────────────────────────────────────────────
 
 function WatchPanel({ competitorList }: { competitorList: Competitor[] }) {
+  const errorCount = competitorList.filter((c) => c.scan_status === "error").length;
+  const scanningCount = competitorList.filter((c) => c.scan_status === "scanning").length;
   return (
-    <div className="rounded-xl overflow-hidden mb-3" style={{ border: "1px solid var(--border)" }}>
-      <div className="px-4 py-2.5 flex items-center gap-2" style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}>
-        <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--emerald)" }} />
-        <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>Watching</p>
+    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+      <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}>
+        <div className="flex items-center gap-2">
+          <span className={cn("w-1.5 h-1.5 rounded-full", scanningCount > 0 && "animate-pulse")}
+            style={{ background: errorCount > 0 ? "var(--red)" : scanningCount > 0 ? "var(--accent)" : "var(--emerald)" }} />
+          <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>Competitor Health</p>
+        </div>
+        <Link href="/competitors" className="text-[11px] font-medium hover:opacity-80" style={{ color: "var(--accent)" }}>
+          Manage →
+        </Link>
       </div>
       <div style={{ background: "var(--bg-card)" }}>
         {competitorList.map((c) => {
@@ -897,11 +933,11 @@ function DashboardContent() {
 
             {/* ── Right: context panel (desktop only) ── */}
             <div className="hidden lg:block w-64 shrink-0 space-y-3">
+              {/* Competitor health — top of sidebar for immediate visibility */}
+              <WatchPanel competitorList={competitorList} />
+
               {/* 7-day chart */}
               {!alertsLoading && <WeeklyChart alertList={alertList} />}
-
-              {/* Competitor watch list */}
-              <WatchPanel competitorList={competitorList} />
 
               {/* Most active today */}
               {!alertsLoading && <MostActive competitorList={competitorList} signalGroups={signalGroups} />}
@@ -922,8 +958,8 @@ function DashboardContent() {
 
           {/* Mobile: context panel stacked below */}
           <div className="lg:hidden mt-6 space-y-3">
-            {!alertsLoading && <WeeklyChart alertList={alertList} />}
             <WatchPanel competitorList={competitorList} />
+            {!alertsLoading && <WeeklyChart alertList={alertList} />}
             {!alertsLoading && <MostActive competitorList={competitorList} signalGroups={signalGroups} />}
             <PlaybookWidget />
             <DiscoverySuggestions
