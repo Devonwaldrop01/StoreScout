@@ -33,13 +33,21 @@ function formatNextScan(dateStr: string | undefined): string {
 
 // ── Stats bar ─────────────────────────────────────────────────────────────
 
-function StatsBar({ competitorList, signalGroups }: { competitorList: Competitor[]; signalGroups: SignalGroup[] }) {
+function StatsBar({ competitorList, signalGroups, alertList }: { competitorList: Competitor[]; signalGroups: SignalGroup[]; alertList: AlertEvent[] }) {
   const totalProducts = competitorList.reduce((s, c) => s + (c.product_count || 0), 0);
-  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const weeklyChanges = signalGroups.reduce(
-    (s, g) => s + g.events.filter((e) => new Date(e.detected_at).getTime() > weekAgo).length,
-    0
-  );
+  const now = Date.now();
+  const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
+  const twoWeeksAgo = now - 14 * 24 * 60 * 60 * 1000;
+
+  const thisWeekChanges = alertList.filter((e) => new Date(e.detected_at).getTime() > weekAgo).length;
+  const prevWeekChanges = alertList.filter((e) => {
+    const t = new Date(e.detected_at).getTime();
+    return t > twoWeeksAgo && t <= weekAgo;
+  }).length;
+  const weeklyDelta = prevWeekChanges === 0
+    ? null
+    : Math.round(((thisWeekChanges - prevWeekChanges) / prevWeekChanges) * 100);
+
   const criticals = signalGroups
     .filter((g) => g.tier === "strategic")
     .filter((g) => new Date(g.detected_at).getTime() > weekAgo).length;
@@ -50,25 +58,27 @@ function StatsBar({ competitorList, signalGroups }: { competitorList: Competitor
     .sort((a, b) => a - b)[0];
 
   const stats = [
-    { icon: Package, label: "Products tracked", value: totalProducts.toLocaleString(), color: "var(--blue)" },
+    { icon: Package, label: "Products tracked", value: totalProducts.toLocaleString(), color: "var(--blue)", delta: null },
     {
       icon: Activity, label: "Changes this week",
-      value: weeklyChanges.toString(),
-      color: weeklyChanges > 0 ? "var(--accent)" : "var(--muted)",
-      highlight: weeklyChanges > 0,
+      value: thisWeekChanges.toString(),
+      color: thisWeekChanges > 0 ? "var(--accent)" : "var(--muted)",
+      highlight: thisWeekChanges > 0,
+      delta: weeklyDelta,
     },
     {
       icon: Zap,
       label: criticals > 0 ? "Active signals" : "All clear",
       value: criticals > 0 ? criticals.toString() : "✓",
       color: criticals > 0 ? "var(--red)" : "var(--emerald)",
+      delta: null,
     },
-    ...(nextScanTs ? [{ icon: Clock, label: "Next auto-scan", value: formatNextScan(new Date(nextScanTs).toISOString()), color: "var(--muted)" }] : []),
+    ...(nextScanTs ? [{ icon: Clock, label: "Next auto-scan", value: formatNextScan(new Date(nextScanTs).toISOString()), color: "var(--muted)", delta: null }] : []),
   ];
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-      {stats.map(({ icon: Icon, label, value, color, highlight }) => (
+      {stats.map(({ icon: Icon, label, value, color, highlight, delta }) => (
         <div
           key={label}
           className="rounded-xl px-4 py-3 flex items-center gap-3"
@@ -82,7 +92,16 @@ function StatsBar({ competitorList, signalGroups }: { competitorList: Competitor
           </div>
           <div className="min-w-0">
             <p className="text-lg font-bold font-mono leading-none" style={{ color: "var(--text)" }}>{value}</p>
-            <p className="text-[11px] mt-0.5 truncate" style={{ color: "var(--muted)" }}>{label}</p>
+            {delta !== null && delta !== undefined ? (
+              <p className="text-[10px] font-semibold mt-0.5" style={{ color: "var(--muted)" }}>
+                {delta > 0 ? `↑${delta}%` : delta < 0 ? `↓${Math.abs(delta)}%` : "→"} vs last week
+              </p>
+            ) : (
+              <p className="text-[11px] mt-0.5 truncate" style={{ color: "var(--muted)" }}>{label}</p>
+            )}
+            {delta !== null && delta !== undefined && (
+              <p className="text-[10px] truncate" style={{ color: "var(--muted)", opacity: 0.6 }}>{label}</p>
+            )}
           </div>
         </div>
       ))}
@@ -117,6 +136,48 @@ function WeeklyChart({ alertList }: { alertList: AlertEvent[] }) {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+    </div>
+  );
+}
+
+// ── Signal type breakdown ─────────────────────────────────────────────────
+
+function SignalBreakdown({ groups }: { groups: SignalGroup[] }) {
+  if (groups.length === 0) return null;
+
+  const price = groups
+    .filter((g) => ["price_wave", "price_increase", "flash_sale"].includes(g.type))
+    .reduce((s, g) => s + g.count, 0);
+  const launch = groups
+    .filter((g) => g.type === "launch_burst")
+    .reduce((s, g) => s + g.count, 0);
+  const discount = groups
+    .filter((g) => ["discount_wave", "flash_sale"].includes(g.type))
+    .reduce((s, g) => s + g.count, 0);
+  const stock = groups
+    .filter((g) => g.type === "availability_shift")
+    .reduce((s, g) => s + g.count, 0);
+
+  const items = [
+    { label: "Price", count: price, color: "var(--accent)" },
+    { label: "Launch", count: launch, color: "var(--emerald)" },
+    { label: "Discount", count: discount, color: "#fb923c" },
+    { label: "Stock", count: stock, color: "var(--muted)" },
+  ].filter((i) => i.count > 0);
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-1.5 mb-3">
+      {items.map(({ label, count, color }) => (
+        <span
+          key={label}
+          className="text-[11px] font-semibold px-2.5 py-1 rounded-lg"
+          style={{ background: `color-mix(in srgb, ${color} 12%, transparent)`, color }}
+        >
+          {label} · {count}
+        </span>
+      ))}
     </div>
   );
 }
@@ -788,7 +849,7 @@ function DashboardContent() {
       ) : (
         <>
           {/* Stats bar */}
-          {!alertsLoading && <StatsBar competitorList={competitorList} signalGroups={signalGroups} />}
+          {!alertsLoading && <StatsBar competitorList={competitorList} signalGroups={signalGroups} alertList={alertList} />}
 
           {/* Your Move action panel */}
           <ActionPlaybook competitorCount={competitorList.length} />
@@ -815,6 +876,7 @@ function DashboardContent() {
                       Full feed <ArrowRight className="w-3 h-3" />
                     </Link>
                   </div>
+                  <SignalBreakdown groups={signalGroups} />
                   {signalGroups.length === 0 ? (
                     <div
                       className="rounded-xl p-6 text-center"
@@ -838,6 +900,9 @@ function DashboardContent() {
               {/* 7-day chart */}
               {!alertsLoading && <WeeklyChart alertList={alertList} />}
 
+              {/* Competitor watch list */}
+              <WatchPanel competitorList={competitorList} />
+
               {/* Most active today */}
               {!alertsLoading && <MostActive competitorList={competitorList} signalGroups={signalGroups} />}
 
@@ -858,6 +923,7 @@ function DashboardContent() {
           {/* Mobile: context panel stacked below */}
           <div className="lg:hidden mt-6 space-y-3">
             {!alertsLoading && <WeeklyChart alertList={alertList} />}
+            <WatchPanel competitorList={competitorList} />
             {!alertsLoading && <MostActive competitorList={competitorList} signalGroups={signalGroups} />}
             <PlaybookWidget />
             <DiscoverySuggestions
