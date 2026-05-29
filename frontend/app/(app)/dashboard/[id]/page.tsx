@@ -734,7 +734,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-3xl font-bold tracking-tight truncate" style={{ color: "var(--text)" }}>
+            <h1 className="text-xl font-bold truncate" style={{ color: "var(--text)" }}>
               {hostname}
             </h1>
             {snapshot && (

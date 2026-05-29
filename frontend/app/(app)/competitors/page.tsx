@@ -144,7 +144,7 @@ function CompetitorsContent() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-black" style={{ color: "var(--text)" }}>Competitors</h1>
+          <h1 className="text-xl font-bold" style={{ color: "var(--text)" }}>Competitors</h1>
           {subscription && (
             <p className="text-sm mt-0.5" style={{ color: "var(--muted)" }}>
               {myCompetitors.length} / {subscription.limits.max_competitors} tracked

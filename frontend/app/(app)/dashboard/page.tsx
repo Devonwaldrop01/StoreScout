@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import {
-  RefreshCw, TrendingUp, ArrowRight, Sparkles,
+  RefreshCw, ArrowRight, Sparkles,
   Activity, Package, Zap, Clock, X, Lock, Target, Plus, Check,
 } from "lucide-react";
 import Link from "next/link";
@@ -123,24 +123,26 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-      {stats.map(({ icon: Icon, label, value, color, highlight, delta, sparkline }) => (
+      {stats.map(({ icon: Icon, label, value, color, highlight: _highlight, delta, sparkline }) => (
         <div
           key={label}
-          className="rounded-xl px-4 py-3"
+          className="rounded-xl px-4 py-3.5"
           style={{
-            background: highlight ? "rgba(59,130,246,.05)" : "var(--bg3)",
-            border: highlight ? "1px solid rgba(59,130,246,.18)" : "1px solid var(--border)",
+            background: "var(--bg3)",
+            border: "1px solid var(--border)",
           }}
         >
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${color}18` }}>
-              <Icon className="w-4 h-4" style={{ color }} />
-            </div>
+          <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <p className="text-xl font-bold font-mono leading-none" style={{ color: "var(--text)" }}>{value}</p>
-              <p className="text-[11px] mt-1 truncate" style={{ color: "var(--muted)" }}>{label}</p>
+              <p className="text-2xl font-bold font-mono leading-none tracking-tight" style={{ color: "var(--text)" }}>{value}</p>
+              <p className="text-[11px] mt-1.5 truncate" style={{ color: "var(--muted)" }}>{label}</p>
             </div>
-            {renderDelta(delta)}
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: `${color}14` }}>
+                <Icon className="w-3.5 h-3.5" style={{ color }} />
+              </div>
+              {renderDelta(delta)}
+            </div>
           </div>
           {sparkline && sparkline.some((v) => v > 0) && (
             <div className="mt-2 -mx-1">
@@ -178,7 +180,7 @@ function WeeklyChart({ alertList }: { alertList: AlertEvent[] }) {
   return (
     <div className="rounded-xl px-4 pt-3.5 pb-2 mb-3" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>7-day activity</p>
+        <p className="label-caps">7-day activity</p>
         {!hasActivity && <span className="text-[11px]" style={{ color: "var(--muted)" }}>All quiet</span>}
       </div>
       <ResponsiveContainer width="100%" height={48}>
@@ -264,14 +266,13 @@ function PlaybookWidget() {
         className="px-4 py-2.5 flex items-center justify-between"
         style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
       >
-        <div className="flex items-center gap-2">
-          <Zap className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
-          <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>Playbook</p>
-        </div>
+        <p className="label-caps">Playbook</p>
         <Link
           href="/playbook"
-          className="text-[11px] font-medium flex items-center gap-1 hover:opacity-80"
-          style={{ color: "var(--accent)" }}
+          className="text-[11px] font-medium flex items-center gap-1"
+          style={{ color: "var(--muted)" }}
+          onMouseEnter={(e) => { (e.target as HTMLElement).style.color = "var(--text-2)"; }}
+          onMouseLeave={(e) => { (e.target as HTMLElement).style.color = "var(--muted)"; }}
         >
           See all <ArrowRight className="w-3 h-3" />
         </Link>
@@ -550,9 +551,12 @@ function WatchPanel({ competitorList }: { competitorList: Competitor[] }) {
         <div className="flex items-center gap-2">
           <span className={cn("w-1.5 h-1.5 rounded-full", scanningCount > 0 && "animate-pulse")}
             style={{ background: errorCount > 0 ? "var(--red)" : scanningCount > 0 ? "var(--accent)" : "var(--emerald)" }} />
-          <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>Competitor Health</p>
+          <p className="label-caps">Tracked stores</p>
         </div>
-        <Link href="/competitors" className="text-[11px] font-medium hover:opacity-80" style={{ color: "var(--accent)" }}>
+        <Link href="/competitors" className="text-[11px] font-medium" style={{ color: "var(--muted)" }}
+          onMouseEnter={(e) => { (e.target as HTMLElement).style.color = "var(--text-2)"; }}
+          onMouseLeave={(e) => { (e.target as HTMLElement).style.color = "var(--muted)"; }}
+        >
           Manage →
         </Link>
       </div>
@@ -594,21 +598,20 @@ function WatchPanel({ competitorList }: { competitorList: Competitor[] }) {
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] text-center px-6 fade-in">
-      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6" style={{ background: "rgba(59,130,246,.08)", border: "1px solid rgba(59,130,246,.18)" }}>
-        <Target className="w-8 h-8" style={{ color: "var(--accent)" }} />
+    <div className="flex flex-col items-center justify-center min-h-[380px] text-center px-6 fade-in">
+      <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(255,255,255,.04)", border: "1px solid var(--border)" }}>
+        <Target className="w-5 h-5" style={{ color: "var(--muted)" }} />
       </div>
-      <h2 className="text-2xl font-black mb-3" style={{ color: "var(--text)" }}>No competitors tracked yet</h2>
-      <p className="text-sm mb-8 max-w-xs leading-relaxed" style={{ color: "var(--muted)" }}>
-        Add competitors to start monitoring price changes, product launches, and discounts.
+      <h2 className="text-lg font-semibold mb-2" style={{ color: "var(--text)" }}>No competitors tracked yet</h2>
+      <p className="text-sm mb-7 max-w-xs leading-relaxed" style={{ color: "var(--muted)" }}>
+        Add a Shopify store to start monitoring price changes, product launches, and discount campaigns.
       </p>
       <Link
         href="/competitors"
-        className="flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all hover:brightness-110"
+        className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg transition-all"
         style={{ background: "var(--accent)", color: "#ffffff" }}
       >
-        <TrendingUp className="w-4 h-4" />
-        Add your first competitor →
+        Add your first competitor
       </Link>
     </div>
   );
@@ -862,34 +865,26 @@ function DashboardContent() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-black" style={{ color: "var(--text)" }}>Dashboard</h1>
-          <p className="text-sm mt-0.5" style={{ color: "var(--muted)" }}>
+          <h1 className="text-xl font-bold" style={{ color: "var(--text)" }}>Dashboard</h1>
+          <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
             {competitorList.length === 0
               ? "No competitors tracked yet"
-              : `Monitoring ${competitorList.length} store${competitorList.length !== 1 ? "s" : ""}`}
+              : `Tracking ${competitorList.length} competitor${competitorList.length !== 1 ? "s" : ""}`}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          {competitorList.length > 1 && (
-            <button
-              onClick={handleScanAll}
-              disabled={scanningAll || competitorList.some((c) => c.scan_status === "scanning")}
-              className="flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-xl transition-all hover:bg-white/[0.06] disabled:opacity-40"
-              style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
-            >
-              <RefreshCw className={cn("w-4 h-4", scanningAll && "animate-spin")} />
-              {scanningAll ? "Scanning…" : "Scan all"}
-            </button>
-          )}
-          <Link
-            href="/competitors"
-            className="flex items-center gap-2 font-bold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-110"
-            style={{ background: "var(--accent)", color: "#ffffff" }}
+        {competitorList.length > 1 && (
+          <button
+            onClick={handleScanAll}
+            disabled={scanningAll || competitorList.some((c) => c.scan_status === "scanning")}
+            className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg transition-colors disabled:opacity-40"
+            style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,.04)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
           >
-            <Target className="w-4 h-4" />
-            Competitors
-          </Link>
-        </div>
+            <RefreshCw className={cn("w-3.5 h-3.5", scanningAll && "animate-spin")} />
+            {scanningAll ? "Scanning…" : "Refresh all"}
+          </button>
+        )}
       </div>
 
       {competitorList.length === 0 ? (
@@ -924,28 +919,26 @@ function DashboardContent() {
               {/* Signal feed */}
               {!alertsLoading && (
                 <>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <Activity className="w-4 h-4" style={{ color: "var(--accent)" }} />
-                      <p className="text-sm font-bold" style={{ color: "var(--text)" }}>Intelligence Stream</p>
-                    </div>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <p className="label-caps">Recent signals</p>
                     <Link
                       href="/alerts"
-                      className="text-xs font-medium flex items-center gap-1 hover:opacity-80"
-                      style={{ color: "var(--accent)" }}
+                      className="text-[11px] font-medium flex items-center gap-1 transition-colors"
+                      style={{ color: "var(--muted)" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-2)"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = "var(--muted)"; }}
                     >
-                      Full feed <ArrowRight className="w-3 h-3" />
+                      All alerts <ArrowRight className="w-3 h-3" />
                     </Link>
                   </div>
                   <SignalBreakdown groups={signalGroups} />
                   {signalGroups.length === 0 ? (
                     <div
-                      className="rounded-xl p-6 text-center"
-                      style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+                      className="rounded-lg px-4 py-5 text-center"
+                      style={{ border: "1px solid var(--border)" }}
                     >
-                      <p className="text-sm font-medium mb-1" style={{ color: "var(--muted)" }}>All quiet</p>
-                      <p className="text-xs leading-relaxed" style={{ color: "var(--muted)", opacity: 0.7 }}>
-                        We&apos;ll surface signals here the moment a competitor makes a move.
+                      <p className="text-sm" style={{ color: "var(--muted)" }}>
+                        No activity detected recently — we&apos;ll show signals here as competitors make changes.
                       </p>
                     </div>
                   ) : (
@@ -957,7 +950,7 @@ function DashboardContent() {
             </div>
 
             {/* ── Right: context panel (desktop only) ── */}
-            <div className="hidden lg:block w-64 shrink-0 space-y-3">
+            <div className="hidden lg:block w-[260px] shrink-0 space-y-3">
               {/* Competitor health — top of sidebar for immediate visibility */}
               <WatchPanel competitorList={competitorList} />
 
