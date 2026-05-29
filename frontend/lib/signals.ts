@@ -308,17 +308,21 @@ export function generateNarrative(groups: SignalGroup[]): string | null {
 }
 
 // ── Signal type → visual config ──────────────────────────────────────────
+// Semantic color only — color carries meaning, nothing decorative:
+//   red   = competitor cutting prices / discounting (downward, aggressive)
+//   green = competitor raising prices (upward)
+//   slate = informational, no price direction (launches, removals, stock)
 
-export const SIGNAL_CONFIG: Record<SignalType, { color: string; bg: string; border: string; icon: ElementType }> = {
-  launch_burst:       { color: "#3b82f6", bg: "rgba(59,130,246,.08)",   border: "rgba(59,130,246,.25)",   icon: Rocket },
-  flash_sale:         { color: "#ef4444", bg: "rgba(239,68,68,.08)",   border: "rgba(239,68,68,.25)",   icon: Zap },
-  price_wave:         { color: "#60a5fa", bg: "rgba(96,165,250,.08)",  border: "rgba(96,165,250,.25)",  icon: TrendingDown },
-  price_increase:     { color: "#10b981", bg: "rgba(16,185,129,.08)",  border: "rgba(16,185,129,.25)",  icon: TrendingUp },
-  discount_wave:      { color: "#f59e0b", bg: "rgba(245,158,11,.08)",  border: "rgba(245,158,11,.25)",  icon: Tag },
-  product_removals:   { color: "#a78bfa", bg: "rgba(167,139,250,.08)", border: "rgba(167,139,250,.25)", icon: Trash2 },
-  availability_shift: { color: "#22d3ee", bg: "rgba(34,211,238,.08)",  border: "rgba(34,211,238,.25)",  icon: Package },
-  tactical_launches:  { color: "#3b82f6", bg: "rgba(59,130,246,.05)",   border: "rgba(59,130,246,.15)",   icon: Plus },
-  tactical_prices:    { color: "#60a5fa", bg: "rgba(96,165,250,.05)",  border: "rgba(96,165,250,.15)",  icon: ArrowUpDown },
-  tactical_discounts: { color: "#f59e0b", bg: "rgba(245,158,11,.05)",  border: "rgba(245,158,11,.15)",  icon: Percent },
-  single:             { color: "#5a6a82", bg: "transparent",           border: "var(--border)",         icon: Minus },
+export const SIGNAL_CONFIG: Record<SignalType, { color: string; icon: ElementType }> = {
+  launch_burst:       { color: "#7c8aa0", icon: Rocket },        // informational
+  flash_sale:         { color: "#ef4444", icon: Zap },           // price down — aggressive
+  price_wave:         { color: "#ef4444", icon: TrendingDown },  // price down
+  price_increase:     { color: "#10b981", icon: TrendingUp },    // price up
+  discount_wave:      { color: "#ef4444", icon: Tag },           // discounting — price down
+  product_removals:   { color: "#7c8aa0", icon: Trash2 },        // informational
+  availability_shift: { color: "#7c8aa0", icon: Package },       // informational
+  tactical_launches:  { color: "#7c8aa0", icon: Plus },
+  tactical_prices:    { color: "#7c8aa0", icon: ArrowUpDown },   // mixed direction — neutral
+  tactical_discounts: { color: "#ef4444", icon: Percent },       // price down
+  single:             { color: "#5a6a82", icon: Minus },
 };

@@ -133,12 +133,12 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
           }}
         >
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${color}18` }}>
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${color}18` }}>
               <Icon className="w-4 h-4" style={{ color }} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-lg font-bold font-mono leading-none" style={{ color: "var(--text)" }}>{value}</p>
-              <p className="text-[11px] mt-0.5 truncate" style={{ color: "var(--muted)" }}>{label}</p>
+              <p className="text-xl font-bold font-mono leading-none" style={{ color: "var(--text)" }}>{value}</p>
+              <p className="text-[11px] mt-1 truncate" style={{ color: "var(--muted)" }}>{label}</p>
             </div>
             {renderDelta(delta)}
           </div>

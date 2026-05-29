@@ -8,23 +8,17 @@ import { user as userApi, type ActionItem } from "@/lib/api";
 const TYPE_CONFIG = {
   threat: {
     Icon: Shield,
-    color: "var(--red)",
-    bg: "rgba(239,68,68,.07)",
-    border: "rgba(239,68,68,.2)",
+    color: "#ef4444",
     label: "Threat",
   },
   opportunity: {
     Icon: TrendingUp,
-    color: "var(--accent)",
-    bg: "rgba(59,130,246,.07)",
-    border: "rgba(59,130,246,.18)",
+    color: "#10b981",
     label: "Opportunity",
   },
   gap: {
     Icon: Zap,
-    color: "var(--blue)",
-    bg: "rgba(96,165,250,.07)",
-    border: "rgba(96,165,250,.18)",
+    color: "#7c8aa0",
     label: "Gap",
   },
 } as const;
@@ -85,9 +79,7 @@ export function ActionPlaybook({ competitorCount }: Props) {
       <div className="mb-6 fade-in">
         <div className="flex items-center gap-2 mb-3">
           <Zap className="w-4 h-4" style={{ color: "var(--accent)" }} />
-          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-            Your Move
-          </span>
+          <span className="label-caps">Your Move</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[1, 2, 3].map((i) => (
@@ -173,24 +165,26 @@ export function ActionPlaybook({ competitorCount }: Props) {
     );
   }
 
+  const shown = visible.slice(0, 3);
+  // Size the grid to the item count so 1 or 2 items fill the row — no empty columns
+  const gridCols = shown.length === 1 ? "sm:grid-cols-1" : shown.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3";
+
   return (
     <div className="mb-6 fade-up">
       <div className="flex items-center gap-2 mb-3">
         <Zap className="w-4 h-4" style={{ color: "var(--accent)" }} />
-        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-          Your Move
-        </span>
+        <span className="label-caps">Your Move</span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {visible.slice(0, 3).map((item) => {
+      <div className={`grid grid-cols-1 ${gridCols} gap-3`}>
+        {shown.map((item) => {
           const cfg = TYPE_CONFIG[item.type] ?? TYPE_CONFIG.opportunity;
           const { Icon } = cfg;
           return (
             <div
               key={item.id}
-              className="relative rounded-xl p-4 fade-in"
-              style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}
+              className="relative rounded-xl p-4 fade-in flex flex-col"
+              style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: `3px solid ${cfg.color}` }}
             >
               {/* Dismiss */}
               <button
@@ -204,27 +198,9 @@ export function ActionPlaybook({ competitorCount }: Props) {
 
               {/* Header */}
               <div className="flex items-center gap-2 mb-2.5 pr-5">
-                <div
-                  className="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
-                  style={{ background: `${cfg.color}18` }}
-                >
-                  <Icon className="w-3.5 h-3.5" style={{ color: cfg.color }} />
-                </div>
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span
-                    className="text-[10px] font-bold uppercase tracking-wider"
-                    style={{ color: cfg.color }}
-                  >
-                    {cfg.label}
-                  </span>
-                  <span className="text-[10px]" style={{ color: "var(--muted)" }}>·</span>
-                  <span
-                    className="text-[10px] truncate"
-                    style={{ color: "var(--muted)" }}
-                  >
-                    {item.hostname}
-                  </span>
-                </div>
+                <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: cfg.color }} />
+                <span className="text-xs font-bold" style={{ color: cfg.color }}>{cfg.label}</span>
+                <span className="text-[11px] truncate" style={{ color: "var(--muted)" }}>{item.hostname}</span>
               </div>
 
               {/* Headline */}
@@ -233,7 +209,7 @@ export function ActionPlaybook({ competitorCount }: Props) {
               </p>
 
               {/* Action text */}
-              <p className="text-[11px] leading-relaxed mb-3" style={{ color: "var(--muted)" }}>
+              <p className="text-[11px] leading-relaxed mb-3 flex-1" style={{ color: "var(--muted)" }}>
                 {item.action_text}
               </p>
 
@@ -244,8 +220,8 @@ export function ActionPlaybook({ competitorCount }: Props) {
                 </span>
                 <Link
                   href={`/dashboard/${item.competitor_id}?tab=${item.tab}`}
-                  className="flex items-center gap-1 text-[10px] font-semibold transition-opacity hover:opacity-70"
-                  style={{ color: cfg.color }}
+                  className="flex items-center gap-1 text-[11px] font-semibold transition-opacity hover:opacity-70"
+                  style={{ color: "var(--accent)" }}
                 >
                   View <ArrowRight className="w-2.5 h-2.5" />
                 </Link>
