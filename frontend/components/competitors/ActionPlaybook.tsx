@@ -55,7 +55,18 @@ export function ActionPlaybook({ competitorCount }: Props) {
 
   if (competitorCount === 0) return null;
 
-  const visible = items.filter((item) => !dismissed.has(item.id));
+  const visibleRaw = items.filter((item) => !dismissed.has(item.id));
+
+  // Deduplicate: if two items share the same instructional text (same template applied to
+  // different competitors), show only the highest-priority one — prevents "X has stock gaps /
+  // Y has stock gaps" repeating side-by-side.
+  const seenHeadlineKeys = new Set<string>();
+  const visible = visibleRaw.filter((item) => {
+    const key = item.headline.replace(/^[\w.-]+\.[\w]+\s+/, "").toLowerCase().substring(0, 50);
+    if (seenHeadlineKeys.has(key)) return false;
+    seenHeadlineKeys.add(key);
+    return true;
+  });
 
   if (loading) {
     return (

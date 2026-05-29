@@ -62,18 +62,7 @@ export function SignalCard({ group }: Props) {
         </div>
       </div>
 
-      {/* Why this matters */}
-      {group.why_this_matters && (
-        <div
-          className="mx-4 mb-2.5 px-3 py-2.5 rounded-lg text-xs leading-relaxed"
-          style={{ background: "var(--bg3)", color: "var(--muted)" }}
-        >
-          <span className="font-semibold" style={{ color: "var(--text-2)" }}>Why this matters · </span>
-          {group.why_this_matters}
-        </div>
-      )}
-
-      {/* Your move */}
+      {/* Your move — always visible, action-first */}
       {group.your_move && (
         <div
           className="mx-4 mb-2.5 px-3 py-2.5 rounded-lg text-xs leading-relaxed"
@@ -82,6 +71,17 @@ export function SignalCard({ group }: Props) {
           <span className="font-bold" style={{ color: "var(--accent)" }}>▶ Your move · </span>
           <span style={{ color: "var(--text-2)" }}>{group.your_move}</span>
         </div>
+      )}
+
+      {/* Why this matters — context, capped at 2 lines */}
+      {group.why_this_matters && (
+        <p
+          className="mx-4 mb-2.5 px-3 py-2 rounded-lg text-xs leading-relaxed line-clamp-2"
+          style={{ background: "var(--bg3)", color: "var(--muted)" }}
+        >
+          <span className="font-semibold" style={{ color: "var(--text-2)" }}>Why · </span>
+          {group.why_this_matters}
+        </p>
       )}
 
       {/* Metadata row */}
