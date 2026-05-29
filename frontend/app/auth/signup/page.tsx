@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Zap, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
+import { Zap, Eye, EyeOff, CheckCircle2, AlertCircle, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { user as userApi } from "@/lib/api";
 
@@ -18,13 +18,50 @@ function GoogleIcon() {
   );
 }
 
-const AmbienceGlows = () => (
-  <>
-    <div className="fixed pointer-events-none" style={{ top: "-80px", left: "-80px", width: "400px", height: "400px", borderRadius: "50%", background: "rgba(59,130,246,.06)", filter: "blur(80px)", zIndex: 0 }} />
-    <div className="fixed pointer-events-none" style={{ top: "-60px", right: "-60px", width: "300px", height: "300px", borderRadius: "50%", background: "rgba(96,165,250,.04)", filter: "blur(80px)", zIndex: 0 }} />
-    <div className="fixed pointer-events-none" style={{ bottom: "-80px", left: "50%", transform: "translateX(-50%)", width: "350px", height: "350px", borderRadius: "50%", background: "rgba(167,139,250,.04)", filter: "blur(80px)", zIndex: 0 }} />
-  </>
-);
+const BENEFITS = [
+  "Track any Shopify competitor in minutes",
+  "Alerts when they change prices or launch products",
+  "Weekly AI-generated competitive digest",
+  "No credit card required to start",
+];
+
+function BrandPanel() {
+  return (
+    <div className="hidden lg:flex flex-col justify-between p-10 w-[400px] shrink-0 border-r"
+         style={{ background: "var(--bg2)", borderColor: "var(--border)" }}>
+      <div>
+        <div className="flex items-center gap-2.5 mb-12">
+          <div style={{ width: "30px", height: "30px", borderRadius: "8px", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Zap style={{ width: "15px", height: "15px", color: "#fff" }} />
+          </div>
+          <span className="text-base font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
+        </div>
+
+        <h2 className="text-2xl font-bold mb-3 leading-snug" style={{ color: "var(--text)" }}>
+          Always know what your competitors are doing
+        </h2>
+        <p className="text-sm mb-8" style={{ color: "var(--muted)" }}>
+          Monitor pricing, product launches, and discount campaigns across any Shopify store — automatically.
+        </p>
+
+        <ul className="space-y-3">
+          {BENEFITS.map((b) => (
+            <li key={b} className="flex items-start gap-3">
+              <div className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "rgba(16,185,129,.15)" }}>
+                <Check style={{ width: "10px", height: "10px", color: "#10b981" }} />
+              </div>
+              <span className="text-sm" style={{ color: "var(--text-2)" }}>{b}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <p className="text-xs" style={{ color: "var(--muted)" }}>
+        Trusted by Shopify DTC operators tracking 1,000+ stores
+      </p>
+    </div>
+  );
+}
 
 function SignupContent() {
   const router = useRouter();
@@ -84,7 +121,7 @@ function SignupContent() {
 
   const inputStyle = (field: string) => ({
     background: "var(--bg3)",
-    border: `1px solid ${focusedField === field ? "rgba(59,130,246,.4)" : "var(--border)"}`,
+    border: `1px solid ${focusedField === field ? "rgba(59,130,246,.5)" : "var(--border)"}`,
     color: "var(--text)",
     boxShadow: focusedField === field ? "0 0 0 3px rgba(59,130,246,.08)" : "none",
     outline: "none",
@@ -93,69 +130,48 @@ function SignupContent() {
 
   if (done) {
     return (
-      <div className="relative min-h-screen flex items-center justify-center p-4" style={{ background: "var(--bg)" }}>
-        <AmbienceGlows />
-        <div
-          className="relative text-center max-w-sm w-full rounded-2xl p-10"
-          style={{ zIndex: 1, background: "var(--bg2)", border: "1px solid var(--border)", boxShadow: "0 24px 80px rgba(0,0,0,.5)" }}
-        >
-          <div
-            className="mx-auto mb-5 flex items-center justify-center"
-            style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(59,130,246,.1)" }}
-          >
-            <CheckCircle2 style={{ width: "28px", height: "28px", color: "var(--accent)" }} />
+      <div className="min-h-screen flex" style={{ background: "var(--bg)" }}>
+        <BrandPanel />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-sm text-center p-10 rounded-2xl"
+               style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <div className="mx-auto mb-5 w-12 h-12 rounded-full flex items-center justify-center"
+                 style={{ background: "rgba(59,130,246,.1)" }}>
+              <CheckCircle2 style={{ width: "24px", height: "24px", color: "var(--accent)" }} />
+            </div>
+            <h2 className="text-xl font-bold mb-2" style={{ color: "var(--text)" }}>Check your email</h2>
+            <p className="text-sm" style={{ color: "var(--muted)" }}>
+              We&apos;ve sent a confirmation link to{" "}
+              <strong style={{ color: "var(--text)" }}>{email}</strong>. Click it to activate your account.
+            </p>
+            <p className="text-xs mt-5" style={{ color: "var(--muted)" }}>
+              Wrong email?{" "}
+              <button onClick={() => setDone(false)} className="hover:underline" style={{ color: "var(--accent)" }}>
+                Go back
+              </button>
+            </p>
           </div>
-          <h2 className="text-xl font-bold mb-2" style={{ color: "var(--text)" }}>Check your email</h2>
-          <p className="text-sm" style={{ color: "var(--muted)" }}>
-            We&apos;ve sent a confirmation link to{" "}
-            <strong style={{ color: "var(--text)" }}>{email}</strong>. Click it to
-            activate your account and set up your first competitor.
-          </p>
-          <p className="text-xs mt-5" style={{ color: "var(--muted)" }}>
-            Wrong email?{" "}
-            <button onClick={() => setDone(false)} className="hover:underline" style={{ color: "var(--accent)" }}>
-              Go back
-            </button>
-          </p>
         </div>
       </div>
     );
   }
 
-  const features = [
-    "Track any Shopify competitor",
-    "Get alerted on price changes",
-    "Weekly AI competitive digest",
-    "No credit card required",
-  ];
-
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4" style={{ background: "var(--bg)" }}>
-      <AmbienceGlows />
+    <div className="min-h-screen flex" style={{ background: "var(--bg)" }}>
+      <BrandPanel />
 
-      <div className="relative w-full max-w-sm" style={{ zIndex: 1 }}>
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-3 mb-5">
-          <div style={{ width: "32px", height: "32px", borderRadius: "12px", background: "var(--accent)", boxShadow: "0 0 20px rgba(59,130,246,.4)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Zap style={{ width: "16px", height: "16px", color: "#ffffff" }} />
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-sm">
+          {/* Mobile logo */}
+          <div className="flex items-center gap-2.5 mb-8 lg:hidden">
+            <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Zap style={{ width: "14px", height: "14px", color: "#fff" }} />
+            </div>
+            <span className="text-base font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
           </div>
-          <span className="text-xl font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
-        </div>
 
-        {/* Feature list */}
-        <ul className="grid grid-cols-2 gap-x-6 gap-y-2 mb-5 px-1">
-          {features.map((f) => (
-            <li key={f} className="flex items-center gap-1.5">
-              <span className="text-xs font-bold" style={{ color: "var(--accent)" }}>✓</span>
-              <span className="text-xs" style={{ color: "var(--muted)" }}>{f}</span>
-            </li>
-          ))}
-        </ul>
-
-        {/* Card */}
-        <div className="rounded-2xl p-7" style={{ background: "var(--bg2)", border: "1px solid var(--border)", boxShadow: "0 24px 80px rgba(0,0,0,.5)" }}>
-          <h1 className="text-2xl font-bold mb-1 text-center" style={{ color: "var(--text)" }}>Start free</h1>
-          <p className="text-xs text-center mb-6" style={{ color: "var(--muted)" }}>No credit card required · Cancel anytime</p>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--text)" }}>Create your account</h1>
+          <p className="text-sm mb-7" style={{ color: "var(--muted)" }}>Free to start — no credit card required</p>
 
           {/* Google */}
           <button
@@ -164,8 +180,8 @@ function SignupContent() {
             disabled={googleLoading || loading}
             className="w-full flex items-center justify-center gap-3 py-3 rounded-xl font-medium text-sm mb-4 transition-all disabled:opacity-50"
             style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,.06)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "var(--bg3)")}
+            onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,.15)")}
+            onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
           >
             {googleLoading ? (
               <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--muted)" }} />
@@ -183,7 +199,7 @@ function SignupContent() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--muted)" }}>Email</label>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--text-2)" }}>Email</label>
               <input
                 type="email"
                 value={email}
@@ -199,7 +215,7 @@ function SignupContent() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--muted)" }}>Password</label>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--text-2)" }}>Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -226,7 +242,7 @@ function SignupContent() {
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm" style={{ background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.2)", color: "#f87171" }}>
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm" style={{ background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.2)", color: "#f87171" }}>
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </div>
@@ -235,14 +251,16 @@ function SignupContent() {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full font-bold py-3 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
-              style={{ background: "var(--accent)", color: "#ffffff" }}
+              className="w-full font-semibold py-3 rounded-xl transition-all disabled:opacity-50"
+              style={{ background: "var(--accent)", color: "#fff" }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
             >
               {loading ? "Creating account…" : "Create free account"}
             </button>
           </form>
 
-          <p className="text-sm text-center mt-5" style={{ color: "var(--muted)" }}>
+          <p className="text-sm text-center mt-6" style={{ color: "var(--muted)" }}>
             Already have an account?{" "}
             <Link href="/auth/login" className="hover:underline" style={{ color: "var(--accent)" }}>
               Sign in
