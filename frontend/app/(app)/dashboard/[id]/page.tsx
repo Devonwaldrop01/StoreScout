@@ -472,7 +472,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const [rescanning,     setRescanning]     = useState(false);
   const [scanPending,    setScanPending]    = useState(true);
   const [brief,          setBrief]          = useState<BriefData | null | false>(null);
-  const [briefDismissed, setBriefDismissed] = useState(false);
+  const [briefExpanded, setBriefExpanded] = useState(false);
   const [copied,         setCopied]         = useState(false);
   const [exporting,      setExporting]      = useState(false);
   const [upgradeOpen,    setUpgradeOpen]    = useState(false);
@@ -567,7 +567,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   }, [aiStatus, id]);
 
   useEffect(() => {
-    if (scanPending || brief !== null || briefDismissed) return;
+    if (scanPending || brief !== null) return;
     let cancelled = false;
     let attempts  = 0;
     const tryFetch = async () => {
@@ -576,9 +576,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
       try {
         const r     = await api.brief(id);
         if (cancelled) return;
-        const stored = typeof window !== "undefined" ? sessionStorage.getItem(`brief_${id}`) : null;
-        if (stored === r.data.id) { setBriefDismissed(true); setBrief(false); }
-        else setBrief(r.data);
+        setBrief(r.data);
       } catch (e: unknown) {
         const status = (e as { status?: number })?.status;
         if (status === 404 && !cancelled) setTimeout(tryFetch, 5000);
@@ -587,7 +585,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
     };
     tryFetch();
     return () => { cancelled = true; };
-  }, [id, scanPending, brief, briefDismissed]);
+  }, [id, scanPending, brief]);
 
   const isScanning = competitor?.scan_status === "scanning" || competitor?.scan_status === "pending";
 
@@ -601,10 +599,6 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
     await api.rescan(id).catch(() => { setRescanning(false); });
   }
 
-  function handleDismissBrief() {
-    if (brief && typeof window !== "undefined") sessionStorage.setItem(`brief_${id}`, (brief as BriefData).id);
-    setBriefDismissed(true);
-  }
 
   function handleShare() {
     if (!snapshot) return;
@@ -832,19 +826,48 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
           </div>
         )
 
-      ) : brief && !briefDismissed ? (
-        /* Intelligence brief banner */
-        <IntelligenceBrief
-          hostname={hostname}
-          cards={(() => {
-            try { return (JSON.parse((brief as BriefData).summary_text) as { cards: BriefCard[] }).cards; }
-            catch { return []; }
-          })()}
-          onDismiss={handleDismissBrief}
-        />
-
       ) : (
         <>
+          {/* ── Scout Brief — collapsed chip by default, expands inline ────── */}
+          {brief && (
+            briefExpanded ? (
+              <div className="mb-6">
+                <IntelligenceBrief
+                  hostname={hostname}
+                  cards={(() => {
+                    try { return (JSON.parse((brief as BriefData).summary_text) as { cards: BriefCard[] }).cards; }
+                    catch { return []; }
+                  })()}
+                  onDismiss={() => setBriefExpanded(false)}
+                />
+              </div>
+            ) : (
+              <button
+                onClick={() => setBriefExpanded(true)}
+                className="w-full flex items-center gap-2.5 mb-6 px-4 py-3 rounded-xl transition-all text-left"
+                style={{ background: "rgba(59,130,246,.05)", border: "1px solid rgba(59,130,246,.16)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(59,130,246,.08)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(59,130,246,.05)"; }}
+              >
+                <div
+                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                  style={{ background: "rgba(59,130,246,.12)" }}
+                >
+                  <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Scout Brief ready</p>
+                  <p className="text-xs" style={{ color: "var(--muted)" }}>
+                    AI read of {hostname} — the signals that matter and your move
+                  </p>
+                </div>
+                <span className="shrink-0 text-xs font-semibold flex items-center gap-1" style={{ color: "var(--accent)" }}>
+                  View <ChevronDown className="w-3.5 h-3.5" />
+                </span>
+              </button>
+            )
+          )}
+
           {/* ── Tab navigation ────────────────────────────────────────────── */}
           <TabBar tabs={MAIN_TABS} active={tab} onChange={setTab} />
 
