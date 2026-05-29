@@ -8,7 +8,7 @@ import UpgradeModal from "@/components/UpgradeModal";
 const TYPE_CONFIG = {
   opportunity: { Icon: TrendingUp, color: "#60a5fa", label: "Opportunity", bg: "rgba(96,165,250,.08)", border: "rgba(96,165,250,.2)" },
   signal:      { Icon: Target,     color: "#3b82f6", label: "Signal",      bg: "rgba(59,130,246,.08)",  border: "rgba(59,130,246,.2)"  },
-  watch:       { Icon: Eye,        color: "#facc15", label: "Watch",       bg: "rgba(250,204,21,.08)", border: "rgba(250,204,21,.2)"  },
+  watch:       { Icon: Eye,        color: "var(--amber)", label: "Watch",       bg: "rgba(245,158,11,.08)", border: "rgba(245,158,11,.2)"  },
 } as const;
 
 function getStoredDismissals(competitorId: string): string[] {

@@ -162,8 +162,8 @@ export function FeedbackWidget() {
                         <Star
                           className="w-7 h-7"
                           style={{
-                            color: s <= activeStars ? "#facc15" : "var(--border)",
-                            fill: s <= activeStars ? "#facc15" : "transparent",
+                            color: s <= activeStars ? "var(--amber)" : "var(--border)",
+                            fill: s <= activeStars ? "var(--amber)" : "transparent",
                             transition: "color .1s, fill .1s",
                           }}
                         />

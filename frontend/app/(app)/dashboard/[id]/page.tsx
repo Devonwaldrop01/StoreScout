@@ -29,6 +29,7 @@ import ComparisonTab from "@/components/competitors/ComparisonTab";
 import { IntelligenceBrief } from "@/components/competitors/IntelligenceBrief";
 import { QuickWins } from "@/components/competitors/QuickWins";
 import UpgradeModal from "@/components/UpgradeModal";
+import { LockedValueCard } from "@/components/ui";
 import { type BriefData, type BriefCard } from "@/lib/api";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -81,11 +82,11 @@ function KpiCard({
               className="text-[10px] font-bold px-1.5 py-0.5 rounded-md"
               style={{
                 background: deltaUp
-                  ? "rgba(16,185,129,.15)"
+                  ? "rgba(34,197,94,.15)"
                   : deltaDown
                   ? "rgba(239,68,68,.15)"
                   : "rgba(255,255,255,.06)",
-                color: deltaUp ? "#10b981" : deltaDown ? "#ef4444" : "var(--muted)",
+                color: deltaUp ? "var(--emerald)" : deltaDown ? "#ef4444" : "var(--muted)",
               }}
             >
               {deltaUp ? "↑" : deltaDown ? "↓" : "→"} {badgeText}
@@ -199,7 +200,7 @@ function positioningDescription(label: string, score: number): string {
 }
 
 function PositioningBar({ label, score, scoreLabel }: { label: string; score: number; scoreLabel: string }) {
-  const color = score < 34 ? "#60a5fa" : score < 67 ? "#facc15" : "#fb923c";
+  const color = score < 34 ? "#60a5fa" : score < 67 ? "var(--amber)" : "var(--amber)";
   const desc  = positioningDescription(label, score);
   return (
     <div
@@ -222,9 +223,9 @@ function PositioningBar({ label, score, scoreLabel }: { label: string; score: nu
 function TopAlertBanner({ change, hostname, onViewAll }: { change: ChangeEvent; hostname?: string; onViewAll: () => void }) {
   const isCritical = change.severity === "critical";
   // Orange for "urgent intelligence" — red is reserved for errors/broken states
-  const color      = isCritical ? "#f97316" : "#fbbf24";
-  const bg         = isCritical ? "rgba(249,115,22,.06)" : "rgba(251,191,36,.06)";
-  const border     = isCritical ? "rgba(249,115,22,.22)" : "rgba(251,191,36,.22)";
+  const color      = isCritical ? "var(--amber)" : "var(--amber)";
+  const bg         = isCritical ? "rgba(245,158,11,.06)" : "rgba(245,158,11,.04)";
+  const border     = isCritical ? "rgba(245,158,11,.22)" : "rgba(245,158,11,.16)";
   const old_v      = change.old_value || {};
   const new_v      = change.new_value || {};
   const action     = getChangeAction(change.change_type, change.delta_pct, change.severity, hostname);
@@ -304,7 +305,7 @@ function ChangeRow({ change, hostname }: { change: ChangeEvent; hostname?: strin
     detail = inStock === false ? "went out of stock" : inStock === true ? "back in stock" : "";
   }
   const borderColor =
-    change.severity === "critical" ? "#f97316" :
+    change.severity === "critical" ? "var(--amber)" :
     change.severity === "warning"  ? "var(--amber)" : "transparent";
 
   const action = getChangeAction(change.change_type, change.delta_pct, change.severity, hostname);
@@ -891,7 +892,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   <KpiCard
                     label="Promo Rate"
                     value={formatPct(discounts.discounted_pct as number)}
-                    accent="#fb923c"
+                    accent="var(--amber)"
                     delta={deltaPromo}
                     sparkline={sparkPromo}
                     insight={`${formatPct(discounts.discounted_pct as number)} of their catalog is currently discounted — average discount depth is ${formatPct(discounts.avg_discount_pct as number)}. A high promo rate can signal pricing pressure or clearance cycles.`}
@@ -1179,24 +1180,12 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
                       {/* Free tier gate */}
                       {isFree && hiddenCount > 0 && (
-                        <div
-                          className="px-5 py-5 flex flex-col items-center gap-3 border-t"
-                          style={{ borderColor: "var(--border)", background: "var(--bg3)" }}
-                        >
-                          <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                            +{hiddenCount} more change{hiddenCount !== 1 ? "s" : ""} detected
-                          </p>
-                          <p className="text-xs text-center max-w-xs" style={{ color: "var(--muted)" }}>
-                            Upgrade to Pro to see the full change history and get alerts within 15 minutes of detection.
-                          </p>
-                          <button
-                            onClick={() => setUpgradeOpen(true)}
-                            className="flex items-center gap-1.5 text-xs font-bold px-5 py-2.5 rounded-xl transition-all hover:brightness-110"
-                            style={{ background: "var(--accent)", color: "#ffffff" }}
-                          >
-                            <Zap className="w-3.5 h-3.5" />
-                            Unlock full history — $29/mo
-                          </button>
+                        <div className="p-4" style={{ borderTop: "1px solid var(--border)" }}>
+                          <LockedValueCard
+                            title={`+${hiddenCount} more change${hiddenCount !== 1 ? "s" : ""} detected`}
+                            teaser="Unlock 90-day change history and get alerts within 15 minutes of detection."
+                            plan="pro"
+                          />
                         </div>
                       )}
                     </div>

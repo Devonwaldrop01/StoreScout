@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useMemo } from "react";
 import {
-  Lock, Trophy, Sparkles, ExternalLink, Copy, Check,
+  Trophy, Sparkles, ExternalLink, Copy, Check,
   ChevronDown, ChevronUp, Flame,
 } from "lucide-react";
+import { LockedValueCard } from "@/components/ui";
 import {
   competitors as api,
   type WinningProductsResponse,
@@ -27,9 +28,9 @@ function getVerdict(score: number): {
   };
   if (score >= 50) return {
     label: "Watch First",
-    color: "#facc15",
-    bg: "rgba(250,204,21,0.10)",
-    border: "rgba(250,204,21,0.22)",
+    color: "var(--amber)",
+    bg: "rgba(245,158,11,0.10)",
+    border: "rgba(245,158,11,0.22)",
   };
   return {
     label: "Skip",
@@ -199,7 +200,7 @@ function WinnerRow({ product, rank, expanded, onToggle, isLast }: WinnerRowProps
                 ) : (
                   <span
                     className="text-[10px] px-1.5 py-0.5 rounded-md font-medium"
-                    style={{ background: "rgba(52,211,153,0.10)", color: "#34d399" }}
+                    style={{ background: "rgba(34,197,94,0.10)", color: "var(--emerald)" }}
                   >
                     Full price
                   </span>
@@ -323,7 +324,7 @@ function LaunchRow({ p, isLast }: { p: NewestProduct; isLast: boolean }) {
 
   let ageBadgeStyle: React.CSSProperties;
   if (isVeryNew)   ageBadgeStyle = { background: "rgba(59,130,246,0.15)", color: "#3b82f6" };
-  else if (isNew)  ageBadgeStyle = { background: "rgba(251,191,36,0.10)", color: "#fbbf24" };
+  else if (isNew)  ageBadgeStyle = { background: "rgba(245,158,11,0.10)", color: "var(--amber)" };
   else             ageBadgeStyle = { background: "transparent", color: "var(--muted)" };
 
   return (
@@ -357,7 +358,7 @@ function LaunchRow({ p, isLast }: { p: NewestProduct; isLast: boolean }) {
           {deepVars && (
             <span
               className="text-[10px] px-1.5 py-0.5 rounded-md font-medium"
-              style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa" }}
+              style={{ background: "rgba(59,130,246,0.12)", color: "var(--accent)" }}
             >
               {p.variants_count} variants
             </span>
@@ -471,7 +472,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
             )}
             {worthCount > 0 && watchCount > 0 && <span> · </span>}
             {watchCount > 0 && (
-              <span style={{ color: "#facc15" }}>{watchCount} to watch</span>
+              <span style={{ color: "var(--amber)" }}>{watchCount} to watch</span>
             )}
             {worthCount === 0 && watchCount === 0 && (
               <span>{data.products.length} products scored</span>
@@ -603,27 +604,12 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
             )}
 
             {data.locked && data.locked_count > 0 && (
-              <div
-                className="px-5 py-5 text-center"
-                style={{
-                  background: "rgba(59,130,246,.04)",
-                  borderTop: "1px dashed rgba(59,130,246,.2)",
-                }}
-              >
-                <Lock className="w-4 h-4 mx-auto mb-2" style={{ color: "#3b82f6" }} />
-                <p className="text-sm font-medium mb-0.5" style={{ color: "var(--text)" }}>
-                  {data.locked_count} more products scored
-                </p>
-                <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
-                  Unlock the full ranking with Worth Testing / Watch First verdicts.
-                </p>
-                <button
-                  onClick={() => setUpgradeOpen(true)}
-                  className="font-semibold text-sm px-5 py-2 rounded-xl transition-all hover:brightness-110"
-                  style={{ background: "#3b82f6", color: "#060d18" }}
-                >
-                  Unlock all products
-                </button>
+              <div className="p-4" style={{ borderTop: "1px solid var(--border)" }}>
+                <LockedValueCard
+                  title={`${data.locked_count} more products scored`}
+                  teaser="Unlock the full ranking with Worth Testing / Watch First verdicts across every product."
+                  plan="pro"
+                />
               </div>
             )}
           </div>
@@ -635,7 +621,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
               Worth Testing — score ≥ 75
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full inline-block" style={{ background: "#facc15" }} />
+              <span className="w-2 h-2 rounded-full inline-block" style={{ background: "var(--amber)" }} />
               Watch First — score 50–74
             </span>
             <span className="flex items-center gap-1.5">
@@ -651,11 +637,11 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
         <div className="space-y-3">
           <div
             className="rounded-xl px-4 py-3 flex items-start gap-3"
-            style={{ background: "rgba(96,165,250,0.07)", border: "1px solid rgba(96,165,250,0.15)" }}
+            style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
           >
-            <Sparkles className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#60a5fa" }} />
+            <Sparkles className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "var(--muted)" }} />
             <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
-              <span style={{ color: "#e2e8f0" }}>A recent launch with deep variants signals real conviction.</span>
+              <span style={{ color: "var(--text-2)" }}>A recent launch with deep variants signals real conviction.</span>
               {" "}If it stays listed past 30 days, the category has demand. New launches from established brands
               are worth adding to your product research list before they build momentum.
             </p>
@@ -684,7 +670,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
               ≤ 7 days
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full inline-block" style={{ background: "#fbbf24" }} />
+              <span className="w-2 h-2 rounded-full inline-block" style={{ background: "var(--amber)" }} />
               8–30 days
             </span>
             <span className="flex items-center gap-1.5">

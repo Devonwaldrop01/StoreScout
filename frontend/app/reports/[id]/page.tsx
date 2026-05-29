@@ -45,24 +45,24 @@ const BRIEF_CARD_STYLES = {
     Icon: TrendingUp,
   },
   opportunity: {
-    color: "#60a5fa",
-    bg: "rgba(96,165,250,.06)",
-    border: "rgba(96,165,250,.18)",
+    color: "#3b82f6",
+    bg: "rgba(59,130,246,.06)",
+    border: "rgba(59,130,246,.18)",
     label: "Opportunity",
     Icon: Target,
   },
   watch: {
-    color: "#facc15",
-    bg: "rgba(250,204,21,.06)",
-    border: "rgba(250,204,21,.18)",
-    label: "Watch",
+    color: "#f59e0b",
+    bg: "rgba(245,158,11,.06)",
+    border: "rgba(245,158,11,.18)",
+    label: "Watch Closely",
     Icon: Eye,
   },
   action: {
-    color: "#4ade80",
-    bg: "rgba(74,222,128,.06)",
-    border: "rgba(74,222,128,.18)",
-    label: "Your move",
+    color: "#22c55e",
+    bg: "rgba(34,197,94,.06)",
+    border: "rgba(34,197,94,.18)",
+    label: "Your Move",
     Icon: Zap,
   },
 } as const;
@@ -198,7 +198,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
             className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-xl transition-colors hover:bg-white/10"
             style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
           >
-            {copied ? <Check className="w-3.5 h-3.5" style={{ color: "#4ade80" }} /> : <Share2 className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5" style={{ color: "var(--emerald)" }} /> : <Share2 className="w-3.5 h-3.5" />}
             {copied ? "Copied!" : "Share"}
           </button>
           {isLoggedIn ? (

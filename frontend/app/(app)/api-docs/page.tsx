@@ -21,7 +21,7 @@ function CodeBlock({ code, language = "bash" }: { code: string; language?: strin
         <button
           onClick={copy}
           className="flex items-center gap-1 text-xs font-medium transition-colors"
-          style={{ color: copied ? "#4ade80" : "var(--muted)" }}
+          style={{ color: copied ? "var(--emerald)" : "var(--muted)" }}
         >
           {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
           {copied ? "Copied" : "Copy"}
@@ -72,10 +72,10 @@ function Endpoint({
   response: string;
 }) {
   const methodColor: Record<string, string> = {
-    GET: "#4ade80",
-    POST: "#60a5fa",
+    GET: "var(--emerald)",
+    POST: "var(--accent)",
     DELETE: "#f87171",
-    PUT: "#fbbf24",
+    PUT: "var(--amber)",
   };
 
   return (
@@ -415,7 +415,7 @@ export default function ApiDocsPage() {
               <span>Feature not available on your current plan</span>
             </div>
             <div className="flex gap-3">
-              <code className="font-mono text-xs shrink-0" style={{ color: "#fbbf24" }}>429</code>
+              <code className="font-mono text-xs shrink-0" style={{ color: "var(--amber)" }}>429</code>
               <span>Rate limit exceeded — check <code className="font-mono text-xs">Retry-After</code> header</span>
             </div>
             <div className="flex gap-3">

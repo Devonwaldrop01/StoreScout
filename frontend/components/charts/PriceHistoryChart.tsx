@@ -65,7 +65,7 @@ function Chart({ chartData, showBFLine = false }: {
           />
         )}
         <Line yAxisId="price" type="monotone" dataKey="median_price" stroke="#3b82f6" strokeWidth={2} dot={false} connectNulls />
-        <Line yAxisId="pct" type="monotone" dataKey="promo_rate" stroke="#facc15" strokeWidth={2} dot={false} connectNulls />
+        <Line yAxisId="pct" type="monotone" dataKey="promo_rate" stroke="#f59e0b" strokeWidth={2} dot={false} connectNulls />
       </LineChart>
     </ResponsiveContainer>
   );
@@ -127,7 +127,7 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
             Median price
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block w-3 h-0.5 rounded" style={{ background: "#facc15" }} />
+            <span className="inline-block w-3 h-0.5 rounded" style={{ background: "var(--amber)" }} />
             Promo rate
           </span>
         </div>
@@ -158,7 +158,7 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
             Median price
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block w-3 h-0.5 rounded" style={{ background: "#facc15" }} />
+            <span className="inline-block w-3 h-0.5 rounded" style={{ background: "var(--amber)" }} />
             Promo rate
           </span>
         </div>

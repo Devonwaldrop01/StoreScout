@@ -638,7 +638,7 @@ function SettingsContent() {
                     <ul className="space-y-1.5 mb-5 mt-3 flex-1">
                       {plan.features.map((f) => (
                         <li key={f} className="flex items-center gap-2 text-sm">
-                          <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#10b981" }} />
+                          <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--emerald)" }} />
                           <span style={{ color: "var(--muted)" }}>{f}</span>
                         </li>
                       ))}
@@ -682,7 +682,7 @@ function SettingsContent() {
             </div>
             <span
               className="text-xs font-medium transition-opacity"
-              style={{ color: "#4ade80", opacity: saved ? 1 : 0 }}
+              style={{ color: "var(--emerald)", opacity: saved ? 1 : 0 }}
             >
               ✓ Saved
             </span>
@@ -750,7 +750,7 @@ function SettingsContent() {
             </p>
 
             {googleConnectedBanner && (
-              <div className="flex items-center gap-2 px-4 py-3 rounded-xl mb-3 text-sm font-medium" style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", color: "#10b981" }}>
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl mb-3 text-sm font-medium" style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", color: "var(--emerald)" }}>
                 <Check className="w-4 h-4 shrink-0" /> Google account connected. Select your property below.
               </div>
             )}
@@ -823,7 +823,7 @@ function SettingsContent() {
           {/* Klaviyo */}
           <div className="mb-6 pb-6" style={{ borderBottom: "1px solid var(--border)" }}>
             <div className="flex items-center gap-2 mb-2">
-              <Zap className="w-4 h-4" style={{ color: "#f97316" }} />
+              <Zap className="w-4 h-4" style={{ color: "var(--amber)" }} />
               <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Klaviyo</p>
               {klaviyoStatus?.connected && (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(59,130,246,0.1)", color: "#3b82f6" }}>
@@ -937,7 +937,7 @@ function SettingsContent() {
               </button>
             </div>
             {slackTestResult && (
-              <p className="text-xs mt-2" style={{ color: slackTestResult === "ok" ? "#4ade80" : "#f87171" }}>
+              <p className="text-xs mt-2" style={{ color: slackTestResult === "ok" ? "var(--emerald)" : "#f87171" }}>
                 {slackTestResult === "ok" ? "✓ Test message sent to Slack" : "✗ Failed — check the webhook URL"}
               </p>
             )}
@@ -987,7 +987,7 @@ function SettingsContent() {
               </button>
             </div>
             {webhookTestResult && (
-              <p className="text-xs mt-2" style={{ color: webhookTestResult === "ok" ? "#4ade80" : "#f87171" }}>
+              <p className="text-xs mt-2" style={{ color: webhookTestResult === "ok" ? "var(--emerald)" : "#f87171" }}>
                 {webhookTestResult === "ok" ? "✓ Test payload delivered" : "✗ Failed — check the URL and try again"}
               </p>
             )}
@@ -1023,7 +1023,7 @@ function SettingsContent() {
                     <p className="text-sm font-medium" style={{ color: "var(--text)" }}>{m.invited_email}</p>
                     <p
                       className="text-xs mt-0.5 capitalize"
-                      style={{ color: m.status === "active" ? "#4ade80" : "var(--muted)" }}
+                      style={{ color: m.status === "active" ? "var(--emerald)" : "var(--muted)" }}
                     >
                       {m.status === "active" ? "Active" : "Invite pending"}
                     </p>
@@ -1063,7 +1063,7 @@ function SettingsContent() {
                 </button>
               </div>
               {inviteError && <p className="text-xs mt-2" style={{ color: "#f87171" }}>{inviteError}</p>}
-              {inviteSent && <p className="text-xs mt-2" style={{ color: "#4ade80" }}>✓ Invite sent</p>}
+              {inviteSent && <p className="text-xs mt-2" style={{ color: "var(--emerald)" }}>✓ Invite sent</p>}
             </div>
           )}
         </section>
@@ -1141,8 +1141,8 @@ function SettingsContent() {
                   onClick={handleCopyKey}
                   className="shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all"
                   style={{
-                    background: copiedKey ? "rgba(74,222,128,.15)" : "var(--bg3)",
-                    color: copiedKey ? "#4ade80" : "var(--muted)",
+                    background: copiedKey ? "rgba(34,197,94,.15)" : "var(--bg3)",
+                    color: copiedKey ? "var(--emerald)" : "var(--muted)",
                     border: "1px solid var(--border)",
                   }}
                 >

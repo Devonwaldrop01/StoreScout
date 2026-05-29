@@ -121,7 +121,7 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
                 className="w-full px-4 py-3 rounded-xl text-sm font-mono pr-10 outline-none transition-all"
                 style={{
                   background: "var(--bg3)",
-                  border: `1px solid ${storeStatus === "ok" ? "#22c55e" : storeStatus === "error" ? "#f87171" : storeStatus === "restricted" ? "#facc15" : "var(--border)"}`,
+                  border: `1px solid ${storeStatus === "ok" ? "#22c55e" : storeStatus === "error" ? "#f87171" : storeStatus === "restricted" ? "var(--amber)" : "var(--border)"}`,
                   color: "var(--text)",
                 }}
                 autoFocus
