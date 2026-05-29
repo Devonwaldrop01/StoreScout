@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { user as userApi, type PlaybookPlay, type PlaybookResponse, type DraftAsset } from "@/lib/api";
 import UpgradeModal from "@/components/UpgradeModal";
+import { EmptyStateCard, LockedValueCard } from "@/components/ui";
 
 // ── persistence ───────────────────────────────────────────────────────────────
 
@@ -61,9 +62,9 @@ function computeStreak(ts: Record<string, string>): number {
 // ── section meta ──────────────────────────────────────────────────────────────
 
 const SECTION_META = {
-  act_now:   { label: "Act Now",                    desc: "Time-sensitive — competitor moves that need a response today",                                         color: "#f87171", dot: "#ef4444" },
-  right_now: { label: "Your Position Right Now",    desc: "Derived from your competitors' current catalog — no new move needed to trigger these",                color: "#60a5fa", dot: "#3b82f6" },
-  this_week: { label: "Moves to Make This Week",    desc: "Opportunities that are open now and compound the longer you wait",                                    color: "#3b82f6", dot: "#3b82f6" },
+  act_now:   { label: "Act Now",      desc: "Time-sensitive — competitor moves that need a response today",                           color: "#f87171", dot: "#ef4444" },
+  right_now: { label: "Right Now",    desc: "Derived from your competitors' current catalog — no new move needed to trigger these",   color: "#60a5fa", dot: "#3b82f6" },
+  this_week: { label: "This Week",    desc: "Opportunities that are open now and compound the longer you wait",                      color: "#3b82f6", dot: "#3b82f6" },
 } as const;
 
 const SECTION_ORDER = ["act_now", "right_now", "this_week"] as const;
@@ -483,9 +484,9 @@ function PlayCard({ play, done, onDone, onOpen, isLast }: {
   onOpen: () => void;
   isLast: boolean;
 }) {
-  const Icon = typeIcon(play.type);
-  const dlStyle = deadlineStyle(play.deadline);
-  const sectionColor = SECTION_META[play.section as keyof typeof SECTION_META]?.color ?? "#94a3b8";
+  const sectionMeta = SECTION_META[play.section as keyof typeof SECTION_META];
+  const sectionColor = sectionMeta?.color ?? "#94a3b8";
+  const why = play.detail?.why;
 
   return (
     <div
@@ -493,64 +494,50 @@ function PlayCard({ play, done, onDone, onOpen, isLast }: {
       style={{
         opacity: done ? 0.5 : 1,
         ...(!isLast ? { borderBottom: "1px solid var(--border)" } : {}),
+        borderLeft: `3px solid ${sectionColor}`,
       }}
     >
       <div className="px-4 py-4">
-        <div className="flex items-start gap-3">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-            style={{ background: `${sectionColor}12` }}
+        <div className="flex items-start justify-between gap-2 mb-1.5">
+          <span className="label-caps" style={{ color: sectionColor }}>{sectionMeta?.label ?? play.deadline}</span>
+          <span className="text-[10px]" style={{ color: "var(--muted)" }}>{play.hostname}</span>
+        </div>
+
+        <p className="text-sm font-semibold leading-snug mb-1.5 line-clamp-2" style={{ color: "var(--text)" }}>
+          {play.headline}
+        </p>
+
+        {why && (
+          <p className="text-xs leading-relaxed mb-1.5 italic line-clamp-2" style={{ color: "var(--text-2)" }}>
+            {why.slice(0, 100)}{why.length > 100 ? "…" : ""}
+          </p>
+        )}
+
+        <p className="text-xs leading-relaxed mb-3 line-clamp-2" style={{ color: "var(--muted)" }}>
+          {play.action}
+        </p>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onDone}
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
+            style={{
+              background: done ? "rgba(34,197,94,0.10)" : "rgba(255,255,255,0.06)",
+              color: done ? "var(--emerald)" : "var(--muted)",
+              border: done ? "1px solid rgba(34,197,94,0.2)" : "1px solid transparent",
+            }}
           >
-            <Icon className="w-4 h-4" style={{ color: sectionColor }} />
-          </div>
+            <Check className="w-3 h-3" />
+            {done ? "Done" : "Mark done"}
+          </button>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2 mb-1">
-              <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text)" }}>
-                {play.headline}
-              </p>
-              <span
-                className="text-[10px] font-bold px-2 py-1 rounded-md whitespace-nowrap shrink-0"
-                style={{ background: dlStyle.bg, color: dlStyle.color }}
-              >
-                {play.deadline}
-              </span>
-            </div>
-
-            <span
-              className="text-[10px] font-medium px-1.5 py-0.5 rounded-md"
-              style={{ background: "rgba(255,255,255,0.05)", color: "var(--muted)" }}
-            >
-              {play.hostname}
-            </span>
-
-            <p className="text-sm leading-relaxed mt-2.5 line-clamp-2" style={{ color: "var(--muted)" }}>
-              {play.action}
-            </p>
-
-            <div className="flex items-center gap-3 mt-3">
-              <button
-                onClick={onDone}
-                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
-                style={{
-                  background: done ? "rgba(16,185,129,0.10)" : "rgba(255,255,255,0.06)",
-                  color: done ? "#10b981" : "var(--muted)",
-                  border: done ? "1px solid rgba(16,185,129,0.2)" : "1px solid transparent",
-                }}
-              >
-                <Check className="w-3 h-3" />
-                {done ? "Done" : "Mark done"}
-              </button>
-
-              <button
-                onClick={onOpen}
-                className="flex items-center gap-1 text-xs font-semibold ml-auto transition-opacity hover:opacity-70"
-                style={{ color: sectionColor }}
-              >
-                See more <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
+          <button
+            onClick={onOpen}
+            className="flex items-center gap-1 text-xs font-semibold ml-auto transition-opacity hover:opacity-70"
+            style={{ color: sectionColor }}
+          >
+            Details <ArrowRight className="w-3 h-3" />
+          </button>
         </div>
       </div>
     </div>
@@ -762,11 +749,11 @@ export default function PlaybookPage() {
               )}
               {data.ai_source && (
                 <span
-                  className="text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"
-                  style={{ background: "rgba(96,165,250,0.12)", color: "#60a5fa" }}
+                  className="label-caps px-2 py-1 rounded-full flex items-center gap-1"
+                  style={{ background: "rgba(59,130,246,0.10)", color: "var(--accent)" }}
                 >
                   <Zap className="w-3 h-3" />
-                  AI-powered
+                  Scout AI
                 </span>
               )}
             </div>
@@ -845,21 +832,17 @@ export default function PlaybookPage() {
           <>
             {activePlays.length === 0 ? (
               plays.length === 0 && data.ai_generating ? (
-                <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-                  <RefreshCw className="w-6 h-6 mx-auto mb-3 animate-spin" style={{ color: "#60a5fa" }} />
-                  <p className="font-semibold mb-1" style={{ color: "var(--text)" }}>Generating your first AI-powered plays</p>
-                  <p className="text-sm" style={{ color: "var(--muted)" }}>
-                    Claude is reviewing your {data.competitor_count} competitor{data.competitor_count !== 1 ? "s" : ""}. Refresh in ~30 seconds.
-                  </p>
-                </div>
+                <EmptyStateCard
+                  icon={RefreshCw}
+                  headline="Building your playbook"
+                  body={`Scout AI is reviewing your ${data.competitor_count} competitor${data.competitor_count !== 1 ? "s" : ""}. This takes ~30 seconds.`}
+                />
               ) : (
-                <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-                  <Check className="w-6 h-6 mx-auto mb-2" style={{ color: "#10b981" }} />
-                  <p className="font-semibold mb-1" style={{ color: "var(--text)" }}>All caught up</p>
-                  <p className="text-sm" style={{ color: "var(--muted)" }}>
-                    Everything&apos;s marked done. Your playbook refreshes after each competitor scan.
-                  </p>
-                </div>
+                <EmptyStateCard
+                  icon={Check}
+                  headline="All caught up"
+                  body="Everything's marked done. Your playbook refreshes after each competitor scan."
+                />
               )
             ) : (
               <div className="space-y-8">
@@ -878,31 +861,11 @@ export default function PlaybookPage() {
 
             {/* Locked CTA */}
             {data.locked && (
-              <div
-                className="rounded-2xl px-5 py-5 flex items-center justify-between gap-4"
-                style={{ background: "rgba(59,130,246,.06)", border: "1px dashed rgba(59,130,246,.3)" }}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(59,130,246,.08)", border: "1px solid rgba(59,130,246,.14)" }}>
-                    <Lock className="w-4 h-4" style={{ color: "var(--accent)" }} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                      {data.locked_count ?? "More"} plays locked
-                    </p>
-                    <p className="text-xs" style={{ color: "var(--muted)" }}>
-                      Upgrade to Pro to see every move across all your competitors.
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setUpgradeOpen(true)}
-                  className="shrink-0 text-xs font-bold px-4 py-2 rounded-xl transition-all hover:brightness-110"
-                  style={{ background: "var(--accent)", color: "#ffffff" }}
-                >
-                  Upgrade
-                </button>
-              </div>
+              <LockedValueCard
+                title={`${data.locked_count ?? "More"} plays locked`}
+                teaser="Pro subscribers see every move across all competitors, updated after each scan."
+                plan="pro"
+              />
             )}
           </>
         )}

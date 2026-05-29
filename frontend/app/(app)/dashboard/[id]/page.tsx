@@ -687,13 +687,13 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   ];
 
   const CATALOG_TABS: { id: CatalogSub; label: string }[] = [
-    { id: "winning", label: "Winning Products" },
-    { id: "gaps",    label: "Gaps to Fill" },
+    { id: "winning", label: "Products Worth Testing" },
+    { id: "gaps",    label: "Market Openings" },
   ];
 
   const INTEL_TABS: { id: IntelSub; label: string }[] = [
-    { id: "ai",      label: "AI Insights" },
-    { id: "brand",   label: "Brand Profile" },
+    { id: "ai",      label: "Scout Brief" },
+    { id: "brand",   label: "Brand Intel" },
     { id: "compare", label: "vs You" },
   ];
 
@@ -918,7 +918,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                       className="flex items-center justify-between px-5 py-3.5"
                       style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
                     >
-                      <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Recent changes</h3>
+                      <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Latest Signals</h3>
                       <button
                         onClick={() => setTab("changes")}
                         className="text-xs font-medium hover:underline"
@@ -968,7 +968,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   >
                     <div className="flex items-center gap-2 mb-4">
                       <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
-                      <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Key insights</h3>
+                      <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>What This Means</h3>
                     </div>
                     <ul className="space-y-3">
                       {takeaways.map((t, i) => (
@@ -1226,9 +1226,9 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                             <div className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(59,130,246,.1)", border: "1px solid rgba(59,130,246,.2)" }}>
                               <Sparkles className="w-6 h-6" style={{ color: "var(--accent)" }} />
                             </div>
-                            <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text)" }}>AI Strategic Summary</h3>
+                            <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text)" }}>Scout Brief</h3>
                             <p className="text-sm mb-6 max-w-sm mx-auto leading-relaxed" style={{ color: "var(--muted)" }}>
-                              Get weekly AI-generated insights on {hostname}&apos;s pricing strategy, launch patterns, and competitive positioning.
+                              Get Scout AI's weekly analysis of {hostname}: pricing strategy, launch patterns, and competitive positioning.
                             </p>
                             <div className="mb-6 text-left rounded-xl p-4 space-y-2 select-none pointer-events-none" style={{ background: "var(--bg3)" }}>
                               {["44.6% catalog discounted signals aggressive positioning", "Minimal 1 product monthly launch velocity", "Budget positioning with $32 median price"].map((line, i) => (
@@ -1244,7 +1244,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                               style={{ background: "var(--accent)", color: "#ffffff" }}
                             >
                               <Zap className="w-4 h-4 inline mr-1.5 -mt-0.5" />
-                              Unlock AI Insights — from $29/mo
+                              Unlock Scout Brief — from $29/mo
                             </button>
                           </div>
                         </div>
@@ -1331,41 +1331,33 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                         if (!aiSummary) return null;
                         const parsed = parseSummaryText(aiSummary.summary_text);
                         const INSIGHT_CONFIG = {
-                          signal:      { color: "#3b82f6", bg: "rgba(59,130,246,.05)",  border: "rgba(59,130,246,.15)",  label: "Notable signal",  Icon: Target },
-                          opportunity: { color: "#60a5fa", bg: "rgba(96,165,250,.05)", border: "rgba(96,165,250,.15)", label: "Your opening",   Icon: TrendingUp },
-                          watch:       { color: "#f59e0b", bg: "rgba(245,158,11,.05)", border: "rgba(245,158,11,.15)", label: "Watch closely",  Icon: Eye },
-                          action:      { color: "#4ade80", bg: "rgba(74,222,128,.05)", border: "rgba(74,222,128,.15)", label: "Your move",      Icon: Zap },
+                          signal:      { color: "#3b82f6", label: "Notable Signal",  Icon: Target },
+                          opportunity: { color: "#3b82f6", label: "Opportunity",     Icon: TrendingUp },
+                          watch:       { color: "#f59e0b", label: "Watch Closely",   Icon: Eye },
+                          action:      { color: "#22C55E", label: "Your Move",       Icon: Zap },
                         } as const;
                         type InsightKey = keyof typeof INSIGHT_CONFIG;
                         return (
                           <div className="space-y-5">
 
-                            {/* AI analyst header */}
+                            {/* Scout Brief header */}
                             <div className="flex items-center gap-3 pb-4" style={{ borderBottom: "1px solid var(--border)" }}>
                               <div
-                                className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-                                style={{
-                                  background: "linear-gradient(135deg, rgba(59,130,246,.25), rgba(96,165,250,.1))",
-                                  border: "1px solid rgba(59,130,246,.25)",
-                                }}
+                                className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                                style={{ background: "rgba(59,130,246,.10)", border: "1px solid var(--border)" }}
                               >
                                 <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>Claude</span>
-                                  <span
-                                    className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                                    style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)" }}
-                                  >
-                                    AI Analyst
-                                  </span>
+                                  <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>Scout Brief</span>
+                                  <span className="label-caps" style={{ color: "var(--accent)" }}>Scout AI</span>
                                   <span className="text-xs" style={{ color: "var(--muted)" }}>
                                     {formatRelativeTime(aiSummary.generated_at)}
                                   </span>
                                 </div>
                                 <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
-                                  Strategic analysis of {hostname}
+                                  Scout Brief · {hostname}
                                 </p>
                               </div>
                               <button
@@ -1389,14 +1381,14 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                                       key={i}
                                       className="rounded-xl p-4"
                                       style={{
-                                        background: cfg.bg,
-                                        border: `1px solid ${cfg.border}`,
+                                        background: "var(--bg-card)",
+                                        border: "1px solid var(--border)",
                                         borderLeft: `3px solid ${cfg.color}`,
                                       }}
                                     >
                                       <div className="flex items-center gap-2 mb-2.5">
                                         <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: cfg.color }} />
-                                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: cfg.color }}>
+                                        <span className="label-caps" style={{ color: cfg.color }}>
                                           {cfg.label}
                                         </span>
                                       </div>
@@ -1410,28 +1402,29 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                                   );
                                 })}
 
-                                {/* Action card — bottom, elevated */}
+                                {/* Action card — bottom, prominent */}
                                 {parsed.cards.find((c) => c.type === "action") && (() => {
                                   const ac = parsed.cards.find((c) => c.type === "action")!;
+                                  const actionCfg = INSIGHT_CONFIG.action;
                                   return (
                                     <div
                                       className="rounded-xl p-5 mt-1"
                                       style={{
-                                        background: "rgba(74,222,128,.06)",
-                                        border: "1px solid rgba(74,222,128,.22)",
-                                        boxShadow: "0 0 24px rgba(74,222,128,.06)",
+                                        background: "var(--bg-card)",
+                                        border: "1px solid var(--border)",
+                                        borderLeft: `3px solid ${actionCfg.color}`,
                                       }}
                                     >
                                       <div className="flex items-start gap-3">
                                         <div
                                           className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                                          style={{ background: "rgba(74,222,128,.15)" }}
+                                          style={{ background: `${actionCfg.color}14` }}
                                         >
-                                          <Zap className="w-4 h-4" style={{ color: "#4ade80" }} />
+                                          <Zap className="w-4 h-4" style={{ color: actionCfg.color }} />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#4ade80" }}>
-                                            ▶ Your move
+                                          <span className="label-caps" style={{ color: actionCfg.color }}>
+                                            Your Move
                                           </span>
                                           <h4 className="font-semibold text-sm mt-1 mb-1.5 leading-snug" style={{ color: "var(--text)" }}>
                                             {ac.headline}
