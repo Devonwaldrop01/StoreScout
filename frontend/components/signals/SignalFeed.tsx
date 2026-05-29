@@ -20,17 +20,17 @@ function TacticalGroup({ group }: { group: SignalGroup }) {
   return (
     <div
       className="rounded-xl overflow-hidden mb-2"
-      style={{ border: `1px solid ${cfg.border}`, background: cfg.bg }}
+      style={{ border: "1px solid var(--border)", borderLeft: `3px solid ${cfg.color}`, background: "var(--bg-card)" }}
     >
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-black/10 transition-colors"
+        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.02] transition-colors"
       >
         <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: cfg.color }} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span
-              className="text-[10px] font-bold uppercase tracking-wider shrink-0"
+              className="text-xs font-semibold shrink-0"
               style={{ color: cfg.color }}
             >
               {group.headline}
@@ -65,7 +65,7 @@ function TacticalGroup({ group }: { group: SignalGroup }) {
       </button>
 
       {expanded && (
-        <div style={{ borderTop: `1px solid ${cfg.border}` }}>
+        <div style={{ borderTop: "1px solid var(--border)" }}>
           {group.events.map((event) => (
             <RawEventRow key={event.id} event={event} indent />
           ))}
@@ -194,10 +194,7 @@ export function SignalFeed({ groups, loading = false, maxRaw = 12 }: Props) {
 
       {/* Raw events */}
       {raw.length > 0 && (tactical.length > 0 || strategic.length > 0) && (
-        <div
-          className="text-[11px] font-semibold uppercase tracking-widest mt-3 mb-2 px-1"
-          style={{ color: "var(--muted)" }}
-        >
+        <div className="label-caps mt-3 mb-2 px-1">
           Individual events
         </div>
       )}

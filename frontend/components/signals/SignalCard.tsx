@@ -17,35 +17,37 @@ export function SignalCard({ group }: Props) {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden mb-3 fade-up"
+      className="rounded-xl overflow-hidden mb-2.5 fade-up"
       style={{
-        background: cfg.bg,
-        border: `1px solid ${cfg.border}`,
-        boxShadow: `0 0 0 1px ${cfg.border.replace(".25", ".06")}, 0 8px 32px rgba(0,0,0,.3)`,
+        background: "var(--bg-card)",
+        border: "1px solid var(--border)",
+        borderLeft: `3px solid ${cfg.color}`,
       }}
     >
       {/* Header row */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-3">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <Icon className="w-4 h-4 shrink-0" style={{ color: cfg.color }} />
+      <div className="flex items-start justify-between px-4 pt-3.5 pb-2.5">
+        <div className="flex items-start gap-2.5 min-w-0">
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+            style={{ background: `${cfg.color}1a` }}
+          >
+            <Icon className="w-3.5 h-3.5" style={{ color: cfg.color }} />
+          </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span
-                className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full shrink-0"
-                style={{ background: `${cfg.color}20`, color: cfg.color }}
-              >
+              <span className="text-xs font-bold shrink-0" style={{ color: cfg.color }}>
                 {group.headline}
               </span>
-              <span className="text-xs font-semibold truncate" style={{ color: "var(--text)" }}>
+              <span className="text-xs truncate" style={{ color: "var(--muted)" }}>
                 {group.hostname}
               </span>
             </div>
-            <p className="text-sm font-bold mt-1 leading-snug" style={{ color: "var(--text)" }}>
+            <p className="text-sm font-semibold mt-0.5 leading-snug" style={{ color: "var(--text)" }}>
               {group.label}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3 shrink-0 ml-3">
+        <div className="flex items-center gap-2 shrink-0 ml-3">
           <span className="text-[11px]" style={{ color: "var(--muted)" }}>
             {formatRelativeTime(group.detected_at)}
           </span>
@@ -63,10 +65,10 @@ export function SignalCard({ group }: Props) {
       {/* Why this matters */}
       {group.why_this_matters && (
         <div
-          className="mx-5 mb-3 px-3.5 py-3 rounded-xl text-xs leading-relaxed"
-          style={{ background: "rgba(0,0,0,.2)", color: "var(--text-2)" }}
+          className="mx-4 mb-2.5 px-3 py-2.5 rounded-lg text-xs leading-relaxed"
+          style={{ background: "var(--bg3)", color: "var(--muted)" }}
         >
-          <span className="font-semibold" style={{ color: cfg.color }}>Why this matters · </span>
+          <span className="font-semibold" style={{ color: "var(--text-2)" }}>Why this matters · </span>
           {group.why_this_matters}
         </div>
       )}
@@ -74,42 +76,41 @@ export function SignalCard({ group }: Props) {
       {/* Your move */}
       {group.your_move && (
         <div
-          className="mx-5 mb-3 px-3.5 py-3 rounded-xl text-xs leading-relaxed"
-          style={{ background: "rgba(59,130,246,.05)", border: "1px solid rgba(59,130,246,.18)" }}
+          className="mx-4 mb-2.5 px-3 py-2.5 rounded-lg text-xs leading-relaxed"
+          style={{ background: "rgba(59,130,246,.06)", border: "1px solid rgba(59,130,246,.16)" }}
         >
-          <span className="font-bold" style={{ color: "#3b82f6" }}>▶ Your move · </span>
+          <span className="font-bold" style={{ color: "var(--accent)" }}>▶ Your move · </span>
           <span style={{ color: "var(--text-2)" }}>{group.your_move}</span>
         </div>
       )}
 
       {/* Metadata row */}
-      <div className="flex items-center gap-4 px-5 pb-3">
-        {group.avg_price != null && (
-          <span className="text-xs" style={{ color: "var(--muted)" }}>
-            Avg price: <span className="font-mono font-semibold" style={{ color: "var(--text-2)" }}>{formatPrice(group.avg_price)}</span>
-          </span>
-        )}
-        {group.avg_delta_pct != null && group.type !== "launch_burst" && (
-          <span className="text-xs" style={{ color: "var(--muted)" }}>
-            Avg change: <span className="font-mono font-semibold" style={{ color: (group.avg_delta_pct ?? 0) < 0 ? "var(--red)" : "var(--emerald)" }}>{formatDelta(group.avg_delta_pct)}</span>
-          </span>
-        )}
-        {group.category_hint && (
-          <span
-            className="text-[11px] px-2 py-0.5 rounded-full"
-            style={{ background: `${cfg.color}15`, color: cfg.color }}
-          >
-            {group.category_hint}
-          </span>
-        )}
-      </div>
+      {(group.avg_price != null || (group.avg_delta_pct != null && group.type !== "launch_burst") || group.category_hint) && (
+        <div className="flex items-center gap-4 px-4 pb-3">
+          {group.avg_price != null && (
+            <span className="text-xs" style={{ color: "var(--muted)" }}>
+              Avg price: <span className="font-mono font-semibold" style={{ color: "var(--text-2)" }}>{formatPrice(group.avg_price)}</span>
+            </span>
+          )}
+          {group.avg_delta_pct != null && group.type !== "launch_burst" && (
+            <span className="text-xs" style={{ color: "var(--muted)" }}>
+              Avg change: <span className="font-mono font-semibold" style={{ color: (group.avg_delta_pct ?? 0) < 0 ? "var(--red)" : "var(--emerald)" }}>{formatDelta(group.avg_delta_pct)}</span>
+            </span>
+          )}
+          {group.category_hint && (
+            <span className="text-[11px] px-2 py-0.5 rounded-md" style={{ background: "var(--bg3)", color: "var(--muted)" }}>
+              {group.category_hint}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Expandable product list */}
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center justify-between px-5 py-2.5 text-xs font-semibold transition-colors hover:bg-black/10"
+        className="w-full flex items-center justify-between px-4 py-2.5 text-xs font-medium transition-colors hover:bg-white/[0.02]"
         style={{
-          borderTop: `1px solid ${cfg.border}`,
+          borderTop: "1px solid var(--border)",
           color: "var(--muted)",
         }}
       >
@@ -118,7 +119,7 @@ export function SignalCard({ group }: Props) {
       </button>
 
       {expanded && (
-        <div style={{ borderTop: `1px solid ${cfg.border}` }}>
+        <div style={{ borderTop: "1px solid var(--border)" }}>
           {group.events.flatMap((event) => {
             const nv = (event.new_value || {}) as Record<string, unknown>;
             const ov = (event.old_value || {}) as Record<string, unknown>;
@@ -134,7 +135,7 @@ export function SignalCard({ group }: Props) {
                 <div
                   key={`${event.id}-${i}`}
                   className="flex items-start justify-between gap-3 px-5 py-2.5 border-b"
-                  style={{ borderColor: cfg.border }}
+                  style={{ borderColor: "var(--border)" }}
                 >
                   <p className="text-xs font-medium truncate" style={{ color: "var(--text-2)" }}>
                     {item.title || item.handle || "Product"}
@@ -166,7 +167,7 @@ export function SignalCard({ group }: Props) {
               <div
                 key={event.id}
                 className="flex items-start justify-between gap-3 px-5 py-2.5 border-b last:border-0"
-                style={{ borderColor: cfg.border }}
+                style={{ borderColor: "var(--border)" }}
               >
                 <div className="min-w-0">
                   <p className="text-xs font-medium truncate" style={{ color: "var(--text-2)" }}>

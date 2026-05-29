@@ -90,7 +90,7 @@ export default function AlertsPage() {
           {!loading && strategicCount > 0 && (
             <span
               className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
-              style={{ background: "rgba(239,68,68,.15)", color: "var(--red)" }}
+              style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)" }}
             >
               {strategicCount} strategic signal{strategicCount !== 1 ? "s" : ""}
             </span>
@@ -161,9 +161,9 @@ export default function AlertsPage() {
         <div
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl mb-5 text-xs font-medium fade-up-1"
           style={{
-            background: strategicCount > 0 ? "rgba(239,68,68,.08)" : "var(--bg3)",
-            border: `1px solid ${strategicCount > 0 ? "rgba(239,68,68,.2)" : "var(--border)"}`,
-            color: strategicCount > 0 ? "var(--red)" : "var(--text-2)",
+            background: "var(--bg3)",
+            border: "1px solid var(--border)",
+            color: "var(--text-2)",
           }}
         >
           {narrative}
