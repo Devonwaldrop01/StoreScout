@@ -11,15 +11,16 @@ function getGreeting(): string {
 }
 
 interface ScoutBriefProps {
+  firstName?: string | null;
   competitorCount: number;
-  productCount: number;
+  lastScan?: string;
   nextScan?: string;
   onRefresh?: () => void;
   refreshing?: boolean;
 }
 
-export function ScoutBrief({ competitorCount, productCount, nextScan, onRefresh, refreshing }: ScoutBriefProps) {
-  const greeting = getGreeting();
+export function ScoutBrief({ firstName, competitorCount, lastScan, nextScan, onRefresh, refreshing }: ScoutBriefProps) {
+  const greeting = firstName ? `${getGreeting()}, ${firstName}` : getGreeting();
 
   return (
     <div
@@ -33,12 +34,12 @@ export function ScoutBrief({ competitorCount, productCount, nextScan, onRefresh,
             <span className="font-semibold tabular-nums" style={{ color: "var(--text-2)" }}>{competitorCount}</span>
             {" "}competitor{competitorCount !== 1 ? "s" : ""} tracked
           </span>
-          {productCount > 0 && (
+          {lastScan && (
             <>
               <span className="text-xs" style={{ color: "var(--border)" }}>·</span>
               <span className="text-xs" style={{ color: "var(--muted)" }}>
-                <span className="font-semibold tabular-nums" style={{ color: "var(--text-2)" }}>{productCount.toLocaleString()}</span>
-                {" "}products
+                last scan{" "}
+                <span className="font-semibold" style={{ color: "var(--text-2)" }}>{lastScan}</span>
               </span>
             </>
           )}
@@ -46,7 +47,7 @@ export function ScoutBrief({ competitorCount, productCount, nextScan, onRefresh,
             <>
               <span className="text-xs" style={{ color: "var(--border)" }}>·</span>
               <span className="text-xs" style={{ color: "var(--muted)" }}>
-                next scan in{" "}
+                next in{" "}
                 <span className="font-semibold" style={{ color: "var(--text-2)" }}>{nextScan}</span>
               </span>
             </>
