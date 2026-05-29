@@ -823,7 +823,7 @@ function SettingsContent() {
           {/* Klaviyo */}
           <div className="mb-6 pb-6" style={{ borderBottom: "1px solid var(--border)" }}>
             <div className="flex items-center gap-2 mb-2">
-              <Zap className="w-4 h-4" style={{ color: "#f97316" }} />
+              <Zap className="w-4 h-4" style={{ color: "var(--amber)" }} />
               <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Klaviyo</p>
               {klaviyoStatus?.connected && (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(59,130,246,0.1)", color: "#3b82f6" }}>

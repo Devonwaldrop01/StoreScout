@@ -71,8 +71,8 @@ const SECTION_ORDER = ["act_now", "right_now", "this_week"] as const;
 
 const DEADLINE_STYLE: Record<string, { bg: string; color: string }> = {
   "right now":  { bg: "rgba(239,68,68,0.12)",  color: "#f87171" },
-  "today":      { bg: "rgba(239,68,68,0.10)",  color: "#fb923c" },
-  "within 48h": { bg: "rgba(251,146,60,0.10)", color: "#fb923c" },
+  "today":      { bg: "rgba(245,158,11,0.10)",  color: "var(--amber)" },
+  "within 48h": { bg: "rgba(245,158,11,0.10)", color: "var(--amber)" },
   "this week":  { bg: "rgba(59,130,246,0.08)",  color: "#3b82f6" },
 };
 
@@ -740,7 +740,7 @@ export default function PlaybookPage() {
               {streak > 0 && (
                 <span
                   className="text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"
-                  style={{ background: "rgba(251,146,60,0.12)", color: "#fb923c" }}
+                  style={{ background: "rgba(245,158,11,0.12)", color: "var(--amber)" }}
                   title="Consecutive days you've executed at least one play"
                 >
                   <Flame className="w-3 h-3" />

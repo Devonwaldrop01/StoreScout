@@ -11,7 +11,7 @@ function verdictStyle(v: string): { color: string; bg: string; label: string; Ic
   switch (v) {
     case "winning": return { color: "#3b82f6", bg: "rgba(59,130,246,.12)", label: "Ahead", Icon: TrendingUp };
     case "losing": return { color: "#f87171", bg: "rgba(248,113,113,.12)", label: "Behind", Icon: TrendingDown };
-    case "matched": return { color: "#facc15", bg: "rgba(250,204,21,.12)", label: "Matched", Icon: Minus };
+    case "matched": return { color: "var(--amber)", bg: "rgba(245,158,11,.12)", label: "Matched", Icon: Minus };
     default: return { color: "#60a5fa", bg: "rgba(96,165,250,.12)", label: "Strategic", Icon: Target };
   }
 }
@@ -175,7 +175,7 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
 
   const verdict = data.overall.verdict || "";
   const overallColor = verdict.includes("ahead") ? "#3b82f6"
-    : verdict.includes("behind") ? "#f87171" : "#facc15";
+    : verdict.includes("behind") ? "#f87171" : "var(--amber)";
 
   return (
     <div className="space-y-5">
@@ -199,7 +199,7 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
           <div className="flex gap-3 text-xs font-mono">
             <span style={{ color: "#3b82f6" }}>{data.overall.score.winning}W</span>
             <span style={{ color: "#f87171" }}>{data.overall.score.losing}L</span>
-            <span style={{ color: "#facc15" }}>{data.overall.score.matched}M</span>
+            <span style={{ color: "var(--amber)" }}>{data.overall.score.matched}M</span>
           </div>
         </div>
         <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{data.overall.summary}</p>
@@ -233,7 +233,7 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {data.match_strategy.match_these.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "#facc15" }}>Match them on</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--amber)" }}>Match them on</p>
                     <ul className="space-y-1">
                       {data.match_strategy.match_these.map((m) => (
                         <li key={m} className="text-sm capitalize" style={{ color: "var(--muted)" }}>· {m}</li>

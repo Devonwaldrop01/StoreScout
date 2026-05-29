@@ -292,13 +292,13 @@ function CompetitorMonitor({
   const topSignalCfg = topStrategic ? SIGNAL_CONFIG[topStrategic.type] : null;
 
   // Orange for "urgent intelligence", not red (red = errors/broken)
-  const ALERT_COLOR = "#f97316";
+  const ALERT_COLOR = "var(--amber)";
   const statusColor = isScanning ? "var(--accent)" : hasStrategic ? ALERT_COLOR : "var(--emerald)";
 
   const borderColor = isSelected
     ? "rgba(59,130,246,.3)"
     : hasStrategic
-    ? "rgba(249,115,22,.2)"
+    ? "rgba(245,158,11,.2)"
     : "var(--border)";
 
   const rowBody = (

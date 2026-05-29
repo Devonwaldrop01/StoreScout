@@ -20,7 +20,7 @@ function Signal({ active, label }: { active: boolean; label: string }) {
 }
 
 function ScoreBar({ score }: { score: number }) {
-  const color = score >= 70 ? "#3b82f6" : score >= 40 ? "#facc15" : "#94a3b8";
+  const color = score >= 70 ? "#3b82f6" : score >= 40 ? "var(--amber)" : "#94a3b8";
   const label = score >= 70 ? "High investment" : score >= 40 ? "Moderate" : "Low investment";
   return (
     <div>
