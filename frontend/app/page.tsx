@@ -316,14 +316,14 @@ function IntelligenceBriefPreview() {
         </div>
 
         {/* Action card — full width */}
-        <div className="rounded-xl p-5 mb-5" style={{ background: "rgba(74,222,128,.07)", border: "2px solid rgba(74,222,128,.18)" }}>
+        <div className="rounded-xl p-5 mb-5" style={{ background: "rgba(34,197,94,.07)", border: "2px solid rgba(34,197,94,.18)" }}>
           <div className="flex items-start gap-4">
             <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-              style={{ background: "rgba(74,222,128,.18)" }}>
-              <Zap className="w-4 h-4" style={{ color: "#4ade80" }} />
+              style={{ background: "rgba(34,197,94,.18)" }}>
+              <Zap className="w-4 h-4" style={{ color: "#22c55e" }} />
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#4ade80" }}>Your move</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#22c55e" }}>Your move</span>
               <h4 className="font-bold text-sm leading-snug mt-1 mb-1.5" style={{ color: "#eef3fa" }}>
                 Launch email campaign targeting Gymshark&apos;s discount-fatigued audience this week
               </h4>

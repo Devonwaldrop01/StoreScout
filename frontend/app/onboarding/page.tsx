@@ -380,8 +380,8 @@ function OnboardingContent() {
   }
 
   const urlBorderColor =
-    storeStatus === "ok" ? "#22c55e"
-    : storeStatus === "restricted" ? "#facc15"
+    storeStatus === "ok" ? "var(--emerald)"
+    : storeStatus === "restricted" ? "var(--amber)"
     : storeStatus === "error" ? "#f87171"
     : "var(--border)";
 
@@ -718,7 +718,7 @@ function OnboardingContent() {
                   className="flex items-center gap-2 px-3 py-2 rounded-lg mb-6"
                   style={{ background: "rgba(59,130,246,.07)", border: "1px solid rgba(59,130,246,.15)" }}
                 >
-                  <div className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ background: scanDone ? "#22c55e" : "var(--green)" }} />
+                  <div className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ background: scanDone ? "var(--emerald)" : "var(--green)" }} />
                   <p className="text-xs font-medium" style={{ color: "var(--green)" }}>
                     {scanDone ? `Scan complete — ${trackedHostname}` : `Scan running — ${trackedHostname}`}
                   </p>
@@ -889,7 +889,7 @@ function OnboardingContent() {
                         />
                       )}
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold" style={{ color: scanDone ? "#4ade80" : "var(--text)" }}>
+                        <p className="text-sm font-semibold" style={{ color: scanDone ? "var(--emerald)" : "var(--text)" }}>
                           {scanDone ? "Scan complete!" : trackedHostname}
                         </p>
                         <p className="text-xs" style={{ color: "var(--muted)" }}>{scanPhase}</p>
@@ -901,7 +901,7 @@ function OnboardingContent() {
                     <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,.07)" }}>
                       <div
                         className="h-full rounded-full transition-all duration-700"
-                        style={{ width: `${scanProgress}%`, background: scanDone ? "#10b981" : "var(--accent)" }}
+                        style={{ width: `${scanProgress}%`, background: scanDone ? "var(--emerald)" : "var(--accent)" }}
                       />
                     </div>
                   </div>

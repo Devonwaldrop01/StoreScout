@@ -45,8 +45,8 @@ function BrandPanel() {
         <ul className="space-y-3">
           {BENEFITS.map((b) => (
             <li key={b} className="flex items-start gap-3">
-              <div className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "rgba(16,185,129,.15)" }}>
-                <Check style={{ width: "10px", height: "10px", color: "#10b981" }} />
+              <div className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "rgba(34,197,94,.15)" }}>
+                <Check style={{ width: "10px", height: "10px", color: "var(--emerald)" }} />
               </div>
               <span className="text-sm" style={{ color: "var(--text-2)" }}>{b}</span>
             </li>

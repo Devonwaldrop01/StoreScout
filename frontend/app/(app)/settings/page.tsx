@@ -1141,7 +1141,7 @@ function SettingsContent() {
                   onClick={handleCopyKey}
                   className="shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all"
                   style={{
-                    background: copiedKey ? "rgba(74,222,128,.15)" : "var(--bg3)",
+                    background: copiedKey ? "rgba(34,197,94,.15)" : "var(--bg3)",
                     color: copiedKey ? "var(--emerald)" : "var(--muted)",
                     border: "1px solid var(--border)",
                   }}

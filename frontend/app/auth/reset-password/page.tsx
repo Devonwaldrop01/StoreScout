@@ -49,7 +49,7 @@ export default function ResetPasswordPage() {
       {/* Ambient glows */}
       <div className="fixed pointer-events-none" style={{ top: "-80px", left: "-80px", width: "400px", height: "400px", borderRadius: "50%", background: "rgba(59,130,246,.06)", filter: "blur(80px)", zIndex: 0 }} />
       <div className="fixed pointer-events-none" style={{ top: "-60px", right: "-60px", width: "300px", height: "300px", borderRadius: "50%", background: "rgba(96,165,250,.04)", filter: "blur(80px)", zIndex: 0 }} />
-      <div className="fixed pointer-events-none" style={{ bottom: "-80px", left: "50%", transform: "translateX(-50%)", width: "350px", height: "350px", borderRadius: "50%", background: "rgba(167,139,250,.04)", filter: "blur(80px)", zIndex: 0 }} />
+      <div className="fixed pointer-events-none" style={{ bottom: "-80px", left: "50%", transform: "translateX(-50%)", width: "350px", height: "350px", borderRadius: "50%", background: "rgba(59,130,246,.04)", filter: "blur(80px)", zIndex: 0 }} />
 
       <div className="relative w-full max-w-sm" style={{ zIndex: 1 }}>
         {/* Logo */}
