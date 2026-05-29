@@ -181,6 +181,7 @@ function OnboardingContent() {
   const [trackedHostname, setTrackedHostname] = useState("");
 
   // Step 2 — survey
+  const [name, setName] = useState("");
   const [category, setCategory] = useState<Category>("");
   const [goalId, setGoalId] = useState<GoalId>("");
   const [quickAdding, setQuickAdding] = useState<string | null>(null); // url being quick-added
@@ -206,6 +207,10 @@ function OnboardingContent() {
     async function check() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.replace("/auth/login"); return; }
+      // Pre-fill name from OAuth metadata (editable — onboarding value wins)
+      const meta = session.user.user_metadata ?? {};
+      const existingName = (meta.display_name || meta.full_name || meta.name) as string | undefined;
+      if (existingName) setName(existingName);
       await userApi.provision().catch(() => {});
       try {
         const result = await competitorsApi.list();
@@ -566,10 +571,25 @@ function OnboardingContent() {
                 Tell us about your store
               </h1>
               <p className="text-sm mb-7" style={{ color: "var(--muted)" }}>
-                Two quick questions — helps us surface the right signals for your market.
+                A few quick questions — helps us surface the right signals for your market.
               </p>
 
               <div className="space-y-7">
+                <div>
+                  <p className="text-sm font-semibold mb-3" style={{ color: "var(--text)" }}>
+                    What should we call you?
+                  </p>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your first name"
+                    autoComplete="given-name"
+                    className="w-full px-4 py-3 rounded-xl text-sm transition-all outline-none focus:border-blue-500/50"
+                    style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                  />
+                </div>
+
                 <div>
                   <p className="text-sm font-semibold mb-3" style={{ color: "var(--text)" }}>
                     What do you sell?
@@ -687,7 +707,14 @@ function OnboardingContent() {
               </div>
 
               <button
-                onClick={() => setStep(3)}
+                onClick={() => {
+                  const trimmed = name.trim();
+                  if (trimmed) {
+                    // Persist to user_metadata so the onboarding name wins over OAuth defaults
+                    supabase.auth.updateUser({ data: { display_name: trimmed } }).catch(() => {});
+                  }
+                  setStep(3);
+                }}
                 disabled={!category || !goalId}
                 className={cn(
                   "mt-8 w-full flex items-center justify-center gap-2 font-semibold py-3.5 rounded-xl transition-all",

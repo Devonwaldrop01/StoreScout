@@ -187,7 +187,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* ── Main content ──────────────────────────────────────────────────── */}
       <main className="flex-1 flex flex-col overflow-hidden" style={{ background: "var(--bg)" }}>
         <div className="flex-1 overflow-y-auto pb-20 md:pb-0">
-          <div className="max-w-6xl mx-auto px-5 sm:px-7 py-7">
+          <div className="max-w-7xl mx-auto px-5 sm:px-7 py-7">
             <ErrorBoundary>{children}</ErrorBoundary>
           </div>
         </div>

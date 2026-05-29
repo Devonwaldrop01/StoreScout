@@ -640,7 +640,8 @@ function DashboardContent() {
   useEffect(() => {
     createClient().auth.getUser().then(({ data }) => {
       const meta = data.user?.user_metadata ?? {};
-      const full = (meta.full_name || meta.name) as string | undefined;
+      // Onboarding-entered name wins over OAuth defaults
+      const full = (meta.display_name || meta.full_name || meta.name) as string | undefined;
       if (full) setFirstName(full.split(" ")[0]);
     }).catch(() => {});
   }, []);
