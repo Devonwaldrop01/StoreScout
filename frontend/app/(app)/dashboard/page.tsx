@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BarChart, Bar, XAxis, ResponsiveContainer, Cell } from "recharts";
+import { createClient } from "@/lib/supabase/client";
 import {
   competitors as api, alerts as alertsApi, user as userApi,
   type Competitor, type AlertEvent, type DiscoverySuggestion, type PlaybookPlay,
@@ -90,37 +90,6 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
       {nextScanTs && (
         <MetricCard icon={Clock} label="Next auto-scan" value={formatNextScan(new Date(nextScanTs).toISOString())} color="var(--muted)" />
       )}
-    </div>
-  );
-}
-
-// ── Weekly activity chart ─────────────────────────────────────────────────
-
-function WeeklyChart({ alertList }: { alertList: AlertEvent[] }) {
-  const days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    const count = alertList.filter((a) => new Date(a.detected_at).toDateString() === d.toDateString()).length;
-    return { day: d.toLocaleDateString("en-US", { weekday: "short" }), count, isToday: i === 6 };
-  });
-  const hasActivity = days.some((d) => d.count > 0);
-
-  return (
-    <div className="rounded-xl px-4 pt-3.5 pb-2 mb-3" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
-      <div className="flex items-center justify-between mb-2">
-        <p className="label-caps">7-day activity</p>
-        {!hasActivity && <span className="text-[11px]" style={{ color: "var(--muted)" }}>All quiet</span>}
-      </div>
-      <ResponsiveContainer width="100%" height={48}>
-        <BarChart data={days} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-          <XAxis dataKey="day" tick={{ fill: "#647089", fontSize: 9 }} axisLine={false} tickLine={false} />
-          <Bar dataKey="count" radius={[3, 3, 0, 0]}>
-            {days.map((d, i) => (
-              <Cell key={i} fill={d.count === 0 ? "rgba(255,255,255,.06)" : d.isToday ? "#3b82f6" : "rgba(96,165,250,.6)"} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
     </div>
   );
 }
@@ -438,39 +407,11 @@ function CompetitorMonitor({
 
 // ── Most active competitor ────────────────────────────────────────────────
 
-function MostActive({ competitorList, signalGroups }: { competitorList: Competitor[]; signalGroups: SignalGroup[] }) {
-  const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
-  const ranked = competitorList
-    .map((c) => ({
-      competitor: c,
-      count: signalGroups.filter((g) => g.competitor_id === c.id && new Date(g.detected_at).getTime() > dayAgo)
-        .reduce((s, g) => s + g.count, 0),
-    }))
-    .filter((r) => r.count > 0)
-    .sort((a, b) => b.count - a.count);
-
-  if (ranked.length === 0) return null;
-
-  const top = ranked[0];
-  return (
-    <div
-      className="rounded-xl px-4 py-3 mb-3 flex items-center gap-3"
-      style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
-    >
-      <Activity className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--accent)" }} />
-      <div className="min-w-0">
-        <p className="label-caps mb-0.5">Most active today</p>
-        <p className="text-xs font-semibold truncate" style={{ color: "var(--text)" }}>
-          {top.competitor.hostname} · <span style={{ color: "var(--muted)" }}>{top.count} change{top.count !== 1 ? "s" : ""}</span>
-        </p>
-      </div>
-    </div>
-  );
-}
 
 // ── Watch list panel ──────────────────────────────────────────────────────
 
-function WatchPanel({ competitorList }: { competitorList: Competitor[] }) {
+function WatchPanel({ competitorList, signalGroups }: { competitorList: Competitor[]; signalGroups: SignalGroup[] }) {
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const errorCount = competitorList.filter((c) => c.scan_status === "error").length;
   const scanningCount = competitorList.filter((c) => c.scan_status === "scanning").length;
   return (
@@ -490,7 +431,21 @@ function WatchPanel({ competitorList }: { competitorList: Competitor[] }) {
       </div>
       <div style={{ background: "var(--bg-card)" }}>
         {competitorList.map((c) => {
-          const color = c.scan_status === "scanning" ? "var(--accent)" : c.scan_status === "error" ? "var(--red)" : "var(--emerald)";
+          const isScanning = c.scan_status === "scanning";
+          const isError = c.scan_status === "error";
+          const dotColor = isScanning ? "var(--accent)" : isError ? "var(--red)" : "var(--emerald)";
+          const weeklyChanges = signalGroups
+            .filter((g) => g.competitor_id === c.id && new Date(g.detected_at).getTime() > weekAgo)
+            .reduce((s, g) => s + g.count, 0);
+          const subtext = isScanning
+            ? "Scanning now"
+            : isError
+            ? "Scan error"
+            : c.last_scanned_at
+            ? weeklyChanges > 0
+              ? `${formatRelativeTime(c.last_scanned_at)} · ${weeklyChanges} change${weeklyChanges !== 1 ? "s" : ""}`
+              : formatRelativeTime(c.last_scanned_at)
+            : `Next: ${formatNextScan(c.next_scan_at)}`;
           return (
             <Link
               key={c.id}
@@ -498,19 +453,19 @@ function WatchPanel({ competitorList }: { competitorList: Competitor[] }) {
               className="flex items-center justify-between px-4 py-2.5 border-b last:border-0 hover:bg-white/[0.02] transition-colors"
               style={{ borderColor: "var(--border)" }}
             >
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold truncate" style={{ color: "var(--text)" }}>
                   {c.display_name || c.hostname}
                 </p>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", c.scan_status === "scanning" && "animate-pulse")} style={{ background: color }} />
-                  <span className="text-[11px]" style={{ color: "var(--muted)" }}>
-                    {c.scan_status === "scanning" ? "Scanning now" : `Next: ${formatNextScan(c.next_scan_at)}`}
+                  <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", isScanning && "animate-pulse")} style={{ background: dotColor }} />
+                  <span className="text-[11px] truncate" style={{ color: weeklyChanges > 0 && !isScanning ? "var(--text-2)" : "var(--muted)" }}>
+                    {subtext}
                   </span>
                 </div>
               </div>
               {c.product_count != null && (
-                <span className="text-[11px] font-mono shrink-0 ml-2" style={{ color: "var(--muted)" }}>
+                <span className="text-[11px] font-mono shrink-0 ml-3" style={{ color: "var(--muted)" }}>
                   {c.product_count.toLocaleString()}
                 </span>
               )}
@@ -665,6 +620,7 @@ function DashboardContent() {
   const [trackingHostname, setTrackingHostname] = useState<string | null>(null);
   const [maxCompetitors, setMaxCompetitors] = useState<number | null>(null);
   const [scanningAll, setScanningAll] = useState(false);
+  const [firstName, setFirstName] = useState<string | null>(null);
 
   const scanAllStartRef = useRef<number>(0);
 
@@ -679,6 +635,15 @@ function DashboardContent() {
     }
     load();
   }
+
+  // Resolve first name from OAuth metadata for the greeting
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => {
+      const meta = data.user?.user_metadata ?? {};
+      const full = (meta.full_name || meta.name) as string | undefined;
+      if (full) setFirstName(full.split(" ")[0]);
+    }).catch(() => {});
+  }, []);
 
   // Clear scanningAll once no competitors are actively scanning and a
   // minimum window has elapsed (so Celery has time to pick up the tasks)
@@ -793,6 +758,10 @@ function DashboardContent() {
     .filter((c) => c.next_scan_at)
     .map((c) => new Date(c.next_scan_at!).getTime())
     .sort((a, b) => a - b)[0];
+  const lastScannedTs = competitorList
+    .filter((c) => c.last_scanned_at)
+    .map((c) => new Date(c.last_scanned_at!).getTime())
+    .sort((a, b) => b - a)[0]; // most recent
   const hasStrategic = signalGroups.some((g) => g.tier === "strategic");
 
   return (
@@ -800,8 +769,9 @@ function DashboardContent() {
       {/* Greeting header */}
       {competitorList.length > 0 && (
         <ScoutBrief
+          firstName={firstName}
           competitorCount={competitorList.length}
-          productCount={totalProducts}
+          lastScan={lastScannedTs ? formatRelativeTime(new Date(lastScannedTs).toISOString()) : undefined}
           nextScan={nextScanTs ? formatNextScan(new Date(nextScanTs).toISOString()) : undefined}
           onRefresh={handleScanAll}
           refreshing={scanningAll || competitorList.some((c) => c.scan_status === "scanning")}
@@ -872,14 +842,8 @@ function DashboardContent() {
 
             {/* ── Right: context panel (desktop only) ── */}
             <div className="hidden lg:block w-[260px] shrink-0 space-y-3">
-              {/* Competitor health — top of sidebar for immediate visibility */}
-              <WatchPanel competitorList={competitorList} />
-
-              {/* 7-day chart */}
-              {!alertsLoading && <WeeklyChart alertList={alertList} />}
-
-              {/* Most active today */}
-              {!alertsLoading && <MostActive competitorList={competitorList} signalGroups={signalGroups} />}
+              {/* Competitor health */}
+              <WatchPanel competitorList={competitorList} signalGroups={signalGroups} />
 
               {/* Playbook preview */}
               <PlaybookWidget />
@@ -888,9 +852,7 @@ function DashboardContent() {
 
           {/* Mobile: context panel stacked below */}
           <div className="lg:hidden mt-6 space-y-3">
-            <WatchPanel competitorList={competitorList} />
-            {!alertsLoading && <WeeklyChart alertList={alertList} />}
-            {!alertsLoading && <MostActive competitorList={competitorList} signalGroups={signalGroups} />}
+            <WatchPanel competitorList={competitorList} signalGroups={signalGroups} />
             <PlaybookWidget />
           </div>
         </>
