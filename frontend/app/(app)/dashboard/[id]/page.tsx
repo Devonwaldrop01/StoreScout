@@ -29,6 +29,7 @@ import ComparisonTab from "@/components/competitors/ComparisonTab";
 import { IntelligenceBrief } from "@/components/competitors/IntelligenceBrief";
 import { QuickWins } from "@/components/competitors/QuickWins";
 import UpgradeModal from "@/components/UpgradeModal";
+import { LockedValueCard } from "@/components/ui";
 import { type BriefData, type BriefCard } from "@/lib/api";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -1179,24 +1180,12 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
                       {/* Free tier gate */}
                       {isFree && hiddenCount > 0 && (
-                        <div
-                          className="px-5 py-5 flex flex-col items-center gap-3 border-t"
-                          style={{ borderColor: "var(--border)", background: "var(--bg3)" }}
-                        >
-                          <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                            +{hiddenCount} more change{hiddenCount !== 1 ? "s" : ""} detected
-                          </p>
-                          <p className="text-xs text-center max-w-xs" style={{ color: "var(--muted)" }}>
-                            Upgrade to Pro to see the full change history and get alerts within 15 minutes of detection.
-                          </p>
-                          <button
-                            onClick={() => setUpgradeOpen(true)}
-                            className="flex items-center gap-1.5 text-xs font-bold px-5 py-2.5 rounded-xl transition-all hover:brightness-110"
-                            style={{ background: "var(--accent)", color: "#ffffff" }}
-                          >
-                            <Zap className="w-3.5 h-3.5" />
-                            Unlock full history — $29/mo
-                          </button>
+                        <div className="p-4" style={{ borderTop: "1px solid var(--border)" }}>
+                          <LockedValueCard
+                            title={`+${hiddenCount} more change${hiddenCount !== 1 ? "s" : ""} detected`}
+                            teaser="Unlock 90-day change history and get alerts within 15 minutes of detection."
+                            plan="pro"
+                          />
                         </div>
                       )}
                     </div>

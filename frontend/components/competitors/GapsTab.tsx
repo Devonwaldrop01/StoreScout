@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { Lock, Target, TrendingUp, ChevronDown, ChevronUp, ArrowRight, Check, DollarSign, Package, Grid3X3, Tag, Rocket } from "lucide-react";
+import { LockedValueCard } from "@/components/ui";
 import { competitors as api, type GapsResponse, type Gap } from "@/lib/api";
 import UpgradeModal from "@/components/UpgradeModal";
 
 function opportunityLabel(opp?: number): { label: string; color: string } {
   const o = opp ?? 0;
   if (o >= 0.6) return { label: "High opportunity", color: "#3b82f6" };
-  if (o >= 0.35) return { label: "Moderate opportunity", color: "#facc15" };
+  if (o >= 0.35) return { label: "Moderate opportunity", color: "var(--amber)" };
   return { label: "Opportunity", color: "#94a3b8" };
 }
 
@@ -262,26 +263,11 @@ export default function GapsTab({ competitorId }: { competitorId: string }) {
       ))}
 
       {data.locked && data.locked_count > 0 && (
-        <div
-          className="rounded-2xl p-6 text-center"
-          style={{ background: "rgba(59,130,246,.06)", border: "1px dashed rgba(59,130,246,.3)" }}
-        >
-          <TrendingUp className="w-5 h-5 mx-auto mb-2" style={{ color: "#3b82f6" }} />
-          <p className="text-sm font-medium mb-1" style={{ color: "var(--text)" }}>
-            {data.locked_count} more gap{data.locked_count !== 1 ? "s" : ""} identified
-          </p>
-          <p className="text-xs mb-4" style={{ color: "var(--muted)" }}>
-            Unlock every gap with a specific action playbook for each one.
-          </p>
-          <button
-            onClick={() => setUpgradeOpen(true)}
-            className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 inline-flex items-center gap-2"
-            style={{ background: "#3b82f6", color: "#060d18" }}
-          >
-            Unlock Full Gap Analysis
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
+        <LockedValueCard
+          title={`${data.locked_count} more gap${data.locked_count !== 1 ? "s" : ""} identified`}
+          teaser="Unlock every market opening with a specific action playbook for each one."
+          plan="pro"
+        />
       )}
 
       <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="general" />

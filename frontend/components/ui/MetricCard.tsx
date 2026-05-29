@@ -7,13 +7,17 @@ interface MetricCardProps {
   value: string | number;
   delta?: number | null;
   deltaLabel?: string;
+  deltaText?: string;       // fully custom delta text, overrides computed delta
   color?: string;
   icon?: React.ElementType;
   sparkline?: number[];
 }
 
-export function MetricCard({ label, value, delta, deltaLabel = "vs last week", color = "var(--accent)", icon: Icon, sparkline }: MetricCardProps) {
-  function deltaText() {
+export function MetricCard({ label, value, delta, deltaLabel = "vs last week", deltaText, color = "var(--accent)", icon: Icon, sparkline }: MetricCardProps) {
+  function renderDelta() {
+    if (deltaText) {
+      return <span className="text-[10px]" style={{ color: "var(--muted)" }}>{deltaText}</span>;
+    }
     if (delta === null || delta === undefined) return null;
     const up = delta > 0;
     const down = delta < 0;
@@ -37,7 +41,7 @@ export function MetricCard({ label, value, delta, deltaLabel = "vs last week", c
             {value}
           </p>
           <p className="text-[11px] mt-1.5 truncate" style={{ color: "var(--muted)" }}>{label}</p>
-          {deltaText()}
+          {renderDelta()}
         </div>
         {Icon && (
           <div className="w-7 h-7 rounded-md flex items-center justify-center shrink-0" style={{ background: `${color}14` }}>

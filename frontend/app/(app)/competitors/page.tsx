@@ -266,7 +266,7 @@ function CompetitorsContent() {
                         background: c.scan_status === "error"
                           ? "rgba(239,68,68,.1)"
                           : c.scan_status === "done"
-                          ? "rgba(16,185,129,.1)"
+                          ? "rgba(34,197,94,.1)"
                           : "rgba(255,255,255,.06)",
                         color: scanStatusColor(c.scan_status),
                       }}
@@ -287,7 +287,7 @@ function CompetitorsContent() {
                         <span style={{ color: "var(--border)" }}>·</span>
                         <span
                           className="text-[11px] num"
-                          style={{ color: c.promo_rate >= 20 ? "#fb923c" : "var(--muted)" }}
+                          style={{ color: c.promo_rate >= 20 ? "var(--amber)" : "var(--muted)" }}
                         >
                           {c.promo_rate.toFixed(0)}% on sale
                         </span>
@@ -345,7 +345,7 @@ function CompetitorsContent() {
         {shopifyConnectedBanner && (
           <div
             className="flex items-center gap-2 px-4 py-3 rounded-xl mb-4 text-sm font-medium"
-            style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", color: "#10b981" }}
+            style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", color: "var(--emerald)" }}
           >
             <Check className="w-4 h-4 shrink-0" />
             Shopify store connected successfully.
@@ -355,14 +355,14 @@ function CompetitorsContent() {
         {shopifyConnection ? (
           <div
             className="flex items-center justify-between gap-4 px-4 py-3 rounded-xl"
-            style={{ background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.18)" }}
+            style={{ background: "rgba(34,197,94,0.05)", border: "1px solid rgba(34,197,94,0.18)" }}
           >
             <div className="flex items-center gap-3 min-w-0">
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: "rgba(16,185,129,0.12)" }}
+                style={{ background: "rgba(34,197,94,0.12)" }}
               >
-                <Store className="w-4 h-4" style={{ color: "#10b981" }} />
+                <Store className="w-4 h-4" style={{ color: "var(--emerald)" }} />
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-semibold truncate" style={{ color: "var(--text)" }}>

@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BarChart, Bar, XAxis, ResponsiveContainer, Cell, AreaChart, Area } from "recharts";
+import { BarChart, Bar, XAxis, ResponsiveContainer, Cell } from "recharts";
 import {
   competitors as api, alerts as alertsApi, user as userApi,
   type Competitor, type AlertEvent, type DiscoverySuggestion, type PlaybookPlay,
@@ -17,7 +17,7 @@ import { groupAlertEvents, generateNarrative, type SignalGroup, SIGNAL_CONFIG } 
 import { SignalFeed } from "@/components/signals/SignalFeed";
 import { ActionPlaybook } from "@/components/competitors/ActionPlaybook";
 import UpgradeModal from "@/components/UpgradeModal";
-import { ScoutBrief } from "@/components/ui";
+import { ScoutBrief, MetricCard } from "@/components/ui";
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -36,10 +36,9 @@ function formatNextScan(dateStr: string | undefined): string {
 
 function StatsBar({ competitorList, signalGroups, alertList }: { competitorList: Competitor[]; signalGroups: SignalGroup[]; alertList: AlertEvent[] }) {
   const totalProducts = competitorList.reduce((s, c) => s + (c.product_count || 0), 0);
-  const now = Date.now();
-  const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
-  const twoWeeksAgo = now - 14 * 24 * 60 * 60 * 1000;
-  const dayAgo = now - 24 * 60 * 60 * 1000;
+  const weekAgo  = Date.now() - 7  * 24 * 60 * 60 * 1000;
+  const twoWeeksAgo = Date.now() - 14 * 24 * 60 * 60 * 1000;
+  const dayAgo   = Date.now() - 24 * 60 * 60 * 1000;
 
   const thisWeekChanges = alertList.filter((e) => new Date(e.detected_at).getTime() > weekAgo).length;
   const prevWeekChanges = alertList.filter((e) => {
@@ -52,7 +51,6 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
     ? Math.round(((thisWeekChanges - prevWeekChanges) / prevWeekChanges) * 100)
     : null;
 
-  // 7-day daily counts for the "Changes" sparkline
   const dailyCounts = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
@@ -68,101 +66,30 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
     .map((c) => new Date(c.next_scan_at!).getTime())
     .sort((a, b) => a - b)[0];
 
-  type Stat = {
-    icon: React.ElementType;
-    label: string;
-    value: string;
-    color: string;
-    highlight?: boolean;
-    delta?: number | string | null;
-    sparkline?: number[];
-  };
-
-  const stats: Stat[] = [
-    { icon: Package, label: "Products tracked", value: totalProducts.toLocaleString(), color: "var(--blue)" },
-    {
-      icon: Activity, label: "Changes this week",
-      value: thisWeekChanges.toString(),
-      color: thisWeekChanges > 0 ? "var(--accent)" : "var(--muted)",
-      highlight: thisWeekChanges > 0,
-      delta: weeklyDelta !== null ? weeklyDelta : todayChanges > 0 ? `today:${todayChanges}` : null,
-      sparkline: dailyCounts,
-    },
-    {
-      icon: Zap,
-      label: criticals > 0 ? "Active signals" : "All clear",
-      value: criticals > 0 ? criticals.toString() : "✓",
-      color: criticals > 0 ? "var(--red)" : "var(--emerald)",
-    },
-    ...(nextScanTs ? [{ icon: Clock, label: "Next auto-scan", value: formatNextScan(new Date(nextScanTs).toISOString()), color: "var(--muted)" } as Stat] : []),
-  ];
-
-  function renderDelta(delta: number | string | null | undefined) {
-    if (delta === null || delta === undefined) return null;
-    if (typeof delta === "string" && delta.startsWith("today:")) {
-      const n = delta.slice(6);
-      return (
-        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md shrink-0"
-          style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)" }}>
-          {n} today
-        </span>
-      );
-    }
-    const pct = delta as number;
-    const up = pct > 0;
-    const down = pct < 0;
-    return (
-      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0"
-        style={{
-          background: up ? "rgba(249,115,22,.1)" : down ? "rgba(16,185,129,.1)" : "rgba(255,255,255,.06)",
-          color: up ? "#f97316" : down ? "#10b981" : "var(--muted)",
-        }}>
-        {up ? `↑${pct}%` : down ? `↓${Math.abs(pct)}%` : "→"}
-      </span>
-    );
-  }
+  const changesColor = thisWeekChanges > 0 ? "var(--accent)" : "var(--muted)";
+  const changesDeltaText = todayChanges > 0 && weeklyDelta === null ? `${todayChanges} today` : undefined;
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-      {stats.map(({ icon: Icon, label, value, color, highlight: _highlight, delta, sparkline }) => (
-        <div
-          key={label}
-          className="rounded-xl px-4 py-3.5"
-          style={{
-            background: "var(--bg3)",
-            border: "1px solid var(--border)",
-          }}
-        >
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <p className="text-2xl font-bold font-mono leading-none tracking-tight" style={{ color: "var(--text)" }}>{value}</p>
-              <p className="text-[11px] mt-1.5 truncate" style={{ color: "var(--muted)" }}>{label}</p>
-            </div>
-            <div className="flex flex-col items-end gap-1 shrink-0">
-              <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: `${color}14` }}>
-                <Icon className="w-3.5 h-3.5" style={{ color }} />
-              </div>
-              {renderDelta(delta)}
-            </div>
-          </div>
-          {sparkline && sparkline.some((v) => v > 0) && (
-            <div className="mt-2 -mx-1">
-              <ResponsiveContainer width="100%" height={28}>
-                <AreaChart data={sparkline.map((v, i) => ({ v, i }))} margin={{ top: 1, right: 0, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="dash-spark" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Area type="monotone" dataKey="v" stroke="#3b82f6" strokeWidth={1.5}
-                    fill="url(#dash-spark)" dot={false} isAnimationActive={false} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
-      ))}
+      <MetricCard icon={Package}  label="Products tracked"  value={totalProducts.toLocaleString()} color="var(--blue)" />
+      <MetricCard
+        icon={Activity}
+        label="Changes this week"
+        value={thisWeekChanges}
+        color={changesColor}
+        delta={weeklyDelta}
+        deltaText={changesDeltaText}
+        sparkline={dailyCounts}
+      />
+      <MetricCard
+        icon={Zap}
+        label={criticals > 0 ? "Active signals" : "All clear"}
+        value={criticals > 0 ? criticals : "✓"}
+        color={criticals > 0 ? "var(--red)" : "var(--emerald)"}
+      />
+      {nextScanTs && (
+        <MetricCard icon={Clock} label="Next auto-scan" value={formatNextScan(new Date(nextScanTs).toISOString())} color="var(--muted)" />
+      )}
     </div>
   );
 }
@@ -186,7 +113,7 @@ function WeeklyChart({ alertList }: { alertList: AlertEvent[] }) {
       </div>
       <ResponsiveContainer width="100%" height={48}>
         <BarChart data={days} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-          <XAxis dataKey="day" tick={{ fill: "#5a6a82", fontSize: 9 }} axisLine={false} tickLine={false} />
+          <XAxis dataKey="day" tick={{ fill: "#647089", fontSize: 9 }} axisLine={false} tickLine={false} />
           <Bar dataKey="count" radius={[3, 3, 0, 0]}>
             {days.map((d, i) => (
               <Cell key={i} fill={d.count === 0 ? "rgba(255,255,255,.06)" : d.isToday ? "#3b82f6" : "rgba(96,165,250,.6)"} />
@@ -219,7 +146,7 @@ function SignalBreakdown({ groups }: { groups: SignalGroup[] }) {
   const items = [
     { label: "price changes", count: price, color: "var(--accent)", hex: "#3b82f6" },
     { label: "launches", count: launch, color: "var(--emerald)", hex: "#10b981" },
-    { label: "discounts", count: discount, color: "#fb923c", hex: "#fb923c" },
+    { label: "discounts", count: discount, color: "var(--amber)", hex: "var(--amber)" },
     { label: "stock events", count: stock, color: "var(--muted)", hex: "#64748b" },
   ].filter((i) => i.count > 0);
 
@@ -242,8 +169,8 @@ function SignalBreakdown({ groups }: { groups: SignalGroup[] }) {
 
 const DEADLINE_COLOR: Record<string, string> = {
   "right now": "#f87171",
-  "today": "#fb923c",
-  "within 48h": "#fb923c",
+  "today": "var(--amber)",
+  "within 48h": "var(--amber)",
   "this week": "#3b82f6",
 };
 
@@ -430,7 +357,7 @@ function CompetitorMonitor({
           {competitor.promo_rate != null && competitor.promo_rate > 0 && (
             <>
               <span style={{ color: "var(--border)" }}>·</span>
-              <span className="text-[11px] num" style={{ color: competitor.promo_rate >= 20 ? "#fb923c" : "var(--muted)" }}>
+              <span className="text-[11px] num" style={{ color: competitor.promo_rate >= 20 ? "var(--amber)" : "var(--muted)" }}>
                 {competitor.promo_rate.toFixed(0)}% on sale
               </span>
             </>
