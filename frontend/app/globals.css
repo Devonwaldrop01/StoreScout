@@ -39,20 +39,7 @@ html, body {
 
 ::selection { background: rgba(59,130,246,.18); color: var(--text); }
 
-/* Subtle tactical grid — barely visible, adds depth */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(59,130,246,.014) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59,130,246,.014) 1px, transparent 1px);
-  background-size: 48px 48px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-#__next, main { position: relative; z-index: 1; }
+#__next, main { position: relative; }
 
 /* ── Scrollbar ───────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -100,6 +87,15 @@ body::before {
 .num {
   font-family: var(--font-mono, monospace);
   font-variant-numeric: tabular-nums;
+}
+
+/* ── Label utility — consistent small caps labels ────────────────────────── */
+.label-caps {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 /* ── Scanning shimmer ────────────────────────────────────────────────────── */

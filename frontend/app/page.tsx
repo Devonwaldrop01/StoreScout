@@ -234,16 +234,13 @@ function PriceIncreaseCard() {
 function IntelligenceBriefPreview() {
   return (
     <div
-      className="relative rounded-2xl overflow-hidden"
+      className="rounded-2xl overflow-hidden"
       style={{
-        background: "linear-gradient(135deg, rgba(59,130,246,.06) 0%, rgba(59,130,246,.02) 40%, transparent 70%), #080f1e",
+        background: "#080f1e",
         border: "1px solid rgba(59,130,246,.2)",
-        boxShadow: "0 0 0 1px rgba(59,130,246,.06), 0 20px 60px rgba(0,0,0,.5)",
       }}
     >
-      <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full blur-3xl pointer-events-none"
-        style={{ background: "rgba(59,130,246,.08)" }} />
-      <div className="relative p-6 sm:p-8">
+      <div className="p-6 sm:p-8">
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -412,7 +409,7 @@ function AlertEmailPreview() {
         </div>
 
         <a href="#"
-          style={{ display: "inline-block", background: "#3b82f6", color: "#060d18", fontWeight: 700, fontSize: 13, padding: "9px 20px", borderRadius: 8, textDecoration: "none" }}>
+          style={{ display: "inline-block", background: "#3b82f6", color: "#ffffff", fontWeight: 700, fontSize: 13, padding: "9px 20px", borderRadius: 8, textDecoration: "none" }}>
           View full dashboard →
         </a>
       </div>
@@ -485,7 +482,7 @@ export default function LandingPage() {
         <div className="flex items-center gap-2.5">
           <div
             className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-            style={{ background: "var(--accent)", boxShadow: "0 0 10px rgba(59,130,246,.3)" }}
+            style={{ background: "var(--accent)" }}
           >
             <Zap className="w-4 h-4" style={{ color: "#ffffff" }} />
           </div>
@@ -503,7 +500,7 @@ export default function LandingPage() {
           <Link
             href="/auth/signup"
             className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110"
-            style={{ background: "#3b82f6", color: "#060d18" }}
+            style={{ background: "#3b82f6", color: "#ffffff" }}
           >
             Start free
           </Link>
@@ -536,8 +533,8 @@ export default function LandingPage() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
           <Link
             href="/auth/signup"
-            className="flex items-center gap-2 font-bold px-8 py-4 rounded-2xl text-lg transition-all hover:brightness-110"
-            style={{ background: "#3b82f6", color: "#060d18" }}
+            className="flex items-center gap-2 font-bold px-8 py-4 rounded-2xl text-lg transition-all hover:opacity-90"
+            style={{ background: "#3b82f6", color: "#ffffff" }}
           >
             Start tracking free
             <ArrowRight className="w-5 h-5" />
@@ -619,8 +616,8 @@ export default function LandingPage() {
           </p>
           <Link
             href="/auth/signup"
-            className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all hover:brightness-110"
-            style={{ background: "#3b82f6", color: "#060d18" }}
+            className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all hover:opacity-90"
+            style={{ background: "#3b82f6", color: "#ffffff" }}
           >
             Start monitoring for free
             <ArrowRight className="w-4 h-4" />
@@ -1064,7 +1061,7 @@ export default function LandingPage() {
               {highlight && (
                 <div
                   className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full"
-                  style={{ background: "#3b82f6", color: "#060d18" }}
+                  style={{ background: "#3b82f6", color: "#ffffff" }}
                 >
                   Most popular
                 </div>
@@ -1090,7 +1087,7 @@ export default function LandingPage() {
                 href={href}
                 className="block text-center font-semibold py-3 rounded-xl transition-all hover:brightness-110"
                 style={highlight
-                  ? { background: "#3b82f6", color: "#060d18" }
+                  ? { background: "#3b82f6", color: "#ffffff" }
                   : { border: "1px solid var(--border)", color: "var(--text)" }}
               >
                 {cta}
@@ -1114,14 +1111,10 @@ export default function LandingPage() {
       {/* ── Final CTA ───────────────────────────────────────────────────────── */}
       <div className="max-w-3xl mx-auto px-6 pb-28 text-center">
         <div
-          className="rounded-3xl p-12 relative overflow-hidden"
-          style={{ background: "rgba(59,130,246,.06)", border: "1px solid rgba(59,130,246,.2)" }}
+          className="rounded-3xl p-12"
+          style={{ background: "rgba(59,130,246,.05)", border: "1px solid rgba(59,130,246,.2)" }}
         >
-          <div
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 rounded-full blur-3xl pointer-events-none"
-            style={{ background: "rgba(59,130,246,.12)" }}
-          />
-          <div className="relative">
+          <div>
             <h2 className="text-3xl md:text-4xl font-black mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
               Your competitors are already moving.<br />
               <span style={{ color: "#3b82f6" }}>Now you will be too.</span>
@@ -1131,8 +1124,8 @@ export default function LandingPage() {
             </p>
             <Link
               href="/auth/signup"
-              className="inline-flex items-center gap-2 font-bold px-8 py-4 rounded-2xl text-lg transition-all hover:brightness-110"
-              style={{ background: "#3b82f6", color: "#060d18" }}
+              className="inline-flex items-center gap-2 font-bold px-8 py-4 rounded-2xl text-lg transition-all hover:opacity-90"
+              style={{ background: "#3b82f6", color: "#ffffff" }}
             >
               Start tracking free
               <ArrowRight className="w-5 h-5" />

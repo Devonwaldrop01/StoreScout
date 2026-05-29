@@ -155,8 +155,6 @@ const SCAN_PHASES: [number, string][] = [
   [94, "Almost done..."],
 ];
 
-// Zeigarnik effect: progress starts at 20%, never 0%
-const STEP_PROGRESS: Record<Step, number> = { 1: 20, 2: 48, 3: 72, 4: 90 };
 const STEP_LABELS: Record<Step, string> = {
   1: "Add competitor",
   2: "About you",
@@ -381,7 +379,6 @@ function OnboardingContent() {
     );
   }
 
-  const progressPct = STEP_PROGRESS[step];
   const urlBorderColor =
     storeStatus === "ok" ? "#22c55e"
     : storeStatus === "restricted" ? "#facc15"
@@ -392,24 +389,26 @@ function OnboardingContent() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--bg)" }}>
-      {/* Top progress bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 h-1" style={{ background: "rgba(255,255,255,.06)" }}>
-        <div
-          className="h-full transition-all duration-700 ease-out"
-          style={{ width: `${progressPct}%`, background: "var(--green)" }}
-        />
-      </div>
-
       {/* Nav */}
-      <header className="flex items-center justify-between px-6 py-4 mt-1">
+      <header className="flex items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2">
-          <Zap className="w-4 h-4" style={{ color: "var(--green)" }} />
+          <div style={{ width: "24px", height: "24px", borderRadius: "6px", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Zap style={{ width: "12px", height: "12px", color: "#fff" }} />
+          </div>
           <span className="font-bold text-sm" style={{ color: "var(--text)" }}>StoreScout</span>
         </div>
-        <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--muted)" }}>
-          <span>Step {step} of 4</span>
-          <span className="opacity-40">·</span>
-          <span>{STEP_LABELS[step]}</span>
+        <div className="flex items-center gap-1.5">
+          {([1, 2, 3, 4] as const).map((s) => (
+            <div
+              key={s}
+              className="rounded-full transition-all duration-500"
+              style={{
+                width: s === step ? 16 : 6,
+                height: 6,
+                background: s <= step ? "var(--accent)" : "rgba(255,255,255,.12)",
+              }}
+            />
+          ))}
         </div>
       </header>
 
@@ -423,9 +422,7 @@ function OnboardingContent() {
           {/* ─── Step 1: Add competitor ─── */}
           {step === 1 && (
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "var(--green)" }}>
-                Step 1
-              </p>
+              <p className="label-caps mb-2">Step 1 of 4</p>
               <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text)" }}>
                 Who are you watching?
               </h1>
@@ -489,11 +486,11 @@ function OnboardingContent() {
                       ? "opacity-50 cursor-not-allowed"
                       : "hover:brightness-110"
                   )}
-                  style={{ background: "var(--green)", color: "#060d18" }}
+                  style={{ background: "var(--accent)", color: "#fff" }}
                 >
                   {submitting ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin border-black/40" />
+                      <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin border-white/40" />
                       Starting scan…
                     </>
                   ) : (
@@ -564,9 +561,7 @@ function OnboardingContent() {
                 </div>
               )}
 
-              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "var(--green)" }}>
-                Step 2
-              </p>
+              <p className="label-caps mb-2">Step 2 of 4</p>
               <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text)" }}>
                 Tell us about your store
               </h1>
@@ -588,8 +583,8 @@ function OnboardingContent() {
                         className="px-3 py-2.5 rounded-xl text-xs font-medium transition-all text-left"
                         style={{
                           background: category === c ? "rgba(59,130,246,.1)" : "var(--bg3)",
-                          border: `1px solid ${category === c ? "var(--green)" : "var(--border)"}`,
-                          color: category === c ? "var(--green)" : "var(--muted)",
+                          border: `1px solid ${category === c ? "rgba(59,130,246,.5)" : "var(--border)"}`,
+                          color: category === c ? "var(--accent)" : "var(--muted)",
                         }}
                       >
                         {c}
@@ -664,14 +659,14 @@ function OnboardingContent() {
                           className="w-full flex items-start gap-3 px-4 py-3 rounded-xl transition-all text-left"
                           style={{
                             background: selected ? "rgba(59,130,246,.07)" : "var(--bg3)",
-                            border: `1px solid ${selected ? "var(--green)" : "var(--border)"}`,
+                            border: `1px solid ${selected ? "rgba(59,130,246,.5)" : "var(--border)"}`,
                           }}
                         >
                           <div
                             className="w-4 h-4 rounded-full border-2 mt-0.5 shrink-0 flex items-center justify-center transition-all"
                             style={{
-                              borderColor: selected ? "var(--green)" : "var(--border)",
-                              background: selected ? "var(--green)" : "transparent",
+                              borderColor: selected ? "var(--accent)" : "var(--border)",
+                              background: selected ? "var(--accent)" : "transparent",
                             }}
                           >
                             {selected && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
@@ -696,9 +691,9 @@ function OnboardingContent() {
                 disabled={!category || !goalId}
                 className={cn(
                   "mt-8 w-full flex items-center justify-center gap-2 font-semibold py-3.5 rounded-xl transition-all",
-                  !category || !goalId ? "opacity-40 cursor-not-allowed" : "hover:brightness-110"
+                  !category || !goalId ? "opacity-40 cursor-not-allowed" : "hover:opacity-90"
                 )}
-                style={{ background: "var(--green)", color: "#060d18" }}
+                style={{ background: "var(--accent)", color: "#fff" }}
               >
                 Next <ArrowRight className="w-4 h-4" />
               </button>
@@ -731,9 +726,7 @@ function OnboardingContent() {
                 </div>
               )}
 
-              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "var(--green)" }}>
-                Step 3
-              </p>
+              <p className="label-caps mb-2">Step 3 of 4</p>
               <h1 className="text-2xl font-bold mb-1.5" style={{ color: "var(--text)" }}>
                 Choose your plan
               </h1>
@@ -808,8 +801,8 @@ function OnboardingContent() {
 
               <button
                 onClick={() => setStep(4)}
-                className="w-full flex items-center justify-center gap-2 font-semibold py-3.5 rounded-xl hover:brightness-110 transition-all"
-                style={{ background: "var(--green)", color: "#060d18" }}
+                className="w-full flex items-center justify-center gap-2 font-semibold py-3.5 rounded-xl hover:opacity-90 transition-all"
+                style={{ background: "var(--accent)", color: "#fff" }}
               >
                 Continue with {PLANS.find((p) => p.id === selectedPlan)?.label}
                 <ArrowRight className="w-4 h-4" />
@@ -826,9 +819,7 @@ function OnboardingContent() {
           {/* ─── Step 4: Scan OR completion (if skipped) ─── */}
           {step === 4 && (
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "var(--green)" }}>
-                Step 4
-              </p>
+              <p className="label-caps mb-2">Step 4 of 4</p>
 
               {skipped ? (
                 // No competitor was added — show a helpful completion screen
@@ -862,8 +853,8 @@ function OnboardingContent() {
 
                   <button
                     onClick={finish}
-                    className="w-full flex items-center justify-center gap-2 font-semibold py-3.5 rounded-xl hover:brightness-110 transition-all"
-                    style={{ background: "var(--green)", color: "#060d18" }}
+                    className="w-full flex items-center justify-center gap-2 font-semibold py-3.5 rounded-xl hover:opacity-90 transition-all"
+                    style={{ background: "var(--accent)", color: "#fff" }}
                   >
                     Go to dashboard <ArrowRight className="w-4 h-4" />
                   </button>
@@ -910,7 +901,7 @@ function OnboardingContent() {
                     <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,.07)" }}>
                       <div
                         className="h-full rounded-full transition-all duration-700"
-                        style={{ width: `${scanProgress}%`, background: scanDone ? "#22c55e" : "var(--green)" }}
+                        style={{ width: `${scanProgress}%`, background: scanDone ? "#10b981" : "var(--accent)" }}
                       />
                     </div>
                   </div>
@@ -960,8 +951,8 @@ function OnboardingContent() {
                       scanDone ? "hover:brightness-110" : "opacity-60 hover:opacity-75 cursor-default"
                     )}
                     style={{
-                      background: scanDone ? "var(--green)" : "var(--bg3)",
-                      color: scanDone ? "#060d18" : "var(--text)",
+                      background: scanDone ? "var(--accent)" : "var(--bg3)",
+                      color: scanDone ? "#fff" : "var(--text)",
                       border: scanDone ? "none" : "1px solid var(--border)",
                     }}
                   >
@@ -989,20 +980,6 @@ function OnboardingContent() {
           )}
         </div>
 
-        {/* Progress dots */}
-        <div className="flex items-center gap-2 mt-6">
-          {([1, 2, 3, 4] as const).map((s) => (
-            <div
-              key={s}
-              className="rounded-full transition-all duration-500"
-              style={{
-                width: s === step ? 20 : 6,
-                height: 6,
-                background: s <= step ? "var(--green)" : "rgba(255,255,255,.14)",
-              }}
-            />
-          ))}
-        </div>
       </div>
     </div>
   );

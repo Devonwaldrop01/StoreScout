@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Zap, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { Zap, Eye, EyeOff, AlertCircle, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 function GoogleIcon() {
@@ -14,6 +14,50 @@ function GoogleIcon() {
       <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
       <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
     </svg>
+  );
+}
+
+const BENEFITS = [
+  "Track any Shopify competitor in minutes",
+  "Alerts when they change prices or launch products",
+  "Weekly AI-generated competitive digest",
+];
+
+function BrandPanel() {
+  return (
+    <div className="hidden lg:flex flex-col justify-between p-10 w-[400px] shrink-0 border-r"
+         style={{ background: "var(--bg2)", borderColor: "var(--border)" }}>
+      <div>
+        <div className="flex items-center gap-2.5 mb-12">
+          <div style={{ width: "30px", height: "30px", borderRadius: "8px", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Zap style={{ width: "15px", height: "15px", color: "#fff" }} />
+          </div>
+          <span className="text-base font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
+        </div>
+
+        <h2 className="text-2xl font-bold mb-3 leading-snug" style={{ color: "var(--text)" }}>
+          Your competitors are making moves right now
+        </h2>
+        <p className="text-sm mb-8" style={{ color: "var(--muted)" }}>
+          Sign back in to see what changed since your last visit.
+        </p>
+
+        <ul className="space-y-3">
+          {BENEFITS.map((b) => (
+            <li key={b} className="flex items-start gap-3">
+              <div className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "rgba(16,185,129,.15)" }}>
+                <Check style={{ width: "10px", height: "10px", color: "#10b981" }} />
+              </div>
+              <span className="text-sm" style={{ color: "var(--text-2)" }}>{b}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <p className="text-xs" style={{ color: "var(--muted)" }}>
+        Trusted by Shopify DTC operators tracking 1,000+ stores
+      </p>
+    </div>
   );
 }
 
@@ -56,7 +100,7 @@ export default function LoginPage() {
 
   const inputStyle = (field: string) => ({
     background: "var(--bg3)",
-    border: `1px solid ${focusedField === field ? "rgba(59,130,246,.4)" : "var(--border)"}`,
+    border: `1px solid ${focusedField === field ? "rgba(59,130,246,.5)" : "var(--border)"}`,
     color: "var(--text)",
     boxShadow: focusedField === field ? "0 0 0 3px rgba(59,130,246,.08)" : "none",
     outline: "none",
@@ -64,25 +108,21 @@ export default function LoginPage() {
   });
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4" style={{ background: "var(--bg)" }}>
-      {/* Ambient glows */}
-      <div className="fixed pointer-events-none" style={{ top: "-80px", left: "-80px", width: "400px", height: "400px", borderRadius: "50%", background: "rgba(59,130,246,.06)", filter: "blur(80px)", zIndex: 0 }} />
-      <div className="fixed pointer-events-none" style={{ top: "-60px", right: "-60px", width: "300px", height: "300px", borderRadius: "50%", background: "rgba(96,165,250,.04)", filter: "blur(80px)", zIndex: 0 }} />
-      <div className="fixed pointer-events-none" style={{ bottom: "-80px", left: "50%", transform: "translateX(-50%)", width: "350px", height: "350px", borderRadius: "50%", background: "rgba(167,139,250,.04)", filter: "blur(80px)", zIndex: 0 }} />
+    <div className="min-h-screen flex" style={{ background: "var(--bg)" }}>
+      <BrandPanel />
 
-      <div className="relative w-full max-w-sm" style={{ zIndex: 1 }}>
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <div style={{ width: "32px", height: "32px", borderRadius: "12px", background: "var(--accent)", boxShadow: "0 0 20px rgba(59,130,246,.4)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Zap style={{ width: "16px", height: "16px", color: "#ffffff" }} />
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-sm">
+          {/* Mobile logo */}
+          <div className="flex items-center gap-2.5 mb-8 lg:hidden">
+            <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Zap style={{ width: "14px", height: "14px", color: "#fff" }} />
+            </div>
+            <span className="text-base font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
           </div>
-          <span className="text-xl font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
-        </div>
 
-        {/* Card */}
-        <div className="rounded-2xl p-7" style={{ background: "var(--bg2)", border: "1px solid var(--border)", boxShadow: "0 24px 80px rgba(0,0,0,.5)" }}>
-          <h1 className="text-2xl font-bold mb-1 text-center" style={{ color: "var(--text)" }}>Welcome back</h1>
-          <p className="text-sm text-center mb-6" style={{ color: "var(--muted)" }}>Sign in to your account</p>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--text)" }}>Welcome back</h1>
+          <p className="text-sm mb-7" style={{ color: "var(--muted)" }}>Sign in to your account</p>
 
           {/* Google */}
           <button
@@ -91,8 +131,8 @@ export default function LoginPage() {
             disabled={googleLoading || loading}
             className="w-full flex items-center justify-center gap-3 py-3 rounded-xl font-medium text-sm mb-4 transition-all disabled:opacity-50"
             style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,.06)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "var(--bg3)")}
+            onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,.15)")}
+            onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
           >
             {googleLoading ? (
               <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--muted)" }} />
@@ -110,7 +150,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--muted)" }}>Email</label>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--text-2)" }}>Email</label>
               <input
                 type="email"
                 value={email}
@@ -126,7 +166,7 @@ export default function LoginPage() {
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-sm font-medium" style={{ color: "var(--muted)" }}>Password</label>
+                <label className="text-sm font-medium" style={{ color: "var(--text-2)" }}>Password</label>
                 <Link href="/auth/forgot-password" className="text-xs hover:underline" style={{ color: "var(--accent)" }}>
                   Forgot password?
                 </Link>
@@ -155,7 +195,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm" style={{ background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.2)", color: "#f87171" }}>
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm" style={{ background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.2)", color: "#f87171" }}>
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </div>
@@ -164,14 +204,16 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full font-bold py-3 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
-              style={{ background: "var(--accent)", color: "#ffffff" }}
+              className="w-full font-semibold py-3 rounded-xl transition-all disabled:opacity-50"
+              style={{ background: "var(--accent)", color: "#fff" }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
             >
               {loading ? "Signing in…" : "Sign in"}
             </button>
           </form>
 
-          <p className="text-sm text-center mt-5" style={{ color: "var(--muted)" }}>
+          <p className="text-sm text-center mt-6" style={{ color: "var(--muted)" }}>
             Don&apos;t have an account?{" "}
             <Link href="/auth/signup" className="hover:underline" style={{ color: "var(--accent)" }}>
               Sign up free

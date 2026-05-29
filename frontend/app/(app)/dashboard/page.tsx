@@ -526,11 +526,11 @@ function MostActive({ competitorList, signalGroups }: { competitorList: Competit
   return (
     <div
       className="rounded-xl px-4 py-3 mb-3 flex items-center gap-3"
-      style={{ background: "rgba(249,115,22,.05)", border: "1px solid rgba(249,115,22,.18)" }}
+      style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
     >
-      <span className="text-base shrink-0">🔥</span>
+      <Activity className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--accent)" }} />
       <div className="min-w-0">
-        <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: "#f97316" }}>Most active today</p>
+        <p className="label-caps mb-0.5">Most active today</p>
         <p className="text-xs font-semibold truncate" style={{ color: "var(--text)" }}>
           {top.competitor.hostname} · <span style={{ color: "var(--muted)" }}>{top.count} change{top.count !== 1 ? "s" : ""}</span>
         </p>
