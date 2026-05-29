@@ -1,39 +1,71 @@
 "use client";
 
-import Link from "next/link";
+import { RefreshCw } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-interface ScoutBriefProps {
-  narrative: string | null;
-  cta_label: string;
-  cta_href: string;
-  stats: Array<{ label: string; value: string }>;
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
 }
 
-export function ScoutBrief({ narrative, cta_label, cta_href, stats }: ScoutBriefProps) {
+interface ScoutBriefProps {
+  competitorCount: number;
+  productCount: number;
+  nextScan?: string;
+  onRefresh?: () => void;
+  refreshing?: boolean;
+}
+
+export function ScoutBrief({ competitorCount, productCount, nextScan, onRefresh, refreshing }: ScoutBriefProps) {
+  const greeting = getGreeting();
+
   return (
-    <div className="mb-5 pb-5" style={{ borderBottom: "1px solid var(--border)" }}>
-      <div className="flex items-start justify-between gap-4">
-        <p className="text-sm font-medium leading-relaxed" style={{ color: "var(--text-2)" }}>
-          {narrative ?? "Monitoring your competitors. Signals will appear when they make moves."}
-        </p>
-        <Link
-          href={cta_href}
-          className="shrink-0 text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:brightness-110"
-          style={{ background: "var(--accent)", color: "#ffffff" }}
-        >
-          {cta_label}
-        </Link>
-      </div>
-      {stats.length > 0 && (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2.5">
-          {stats.map((s, i) => (
-            <span key={i} className="text-[11px]" style={{ color: "var(--muted)" }}>
-              {i > 0 && <span className="mr-3">·</span>}
-              <span className="font-semibold tabular-nums" style={{ color: "var(--text-2)" }}>{s.value}</span>
-              {" "}{s.label}
-            </span>
-          ))}
+    <div
+      className="flex items-center justify-between gap-4 mb-5 pb-5"
+      style={{ borderBottom: "1px solid var(--border)" }}
+    >
+      <div>
+        <h1 className="text-2xl font-black" style={{ color: "var(--text)" }}>{greeting}</h1>
+        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1">
+          <span className="text-xs" style={{ color: "var(--muted)" }}>
+            <span className="font-semibold tabular-nums" style={{ color: "var(--text-2)" }}>{competitorCount}</span>
+            {" "}competitor{competitorCount !== 1 ? "s" : ""} tracked
+          </span>
+          {productCount > 0 && (
+            <>
+              <span className="text-xs" style={{ color: "var(--border)" }}>·</span>
+              <span className="text-xs" style={{ color: "var(--muted)" }}>
+                <span className="font-semibold tabular-nums" style={{ color: "var(--text-2)" }}>{productCount.toLocaleString()}</span>
+                {" "}products
+              </span>
+            </>
+          )}
+          {nextScan && (
+            <>
+              <span className="text-xs" style={{ color: "var(--border)" }}>·</span>
+              <span className="text-xs" style={{ color: "var(--muted)" }}>
+                next scan in{" "}
+                <span className="font-semibold" style={{ color: "var(--text-2)" }}>{nextScan}</span>
+              </span>
+            </>
+          )}
         </div>
+      </div>
+
+      {onRefresh && (
+        <button
+          onClick={onRefresh}
+          disabled={refreshing}
+          className="shrink-0 flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg transition-all disabled:opacity-40"
+          style={{ color: "var(--muted)", border: "1px solid var(--border)", background: "transparent" }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,.04)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+        >
+          <RefreshCw className={cn("w-3.5 h-3.5", refreshing && "animate-spin")} />
+          {refreshing ? "Scanning…" : "Refresh all"}
+        </button>
       )}
     </div>
   );
