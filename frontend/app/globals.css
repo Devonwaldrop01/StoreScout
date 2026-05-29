@@ -2,23 +2,22 @@
 
 /* ── Color System ────────────────────────────────────────────────────────── */
 :root {
-  --bg:       #0a0a0f;
-  --bg2:      #0d0d15;
-  --bg3:      #111118;
-  --bg4:      #16161f;
-  --bg-card:  #111118;
-  --border:   #1e2035;
-  --text:     #f0f0f3;
-  --text-2:   #c8d0e0;
-  --muted:    #5a6a82;
+  --bg:       #070B14;
+  --bg2:      #0D1320;
+  --bg3:      #131B2D;
+  --bg4:      #131B2D;
+  --bg-card:  #0D1320;
+  --border:   #1B2740;
+  --text:     #F3F6FC;
+  --text-2:   #9BA7BD;
+  --muted:    #647089;
   --accent:   #3b82f6;
-  --green:    #10b981;
+  --green:    #22C55E;
   --blue:     #60a5fa;
-  --emerald:  #10b981;
+  --emerald:  #22C55E;
   --amber:    #f59e0b;
   --red:      #ef4444;
-  --cyan:     #22d3ee;
-  --purple:   #a78bfa;
+  /* --cyan and --purple reserved for chart series only — do not use in UI components */
 }
 
 @theme inline {

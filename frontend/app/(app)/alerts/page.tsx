@@ -217,9 +217,9 @@ export default function AlertsPage() {
             <div className="w-12 h-12 rounded-2xl mb-4 flex items-center justify-center" style={{ background: "rgba(59,130,246,.06)", border: "1px solid rgba(59,130,246,.14)" }}>
               <Bell className="w-6 h-6" style={{ color: "var(--accent)" }} />
             </div>
-            <p className="text-base font-bold mb-2" style={{ color: "var(--text)" }}>No alerts yet</p>
+            <p className="text-base font-bold mb-2" style={{ color: "var(--text)" }}>All clear</p>
             <p className="text-sm max-w-sm leading-relaxed" style={{ color: "var(--muted)" }}>
-              When a tracked competitor changes prices, launches products, or starts a discount campaign — you&apos;ll see it here within minutes.
+              StoreScout is monitoring your competitors. You&apos;ll see signals here when they change prices, launch products, run discounts, or remove catalog items.
             </p>
           </div>
 

@@ -13,10 +13,11 @@ import {
   type Competitor, type AlertEvent, type DiscoverySuggestion, type PlaybookPlay,
 } from "@/lib/api";
 import { cn, formatPrice, formatRelativeTime } from "@/lib/utils";
-import { groupAlertEvents, type SignalGroup, SIGNAL_CONFIG } from "@/lib/signals";
+import { groupAlertEvents, generateNarrative, type SignalGroup, SIGNAL_CONFIG } from "@/lib/signals";
 import { SignalFeed } from "@/components/signals/SignalFeed";
 import { ActionPlaybook } from "@/components/competitors/ActionPlaybook";
 import UpgradeModal from "@/components/UpgradeModal";
+import { ScoutBrief } from "@/components/ui";
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -860,32 +861,49 @@ function DashboardContent() {
     );
   }
 
+  const narrative = alertsLoading ? null : generateNarrative(signalGroups);
+  const totalProducts = competitorList.reduce((s, c) => s + (c.product_count || 0), 0);
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const thisWeekChangesCount = alertList.filter((e) => new Date(e.detected_at).getTime() > weekAgo).length;
+  const nextScanTs = competitorList
+    .filter((c) => c.next_scan_at)
+    .map((c) => new Date(c.next_scan_at!).getTime())
+    .sort((a, b) => a - b)[0];
+  const hasStrategic = signalGroups.some((g) => g.tier === "strategic");
+
   return (
     <div>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold" style={{ color: "var(--text)" }}>Dashboard</h1>
-          <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
-            {competitorList.length === 0
-              ? "No competitors tracked yet"
-              : `Tracking ${competitorList.length} competitor${competitorList.length !== 1 ? "s" : ""}`}
-          </p>
+      {/* Scout Brief hero — replaces h1 + subtitle */}
+      {competitorList.length > 0 && (
+        <div className="flex items-center justify-between gap-3 mb-0">
+          <div className="flex-1 min-w-0">
+            <ScoutBrief
+              narrative={narrative}
+              cta_label={hasStrategic ? "Review Signals" : "Open Playbook"}
+              cta_href={hasStrategic ? "/alerts" : "/playbook"}
+              stats={[
+                { value: String(competitorList.length), label: `competitor${competitorList.length !== 1 ? "s" : ""}` },
+                { value: totalProducts.toLocaleString(), label: "products" },
+                { value: String(thisWeekChangesCount), label: "signals this week" },
+                ...(nextScanTs ? [{ value: formatNextScan(new Date(nextScanTs).toISOString()), label: "next scan" }] : []),
+              ]}
+            />
+          </div>
+          {competitorList.length > 1 && (
+            <button
+              onClick={handleScanAll}
+              disabled={scanningAll || competitorList.some((c) => c.scan_status === "scanning")}
+              className="shrink-0 flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg transition-colors disabled:opacity-40 self-start"
+              style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,.04)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+            >
+              <RefreshCw className={cn("w-3.5 h-3.5", scanningAll && "animate-spin")} />
+              {scanningAll ? "Scanning…" : "Refresh all"}
+            </button>
+          )}
         </div>
-        {competitorList.length > 1 && (
-          <button
-            onClick={handleScanAll}
-            disabled={scanningAll || competitorList.some((c) => c.scan_status === "scanning")}
-            className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg transition-colors disabled:opacity-40"
-            style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,.04)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-          >
-            <RefreshCw className={cn("w-3.5 h-3.5", scanningAll && "animate-spin")} />
-            {scanningAll ? "Scanning…" : "Refresh all"}
-          </button>
-        )}
-      </div>
+      )}
 
       {competitorList.length === 0 ? (
         <>

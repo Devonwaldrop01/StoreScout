@@ -1,27 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, ArrowRight, Zap, Shield, TrendingUp } from "lucide-react";
+import { Zap } from "lucide-react";
 import Link from "next/link";
 import { user as userApi, type ActionItem } from "@/lib/api";
-
-const TYPE_CONFIG = {
-  threat: {
-    Icon: Shield,
-    color: "#ef4444",
-    label: "Threat",
-  },
-  opportunity: {
-    Icon: TrendingUp,
-    color: "#10b981",
-    label: "Opportunity",
-  },
-  gap: {
-    Icon: Zap,
-    color: "#7c8aa0",
-    label: "Gap",
-  },
-} as const;
+import { ActionCard } from "@/components/ui";
 
 const DISMISSED_KEY = "playbook_dismissed";
 
@@ -177,58 +160,19 @@ export function ActionPlaybook({ competitorCount }: Props) {
       </div>
 
       <div className={`grid grid-cols-1 ${gridCols} gap-3`}>
-        {shown.map((item) => {
-          const cfg = TYPE_CONFIG[item.type] ?? TYPE_CONFIG.opportunity;
-          const { Icon } = cfg;
-          return (
-            <div
-              key={item.id}
-              className="relative rounded-xl p-4 fade-in flex flex-col"
-              style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: `3px solid ${cfg.color}` }}
-            >
-              {/* Dismiss */}
-              <button
-                onClick={() => dismiss(item.id)}
-                className="absolute top-3 right-3 p-0.5 rounded opacity-40 hover:opacity-80 transition-opacity"
-                style={{ color: "var(--muted)" }}
-                aria-label="Dismiss"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-
-              {/* Header */}
-              <div className="flex items-center gap-2 mb-2.5 pr-5">
-                <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: cfg.color }} />
-                <span className="text-xs font-bold" style={{ color: cfg.color }}>{cfg.label}</span>
-                <span className="text-[11px] truncate" style={{ color: "var(--muted)" }}>{item.hostname}</span>
-              </div>
-
-              {/* Headline */}
-              <p className="text-xs font-semibold leading-snug mb-1.5" style={{ color: "var(--text)" }}>
-                {item.headline}
-              </p>
-
-              {/* Action text */}
-              <p className="text-[11px] leading-relaxed mb-3 flex-1" style={{ color: "var(--muted)" }}>
-                {item.action_text}
-              </p>
-
-              {/* Footer */}
-              <div className="flex items-center justify-between">
-                <span className="text-[10px]" style={{ color: "var(--muted)" }}>
-                  {item.context}
-                </span>
-                <Link
-                  href={`/dashboard/${item.competitor_id}?tab=${item.tab}`}
-                  className="flex items-center gap-1 text-[11px] font-semibold transition-opacity hover:opacity-70"
-                  style={{ color: "var(--accent)" }}
-                >
-                  View <ArrowRight className="w-2.5 h-2.5" />
-                </Link>
-              </div>
-            </div>
-          );
-        })}
+        {shown.map((item) => (
+          <ActionCard
+            key={item.id}
+            type={item.type as "threat" | "opportunity" | "gap"}
+            headline={item.headline}
+            action_text={item.action_text}
+            context={item.context}
+            hostname={item.hostname}
+            competitor_id={item.competitor_id}
+            tab={item.tab}
+            onDismiss={() => dismiss(item.id)}
+          />
+        ))}
       </div>
     </div>
   );

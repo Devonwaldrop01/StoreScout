@@ -231,7 +231,7 @@ export default function GapsTab({ competitorId }: { competitorId: string }) {
           <Target className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#3b82f6" }} />
           <div>
             <h3 className="font-semibold" style={{ color: "var(--text)" }}>
-              Where there&apos;s room to compete
+              Market Openings
             </h3>
             <p className="text-sm mt-0.5" style={{ color: "var(--muted)" }}>
               Price points they ignore, demand they can&apos;t fulfill, categories they underserve.
