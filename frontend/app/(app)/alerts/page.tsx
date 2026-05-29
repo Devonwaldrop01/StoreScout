@@ -84,7 +84,7 @@ export default function AlertsPage() {
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-black tracking-tight" style={{ color: "var(--text)" }}>
+          <h1 className="text-xl font-bold" style={{ color: "var(--text)" }}>
             Alerts
           </h1>
           {!loading && strategicCount > 0 && (

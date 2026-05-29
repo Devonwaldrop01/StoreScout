@@ -702,7 +702,7 @@ export default function PlaybookPage() {
   if (!data || data.competitor_count === 0) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-black" style={{ color: "var(--text)" }}>Your Playbook</h1>
+        <h1 className="text-xl font-bold" style={{ color: "var(--text)" }}>Your Playbook</h1>
         <div className="rounded-2xl p-10 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <Zap className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--accent)" }} />
           <p className="font-semibold mb-1" style={{ color: "var(--text)" }}>No competitors tracked yet</p>
@@ -741,7 +741,7 @@ export default function PlaybookPage() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <h1 className="text-2xl font-black" style={{ color: "var(--text)" }}>Your Playbook</h1>
+              <h1 className="text-xl font-bold" style={{ color: "var(--text)" }}>Your Playbook</h1>
               {activePlays.length > 0 && (
                 <span
                   className="text-xs font-bold px-2 py-1 rounded-full"

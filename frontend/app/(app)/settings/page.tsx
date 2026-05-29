@@ -383,7 +383,7 @@ function SettingsContent() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-black mb-6" style={{ color: "var(--text)" }}>Settings</h1>
+      <h1 className="text-xl font-bold mb-6" style={{ color: "var(--text)" }}>Settings</h1>
 
       {upgraded && (
         <div
@@ -631,7 +631,7 @@ function SettingsContent() {
                         </span>
                       )}
                     </div>
-                    <p className="text-2xl font-black mt-2 mb-1" style={{ color: "var(--text)" }}>
+                    <p className="text-xl font-bold mt-2 mb-1" style={{ color: "var(--text)" }}>
                       {plan.price}
                       <span className="text-sm font-normal" style={{ color: "var(--muted)" }}>/mo</span>
                     </p>
