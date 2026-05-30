@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import {
   RefreshCw, ArrowRight, Sparkles,
-  Activity, Package, Zap, Clock, X, Lock, Target, Plus, Check,
+  Activity, Zap, Clock, X, Lock, Target, Plus, Check,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -32,10 +32,24 @@ function formatNextScan(dateStr: string | undefined): string {
   return "< 1h";
 }
 
+// Turn a strategic signal into a one-line, competitor-specific callout for the
+// Scout Brief header — e.g. "gymshark.com running a flash sale".
+function signalPhrase(g: SignalGroup): string {
+  switch (g.type) {
+    case "flash_sale":         return `${g.hostname} running a flash sale`;
+    case "price_wave":         return `${g.hostname} dropped prices on ${g.count} products`;
+    case "price_increase":     return `${g.hostname} raised prices on ${g.count} products`;
+    case "launch_burst":       return `${g.hostname} launched ${g.count} products`;
+    case "discount_wave":      return `${g.hostname} discounting ${g.count} products`;
+    case "product_removals":   return `${g.hostname} delisted ${g.count} products`;
+    case "availability_shift": return `${g.hostname} has stock gaps`;
+    default:                   return `${g.hostname} made ${g.count} changes`;
+  }
+}
+
 // ── Stats bar ─────────────────────────────────────────────────────────────
 
 function StatsBar({ competitorList, signalGroups, alertList }: { competitorList: Competitor[]; signalGroups: SignalGroup[]; alertList: AlertEvent[] }) {
-  const totalProducts = competitorList.reduce((s, c) => s + (c.product_count || 0), 0);
   const weekAgo  = Date.now() - 7  * 24 * 60 * 60 * 1000;
   const twoWeeksAgo = Date.now() - 14 * 24 * 60 * 60 * 1000;
   const dayAgo   = Date.now() - 24 * 60 * 60 * 1000;
@@ -61,6 +75,14 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
     .filter((g) => g.tier === "strategic")
     .filter((g) => new Date(g.detected_at).getTime() > weekAgo).length;
 
+  // Competitors that produced any signal this week — a "who's moving" metric
+  // that actually matters, unlike a raw total-product count.
+  const activeThisWeek = new Set(
+    signalGroups
+      .filter((g) => new Date(g.detected_at).getTime() > weekAgo)
+      .map((g) => g.competitor_id),
+  ).size;
+
   const nextScanTs = competitorList
     .filter((c) => c.next_scan_at)
     .map((c) => new Date(c.next_scan_at!).getTime())
@@ -71,7 +93,13 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-      <MetricCard icon={Package}  label="Products tracked"  value={totalProducts.toLocaleString()} color="var(--blue)" />
+      <MetricCard
+        icon={Target}
+        label="Active this week"
+        value={activeThisWeek}
+        color={activeThisWeek > 0 ? "var(--accent)" : "var(--muted)"}
+        deltaText={`of ${competitorList.length} tracked`}
+      />
       <MetricCard
         icon={Activity}
         label="Changes this week"
@@ -754,7 +782,6 @@ function DashboardContent() {
     );
   }
 
-  const totalProducts = competitorList.reduce((s, c) => s + (c.product_count || 0), 0);
   const nextScanTs = competitorList
     .filter((c) => c.next_scan_at)
     .map((c) => new Date(c.next_scan_at!).getTime())
@@ -763,7 +790,11 @@ function DashboardContent() {
     .filter((c) => c.last_scanned_at)
     .map((c) => new Date(c.last_scanned_at!).getTime())
     .sort((a, b) => b - a)[0]; // most recent
-  const hasStrategic = signalGroups.some((g) => g.tier === "strategic");
+  const weekAgoMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const briefHighlights = signalGroups
+    .filter((g) => g.tier === "strategic" && new Date(g.detected_at).getTime() > weekAgoMs)
+    .slice(0, 3)
+    .map(signalPhrase);
 
   return (
     <div>
@@ -774,6 +805,7 @@ function DashboardContent() {
           competitorCount={competitorList.length}
           lastScan={lastScannedTs ? formatRelativeTime(new Date(lastScannedTs).toISOString()) : undefined}
           nextScan={nextScanTs ? formatNextScan(new Date(nextScanTs).toISOString()) : undefined}
+          highlights={briefHighlights}
           onRefresh={handleScanAll}
           refreshing={scanningAll || competitorList.some((c) => c.scan_status === "scanning")}
         />
