@@ -156,6 +156,8 @@ interface Props {
 
 export function SignalFeed({ groups, loading = false, maxRaw = 12 }: Props) {
   const [showAllRaw, setShowAllRaw] = useState(false);
+  // Capture "now" once at mount — a lazy initializer keeps render pure.
+  const [mountedAt] = useState(() => Date.now());
 
   if (loading) {
     return (
@@ -176,12 +178,27 @@ export function SignalFeed({ groups, loading = false, maxRaw = 12 }: Props) {
   const visibleRaw = showAllRaw ? raw : raw.slice(0, maxRaw);
   const hiddenRawCount = raw.length - visibleRaw.length;
 
+  // Split strategic signals into "Today" vs "Earlier" so the most recent
+  // competitor moves read as fresh, not as one undifferentiated stream.
+  const dayAgo = mountedAt - 24 * 60 * 60 * 1000;
+  const strategicToday   = strategic.filter((g) => new Date(g.detected_at).getTime() > dayAgo);
+  const strategicEarlier = strategic.filter((g) => new Date(g.detected_at).getTime() <= dayAgo);
+  // Only show dividers when both buckets have content — otherwise they're noise.
+  const showStrategicDividers = strategicToday.length > 0 && strategicEarlier.length > 0;
+
   return (
     <div>
       {/* Strategic signals */}
-      {strategic.map((g) => (
-        <SignalCard key={g.id} group={g} />
-      ))}
+      {showStrategicDividers ? (
+        <>
+          <div className="label-caps mb-2 px-1">Today</div>
+          {strategicToday.map((g) => <SignalCard key={g.id} group={g} />)}
+          <div className="label-caps mt-4 mb-2 px-1">Earlier this week</div>
+          {strategicEarlier.map((g) => <SignalCard key={g.id} group={g} />)}
+        </>
+      ) : (
+        strategic.map((g) => <SignalCard key={g.id} group={g} />)
+      )}
 
       {/* Tactical groups */}
       {tactical.length > 0 && (

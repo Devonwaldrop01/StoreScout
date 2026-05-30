@@ -73,11 +73,11 @@ export function ActionPlaybook({ competitorCount }: Props) {
       <div className="mb-6 fade-in">
         <div className="flex items-center gap-2 mb-3">
           <Zap className="w-4 h-4" style={{ color: "var(--accent)" }} />
-          <span className="label-caps">Your Move</span>
+          <h2 className="text-base font-bold" style={{ color: "var(--text)" }}>Your Move</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-28 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />
+            <div key={i} className="h-36 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />
           ))}
         </div>
       </div>
@@ -165,10 +165,13 @@ export function ActionPlaybook({ competitorCount }: Props) {
 
   return (
     <div className="mb-6 fade-up">
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-1">
         <Zap className="w-4 h-4" style={{ color: "var(--accent)" }} />
-        <span className="label-caps">Your Move</span>
+        <h2 className="text-base font-bold" style={{ color: "var(--text)" }}>Your Move</h2>
       </div>
+      <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
+        What to do about the most important competitor activity right now.
+      </p>
 
       <div className={`grid grid-cols-1 ${gridCols} gap-3`}>
         {shown.map((item) => (

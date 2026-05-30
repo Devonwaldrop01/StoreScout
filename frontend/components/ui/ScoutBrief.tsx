@@ -15,44 +15,66 @@ interface ScoutBriefProps {
   competitorCount: number;
   lastScan?: string;
   nextScan?: string;
+  highlights?: string[];
   onRefresh?: () => void;
   refreshing?: boolean;
 }
 
-export function ScoutBrief({ firstName, competitorCount, lastScan, nextScan, onRefresh, refreshing }: ScoutBriefProps) {
+export function ScoutBrief({ firstName, competitorCount, lastScan, nextScan, highlights, onRefresh, refreshing }: ScoutBriefProps) {
   const greeting = firstName ? `${getGreeting()}, ${firstName}` : getGreeting();
+  const hasHighlights = highlights && highlights.length > 0;
+
+  // Compact meta line (tracked · last scan · next scan) — full when there are no
+  // highlights, demoted to a small footnote underneath them when there are.
+  const metaLine = (
+    <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+      <span className="text-xs" style={{ color: "var(--muted)" }}>
+        <span className="font-semibold tabular-nums" style={{ color: "var(--text-2)" }}>{competitorCount}</span>
+        {" "}competitor{competitorCount !== 1 ? "s" : ""} tracked
+      </span>
+      {lastScan && (
+        <>
+          <span className="text-xs" style={{ color: "var(--border)" }}>·</span>
+          <span className="text-xs" style={{ color: "var(--muted)" }}>
+            last scan{" "}
+            <span className="font-semibold" style={{ color: "var(--text-2)" }}>{lastScan}</span>
+          </span>
+        </>
+      )}
+      {nextScan && (
+        <>
+          <span className="text-xs" style={{ color: "var(--border)" }}>·</span>
+          <span className="text-xs" style={{ color: "var(--muted)" }}>
+            next in{" "}
+            <span className="font-semibold" style={{ color: "var(--text-2)" }}>{nextScan}</span>
+          </span>
+        </>
+      )}
+    </div>
+  );
 
   return (
     <div
       className="flex items-center justify-between gap-4 mb-5 pb-5"
       style={{ borderBottom: "1px solid var(--border)" }}
     >
-      <div>
+      <div className="min-w-0">
         <h1 className="text-2xl font-black" style={{ color: "var(--text)" }}>{greeting}</h1>
-        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1">
-          <span className="text-xs" style={{ color: "var(--muted)" }}>
-            <span className="font-semibold tabular-nums" style={{ color: "var(--text-2)" }}>{competitorCount}</span>
-            {" "}competitor{competitorCount !== 1 ? "s" : ""} tracked
-          </span>
-          {lastScan && (
-            <>
-              <span className="text-xs" style={{ color: "var(--border)" }}>·</span>
-              <span className="text-xs" style={{ color: "var(--muted)" }}>
-                last scan{" "}
-                <span className="font-semibold" style={{ color: "var(--text-2)" }}>{lastScan}</span>
-              </span>
-            </>
-          )}
-          {nextScan && (
-            <>
-              <span className="text-xs" style={{ color: "var(--border)" }}>·</span>
-              <span className="text-xs" style={{ color: "var(--muted)" }}>
-                next in{" "}
-                <span className="font-semibold" style={{ color: "var(--text-2)" }}>{nextScan}</span>
-              </span>
-            </>
-          )}
-        </div>
+        {hasHighlights ? (
+          <div className="mt-1.5">
+            <p className="text-sm leading-snug" style={{ color: "var(--text-2)" }}>
+              {highlights!.map((h, i) => (
+                <span key={i}>
+                  {i > 0 && <span style={{ color: "var(--border)" }}> · </span>}
+                  {h}
+                </span>
+              ))}
+            </p>
+            <div className="mt-1">{metaLine}</div>
+          </div>
+        ) : (
+          <div className="mt-1">{metaLine}</div>
+        )}
       </div>
 
       {onRefresh && (
