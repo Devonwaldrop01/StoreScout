@@ -12,28 +12,16 @@ import { AddCompetitorModal } from "@/components/competitors/AddCompetitorModal"
 import UpgradeModal from "@/components/UpgradeModal";
 import {
   Store, X, Loader2, Check, Plus, RefreshCw, Target, Zap, ArrowRight,
-  TrendingUp, TrendingDown, Package, Tag,
+  Package, Tag,
 } from "lucide-react";
 
 // ── Stat cell ──────────────────────────────────────────────────────────────
 
-function StatCell({ label, value, delta }: { label: string; value: string; delta?: number | null }) {
-  const showDelta = delta != null && delta !== 0;
+function StatCell({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-[10px] font-medium uppercase tracking-wide mb-1" style={{ color: "var(--muted)" }}>{label}</p>
-      <div className="flex items-baseline gap-1.5">
-        <p className="text-lg font-bold num" style={{ color: "var(--text)" }}>{value}</p>
-        {showDelta && (
-          <span
-            className="flex items-center gap-0.5 text-[11px] font-semibold num"
-            style={{ color: delta! > 0 ? "var(--emerald)" : "var(--red)" }}
-          >
-            {delta! > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-            {Math.abs(delta!)}
-          </span>
-        )}
-      </div>
+      <p className="text-lg font-bold num" style={{ color: "var(--text)" }}>{value}</p>
     </div>
   );
 }
@@ -51,18 +39,10 @@ function CompetitorCard({
   statusLabel: string;
   lastScanned: string;
 }) {
-  // snapshot_data carries the catalog metrics (same keys the detail page reads)
-  const snap = (c.snapshot_data ?? {}) as Record<string, number | undefined>;
-  const products = snap.total_products ?? c.product_count;
-  const new30d = snap.new_30d;
-  const priceMin = snap.price_min;
-  const priceMax = snap.price_max;
-  const priceMedian = snap.price_median;
-  const promoPct = snap.promo_pct ?? c.promo_rate;
-  const avgDiscount = snap.avg_discount;
-
-  const hasPriceRange = priceMin != null && priceMax != null;
-  const promoHigh = promoPct != null && promoPct >= 20;
+  // The /competitors list endpoint enriches each row with the latest snapshot's
+  // product_count, promo_rate, median_price and new_30d.
+  const promoHigh = c.promo_rate != null && c.promo_rate >= 20;
+  const showNew = c.new_30d != null && c.new_30d > 0;
 
   return (
     <div
@@ -112,13 +92,12 @@ function CompetitorCard({
       <div className="grid grid-cols-3 gap-3 mb-4">
         <StatCell
           label="Products"
-          value={products != null ? products.toLocaleString() : "—"}
-          delta={new30d != null && new30d > 0 ? new30d : null}
+          value={c.product_count != null ? c.product_count.toLocaleString() : "—"}
         />
-        <StatCell label="Median price" value={formatPrice(priceMedian)} />
+        <StatCell label="Median price" value={formatPrice(c.median_price)} />
         <StatCell
           label="On sale"
-          value={promoPct != null ? `${promoPct.toFixed(0)}%` : "—"}
+          value={c.promo_rate != null ? `${c.promo_rate.toFixed(0)}%` : "—"}
         />
       </div>
 
@@ -129,22 +108,20 @@ function CompetitorCard({
       >
         <span className="flex items-center gap-1.5" style={{ color: "var(--muted)" }}>
           <Package className="w-3 h-3" />
-          Range{" "}
-          <span className="num font-semibold" style={{ color: "var(--text-2)" }}>
-            {hasPriceRange ? `${formatPrice(priceMin)}–${formatPrice(priceMax)}` : "—"}
-          </span>
+          {showNew ? (
+            <>
+              <span className="num font-semibold" style={{ color: "var(--emerald)" }}>+{c.new_30d}</span> new in 30d
+            </>
+          ) : (
+            "No new products (30d)"
+          )}
         </span>
-        {promoHigh ? (
+        {promoHigh && (
           <span className="flex items-center gap-1 font-semibold" style={{ color: "var(--amber)" }}>
             <Tag className="w-3 h-3" />
-            Heavy promo{avgDiscount != null ? ` · ${avgDiscount.toFixed(0)}% off` : ""}
+            Heavy promo
           </span>
-        ) : avgDiscount != null && avgDiscount > 0 ? (
-          <span className="num font-semibold" style={{ color: "var(--muted)" }}>
-            Avg discount{" "}
-            <span style={{ color: "var(--text-2)" }}>{avgDiscount.toFixed(0)}%</span>
-          </span>
-        ) : null}
+        )}
       </div>
 
       {/* Footer actions */}
