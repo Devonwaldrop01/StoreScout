@@ -34,11 +34,16 @@ def _redis_client():
 
 
 async def _fetch_favicon(domain: str) -> tuple[bytes, str] | None:
+    # Order: third-party CDNs first (sized, cached), then the store's own
+    # favicon as a fallback — a request to the store's own server from our
+    # backend is the least likely to be blocked or rejected.
     sources = [
         f"https://icons.duckduckgo.com/ip3/{domain}.ico",
         f"https://www.google.com/s2/favicons?domain={domain}&sz=64",
+        f"https://{domain}/favicon.ico",
+        f"https://www.{domain}/favicon.ico",
     ]
-    async with httpx.AsyncClient(timeout=4.0, follow_redirects=True, headers=_BROWSER_HEADERS) as client:
+    async with httpx.AsyncClient(timeout=5.0, follow_redirects=True, headers=_BROWSER_HEADERS) as client:
         for url in sources:
             try:
                 resp = await client.get(url)
@@ -48,8 +53,9 @@ async def _fetch_favicon(domain: str) -> tuple[bytes, str] | None:
                 # a plausible size.
                 if resp.status_code == 200 and resp.content and ct.startswith("image/") and len(resp.content) > 70:
                     return resp.content, ct or "image/x-icon"
+                logger.info("favicon: %s returned %s (%s, %d bytes) — skipping", url, resp.status_code, ct or "?", len(resp.content))
             except Exception as exc:
-                logger.debug("favicon fetch failed for %s from %s: %s", domain, url, exc)
+                logger.info("favicon: fetch failed for %s: %s", url, exc)
     return None
 
 
