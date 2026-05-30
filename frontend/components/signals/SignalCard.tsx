@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
-import { type SignalGroup, SIGNAL_CONFIG } from "@/lib/signals";
+import { type SignalGroup, SIGNAL_CONFIG, impactLevel } from "@/lib/signals";
 import { formatRelativeTime, formatPrice, formatDelta } from "@/lib/utils";
 
 interface Props {
@@ -84,8 +84,29 @@ export function SignalCard({ group }: Props) {
         </p>
       )}
 
+      {/* Impact + Category badges (strategic signals only) */}
+      {group.tier === "strategic" && (() => {
+        const level = impactLevel(group);
+        const [impactBg, impactColor] =
+          level === "High"   ? ["rgba(239,68,68,.12)",   "var(--red)"]   :
+          level === "Medium" ? ["rgba(245,158,11,.12)",  "var(--amber)"] :
+                               ["rgba(100,112,137,.12)", "var(--muted)"];
+        return (
+          <div className="flex items-center gap-1.5 px-4 pb-2">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{ background: impactBg, color: impactColor }}>
+              Impact: {level}
+            </span>
+            {group.category_hint && (
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded" style={{ background: "var(--bg3)", color: "var(--muted)", border: "1px solid var(--border)" }}>
+                {group.category_hint}
+              </span>
+            )}
+          </div>
+        );
+      })()}
+
       {/* Metadata row */}
-      {(group.avg_price != null || (group.avg_delta_pct != null && group.type !== "launch_burst") || group.category_hint) && (
+      {(group.avg_price != null || (group.avg_delta_pct != null && group.type !== "launch_burst") || (group.tier !== "strategic" && group.category_hint)) && (
         <div className="flex items-center gap-4 px-4 pb-3">
           {group.avg_price != null && (
             <span className="text-xs" style={{ color: "var(--muted)" }}>
@@ -97,7 +118,7 @@ export function SignalCard({ group }: Props) {
               Avg change: <span className="font-mono font-semibold" style={{ color: (group.avg_delta_pct ?? 0) < 0 ? "var(--red)" : "var(--emerald)" }}>{formatDelta(group.avg_delta_pct)}</span>
             </span>
           )}
-          {group.category_hint && (
+          {group.tier !== "strategic" && group.category_hint && (
             <span className="text-[11px] px-2 py-0.5 rounded-md" style={{ background: "var(--bg3)", color: "var(--muted)" }}>
               {group.category_hint}
             </span>

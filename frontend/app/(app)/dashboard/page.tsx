@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import {
   RefreshCw, ArrowRight, Sparkles,
-  Activity, Zap, Clock, X, Lock, Target, Plus, Check,
+  Activity, Zap, Clock, X, Lock, Target, Plus, Check, TrendingUp, ShieldAlert,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -32,22 +32,10 @@ function formatNextScan(dateStr: string | undefined): string {
   return "< 1h";
 }
 
-// Turn a strategic signal into a one-line, competitor-specific callout for the
-// Scout Brief header — e.g. "gymshark.com running a flash sale".
-function signalPhrase(g: SignalGroup): string {
-  switch (g.type) {
-    case "flash_sale":         return `${g.hostname} running a flash sale`;
-    case "price_wave":         return `${g.hostname} dropped prices on ${g.count} products`;
-    case "price_increase":     return `${g.hostname} raised prices on ${g.count} products`;
-    case "launch_burst":       return `${g.hostname} launched ${g.count} products`;
-    case "discount_wave":      return `${g.hostname} discounting ${g.count} products`;
-    case "product_removals":   return `${g.hostname} delisted ${g.count} products`;
-    case "availability_shift": return `${g.hostname} has stock gaps`;
-    default:                   return `${g.hostname} made ${g.count} changes`;
-  }
-}
-
 // ── Stats bar ─────────────────────────────────────────────────────────────
+
+const OPPORTUNITY_TYPES = new Set(["launch_burst", "price_increase", "product_removals", "availability_shift"]);
+const THREAT_TYPES = new Set(["flash_sale", "price_wave", "discount_wave"]);
 
 function StatsBar({ competitorList, signalGroups, alertList }: { competitorList: Competitor[]; signalGroups: SignalGroup[]; alertList: AlertEvent[] }) {
   const weekAgo  = Date.now() - 7  * 24 * 60 * 60 * 1000;
@@ -71,17 +59,11 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
     return alertList.filter((a) => new Date(a.detected_at).toDateString() === d.toDateString()).length;
   });
 
-  const criticals = signalGroups
-    .filter((g) => g.tier === "strategic")
-    .filter((g) => new Date(g.detected_at).getTime() > weekAgo).length;
-
-  // Competitors that produced any signal this week — a "who's moving" metric
-  // that actually matters, unlike a raw total-product count.
-  const activeThisWeek = new Set(
-    signalGroups
-      .filter((g) => new Date(g.detected_at).getTime() > weekAgo)
-      .map((g) => g.competitor_id),
-  ).size;
+  const strategicThisWeek = signalGroups.filter(
+    (g) => g.tier === "strategic" && new Date(g.detected_at).getTime() > weekAgo
+  );
+  const opportunities = strategicThisWeek.filter((g) => OPPORTUNITY_TYPES.has(g.type)).length;
+  const threats       = strategicThisWeek.filter((g) => THREAT_TYPES.has(g.type)).length;
 
   const nextScanTs = competitorList
     .filter((c) => c.next_scan_at)
@@ -94,11 +76,11 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
       <MetricCard
-        icon={Target}
-        label="Active this week"
-        value={activeThisWeek}
-        color={activeThisWeek > 0 ? "var(--accent)" : "var(--muted)"}
-        deltaText={`of ${competitorList.length} tracked`}
+        icon={TrendingUp}
+        label="Opportunities"
+        value={opportunities}
+        color={opportunities > 0 ? "var(--emerald)" : "var(--muted)"}
+        deltaText="this week"
       />
       <MetricCard
         icon={Activity}
@@ -110,10 +92,11 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
         sparkline={dailyCounts}
       />
       <MetricCard
-        icon={Zap}
-        label={criticals > 0 ? "Active signals" : "All clear"}
-        value={criticals > 0 ? criticals : "✓"}
-        color={criticals > 0 ? "var(--red)" : "var(--emerald)"}
+        icon={ShieldAlert}
+        label="Threats"
+        value={threats}
+        color={threats > 0 ? "var(--red)" : "var(--muted)"}
+        deltaText="this week"
       />
       {nextScanTs && (
         <MetricCard icon={Clock} label="Next auto-scan" value={formatNextScan(new Date(nextScanTs).toISOString())} color="var(--muted)" />
@@ -178,7 +161,7 @@ function PlaybookWidget() {
 
   useEffect(() => {
     userApi.playbook()
-      .then((r) => { setPlays((r.plays || []).slice(0, 3)); setLocked(r.locked ?? false); })
+      .then((r) => { setPlays((r.plays || []).slice(0, 1)); setLocked(r.locked ?? false); })
       .catch(() => {})
       .finally(() => setPlaybookLoading(false));
   }, []);
@@ -204,16 +187,10 @@ function PlaybookWidget() {
       </div>
       <div style={{ background: "var(--bg-card)" }}>
         {playbookLoading ? (
-          [1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="px-4 py-3 animate-pulse"
-              style={i < 3 ? { borderBottom: "1px solid var(--border)" } : undefined}
-            >
-              <div className="h-3 rounded-full w-4/5" style={{ background: "var(--bg3)" }} />
-              <div className="h-2.5 rounded-full w-1/2 mt-1.5" style={{ background: "var(--bg3)" }} />
-            </div>
-          ))
+          <div className="px-4 py-3 animate-pulse">
+            <div className="h-3 rounded-full w-4/5" style={{ background: "var(--bg3)" }} />
+            <div className="h-2.5 rounded-full w-1/2 mt-1.5" style={{ background: "var(--bg3)" }} />
+          </div>
         ) : locked ? (
           <div className="px-4 py-3 flex items-center gap-2">
             <Lock className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--muted)" }} />
@@ -238,7 +215,7 @@ function PlaybookWidget() {
               >
                 {p.deadline}
               </span>
-              <p className="text-xs leading-snug line-clamp-2" style={{ color: "var(--text)" }}>
+              <p className="text-xs leading-snug line-clamp-3" style={{ color: "var(--text)" }}>
                 {p.headline}
               </p>
             </Link>
@@ -791,10 +768,10 @@ function DashboardContent() {
     .map((c) => new Date(c.last_scanned_at!).getTime())
     .sort((a, b) => b - a)[0]; // most recent
   const weekAgoMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const briefHighlights = signalGroups
-    .filter((g) => g.tier === "strategic" && new Date(g.detected_at).getTime() > weekAgoMs)
-    .slice(0, 3)
-    .map(signalPhrase);
+  const changesThisWeek = alertList.filter((e) => new Date(e.detected_at).getTime() > weekAgoMs).length;
+  const requireAction = signalGroups.filter(
+    (g) => g.tier === "strategic" && new Date(g.detected_at).getTime() > weekAgoMs
+  ).length;
 
   return (
     <div>
@@ -805,7 +782,8 @@ function DashboardContent() {
           competitorCount={competitorList.length}
           lastScan={lastScannedTs ? formatRelativeTime(new Date(lastScannedTs).toISOString()) : undefined}
           nextScan={nextScanTs ? formatNextScan(new Date(nextScanTs).toISOString()) : undefined}
-          highlights={briefHighlights}
+          changesThisWeek={changesThisWeek}
+          requireAction={requireAction}
           onRefresh={handleScanAll}
           refreshing={scanningAll || competitorList.some((c) => c.scan_status === "scanning")}
         />
