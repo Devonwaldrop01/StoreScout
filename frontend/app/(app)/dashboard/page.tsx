@@ -791,8 +791,14 @@ function DashboardContent() {
     .map((c) => new Date(c.last_scanned_at!).getTime())
     .sort((a, b) => b - a)[0]; // most recent
   const weekAgoMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const _seenHighlightHostnames = new Set<string>();
   const briefHighlights = signalGroups
     .filter((g) => g.tier === "strategic" && new Date(g.detected_at).getTime() > weekAgoMs)
+    .filter((g) => {
+      if (_seenHighlightHostnames.has(g.hostname)) return false;
+      _seenHighlightHostnames.add(g.hostname);
+      return true;
+    })
     .slice(0, 3)
     .map(signalPhrase);
 
