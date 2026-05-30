@@ -15,6 +15,48 @@ import {
   Package, Tag,
 } from "lucide-react";
 
+// ── Favicon logo ──────────────────────────────────────────────────────────
+
+function FaviconLogo({ hostname, size = 44 }: { hostname: string; size?: number }) {
+  const [imgError, setImgError] = useState(false);
+  const initials = hostname.replace(/\..*/, "").slice(0, 2).toUpperCase();
+  const hue = hostname.split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
+
+  if (imgError) {
+    return (
+      <div
+        className="rounded-xl flex items-center justify-center font-bold shrink-0"
+        style={{
+          width: size,
+          height: size,
+          fontSize: Math.round(size * 0.35),
+          background: `hsl(${hue},35%,18%)`,
+          color: `hsl(${hue},60%,65%)`,
+          border: "1px solid var(--border)",
+        }}
+      >
+        {initials}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={`https://www.google.com/s2/favicons?domain=${hostname}&sz=64`}
+      onError={() => setImgError(true)}
+      alt=""
+      className="rounded-xl object-contain shrink-0"
+      style={{
+        width: size,
+        height: size,
+        background: "var(--bg3)",
+        border: "1px solid var(--border)",
+        padding: 6,
+      }}
+    />
+  );
+}
+
 // ── Stat cell ──────────────────────────────────────────────────────────────
 
 function StatCell({ label, value }: { label: string; value: string }) {
@@ -39,43 +81,43 @@ function CompetitorCard({
   statusLabel: string;
   lastScanned: string;
 }) {
-  // The /competitors list endpoint enriches each row with the latest snapshot's
-  // product_count, promo_rate, median_price and new_30d.
   const promoHigh = c.promo_rate != null && c.promo_rate >= 20;
   const showNew = c.new_30d != null && c.new_30d > 0;
+
+  const statusBg =
+    c.scan_status === "error"
+      ? "rgba(239,68,68,.1)"
+      : c.scan_status === "done"
+      ? "rgba(34,197,94,.1)"
+      : "rgba(255,255,255,.06)";
 
   return (
     <div
       className="rounded-2xl p-5 flex flex-col transition-all hover:border-white/15"
       style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
     >
-      {/* Top: name + status + remove */}
-      <div className="flex items-start justify-between gap-3 mb-4">
-        <div className="flex items-start gap-2.5 min-w-0">
-          <span
-            className={cn("w-2 h-2 rounded-full shrink-0 mt-1.5", c.scan_status === "scanning" && "animate-pulse")}
-            style={{ background: statusColor }}
-          />
-          <div className="min-w-0">
-            <p className="text-base font-bold truncate" style={{ color: "var(--text)" }}>
-              {c.display_name || c.hostname}
-            </p>
-            <div className="flex items-center gap-2 mt-1">
+      {/* Identity header */}
+      <div className="flex items-start gap-3 mb-4">
+        <FaviconLogo hostname={c.hostname} size={44} />
+        <div className="flex-1 min-w-0">
+          <p className="text-base font-bold truncate leading-tight" style={{ color: "var(--text)" }}>
+            {c.display_name || c.hostname}
+          </p>
+          {c.display_name && (
+            <p className="text-xs truncate mt-0.5" style={{ color: "var(--muted)" }}>{c.hostname}</p>
+          )}
+          <div className="flex items-center gap-2 mt-1.5">
+            <span
+              className="inline-flex items-center gap-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded"
+              style={{ background: statusBg, color: statusColor }}
+            >
               <span
-                className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                style={{
-                  background: c.scan_status === "error"
-                    ? "rgba(239,68,68,.1)"
-                    : c.scan_status === "done"
-                    ? "rgba(34,197,94,.1)"
-                    : "rgba(255,255,255,.06)",
-                  color: statusColor,
-                }}
-              >
-                {statusLabel}
-              </span>
-              <span className="text-[11px]" style={{ color: "var(--muted)" }}>{lastScanned}</span>
-            </div>
+                className={cn("w-1.5 h-1.5 rounded-full", c.scan_status === "scanning" && "animate-pulse")}
+                style={{ background: statusColor }}
+              />
+              {statusLabel}
+            </span>
+            <span className="text-[11px]" style={{ color: "var(--muted)" }}>{lastScanned}</span>
           </div>
         </div>
         <button
