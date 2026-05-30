@@ -15,6 +15,15 @@ _DOMAIN_RE = re.compile(r"^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-
 
 _CACHE_HEADERS = "public, max-age=604800"  # 7 days
 
+# Favicon CDNs (DuckDuckGo, Google) reject requests without a browser UA → 403.
+_BROWSER_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    ),
+    "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+}
+
 
 def _redis_client():
     try:
@@ -29,13 +38,16 @@ async def _fetch_favicon(domain: str) -> tuple[bytes, str] | None:
         f"https://icons.duckduckgo.com/ip3/{domain}.ico",
         f"https://www.google.com/s2/favicons?domain={domain}&sz=64",
     ]
-    async with httpx.AsyncClient(timeout=4.0, follow_redirects=True) as client:
+    async with httpx.AsyncClient(timeout=4.0, follow_redirects=True, headers=_BROWSER_HEADERS) as client:
         for url in sources:
             try:
                 resp = await client.get(url)
-                if resp.status_code == 200 and resp.content:
-                    ct = resp.headers.get("content-type", "image/x-icon").split(";")[0].strip()
-                    return resp.content, ct
+                ct = resp.headers.get("content-type", "").split(";")[0].strip().lower()
+                # Only accept real image payloads — some CDNs return a 200 text
+                # body or a 1x1 placeholder. Require an image content-type and
+                # a plausible size.
+                if resp.status_code == 200 and resp.content and ct.startswith("image/") and len(resp.content) > 70:
+                    return resp.content, ct or "image/x-icon"
             except Exception as exc:
                 logger.debug("favicon fetch failed for %s from %s: %s", domain, url, exc)
     return None
