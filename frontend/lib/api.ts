@@ -182,6 +182,8 @@ export interface Competitor {
   error_message?: string;
   product_count?: number;
   promo_rate?: number;
+  median_price?: number;
+  new_30d?: number;
   snapshot_data?: Record<string, unknown>;
   created_at: string;
 }

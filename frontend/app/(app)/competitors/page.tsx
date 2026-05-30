@@ -7,12 +7,146 @@ import {
   competitors as competitorsApi, user as userApi, myStore as myStoreApi, shopify as shopifyApi,
   type Competitor, type UserSubscription, type ShopifyConnection,
 } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { AddCompetitorModal } from "@/components/competitors/AddCompetitorModal";
 import UpgradeModal from "@/components/UpgradeModal";
 import {
   Store, X, Loader2, Check, Plus, RefreshCw, Target, Zap, ArrowRight,
+  Package, Tag,
 } from "lucide-react";
+
+// ── Stat cell ──────────────────────────────────────────────────────────────
+
+function StatCell({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[10px] font-medium uppercase tracking-wide mb-1" style={{ color: "var(--muted)" }}>{label}</p>
+      <p className="text-lg font-bold num" style={{ color: "var(--text)" }}>{value}</p>
+    </div>
+  );
+}
+
+// ── Competitor card ──────────────────────────────────────────────────────────
+
+function CompetitorCard({
+  c, rescanning, onRescan, onRemove, statusColor, statusLabel, lastScanned,
+}: {
+  c: Competitor;
+  rescanning: boolean;
+  onRescan: () => void;
+  onRemove: () => void;
+  statusColor: string;
+  statusLabel: string;
+  lastScanned: string;
+}) {
+  // The /competitors list endpoint enriches each row with the latest snapshot's
+  // product_count, promo_rate, median_price and new_30d.
+  const promoHigh = c.promo_rate != null && c.promo_rate >= 20;
+  const showNew = c.new_30d != null && c.new_30d > 0;
+
+  return (
+    <div
+      className="rounded-2xl p-5 flex flex-col transition-all hover:border-white/15"
+      style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+    >
+      {/* Top: name + status + remove */}
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <div className="flex items-start gap-2.5 min-w-0">
+          <span
+            className={cn("w-2 h-2 rounded-full shrink-0 mt-1.5", c.scan_status === "scanning" && "animate-pulse")}
+            style={{ background: statusColor }}
+          />
+          <div className="min-w-0">
+            <p className="text-base font-bold truncate" style={{ color: "var(--text)" }}>
+              {c.display_name || c.hostname}
+            </p>
+            <div className="flex items-center gap-2 mt-1">
+              <span
+                className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                style={{
+                  background: c.scan_status === "error"
+                    ? "rgba(239,68,68,.1)"
+                    : c.scan_status === "done"
+                    ? "rgba(34,197,94,.1)"
+                    : "rgba(255,255,255,.06)",
+                  color: statusColor,
+                }}
+              >
+                {statusLabel}
+              </span>
+              <span className="text-[11px]" style={{ color: "var(--muted)" }}>{lastScanned}</span>
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={onRemove}
+          title="Remove competitor"
+          className="p-1.5 rounded-lg transition-colors hover:bg-red-500/10 shrink-0"
+          style={{ color: "#f87171" }}
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Stats grid */}
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        <StatCell
+          label="Products"
+          value={c.product_count != null ? c.product_count.toLocaleString() : "—"}
+        />
+        <StatCell label="Median price" value={formatPrice(c.median_price)} />
+        <StatCell
+          label="On sale"
+          value={c.promo_rate != null ? `${c.promo_rate.toFixed(0)}%` : "—"}
+        />
+      </div>
+
+      {/* Secondary metrics */}
+      <div
+        className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl mb-4 text-[11px]"
+        style={{ background: "var(--bg3)" }}
+      >
+        <span className="flex items-center gap-1.5" style={{ color: "var(--muted)" }}>
+          <Package className="w-3 h-3" />
+          {showNew ? (
+            <>
+              <span className="num font-semibold" style={{ color: "var(--emerald)" }}>+{c.new_30d}</span> new in 30d
+            </>
+          ) : (
+            "No new products (30d)"
+          )}
+        </span>
+        {promoHigh && (
+          <span className="flex items-center gap-1 font-semibold" style={{ color: "var(--amber)" }}>
+            <Tag className="w-3 h-3" />
+            Heavy promo
+          </span>
+        )}
+      </div>
+
+      {/* Footer actions */}
+      <div className="flex items-center gap-2 mt-auto">
+        <Link
+          href={`/dashboard/${c.id}`}
+          className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-lg transition-all hover:brightness-110"
+          style={{ background: "var(--accent)", color: "#ffffff" }}
+        >
+          View details <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+        <button
+          onClick={onRescan}
+          disabled={rescanning || c.scan_status === "scanning"}
+          title="Trigger manual rescan"
+          className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg transition-colors hover:bg-white/5 disabled:opacity-40"
+          style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+        >
+          <RefreshCw className={cn("w-3.5 h-3.5", rescanning && "animate-spin")} />
+          Rescan
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function CompetitorsContent() {
   const searchParams = useSearchParams();
@@ -140,7 +274,7 @@ function CompetitorsContent() {
   }
 
   return (
-    <div className="max-w-2xl">
+    <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -207,27 +341,24 @@ function CompetitorsContent() {
         </div>
       )}
 
-      {/* Competitor list */}
-      <div
-        className="rounded-2xl overflow-hidden mb-6"
-        style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-      >
-        <div
-          className="px-5 py-3.5 flex items-center gap-2"
-          style={{ borderBottom: "1px solid var(--border)", background: "var(--bg3)" }}
-        >
+      {/* Competitor cards */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-4">
           <Target className="w-4 h-4" style={{ color: "var(--accent)" }} />
           <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Tracked stores</p>
         </div>
 
         {loading ? (
-          <div className="p-5 space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-14 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-44 rounded-2xl animate-pulse" style={{ background: "var(--bg3)" }} />
             ))}
           </div>
         ) : myCompetitors.length === 0 ? (
-          <div className="p-10 text-center">
+          <div
+            className="p-10 text-center rounded-2xl"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+          >
             <Target className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--muted)", opacity: 0.4 }} />
             <p className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>No competitors tracked yet</p>
             <p className="text-xs mb-5" style={{ color: "var(--muted)" }}>
@@ -243,86 +374,18 @@ function CompetitorsContent() {
             </button>
           </div>
         ) : (
-          <div>
-            {myCompetitors.map((c, idx) => (
-              <div
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {myCompetitors.map((c) => (
+              <CompetitorCard
                 key={c.id}
-                className="flex items-center gap-4 px-5 py-4"
-                style={{ borderTop: idx === 0 ? "none" : "1px solid var(--border)" }}
-              >
-                <span
-                  className={cn("w-2 h-2 rounded-full shrink-0", c.scan_status === "scanning" && "animate-pulse")}
-                  style={{ background: scanStatusColor(c.scan_status) }}
-                />
-
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate" style={{ color: "var(--text)" }}>
-                    {c.display_name || c.hostname}
-                  </p>
-                  <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                    <span
-                      className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                      style={{
-                        background: c.scan_status === "error"
-                          ? "rgba(239,68,68,.1)"
-                          : c.scan_status === "done"
-                          ? "rgba(34,197,94,.1)"
-                          : "rgba(255,255,255,.06)",
-                        color: scanStatusColor(c.scan_status),
-                      }}
-                    >
-                      {scanStatusLabel(c.scan_status)}
-                    </span>
-                    <span className="text-[11px]" style={{ color: "var(--muted)" }}>{formatLastScanned(c)}</span>
-                    {c.product_count != null && (
-                      <>
-                        <span style={{ color: "var(--border)" }}>·</span>
-                        <span className="text-[11px] num" style={{ color: "var(--muted)" }}>
-                          {c.product_count.toLocaleString()} products
-                        </span>
-                      </>
-                    )}
-                    {c.promo_rate != null && c.promo_rate > 0 && (
-                      <>
-                        <span style={{ color: "var(--border)" }}>·</span>
-                        <span
-                          className="text-[11px] num"
-                          style={{ color: c.promo_rate >= 20 ? "var(--amber)" : "var(--muted)" }}
-                        >
-                          {c.promo_rate.toFixed(0)}% on sale
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1 shrink-0">
-                  <Link
-                    href={`/dashboard/${c.id}`}
-                    className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-all hover:bg-white/[0.06]"
-                    style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
-                  >
-                    Details <ArrowRight className="w-3 h-3" />
-                  </Link>
-                  <button
-                    onClick={() => handleRescanCompetitor(c.id)}
-                    disabled={rescanning.has(c.id) || c.scan_status === "scanning"}
-                    title="Trigger manual rescan"
-                    className="p-1.5 rounded-lg transition-colors hover:bg-white/5 disabled:opacity-40"
-                    style={{ color: "var(--muted)" }}
-                  >
-                    <RefreshCw className={cn("w-4 h-4", rescanning.has(c.id) && "animate-spin")} />
-                  </button>
-                  <button
-                    onClick={() => handleRemoveCompetitor(c.id)}
-                    title="Remove competitor"
-                    className="p-1.5 rounded-lg transition-colors hover:bg-red-500/10"
-                    style={{ color: "#f87171" }}
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+                c={c}
+                rescanning={rescanning.has(c.id)}
+                onRescan={() => handleRescanCompetitor(c.id)}
+                onRemove={() => handleRemoveCompetitor(c.id)}
+                statusColor={scanStatusColor(c.scan_status)}
+                statusLabel={scanStatusLabel(c.scan_status)}
+                lastScanned={formatLastScanned(c)}
+              />
             ))}
           </div>
         )}
@@ -330,7 +393,7 @@ function CompetitorsContent() {
 
       {/* Your store */}
       <section
-        className="rounded-2xl p-6"
+        className="rounded-2xl p-6 max-w-3xl"
         style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
       >
         <div className="flex items-center gap-2 mb-2">

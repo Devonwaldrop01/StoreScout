@@ -52,7 +52,33 @@ def _tier_limits(tier: str) -> dict:
 def list_competitors(user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
     result = db.table("competitors").select("*").eq("user_id", user_id).eq("is_my_store", False).order("created_at", desc=True).execute()
-    return {"data": result.data or []}
+    competitors = result.data or []
+
+    # Enrich each competitor with metrics from its most recent snapshot so the
+    # list view can show median price, promo rate and 30-day new-product counts.
+    # These live on scan_snapshots, not the competitors table.
+    ids = [c["id"] for c in competitors if c.get("id")]
+    if ids:
+        snaps = (
+            db.table("scan_snapshots")
+            .select("competitor_id, scanned_at, median_price, promo_rate, new_30d")
+            .in_("competitor_id", ids)
+            .order("scanned_at", desc=True)
+            .execute()
+        )
+        latest: dict = {}
+        for s in snaps.data or []:
+            cid = s.get("competitor_id")
+            if cid and cid not in latest:  # newest first → first seen wins
+                latest[cid] = s
+        for c in competitors:
+            snap = latest.get(c.get("id"))
+            if snap:
+                c["median_price"] = snap.get("median_price")
+                c["promo_rate"] = snap.get("promo_rate")
+                c["new_30d"] = snap.get("new_30d")
+
+    return {"data": competitors}
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
