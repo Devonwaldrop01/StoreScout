@@ -15,17 +15,15 @@ interface ScoutBriefProps {
   competitorCount: number;
   lastScan?: string;
   nextScan?: string;
-  highlights?: string[];
+  changesThisWeek: number;
+  requireAction: number;
   onRefresh?: () => void;
   refreshing?: boolean;
 }
 
-export function ScoutBrief({ firstName, competitorCount, lastScan, nextScan, highlights, onRefresh, refreshing }: ScoutBriefProps) {
+export function ScoutBrief({ firstName, competitorCount, lastScan, nextScan, changesThisWeek, requireAction, onRefresh, refreshing }: ScoutBriefProps) {
   const greeting = firstName ? `${getGreeting()}, ${firstName}` : getGreeting();
-  const hasHighlights = highlights && highlights.length > 0;
 
-  // Compact meta line (tracked · last scan · next scan) — full when there are no
-  // highlights, demoted to a small footnote underneath them when there are.
   const metaLine = (
     <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
       <span className="text-xs" style={{ color: "var(--muted)" }}>
@@ -60,21 +58,28 @@ export function ScoutBrief({ firstName, competitorCount, lastScan, nextScan, hig
     >
       <div className="min-w-0">
         <h1 className="text-2xl font-black" style={{ color: "var(--text)" }}>{greeting}</h1>
-        {hasHighlights ? (
-          <div className="mt-1.5">
+        <div className="mt-1.5">
+          {changesThisWeek > 0 && requireAction > 0 ? (
             <p className="text-sm leading-snug" style={{ color: "var(--text-2)" }}>
-              {highlights!.map((h, i) => (
-                <span key={i}>
-                  {i > 0 && <span style={{ color: "var(--border)" }}> · </span>}
-                  {h}
-                </span>
-              ))}
+              Your competitors generated{" "}
+              <span className="font-bold" style={{ color: "var(--text)" }}>{changesThisWeek} changes</span>{" "}
+              this week —{" "}
+              <span className="font-bold" style={{ color: "var(--red)" }}>{requireAction} require action</span>.
             </p>
-            <div className="mt-1">{metaLine}</div>
-          </div>
-        ) : (
+          ) : changesThisWeek > 0 ? (
+            <p className="text-sm leading-snug" style={{ color: "var(--text-2)" }}>
+              <span className="font-bold" style={{ color: "var(--text)" }}>{changesThisWeek} changes</span>{" "}
+              across your competitors this week — nothing needs action right now.
+            </p>
+          ) : (
+            <p className="text-sm leading-snug" style={{ color: "var(--muted)" }}>
+              All quiet across your{" "}
+              <span className="font-semibold" style={{ color: "var(--text-2)" }}>{competitorCount}</span>{" "}
+              competitor{competitorCount !== 1 ? "s" : ""} this week.
+            </p>
+          )}
           <div className="mt-1">{metaLine}</div>
-        )}
+        </div>
       </div>
 
       {onRefresh && (

@@ -42,7 +42,7 @@ function FaviconLogo({ hostname, size = 44 }: { hostname: string; size?: number 
 
   return (
     <img
-      src={`https://www.google.com/s2/favicons?domain=${hostname}&sz=64`}
+      src={`/api/v1/favicon?domain=${encodeURIComponent(hostname)}`}
       onError={() => setImgError(true)}
       alt=""
       className="rounded-xl object-contain shrink-0"

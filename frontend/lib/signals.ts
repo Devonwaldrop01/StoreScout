@@ -307,6 +307,14 @@ export function generateNarrative(groups: SignalGroup[]): string | null {
   return `${top.hostname}: ${top.label}${suffix} · ${total} total`;
 }
 
+// ── Impact level ─────────────────────────────────────────────────────────
+
+export function impactLevel(group: SignalGroup): "High" | "Medium" | "Low" {
+  if (group.events.some((e) => e.severity === "critical") || group.count >= 10) return "High";
+  if (group.count >= 5 || group.events.some((e) => e.severity === "warning")) return "Medium";
+  return "Low";
+}
+
 // ── Signal type → visual config ──────────────────────────────────────────
 // Semantic color only — color carries meaning, nothing decorative:
 //   red   = competitor cutting prices / discounting (downward, aggressive)
