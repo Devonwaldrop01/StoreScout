@@ -33,6 +33,27 @@ def _redis_client():
         return None
 
 
+def _is_valid_image(data: bytes) -> bool:
+    """Validate by magic number — guards against corrupt/placeholder/text bodies
+    (and stale corrupt cache entries) being served with an image content-type."""
+    if not data or len(data) < 70:
+        return False
+    if data[:8] == b"\x89PNG\r\n\x1a\n":          # PNG
+        return True
+    if data[:4] == b"\x00\x00\x01\x00":           # ICO
+        return True
+    if data[:3] == b"GIF":                         # GIF
+        return True
+    if data[:2] == b"\xff\xd8":                    # JPEG
+        return True
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":  # WEBP
+        return True
+    head = data[:256].lstrip().lower()
+    if head.startswith(b"<svg") or head.startswith(b"<?xml"):  # SVG
+        return True
+    return False
+
+
 async def _fetch_favicon(domain: str) -> tuple[bytes, str] | None:
     # Order: third-party CDNs first (sized, cached), then the store's own
     # favicon as a fallback — a request to the store's own server from our
@@ -51,9 +72,9 @@ async def _fetch_favicon(domain: str) -> tuple[bytes, str] | None:
                 # Only accept real image payloads — some CDNs return a 200 text
                 # body or a 1x1 placeholder. Require an image content-type and
                 # a plausible size.
-                if resp.status_code == 200 and resp.content and ct.startswith("image/") and len(resp.content) > 70:
-                    return resp.content, ct or "image/x-icon"
-                logger.info("favicon: %s returned %s (%s, %d bytes) — skipping", url, resp.status_code, ct or "?", len(resp.content))
+                if resp.status_code == 200 and _is_valid_image(resp.content):
+                    return resp.content, ct if ct.startswith("image/") else "image/x-icon"
+                logger.info("favicon: %s returned %s (%s, %d bytes) — not a valid image, skipping", url, resp.status_code, ct or "?", len(resp.content))
             except Exception as exc:
                 logger.info("favicon: fetch failed for %s: %s", url, exc)
     return None
@@ -66,7 +87,8 @@ async def get_favicon(domain: str = Query(...)):
 
     cache_key = f"favicon:{domain}"
 
-    # Try Redis cache first
+    # Try Redis cache first — but only serve it if it's a valid image, so a
+    # corrupt entry from an earlier deploy self-heals instead of persisting.
     r = _redis_client()
     if r:
         try:
@@ -75,7 +97,10 @@ async def get_favicon(domain: str = Query(...)):
                 parts = cached.decode().split("|", 1)
                 ct = parts[0] if len(parts) == 2 else "image/x-icon"
                 data = base64.b64decode(parts[1] if len(parts) == 2 else parts[0])
-                return Response(content=data, media_type=ct, headers={"Cache-Control": _CACHE_HEADERS})
+                if _is_valid_image(data):
+                    return Response(content=data, media_type=ct, headers={"Cache-Control": _CACHE_HEADERS})
+                logger.info("favicon: cached entry for %s is not a valid image — refetching", domain)
+                r.delete(cache_key)
         except Exception as exc:
             logger.debug("favicon redis read error: %s", exc)
 
