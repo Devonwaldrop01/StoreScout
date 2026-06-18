@@ -1,4 +1,5 @@
 from __future__ import annotations
+import asyncio
 import json as _json
 import logging
 from collections import Counter
@@ -494,9 +495,34 @@ Strict rules:
         logger.error("discover-ai Claude call failed (%s): %s", type(ai_exc).__name__, ai_exc)
         raise HTTPException(status_code=500, detail="Failed to generate suggestions — please try again.")
 
+    # Validate each suggested domain is actually a Shopify store — run checks in parallel
+    # with a per-domain timeout so a slow store doesn't stall the whole response.
+    async def _is_shopify(domain: str) -> bool:
+        try:
+            from app.services.fetch import check_store as _check_store
+            loop = asyncio.get_event_loop()
+            result = await asyncio.wait_for(
+                loop.run_in_executor(None, _check_store, f"https://{domain}"),
+                timeout=6.0,
+            )
+            return bool(result.get("ok"))
+        except Exception:
+            return False
+
+    checks = await asyncio.gather(*[_is_shopify(s["domain"]) for s in suggestions])
+    validated = [s for s, ok in zip(suggestions, checks) if ok]
+
+    # If validation killed almost everything (e.g. slow network), return unfiltered
+    # so the user still gets useful results rather than an empty list.
+    final_suggestions = validated if len(validated) >= 3 else suggestions
+    logger.info(
+        "discover-ai: %d/%d suggestions passed Shopify validation",
+        len(validated), len(suggestions),
+    )
+
     return {
         "data": {
-            "suggestions": suggestions,
+            "suggestions": final_suggestions,
             "searches_used": searches_used if is_free else None,
             "searches_limit": FREE_LIMIT if is_free else None,
         }
