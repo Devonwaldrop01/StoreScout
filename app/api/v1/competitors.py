@@ -1,9 +1,12 @@
 from __future__ import annotations
+import json as _json
 import logging
 from collections import Counter
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 from urllib.parse import urlparse
+
+import anthropic as _anthropic
 
 logger = logging.getLogger(__name__)
 
@@ -365,19 +368,30 @@ async def discover_ai(
     body: DiscoverAIRequest,
     user_id: str = Depends(get_current_user_id),
 ):
-    import anthropic
-    import json as _json
-
     db = get_supabase()
     settings = get_settings()
+
+    if not settings.anthropic_api_key:
+        logger.error("discover-ai: ANTHROPIC_API_KEY is not configured")
+        raise HTTPException(status_code=500, detail="AI service not configured — contact support.")
 
     FREE_LIMIT = 2
 
     # Fetch user tier + usage — handle missing columns gracefully
-    user = db.table("user_profiles").select(
-        "tier, discovery_searches_used, discovery_searches_month"
-    ).eq("id", user_id).maybe_single().execute()
-    user_data = (user.data or {}) if user else {}
+    user_data: dict = {}
+    try:
+        user = db.table("user_profiles").select(
+            "tier, discovery_searches_used, discovery_searches_month"
+        ).eq("id", user_id).maybe_single().execute()
+        user_data = (user.data or {}) if user else {}
+    except Exception as _ue:
+        # Columns may not exist yet (migration pending) — fall back to tier only
+        logger.warning("discover-ai: full user fetch failed (%s), retrying with tier only", _ue)
+        try:
+            user2 = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
+            user_data = (user2.data or {}) if user2 else {}
+        except Exception:
+            pass
     tier = user_data.get("tier", "free")
     is_free = tier == "free"
 
@@ -450,16 +464,27 @@ Rules:
 - Do not include any store already mentioned by the owner"""
 
     try:
-        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+        client = _anthropic.Anthropic(api_key=settings.anthropic_api_key)
         message = client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=800,
             messages=[{"role": "user", "content": prompt}],
         )
-        result = _json.loads(message.content[0].text)
+        raw_text = message.content[0].text
+        logger.info("discover-ai raw response: %s", raw_text[:500])
+        result = _json.loads(raw_text)
         suggestions = result.get("suggestions", [])[:10]
+    except _anthropic.AuthenticationError as ae:
+        logger.error("discover-ai: Anthropic auth error — check ANTHROPIC_API_KEY: %s", ae)
+        raise HTTPException(status_code=500, detail="AI service authentication failed — contact support.")
+    except _anthropic.RateLimitError as rle:
+        logger.error("discover-ai: Anthropic rate limit: %s", rle)
+        raise HTTPException(status_code=429, detail="AI service is busy — please try again in a moment.")
+    except _json.JSONDecodeError as jde:
+        logger.error("discover-ai: Failed to parse Claude response as JSON: %s", jde)
+        raise HTTPException(status_code=500, detail="Failed to generate suggestions — please try again.")
     except Exception as ai_exc:
-        logger.error("discover-ai Claude call failed: %s", ai_exc)
+        logger.error("discover-ai Claude call failed (%s): %s", type(ai_exc).__name__, ai_exc)
         raise HTTPException(status_code=500, detail="Failed to generate suggestions — please try again.")
 
     return {
