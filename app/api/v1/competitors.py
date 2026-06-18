@@ -472,7 +472,12 @@ Rules:
         )
         raw_text = message.content[0].text
         logger.info("discover-ai raw response: %s", raw_text[:500])
-        result = _json.loads(raw_text)
+        # Strip markdown code fences — Haiku sometimes wraps JSON in ```json ... ```
+        text = raw_text.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+            text = text.rsplit("```", 1)[0].strip()
+        result = _json.loads(text)
         suggestions = result.get("suggestions", [])[:10]
     except _anthropic.AuthenticationError as ae:
         logger.error("discover-ai: Anthropic auth error — check ANTHROPIC_API_KEY: %s", ae)
