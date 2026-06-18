@@ -447,9 +447,9 @@ async def discover_ai(
 
 Owner's description: {body.description.strip()}{store_context}
 
-Return exactly 8 Shopify stores that directly compete with this business. Only suggest stores you are highly confident are real, currently operating Shopify stores (they have a /products.json endpoint).
+Return exactly 8 Shopify stores that are DIRECT competitors to this specific business. These must be independent or mid-size DTC (direct-to-consumer) brands with their own Shopify store — not major publishers, retailers, marketplaces, or subscription box services unless their primary business is selling products directly through a Shopify store.
 
-Return ONLY valid JSON — no markdown, no explanation:
+Return ONLY valid JSON with no markdown, no code fences, no explanation — raw JSON only:
 {{
   "suggestions": [
     {{"domain": "gymshark.com", "reason": "premium activewear, similar $60-80 price point"}},
@@ -457,11 +457,13 @@ Return ONLY valid JSON — no markdown, no explanation:
   ]
 }}
 
-Rules:
-- Each reason must be under 12 words and specific to why it competes
-- DTC Shopify brands only — no Amazon, Walmart, or non-Shopify retailers
-- Vary the mix: include 2-3 smaller/emerging brands alongside known names
-- Do not include any store already mentioned by the owner"""
+Strict rules:
+- Each reason must be under 12 words and explain specifically WHY it competes (price, audience, product type)
+- DTC Shopify brands ONLY — exclude: Amazon, Walmart, Target, major publishers (Penguin, HarperCollins, Simon & Schuster, Macmillan), large bookstore chains (Barnes & Noble, Books-a-Million), or any non-Shopify retailer
+- The store must sell directly from their own website (not primarily through distributors or third-party retail)
+- Vary the mix: include 2-3 smaller/niche or emerging brands alongside better-known ones
+- Do not include any store already mentioned by the owner
+- If you are not confident a store uses Shopify, exclude it"""
 
     try:
         client = _anthropic.Anthropic(api_key=settings.anthropic_api_key)
