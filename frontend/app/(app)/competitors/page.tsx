@@ -5,14 +5,14 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   competitors as competitorsApi, user as userApi, myStore as myStoreApi, shopify as shopifyApi,
-  type Competitor, type UserSubscription, type ShopifyConnection,
+  type Competitor, type UserSubscription, type ShopifyConnection, type AIDiscoverySuggestion,
 } from "@/lib/api";
 import { cn, formatPrice } from "@/lib/utils";
 import { AddCompetitorModal } from "@/components/competitors/AddCompetitorModal";
 import UpgradeModal from "@/components/UpgradeModal";
 import {
   Store, X, Loader2, Check, Plus, RefreshCw, Target, Zap, ArrowRight,
-  Package, Tag,
+  Package, Tag, Search, Sparkles,
 } from "lucide-react";
 
 // ── Favicon logo ──────────────────────────────────────────────────────────
@@ -198,7 +198,14 @@ function CompetitorsContent() {
   const [myCompetitors, setMyCompetitors] = useState<Competitor[]>([]);
   const [rescanning, setRescanning] = useState<Set<string>>(new Set());
   const [addCompetitorOpen, setAddCompetitorOpen] = useState(false);
+  const [addCompetitorInitialUrl, setAddCompetitorInitialUrl] = useState("");
   const [loading, setLoading] = useState(true);
+
+  // Competitor discovery
+  const [discoverDescription, setDiscoverDescription] = useState("");
+  const [discovering, setDiscovering] = useState(false);
+  const [discoverResult, setDiscoverResult] = useState<AIDiscoverySuggestion | null>(null);
+  const [discoverError, setDiscoverError] = useState("");
 
   // Your store
   const [store, setStore] = useState<Competitor | null>(null);
@@ -286,6 +293,27 @@ function CompetitorsContent() {
     await shopifyApi.disconnect().catch(() => {});
     setShopifyConnection(null);
     setStore(null);
+  }
+
+  async function handleDiscover() {
+    if (!discoverDescription.trim() || discovering) return;
+    setDiscovering(true);
+    setDiscoverError("");
+    setDiscoverResult(null);
+    try {
+      const r = await competitorsApi.discoverAI(discoverDescription.trim());
+      setDiscoverResult(r.data);
+    } catch (err: unknown) {
+      const apiErr = err as { data?: { detail?: { code?: string } | string } };
+      const detail = apiErr?.data?.detail;
+      if (typeof detail === "object" && detail?.code === "discovery_limit_reached") {
+        setDiscoverError("You've used all your discovery searches this month. Upgrade to Pro for unlimited searches.");
+      } else {
+        setDiscoverError("Something went wrong generating suggestions. Please try again.");
+      }
+    } finally {
+      setDiscovering(false);
+    }
   }
 
   const atCompetitorLimit = subscription
@@ -433,6 +461,125 @@ function CompetitorsContent() {
         )}
       </div>
 
+      {/* Find competitors */}
+      <section className="mb-8">
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{ border: "1px solid var(--border)" }}
+        >
+          {/* Header */}
+          <div
+            className="px-5 py-4 flex items-center justify-between"
+            style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
+          >
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
+              <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Find competitors</p>
+              <span className="text-xs" style={{ color: "var(--muted)" }}>— AI-powered</span>
+            </div>
+            {subscription?.tier === "free" && discoverResult && discoverResult.searches_limit !== null && (
+              <span className="text-[11px] font-medium" style={{ color: "var(--muted)" }}>
+                {Math.max(0, (discoverResult.searches_limit ?? 0) - (discoverResult.searches_used ?? 0))} of {discoverResult.searches_limit} searches left this month
+              </span>
+            )}
+          </div>
+
+          {/* Body */}
+          <div className="p-5" style={{ background: "var(--bg-card)" }}>
+            <textarea
+              value={discoverDescription}
+              onChange={(e) => setDiscoverDescription(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleDiscover(); }}
+              rows={3}
+              placeholder={
+                shopifyConnection
+                  ? "Your connected store data is used automatically. Add any extra context — target customer, product focus, price range, brand positioning…"
+                  : "Describe your store — what do you sell, who's your customer, what's your price range? e.g. \"Women's activewear, $40-80, targeting fitness enthusiasts\""
+              }
+              className="w-full text-sm rounded-xl px-4 py-3 resize-none outline-none transition-all"
+              style={{
+                background: "var(--bg3)",
+                border: "1px solid var(--border)",
+                color: "var(--text)",
+              }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(59,130,246,.4)"; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
+            />
+            <div className="flex items-center justify-between mt-3">
+              <p className="text-xs" style={{ color: "var(--muted)" }}>
+                {subscription?.tier === "free" ? "Free plan: 2 searches per month" : "Unlimited searches"}
+              </p>
+              <button
+                onClick={handleDiscover}
+                disabled={discovering || !discoverDescription.trim()}
+                className="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ background: "var(--accent)", color: "#fff" }}
+              >
+                {discovering ? (
+                  <><Loader2 className="w-3.5 h-3.5 animate-spin" />Finding…</>
+                ) : (
+                  <><Search className="w-3.5 h-3.5" />Find competitors</>
+                )}
+              </button>
+            </div>
+
+            {discoverError && (
+              <div
+                className="mt-4 px-4 py-3 rounded-xl text-sm"
+                style={{ background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.2)", color: "#fca5a5" }}
+              >
+                {discoverError}
+                {discoverError.includes("Upgrade") && (
+                  <button
+                    onClick={() => setUpgradeOpen(true)}
+                    className="ml-2 underline font-semibold"
+                    style={{ color: "var(--accent)" }}
+                  >
+                    Upgrade →
+                  </button>
+                )}
+              </div>
+            )}
+
+            {discoverResult && discoverResult.suggestions.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {discoverResult.suggestions.map((s) => {
+                  const alreadyTracked = myCompetitors.some((c) => c.hostname === s.domain);
+                  return (
+                    <div
+                      key={s.domain}
+                      className="flex items-center justify-between gap-4 px-4 py-3 rounded-xl"
+                      style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <FaviconLogo hostname={s.domain} size={32} />
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold truncate" style={{ color: "var(--text)" }}>{s.domain}</p>
+                          <p className="text-xs truncate" style={{ color: "var(--muted)" }}>{s.reason}</p>
+                        </div>
+                      </div>
+                      {alreadyTracked ? (
+                        <span className="text-xs font-medium shrink-0 flex items-center gap-1" style={{ color: "var(--emerald)" }}>
+                          <Check className="w-3.5 h-3.5" /> Tracking
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => { setAddCompetitorInitialUrl(s.domain); setAddCompetitorOpen(true); }}
+                          className="text-xs font-semibold px-3 py-1.5 rounded-lg shrink-0 transition-all hover:brightness-110"
+                          style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.2)" }}
+                        >
+                          Track →
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* Your store */}
       <section
         className="rounded-2xl p-6 max-w-3xl"
@@ -568,10 +715,12 @@ function CompetitorsContent() {
 
       {addCompetitorOpen && (
         <AddCompetitorModal
-          onClose={() => setAddCompetitorOpen(false)}
+          initialUrl={addCompetitorInitialUrl}
+          onClose={() => { setAddCompetitorOpen(false); setAddCompetitorInitialUrl(""); }}
           onAdded={(c) => {
             setMyCompetitors((prev) => [...prev, c]);
             setAddCompetitorOpen(false);
+            setAddCompetitorInitialUrl("");
           }}
         />
       )}

@@ -64,6 +64,11 @@ export const competitors = {
   exportCsvUrl: (id: string) => `${API_BASE}/competitors/${id}/export/products.csv`,
   discover: () =>
     apiFetch<{ data: { suggestions: DiscoverySuggestion[] } }>("/competitors/discover"),
+  discoverAI: (description: string) =>
+    apiFetch<{ data: AIDiscoverySuggestion }>("/competitors/discover-ai", {
+      method: "POST",
+      body: JSON.stringify({ description }),
+    }),
 };
 
 // ── API Keys ──────────────────────────────────────────────────
@@ -539,6 +544,12 @@ export interface TeamMember {
 export interface InviteDetails {
   invited_email: string;
   owner_email: string;
+}
+
+export interface AIDiscoverySuggestion {
+  suggestions: Array<{ domain: string; reason: string }>;
+  searches_used: number | null;
+  searches_limit: number | null;
 }
 
 export interface DiscoverySuggestion {

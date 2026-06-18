@@ -354,6 +354,123 @@ def _discover_similar_inner(user_id: str) -> dict:
     return {"data": {"suggestions": top}}
 
 
+# ── AI-powered competitor discovery ──────────────────────────────────────────
+
+class DiscoverAIRequest(BaseModel):
+    description: str
+
+
+@router.post("/discover-ai")
+async def discover_ai(
+    body: DiscoverAIRequest,
+    user_id: str = Depends(get_current_user_id),
+):
+    import anthropic
+    import json as _json
+
+    db = get_supabase()
+    settings = get_settings()
+
+    FREE_LIMIT = 2
+
+    # Fetch user tier + usage — handle missing columns gracefully
+    user = db.table("user_profiles").select(
+        "tier, discovery_searches_used, discovery_searches_month"
+    ).eq("id", user_id).maybe_single().execute()
+    user_data = (user.data or {}) if user else {}
+    tier = user_data.get("tier", "free")
+    is_free = tier == "free"
+
+    searches_used = 0
+    if is_free:
+        current_month = datetime.now(timezone.utc).strftime("%Y-%m")
+        stored_month = user_data.get("discovery_searches_month") or ""
+        searches_used = user_data.get("discovery_searches_used") or 0
+        if stored_month != current_month:
+            searches_used = 0  # new month — reset
+
+        if searches_used >= FREE_LIMIT:
+            raise HTTPException(
+                status_code=402,
+                detail={"code": "discovery_limit_reached", "limit": FREE_LIMIT},
+            )
+
+        # Increment immediately — counts even if Claude fails
+        new_count = searches_used + 1
+        try:
+            db.table("user_profiles").update({
+                "discovery_searches_used": new_count,
+                "discovery_searches_month": current_month,
+            }).eq("id", user_id).execute()
+            searches_used = new_count
+        except Exception as inc_exc:
+            logger.warning("discovery_searches increment failed: %s", inc_exc)
+
+    # Pull connected store context for richer suggestions
+    store_context = ""
+    try:
+        my_store = db.table("competitors").select("id, hostname, product_count").eq(
+            "user_id", user_id
+        ).eq("is_my_store", True).maybe_single().execute()
+        if my_store and my_store.data:
+            ms = my_store.data
+            snap = db.table("scan_snapshots").select("median_price, promo_rate").eq(
+                "competitor_id", ms["id"]
+            ).order("scanned_at", desc=True).limit(1).maybe_single().execute()
+            parts = [f"store: {ms['hostname']}"]
+            if ms.get("product_count"):
+                parts.append(f"{ms['product_count']} products")
+            if snap and snap.data:
+                if snap.data.get("median_price"):
+                    parts.append(f"median price ${snap.data['median_price']:.2f}")
+                if snap.data.get("promo_rate"):
+                    parts.append(f"{snap.data['promo_rate']:.0f}% on sale")
+            store_context = "\nConnected " + ", ".join(parts) + "."
+    except Exception as ctx_exc:
+        logger.debug("discover-ai store context fetch failed: %s", ctx_exc)
+
+    prompt = f"""You are helping a Shopify store owner identify their direct competitors.
+
+Owner's description: {body.description.strip()}{store_context}
+
+Return exactly 8 Shopify stores that directly compete with this business. Only suggest stores you are highly confident are real, currently operating Shopify stores (they have a /products.json endpoint).
+
+Return ONLY valid JSON — no markdown, no explanation:
+{{
+  "suggestions": [
+    {{"domain": "gymshark.com", "reason": "premium activewear, similar $60-80 price point"}},
+    ...
+  ]
+}}
+
+Rules:
+- Each reason must be under 12 words and specific to why it competes
+- DTC Shopify brands only — no Amazon, Walmart, or non-Shopify retailers
+- Vary the mix: include 2-3 smaller/emerging brands alongside known names
+- Do not include any store already mentioned by the owner"""
+
+    try:
+        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=800,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        result = _json.loads(message.content[0].text)
+        suggestions = result.get("suggestions", [])[:10]
+    except Exception as ai_exc:
+        logger.error("discover-ai Claude call failed: %s", ai_exc)
+        raise HTTPException(status_code=500, detail="Failed to generate suggestions — please try again.")
+
+    return {
+        "data": {
+            "suggestions": suggestions,
+            "searches_used": searches_used if is_free else None,
+            "searches_limit": FREE_LIMIT if is_free else None,
+        }
+    }
+
+
 @router.get("/{competitor_id}")
 def get_competitor(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """Fetch a single competitor record (no snapshot data)."""
