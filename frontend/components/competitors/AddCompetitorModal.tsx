@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { X, Search, AlertCircle, CheckCircle2, AlertTriangle } from "lucide-react";
 import { competitors as api, type Competitor } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,14 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
   const [error, setError] = useState("");
   const [showUpgrade, setShowUpgrade] = useState(false);
   const checkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Auto-check when opened with a pre-filled URL (e.g. from "Track →" in discovery)
+  useEffect(() => {
+    if (initialUrl && initialUrl.length > 5) {
+      checkStore(initialUrl);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function checkStore(value: string) {
     if (!value.trim()) return;
