@@ -376,7 +376,7 @@ async def discover_ai(
         logger.error("discover-ai: ANTHROPIC_API_KEY is not configured")
         raise HTTPException(status_code=500, detail="AI service not configured — contact support.")
 
-    FREE_LIMIT = 2
+    FREE_LIMIT = 1
 
     # Fetch user tier + usage — handle missing columns gracefully
     user_data: dict = {}

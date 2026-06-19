@@ -8,6 +8,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   trigger?: "competitor_limit" | "history" | "alerts" | "general";
+  currentTier?: string;
 }
 
 const PLANS = [
@@ -55,19 +56,46 @@ const PLANS = [
   },
 ];
 
-const TRIGGER_COPY: Record<string, string> = {
-  competitor_limit: "You've reached your free plan limit of 1 competitor. Upgrade to track more.",
-  history: "Price history is available on Pro and Agency plans.",
-  alerts: "Email alerts are available on Pro and Agency plans.",
-  general: "Unlock the full power of StoreScout.",
+const TRIGGER_COPY: Record<string, Record<string, string>> = {
+  competitor_limit: {
+    free:    "You've reached your free plan limit of 1 competitor. Upgrade to track more.",
+    pro:     "You've reached your Pro limit of 10 competitors. Upgrade to Agency to track up to 50 stores.",
+    agency:  "You've reached your Agency limit of 50 competitors.",
+    default: "You've reached your plan's competitor limit. Upgrade to track more stores.",
+  },
+  history: {
+    free:    "Price history is available on Pro and Agency plans.",
+    pro:     "Price history is available on Pro and Agency plans.",
+    default: "Price history is available on Pro and Agency plans.",
+  },
+  alerts: {
+    free:    "Email alerts are available on Pro and Agency plans.",
+    default: "Email alerts are available on Pro and Agency plans.",
+  },
+  general: {
+    free:    "Unlock the full power of StoreScout.",
+    pro:     "Unlock Agency features — track 50 stores with unlimited history.",
+    default: "Unlock the full power of StoreScout.",
+  },
 };
 
-export default function UpgradeModal({ open, onClose, trigger = "general" }: Props) {
+export default function UpgradeModal({ open, onClose, trigger = "general", currentTier }: Props) {
   const [annual, setAnnual] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   if (!open) return null;
+
+  // Only show plans above the user's current tier
+  const tierOrder: Record<string, number> = { free: 0, pro: 1, agency: 2 };
+  const userTierLevel = tierOrder[currentTier ?? "free"] ?? 0;
+  const visiblePlans = PLANS.filter(p => (tierOrder[p.key] ?? 99) > userTierLevel);
+
+  // If user is already on Agency (highest plan), show nothing useful
+  const isTopTier = currentTier === "agency";
+
+  const triggerCopyMap = TRIGGER_COPY[trigger] ?? TRIGGER_COPY.general;
+  const triggerText = triggerCopyMap[currentTier ?? "free"] ?? triggerCopyMap.default ?? triggerCopyMap.free ?? "";
 
   async function handleUpgrade(plan: string) {
     setLoading(plan);
@@ -119,10 +147,10 @@ export default function UpgradeModal({ open, onClose, trigger = "general" }: Pro
           </div>
 
           <h2 className="text-xl font-bold mb-1.5" style={{ color: "var(--text)" }}>
-            Unlock StoreScout
+            {isTopTier ? "You're on Agency" : currentTier === "pro" ? "Upgrade to Agency" : "Unlock StoreScout"}
           </h2>
           <p className="text-sm max-w-sm" style={{ color: "var(--muted)" }}>
-            {TRIGGER_COPY[trigger]}
+            {triggerText}
           </p>
 
           {/* Monthly / Annual toggle */}
@@ -162,9 +190,18 @@ export default function UpgradeModal({ open, onClose, trigger = "general" }: Pro
           </div>
         </div>
 
+        {/* Top-tier message — no plans to show */}
+        {isTopTier && (
+          <div className="text-center py-6 px-4 rounded-2xl" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+            <p className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>You&apos;re on our top plan</p>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>Contact us if you need custom limits or white-labeling.</p>
+            <a href="mailto:hello@getstorescout.com" className="inline-block mt-3 text-xs font-semibold" style={{ color: "var(--accent)" }}>hello@getstorescout.com →</a>
+          </div>
+        )}
+
         {/* Plan cards — stacked vertically */}
-        <div className="flex flex-col gap-3">
-          {PLANS.map((plan) => {
+        {!isTopTier && <div className="flex flex-col gap-3">
+          {visiblePlans.map((plan) => {
             const Icon = plan.icon;
             const price = annual ? plan.annualPrice : plan.price;
             return (
@@ -236,7 +273,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general" }: Pro
               </div>
             );
           })}
-        </div>
+        </div>}
 
         {error && (
           <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm mt-4" style={{ background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.2)", color: "#f87171" }}>

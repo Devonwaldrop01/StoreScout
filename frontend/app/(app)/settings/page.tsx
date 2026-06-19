@@ -1181,7 +1181,7 @@ function SettingsContent() {
         </section>
       )}
 
-      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="general" />
+      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="general" currentTier={subscription?.tier} />
     </div>
   );
 }

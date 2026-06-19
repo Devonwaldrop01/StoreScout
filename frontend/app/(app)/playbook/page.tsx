@@ -630,6 +630,7 @@ export default function PlaybookPage() {
   const [tab,         setTab]         = useState<"active" | "done">("active");
   const [detailPlay,  setDetailPlay]  = useState<PlaybookPlay | null>(null);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [userTier,    setUserTier]    = useState<string>("free");
 
   function load(isRefresh = false) {
     if (isRefresh) setRefreshing(true); else setLoading(true);
@@ -643,6 +644,7 @@ export default function PlaybookPage() {
     setDone(getDone());
     setFeedback(getFeedback());
     load();
+    userApi.subscription().then((r) => setUserTier(r.data.tier ?? "free")).catch(() => {});
   }, []);
 
   function markDone(id: string) {
@@ -942,7 +944,7 @@ export default function PlaybookPage() {
         />
       )}
 
-      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="general" />
+      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="general" currentTier={userTier} />
     </>
   );
 }

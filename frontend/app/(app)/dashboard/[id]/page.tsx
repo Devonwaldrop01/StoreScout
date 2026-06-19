@@ -1004,6 +1004,22 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     </ul>
                   </div>
                 )}
+
+                {/* Integration nudge */}
+                <Link
+                  href="/settings?tab=integrations"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/[0.03]"
+                  style={{ background: "rgba(59,130,246,.04)", border: "1px solid rgba(59,130,246,.12)" }}
+                >
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(59,130,246,.1)" }}>
+                    <Zap className="w-4 h-4" style={{ color: "var(--accent)" }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>Connect Shopify, GA4, or Klaviyo</p>
+                    <p className="text-xs" style={{ color: "var(--muted)" }}>Playbook recommendations become personalized to your actual store data</p>
+                  </div>
+                  <span className="text-xs font-semibold shrink-0" style={{ color: "var(--accent)" }}>Set up →</span>
+                </Link>
               </div>
             )}
 
@@ -1243,7 +1259,17 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                               Get Scout AI's weekly analysis of {hostname}: pricing strategy, launch patterns, and competitive positioning.
                             </p>
                             <div className="mb-6 text-left rounded-xl p-4 space-y-2 select-none pointer-events-none" style={{ background: "var(--bg3)" }}>
-                              {["44.6% catalog discounted signals aggressive positioning", "Minimal 1 product monthly launch velocity", "Budget positioning with $32 median price"].map((line, i) => (
+                              {[
+                                snapshot?.promo_rate != null
+                                  ? `${(snapshot.promo_rate * 100).toFixed(1)}% of catalog is discounted — ${snapshot.promo_rate > 0.3 ? "aggressive pricing strategy" : "selective discounting"}`
+                                  : "Catalog discount rate signals pricing strategy",
+                                snapshot?.product_count != null
+                                  ? `${snapshot.product_count.toLocaleString()} products tracked — ${snapshot.product_count > 500 ? "large catalog, broad positioning" : snapshot.product_count > 100 ? "mid-size catalog" : "focused niche catalog"}`
+                                  : "Launch velocity and catalog depth analyzed",
+                                snapshot?.median_price != null
+                                  ? `${formatPrice(snapshot.median_price)} median price point — ${snapshot.median_price < 30 ? "budget positioning" : snapshot.median_price < 80 ? "mid-market" : "premium segment"}`
+                                  : "Price positioning relative to market analyzed",
+                              ].map((line, i) => (
                                 <div key={i} className="flex items-start gap-2">
                                   <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--accent)" }} />
                                   <p className="text-sm blur-sm" style={{ color: "var(--text-2)" }}>{line}</p>
@@ -1481,7 +1507,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
         </>
       )}
 
-      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="general" />
+      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="general" currentTier={tier} />
     </div>
   );
 }

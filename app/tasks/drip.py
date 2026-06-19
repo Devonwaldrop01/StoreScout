@@ -55,7 +55,7 @@ _OPEN = (
     "font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif'>"
     "<div style='max-width:560px;margin:0 auto;padding:32px 16px'>"
     "<div style='margin-bottom:20px'>"
-    "<span style='color:#a3f000;font-weight:700;font-size:16px;letter-spacing:-.3px'>StoreScout</span>"
+    "<span style='color:#3b82f6;font-weight:700;font-size:16px;letter-spacing:-.3px'>StoreScout</span>"
     "</div>"
 )
 
@@ -69,7 +69,7 @@ _CLOSE = (
 
 def _cta(text: str, url: str) -> str:
     return (
-        f"<a href='{url}' style='display:inline-block;background:#a3f000;color:#060d18;"
+        f"<a href='{url}' style='display:inline-block;background:#3b82f6;color:#ffffff;"
         f"padding:13px 24px;border-radius:10px;text-decoration:none;"
         f"font-weight:700;font-size:14px;margin-top:16px'>{text}</a>"
     )
@@ -94,7 +94,7 @@ def _check_row(label: str, sub: str) -> str:
     return (
         f"<tr>"
         f"<td style='padding:7px 0;border-bottom:1px solid #1e3a5f;color:#c8d8f0;font-size:13px'>"
-        f"<span style='color:#a3f000;margin-right:8px'>✓</span>{label}</td>"
+        f"<span style='color:#22c55e;margin-right:8px'>✓</span>{label}</td>"
         f"<td style='padding:7px 0;border-bottom:1px solid #1e3a5f;color:#6b7fa3;"
         f"font-size:12px;text-align:right'>{sub}</td>"
         f"</tr>"
@@ -143,7 +143,7 @@ def _d0_html(hostname: str, competitor_id: str, snapshot_data: dict, settings) -
         + _cta("See full dashboard →", dashboard_url)
         + f"<p style='color:#3a5068;font-size:12px;margin:18px 0 0'>"
         f"Free plan: 1 competitor, weekly scans. &nbsp;"
-        f"<a href='{upgrade_url}' style='color:#a3f000;text-decoration:none'>"
+        f"<a href='{upgrade_url}' style='color:#60a5fa;text-decoration:none'>"
         f"Upgrade to Pro</a> for daily scans + price-change alerts.</p>"
     )
     return _OPEN + body + _CLOSE.format(settings_url=f"{settings.public_base_url}/settings")
@@ -170,7 +170,7 @@ def _d1_html(hostname: str, competitor_id: str, settings) -> str:
         + _card(f"<table style='width:100%;border-collapse:collapse'>{rows}</table>")
         + _cta("Upgrade to Pro — $29/month →", upgrade_url)
         + f"<p style='color:#3a5068;font-size:12px;margin:18px 0 0'>"
-        f"<a href='{dashboard_url}' style='color:#a3f000;text-decoration:none'>"
+        f"<a href='{dashboard_url}' style='color:#60a5fa;text-decoration:none'>"
         f"Keep exploring your free dashboard →</a></p>"
     )
     return _OPEN + body + _CLOSE.format(settings_url=f"{settings.public_base_url}/settings")
@@ -190,7 +190,7 @@ def _d3_html(hostname: str, competitor_id: str, changes: list, settings) -> str:
                 f"<tr>"
                 f"<td style='padding:8px 0;border-bottom:1px solid #1e3a5f;"
                 f"color:#c8d8f0;font-size:13px'>"
-                f"<span style='color:#a3f000;font-weight:700;margin-right:8px'>{icon}</span>{title}</td>"
+                f"<span style='color:#60a5fa;font-weight:700;margin-right:8px'>{icon}</span>{title}</td>"
                 f"<td style='padding:8px 0;border-bottom:1px solid #1e3a5f;color:#6b7fa3;"
                 f"font-size:12px;text-align:right;filter:blur(4px)'>$XX.XX</td></tr>"
             )
@@ -249,7 +249,7 @@ def _d7_html(hostname: str, competitor_id: str, snapshot_data: dict, changes: li
         f"Pro users get this every Monday, plus daily scans and real-time alerts.</p>"
         + _cta("Upgrade to Pro — $29/month →", upgrade_url)
         + f"<p style='color:#3a5068;font-size:12px;margin:18px 0 0'>"
-        f"<a href='{dashboard_url}' style='color:#a3f000;text-decoration:none'>"
+        f"<a href='{dashboard_url}' style='color:#60a5fa;text-decoration:none'>"
         f"View your dashboard →</a></p>"
     )
     return _OPEN + body + _CLOSE.format(settings_url=f"{settings.public_base_url}/settings")
@@ -269,7 +269,7 @@ def _d14_html(hostname: str, competitor_id: str, snapshot_data: dict, settings) 
 
     observations = "".join(
         f"<div style='display:flex;gap:14px;margin-bottom:14px;align-items:flex-start'>"
-        f"<span style='color:#a3f000;font-weight:700;font-size:20px;line-height:1;flex-shrink:0'>"
+        f"<span style='color:#3b82f6;font-weight:700;font-size:20px;line-height:1;flex-shrink:0'>"
         f"0{i + 1}</span>"
         f"<p style='color:#c8d8f0;font-size:13px;line-height:1.6;margin:2px 0 0'>{t}</p></div>"
         for i, t in enumerate(takeaways)
@@ -286,7 +286,7 @@ def _d14_html(hostname: str, competitor_id: str, snapshot_data: dict, settings) 
         f"launch velocity trends, and specific actions to consider.</p>"
         + _cta("Get weekly AI insights — $29/month →", upgrade_url)
         + f"<p style='color:#3a5068;font-size:12px;margin:18px 0 0'>"
-        f"<a href='{dashboard_url}' style='color:#a3f000;text-decoration:none'>"
+        f"<a href='{dashboard_url}' style='color:#60a5fa;text-decoration:none'>"
         f"View your dashboard →</a></p>"
     )
     return _OPEN + body + _CLOSE.format(settings_url=f"{settings.public_base_url}/settings")

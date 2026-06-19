@@ -624,6 +624,7 @@ function DashboardContent() {
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [trackingHostname, setTrackingHostname] = useState<string | null>(null);
   const [maxCompetitors, setMaxCompetitors] = useState<number | null>(null);
+  const [userTier, setUserTier] = useState<string>("free");
   const [scanningAll, setScanningAll] = useState(false);
   const [firstName, setFirstName] = useState<string | null>(null);
 
@@ -677,7 +678,10 @@ function DashboardContent() {
 
   // Load subscription once to know if user is at competitor limit
   useEffect(() => {
-    userApi.subscription().then((r) => setMaxCompetitors(r.data.limits?.max_competitors ?? 1)).catch(() => {});
+    userApi.subscription().then((r) => {
+      setMaxCompetitors(r.data.limits?.max_competitors ?? 1);
+      setUserTier(r.data.tier ?? "free");
+    }).catch(() => {});
   }, []);
 
   const loadAlerts = useCallback(async () => {
@@ -858,6 +862,23 @@ function DashboardContent() {
 
               {/* Playbook preview */}
               <PlaybookWidget />
+
+              {/* Integration nudge */}
+              <Link
+                href="/settings?tab=integrations"
+                className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl transition-all block"
+                style={{ background: "rgba(59,130,246,.04)", border: "1px solid rgba(59,130,246,.1)" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(59,130,246,.07)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(59,130,246,.04)"; }}
+              >
+                <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 mt-0.5" style={{ background: "rgba(59,130,246,.12)" }}>
+                  <Zap className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold mb-0.5" style={{ color: "var(--text)" }}>Connect your store</p>
+                  <p className="text-[11px] leading-snug" style={{ color: "var(--muted)" }}>Shopify, GA4 &amp; Klaviyo unlock personalized Playbook recommendations</p>
+                </div>
+              </Link>
             </div>
           </div>
 
@@ -869,7 +890,7 @@ function DashboardContent() {
         </>
       )}
 
-      {upgradeOpen && <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="competitor_limit" />}
+      {upgradeOpen && <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="competitor_limit" currentTier={userTier} />}
     </div>
   );
 }
