@@ -448,7 +448,7 @@ async def discover_ai(
 
 Owner's description: {body.description.strip()}{store_context}
 
-Return exactly 8 Shopify stores that are DIRECT competitors to this specific business. These must be independent or mid-size DTC (direct-to-consumer) brands with their own Shopify store — not major publishers, retailers, marketplaces, or subscription box services unless their primary business is selling products directly through a Shopify store.
+Return exactly 12 Shopify stores that are DIRECT competitors to this specific business. These must be independent or mid-size DTC (direct-to-consumer) brands with their own Shopify store — not major publishers, retailers, marketplaces, or subscription box services unless their primary business is selling products directly through a Shopify store.
 
 Return ONLY valid JSON with no markdown, no code fences, no explanation — raw JSON only:
 {{
@@ -495,29 +495,30 @@ Strict rules:
         logger.error("discover-ai Claude call failed (%s): %s", type(ai_exc).__name__, ai_exc)
         raise HTTPException(status_code=500, detail="Failed to generate suggestions — please try again.")
 
-    # Validate each suggested domain is actually a Shopify store — run checks in parallel
-    # with a per-domain timeout so a slow store doesn't stall the whole response.
+    # Validate each suggested domain is actually a Shopify store — run checks in parallel.
+    # Require a real 200 + products JSON response (not just a 403 "restricted" pass),
+    # because restricted stores fail the actual scan just as often as they fail this probe.
     async def _is_shopify(domain: str) -> bool:
         try:
             from app.services.fetch import check_store as _check_store
             loop = asyncio.get_event_loop()
             result = await asyncio.wait_for(
                 loop.run_in_executor(None, _check_store, f"https://{domain}"),
-                timeout=6.0,
+                timeout=8.0,
             )
-            return bool(result.get("ok"))
+            # ok=True + restricted=True means a 403 — treat as unscannnable
+            return bool(result.get("ok")) and not result.get("restricted")
         except Exception:
             return False
 
     checks = await asyncio.gather(*[_is_shopify(s["domain"]) for s in suggestions])
     validated = [s for s, ok in zip(suggestions, checks) if ok]
-
-    # If validation killed almost everything (e.g. slow network), return unfiltered
-    # so the user still gets useful results rather than an empty list.
-    final_suggestions = validated if len(validated) >= 3 else suggestions
+    # Cap at 8 results; never fall back to unvalidated stores — a shorter list
+    # is better UX than showing stores that will fail to scan.
+    final_suggestions = validated[:8]
     logger.info(
-        "discover-ai: %d/%d suggestions passed Shopify validation",
-        len(validated), len(suggestions),
+        "discover-ai: %d/%d suggestions passed Shopify validation (returning %d)",
+        len(validated), len(suggestions), len(final_suggestions),
     )
 
     return {
