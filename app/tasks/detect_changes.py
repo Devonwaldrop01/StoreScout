@@ -252,10 +252,41 @@ def detect_changes(competitor_id: str, snapshot_id: str) -> dict:
         comp = db.table("competitors").select("user_id, is_my_store").eq("id", competitor_id).maybe_single().execute()
         # Don't email users about changes to their own store — only competitors.
         if comp and comp.data and not comp.data.get("is_my_store"):
-            from app.tasks.alerts import send_change_alert
-            send_change_alert.apply_async(
-                args=[comp.data["user_id"], competitor_id, inserted_ids],
-                queue="priority",
-            )
+            _enqueue_alert(comp.data["user_id"], competitor_id, inserted_ids)
 
     return {"status": "ok", "changes": len(rows), "inserted": len(inserted_ids)}
+
+
+def _enqueue_alert(user_id: str, competitor_id: str, change_ids: list) -> None:
+    """Accumulate alert change IDs in Redis and schedule a single flush per 30-min window.
+
+    Multiple competitors scanning within the same 30-minute window all write to the same
+    Redis batch. Only the first one schedules flush_alert_batch — subsequent ones just
+    append to the accumulator. The user receives one combined email instead of N separate
+    ones. Falls back to immediate per-competitor send if Redis is unavailable.
+    """
+    from app.core.config import get_settings
+    settings = get_settings()
+    try:
+        import redis as _r
+        r = _r.from_url(settings.redis_url, socket_connect_timeout=2)
+        batch_key = f"alert_batch:{user_id}"
+        comp_key  = f"alert_batch_changes:{user_id}:{competitor_id}"
+        sched_key = f"alert_batch_sched:{user_id}"
+        pipe = r.pipeline()
+        pipe.sadd(comp_key, *change_ids)
+        pipe.expire(comp_key, 3600)
+        pipe.sadd(batch_key, competitor_id)
+        pipe.expire(batch_key, 3600)
+        pipe.execute()
+        # setnx returns 1 only on the first call → schedule flush once per 30-min window
+        if r.setnx(sched_key, "1"):
+            r.expire(sched_key, 1800)
+            from app.tasks.alerts import flush_alert_batch
+            flush_alert_batch.apply_async(args=[user_id], countdown=1800)
+    except Exception:
+        # Redis unavailable — fall back to immediate per-competitor send
+        from app.tasks.alerts import send_change_alert
+        send_change_alert.apply_async(
+            args=[user_id, competitor_id, change_ids], queue="priority"
+        )

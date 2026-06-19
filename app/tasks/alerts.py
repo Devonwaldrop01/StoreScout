@@ -186,10 +186,10 @@ def _build_alert_html(hostname: str, subject: str, n: int, change_list: list,
     interp_block = ""
     if interpretation:
         interp_block = (
-            f"<div style='background:rgba(163,240,0,.08);border:1px solid rgba(163,240,0,.2);"
-            f"border-left:3px solid #a3f000;border-radius:8px;padding:14px 16px;margin-bottom:20px'>"
+            f"<div style='background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);"
+            f"border-left:3px solid #22c55e;border-radius:8px;padding:14px 16px;margin-bottom:20px'>"
             f"<div style='font-size:10px;font-weight:700;text-transform:uppercase;"
-            f"letter-spacing:.05em;color:#a3f000;margin-bottom:6px'>What this likely means</div>"
+            f"letter-spacing:.05em;color:#22c55e;margin-bottom:6px'>What this likely means</div>"
             f"<p style='color:#c8d8f0;font-size:13px;line-height:1.5;margin:0'>{interpretation}</p>"
             f"</div>"
         )
@@ -211,7 +211,7 @@ def _build_alert_html(hostname: str, subject: str, n: int, change_list: list,
 <body style="margin:0;padding:0;background:#060d18;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
 <div style="max-width:560px;margin:0 auto;padding:32px 16px">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-    <span style="color:#a3f000;font-weight:700;font-size:16px">StoreScout</span>
+    <span style="color:#3b82f6;font-weight:700;font-size:16px">StoreScout</span>
     <span style="background:{sev_bg};color:{sev_color};border:1px solid {sev_color}40;
            padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">{sev_label}</span>
   </div>
@@ -225,7 +225,7 @@ def _build_alert_html(hostname: str, subject: str, n: int, change_list: list,
   </div>
   {your_move_block}
   <a href="{dashboard_url}"
-     style="display:block;background:#a3f000;color:#060d18;text-decoration:none;
+     style="display:block;background:#3b82f6;color:#ffffff;text-decoration:none;
             text-align:center;padding:14px 24px;border-radius:12px;font-weight:700;font-size:15px">
     View full dashboard →
   </a>
@@ -461,6 +461,367 @@ def send_change_alert(self, user_id: str, competitor_id: str, change_ids: List[s
         raise self.retry(exc=exc, countdown=60 * (2 ** self.request.retries))
 
 
+# ── Batched alert flush ───────────────────────────────────────────────────────
+
+def _build_multi_alert_html(sections: list, settings) -> tuple:
+    """Build (subject, html) for a combined multi-competitor alert email.
+
+    sections: list of (comp_id, hostname, change_list) tuples.
+    """
+    n_comps = len(sections)
+    overall_sev = "info"
+    for _, _, chlist in sections:
+        if any(c["severity"] == "critical" for c in chlist):
+            overall_sev = "critical"
+            break
+        if any(c["severity"] == "warning" for c in chlist):
+            overall_sev = "warning"
+    sev_color, sev_bg, sev_label = _SEVERITY_STYLES[overall_sev]
+    total_changes = sum(sum(_effective_count(c) for c in chlist) for _, _, chlist in sections)
+
+    hostnames = [h for _, h, _ in sections]
+    if n_comps == 2:
+        subject = f"{hostnames[0]} + {hostnames[1]} — {total_changes} changes detected"
+    else:
+        subject = f"{n_comps} competitors — {total_changes} changes detected"
+
+    sections_html = ""
+    for i, (comp_id, hostname, change_list) in enumerate(sections):
+        dashboard_url = f"{settings.public_base_url}/dashboard/{comp_id}"
+        n_eff = sum(_effective_count(c) for c in change_list)
+        interp = _interpret_changes(hostname, change_list, settings)
+        your_move = _action_for_email(change_list, hostname)
+
+        rows_html = ""
+        for c in change_list[:5]:
+            c_sev = c.get("severity", "info")
+            c_color = _SEVERITY_STYLES.get(c_sev, _SEVERITY_STYLES["info"])[0]
+            ct = c["change_type"]
+            ov = c.get("old_value") or {}
+            nv = c.get("new_value") or {}
+            if ct == "bulk_price_change":
+                count = ov.get("count", "several")
+                icon, title, detail = "~", f"{count} products repriced", ""
+            elif ct == "bulk_new_products":
+                count = ov.get("count", "several")
+                icon, title, detail = "+", f"{count} new products", ""
+            elif ct == "bulk_removal":
+                count = ov.get("count", "several")
+                icon, title, detail = "−", f"{count} products removed", ""
+            elif ct == "price_change":
+                icon = "↓" if (c.get("delta_pct") or 0) < 0 else "↑"
+                title = (c.get("product_title") or ct.replace("_", " ").title())[:50]
+                delta = c.get("delta_pct") or 0
+                detail = f"${ov.get('price','?')} → ${nv.get('price','?')} ({delta:+.0f}%)"
+            elif ct == "new_product":
+                icon = "+"
+                title = (c.get("product_title") or "New Product")[:50]
+                p = nv.get("price_min")
+                detail = f"${p}" if p else ""
+            else:
+                icon = "·"
+                title = (c.get("product_title") or ct.replace("_", " ").title())[:50]
+                detail = ""
+            rows_html += (
+                f"<tr>"
+                f"<td style='padding:6px 0;border-bottom:1px solid #1e3a5f'>"
+                f"<span style='color:{c_color};font-weight:700;font-size:12px;margin-right:8px'>{icon}</span>"
+                f"<span style='color:#c8d8f0;font-size:13px'>{title}</span></td>"
+                f"<td style='padding:6px 0;border-bottom:1px solid #1e3a5f;color:#8aa0b8;"
+                f"font-size:12px;text-align:right'>{detail}</td>"
+                f"</tr>"
+            )
+
+        interp_snippet = (
+            f"<p style='color:#8aa0b8;font-size:12px;font-style:italic;margin:10px 0 6px;line-height:1.5'>{interp}</p>"
+            if interp else ""
+        )
+        move_snippet = (
+            f"<p style='color:#60a5fa;font-size:12px;margin:6px 0 0;line-height:1.5'>"
+            f"<strong>▶</strong> {your_move}</p>"
+            if your_move else ""
+        )
+        divider = (
+            "<div style='border-top:1px solid #1e3a5f;margin:20px 0'></div>"
+            if i < n_comps - 1 else ""
+        )
+
+        sections_html += (
+            f"<div>"
+            f"<div style='display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px'>"
+            f"<span style='color:#eef3fa;font-size:15px;font-weight:700'>{hostname}</span>"
+            f"<span style='color:#6b7fa3;font-size:12px'>{n_eff} change{'s' if n_eff != 1 else ''}</span>"
+            f"</div>"
+            f"<div style='background:#0e1d35;border:1px solid #1e3a5f;border-radius:10px;padding:12px 16px;margin-bottom:10px'>"
+            f"<table style='width:100%;border-collapse:collapse'>{rows_html}</table>"
+            f"</div>"
+            f"{interp_snippet}{move_snippet}"
+            f"<a href='{dashboard_url}' style='display:inline-block;color:#60a5fa;font-size:13px;"
+            f"font-weight:600;text-decoration:none;margin-top:10px'>View {hostname} →</a>"
+            f"{divider}"
+            f"</div>"
+        )
+
+    all_url = f"{settings.public_base_url}/competitors"
+    settings_url = f"{settings.public_base_url}/settings"
+    html = (
+        f"<!DOCTYPE html><html><head><meta charset='utf-8'>"
+        f"<meta name='viewport' content='width=device-width,initial-scale=1'></head>"
+        f"<body style='margin:0;padding:0;background:#060d18;"
+        f"font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif'>"
+        f"<div style='max-width:560px;margin:0 auto;padding:32px 16px'>"
+        f"<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:16px'>"
+        f"<span style='color:#3b82f6;font-weight:700;font-size:16px'>StoreScout</span>"
+        f"<span style='background:{sev_bg};color:{sev_color};border:1px solid {sev_color}40;"
+        f"padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700'>{sev_label}</span>"
+        f"</div>"
+        f"<h1 style='color:#eef3fa;font-size:20px;font-weight:700;margin:0 0 6px;line-height:1.3'>"
+        f"{n_comps} competitors had activity</h1>"
+        f"<p style='color:#6b7fa3;font-size:13px;margin:0 0 24px'>"
+        f"{total_changes} total change{'s' if total_changes != 1 else ''} in the last 30 minutes</p>"
+        f"{sections_html}"
+        f"<a href='{all_url}' style='display:block;background:#3b82f6;color:#ffffff;"
+        f"text-decoration:none;text-align:center;padding:14px 24px;border-radius:12px;"
+        f"font-weight:700;font-size:15px;margin-top:24px'>View all dashboards →</a>"
+        f"<p style='color:#2a3a4a;font-size:11px;text-align:center;margin-top:24px'>"
+        f"StoreScout &nbsp;·&nbsp;"
+        f"<a href='{settings_url}' style='color:#2a3a4a'>Manage notifications</a></p>"
+        f"</div></body></html>"
+    )
+    return subject, html
+
+
+def _send_free_alert_email(db, user_id: str, email: str, competitor_ids: list,
+                           changes_by_comp: dict, settings) -> dict:
+    """Send a simplified weekly change summary to free-tier users.
+
+    Shows change counts per competitor (no product detail) and teases the upgrade.
+    """
+    # Count changes per competitor and collect all IDs to mark as sent
+    rows_html = ""
+    all_change_ids: list = []
+    total = 0
+    for comp_id in competitor_ids:
+        change_ids = changes_by_comp.get(comp_id) or []
+        if not change_ids:
+            continue
+        comp = db.table("competitors").select("hostname").eq("id", comp_id).maybe_single().execute()
+        hostname = (comp.data or {}).get("hostname", comp_id) if comp else comp_id
+        n = len(change_ids)
+        total += n
+        all_change_ids.extend(change_ids)
+        rows_html += (
+            f"<tr>"
+            f"<td style='padding:8px 0;border-bottom:1px solid #1e3a5f;color:#c8d8f0;font-size:13px'>"
+            f"<span style='color:#60a5fa;margin-right:8px'>◉</span>{hostname}</td>"
+            f"<td style='padding:8px 0;border-bottom:1px solid #1e3a5f;color:#6b7fa3;"
+            f"font-size:12px;text-align:right'>{n} change{'s' if n != 1 else ''}</td>"
+            f"</tr>"
+        )
+
+    if not rows_html:
+        return {"status": "no_changes"}
+
+    competitors_url = f"{settings.public_base_url}/competitors"
+    upgrade_url = f"{settings.public_base_url}/settings?upgrade=1"
+    settings_url = f"{settings.public_base_url}/settings"
+    n_comps = len([c for c in competitor_ids if changes_by_comp.get(c)])
+
+    subject = f"Activity at your tracked store — {total} change{'s' if total != 1 else ''} this week"
+
+    html = (
+        f"<!DOCTYPE html><html><head><meta charset='utf-8'>"
+        f"<meta name='viewport' content='width=device-width,initial-scale=1'></head>"
+        f"<body style='margin:0;padding:0;background:#060d18;"
+        f"font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif'>"
+        f"<div style='max-width:560px;margin:0 auto;padding:32px 16px'>"
+        f"<div style='margin-bottom:20px'>"
+        f"<span style='color:#3b82f6;font-weight:700;font-size:16px;letter-spacing:-.3px'>StoreScout</span>"
+        f"</div>"
+        f"<h1 style='color:#eef3fa;font-size:20px;font-weight:700;margin:0 0 6px'>"
+        f"Your weekly scan is complete</h1>"
+        f"<p style='color:#6b7fa3;font-size:14px;margin:0 0 20px'>"
+        f"We detected {total} change{'s' if total != 1 else ''} across your "
+        f"{n_comps} tracked competitor{'s' if n_comps != 1 else ''} this week.</p>"
+        f"<div style='background:#0e1d35;border:1px solid #1e3a5f;border-radius:12px;"
+        f"padding:16px 20px;margin-bottom:20px'>"
+        f"<table style='width:100%;border-collapse:collapse'>{rows_html}</table>"
+        f"</div>"
+        f"<div style='background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);"
+        f"border-left:3px solid #3b82f6;border-radius:8px;padding:14px 16px;margin-bottom:20px'>"
+        f"<div style='font-size:10px;font-weight:700;text-transform:uppercase;"
+        f"letter-spacing:.05em;color:#60a5fa;margin-bottom:6px'>Upgrade to Pro</div>"
+        f"<p style='color:#c8d8f0;font-size:13px;line-height:1.5;margin:0 0 10px'>"
+        f"Get alerted within 15 minutes of any price change, new launch, or discount — "
+        f"plus daily scans so you never miss a move.</p>"
+        f"<a href='{upgrade_url}' style='display:inline-block;background:#3b82f6;color:#ffffff;"
+        f"padding:9px 18px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px'>"
+        f"Get real-time alerts — $29/month →</a>"
+        f"</div>"
+        f"<a href='{competitors_url}' style='display:block;background:#0e1d35;color:#c8d8f0;"
+        f"text-decoration:none;text-align:center;padding:12px 24px;border-radius:12px;"
+        f"font-weight:600;font-size:14px;border:1px solid #1e3a5f'>View your dashboard →</a>"
+        f"<p style='color:#1e3a5f;font-size:11px;text-align:center;margin-top:24px'>"
+        f"StoreScout &nbsp;·&nbsp;"
+        f"<a href='{settings_url}' style='color:#1e3a5f'>Manage notifications</a>"
+        f"</p>"
+        f"</div></body></html>"
+    )
+
+    try:
+        resend.api_key = settings.resend_api_key
+        resend.Emails.send({
+            "from": settings.resend_from,
+            "to": email,
+            "subject": subject,
+            "html": html,
+        })
+        # Mark as alerted so detect_changes doesn't try again for 7 days
+        if all_change_ids:
+            db.table("change_events").update({"alert_sent": True}).in_("id", all_change_ids).execute()
+        logger.info("Free weekly alert sent to %s (%d changes, %d competitors)", email, total, n_comps)
+        return {"status": "sent", "competitors": n_comps, "changes": total}
+    except Exception as exc:
+        logger.error("Free weekly alert failed for %s: %s", email, exc)
+        return {"status": "error", "reason": str(exc)}
+
+
+@celery.task(name="app.tasks.alerts.flush_alert_batch", queue="priority",
+             bind=True, max_retries=2)
+def flush_alert_batch(self, user_id: str) -> dict:
+    """Flush the 30-minute alert batch for a user.
+
+    Reads all accumulated competitor IDs + change IDs from Redis, then sends one
+    combined email (Pro/Agency) or one simplified weekly teaser (free tier).
+    """
+    settings = get_settings()
+    db = get_supabase()
+
+    try:
+        import redis as _r
+        r = _r.from_url(settings.redis_url, socket_connect_timeout=2)
+    except Exception as exc:
+        logger.error("flush_alert_batch: Redis unavailable for user %s: %s", user_id, exc)
+        return {"status": "redis_unavailable"}
+
+    batch_key = f"alert_batch:{user_id}"
+    sched_key = f"alert_batch_sched:{user_id}"
+    raw_ids = r.smembers(batch_key) or set()
+    competitor_ids = [x.decode() for x in raw_ids]
+
+    if not competitor_ids:
+        return {"status": "nothing_pending"}
+
+    # Collect change IDs per competitor, then atomically wipe Redis state
+    changes_by_comp: dict = {}
+    pipe = r.pipeline()
+    for cid in competitor_ids:
+        comp_key = f"alert_batch_changes:{user_id}:{cid}"
+        changes_by_comp[cid] = [x.decode() for x in (r.smembers(comp_key) or [])]
+        pipe.delete(comp_key)
+    pipe.delete(batch_key)
+    pipe.delete(sched_key)
+    pipe.execute()
+
+    # Resolve tier and email
+    user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
+    tier = (user.data or {}).get("tier", "free")
+    email = _resolve_email(db, user_id)
+    if not email:
+        logger.error("flush_alert_batch: no email for user %s", user_id)
+        return {"status": "no_email"}
+
+    # ── Free tier: simplified weekly teaser (max once per 7 days via Redis TTL) ─
+    if tier == "free":
+        free_key = f"free_alert_sent:{user_id}"
+        if r.exists(free_key):
+            return {"status": "free_cooldown"}
+        r.setex(free_key, 7 * 24 * 3600, "1")
+        return _send_free_alert_email(db, user_id, email, competitor_ids, changes_by_comp, settings)
+
+    # ── Pro/Agency: collect eligible changes and send one combined email ──────
+    prefs = db.table("notification_prefs").select("*").eq("user_id", user_id).maybe_single().execute()
+    prefs_data = (prefs and prefs.data) or {}
+
+    sections: list = []   # (comp_id, hostname, change_list)
+    all_alert_ids: list = []
+
+    for comp_id in competitor_ids:
+        change_ids = changes_by_comp.get(comp_id) or []
+        if not change_ids:
+            continue
+        if _within_cooldown(db, user_id, comp_id):
+            logger.info("flush_alert_batch: %s in cooldown, skipping", comp_id)
+            continue
+        comp = db.table("competitors").select("hostname").eq("id", comp_id).maybe_single().execute()
+        if not (comp and comp.data):
+            continue
+        hostname = comp.data["hostname"]
+        changes = (
+            db.table("change_events").select("*")
+            .in_("id", change_ids)
+            .order("severity", desc=True)
+            .execute()
+        )
+        change_list = [
+            c for c in (changes.data or [])
+            if prefs_data.get(
+                _CHANGE_TYPE_PREF.get(c.get("change_type", ""), "email_price_changes"), True
+            )
+        ]
+        if change_list:
+            sections.append((comp_id, hostname, change_list))
+            all_alert_ids.extend(c["id"] for c in change_list)
+
+    if not sections:
+        return {"status": "no_eligible_changes"}
+
+    try:
+        if len(sections) == 1:
+            comp_id, hostname, change_list = sections[0]
+            n = len(change_list)
+            n_eff = sum(_effective_count(c) for c in change_list)
+            critical = [c for c in change_list if c["severity"] == "critical"]
+            price_ev = [c for c in change_list if c["change_type"] in ("price_change", "bulk_price_change")]
+            new_ev   = [c for c in change_list if c["change_type"] in ("new_product", "bulk_new_products")]
+            if critical:
+                subject = f"Flash sale at {hostname} — {n_eff} price changes"
+            elif price_ev and new_ev:
+                n_p = sum(_effective_count(c) for c in price_ev)
+                n_n = sum(_effective_count(c) for c in new_ev)
+                subject = f"{hostname} — {n_p} price changes + {n_n} new products"
+            elif price_ev:
+                n_p = sum(_effective_count(c) for c in price_ev)
+                subject = f"Price change at {hostname} ({n_p} products)"
+            elif new_ev:
+                n_n = sum(_effective_count(c) for c in new_ev)
+                subject = f"{hostname} launched {n_n} new product{'s' if n_n != 1 else ''}"
+            else:
+                subject = f"Competitor update at {hostname} ({n_eff} changes)"
+            interp = _interpret_changes(hostname, change_list, settings)
+            dashboard_url = f"{settings.public_base_url}/dashboard/{comp_id}"
+            html = _build_alert_html(hostname, subject, n, change_list, interp, dashboard_url, settings)
+        else:
+            subject, html = _build_multi_alert_html(sections, settings)
+
+        resend.api_key = settings.resend_api_key
+        resend.Emails.send({
+            "from": settings.resend_from,
+            "to": email,
+            "subject": subject,
+            "html": html,
+        })
+        db.table("change_events").update({"alert_sent": True}).in_("id", all_alert_ids).execute()
+        logger.info(
+            "flush_alert_batch: sent to %s covering %d competitor(s) (%d change IDs)",
+            email, len(sections), len(all_alert_ids),
+        )
+        return {"status": "sent", "competitors": len(sections)}
+    except Exception as exc:
+        logger.error("flush_alert_batch failed (attempt %d): %s", self.request.retries + 1, exc)
+        raise self.retry(exc=exc, countdown=60 * (2 ** self.request.retries))
+
+
 # ── Weekly digest ─────────────────────────────────────────────────────────────
 
 def _change_icon(change_type: str, delta_pct: float) -> str:
@@ -539,7 +900,7 @@ def _build_competitor_block(competitor: dict, summary: Optional[dict],
 
     # Header row
     header = (
-        f"<div style='border-bottom:2px solid #a3f000;padding-bottom:8px;margin-bottom:16px;"
+        f"<div style='border-bottom:2px solid #3b82f6;padding-bottom:8px;margin-bottom:16px;"
         f"display:flex;justify-content:space-between;align-items:baseline'>"
         f"<span style='font-size:15px;font-weight:700;color:#111'>{hostname}</span>"
         f"<span style='font-size:12px;color:#888'>{week_changes} change{'s' if week_changes != 1 else ''} this week</span>"
@@ -579,7 +940,7 @@ def _build_competitor_block(competitor: dict, summary: Optional[dict],
         )
 
     cta = (
-        f"<a href='{dashboard_url}' style='display:inline-block;background:#a3f000;color:#0a1628;"
+        f"<a href='{dashboard_url}' style='display:inline-block;background:#3b82f6;color:#ffffff;"
         f"padding:8px 18px;border-radius:6px;text-decoration:none;font-weight:600;font-size:13px'>"
         f"View dashboard →</a>"
     )
@@ -692,7 +1053,7 @@ def send_weekly_digest_email(user_id: str) -> dict:
     <!-- Header -->
     <div style="background:#0a1628;padding:24px 28px;border-radius:12px 12px 0 0">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="color:#a3f000;font-weight:700;font-size:16px">StoreScout</span>
+        <span style="color:#3b82f6;font-weight:700;font-size:16px">StoreScout</span>
         <span style="color:#6b7fa3;font-size:12px">Weekly digest</span>
       </div>
       <p style="color:#c8d8f0;font-size:22px;font-weight:700;margin:12px 0 0">{date_range}</p>
@@ -735,7 +1096,7 @@ def send_weekly_digest_email(user_id: str) -> dict:
 # ── First-scan email ──────────────────────────────────────────────────────────
 
 _CARD_COLORS = {
-    "signal": ("#a3f000", "rgba(163,240,0,0.12)", "Most notable signal"),
+    "signal": ("#22c55e", "rgba(34,197,94,0.12)", "Most notable signal"),
     "opportunity": ("#60a5fa", "rgba(96,165,250,0.12)", "Your opening"),
     "watch": ("#facc15", "rgba(250,204,21,0.12)", "Watch this"),
     "action": ("#4ade80", "rgba(74,222,128,0.12)", "Your move"),
@@ -812,7 +1173,7 @@ def _build_multi_first_scan_html(ready_comps: list, briefs_by_comp: dict, settin
             f"</div>"
             f"{card_html}"
             f"<a href='{dashboard_url}' style='display:inline-block;background:#1e3a5f;"
-            f"color:#a3f000;padding:7px 14px;border-radius:8px;font-size:13px;"
+            f"color:#60a5fa;padding:7px 14px;border-radius:8px;font-size:13px;"
             f"font-weight:600;text-decoration:none'>View {hostname} →</a>"
             f"</div>"
             f"{divider}"
@@ -827,7 +1188,7 @@ def _build_multi_first_scan_html(ready_comps: list, briefs_by_comp: dict, settin
   <div style="max-width:560px;margin:0 auto;padding:32px 16px">
 
     <div style="margin-bottom:28px">
-      <div style="color:#a3f000;font-weight:700;font-size:18px;margin-bottom:16px">StoreScout</div>
+      <div style="color:#3b82f6;font-weight:700;font-size:18px;margin-bottom:16px">StoreScout</div>
       <h1 style="color:#eef3fa;font-size:22px;font-weight:700;margin:0 0 8px;line-height:1.3">
         Your {n} competitor scans are ready
       </h1>
@@ -947,7 +1308,7 @@ def send_first_scan_email(self, competitor_id: str) -> dict:
   <div style="max-width:560px;margin:0 auto;padding:32px 16px">
 
     <div style="margin-bottom:28px">
-      <div style="color:#a3f000;font-weight:700;font-size:18px;margin-bottom:16px">StoreScout</div>
+      <div style="color:#3b82f6;font-weight:700;font-size:18px;margin-bottom:16px">StoreScout</div>
       <h1 style="color:#eef3fa;font-size:22px;font-weight:700;margin:0 0 8px;line-height:1.3">
         Your first scan of {hostname} is ready
       </h1>
@@ -957,7 +1318,7 @@ def send_first_scan_email(self, competitor_id: str) -> dict:
     {cards_html}
 
     <a href="{dashboard_url}"
-       style="display:block;background:#a3f000;color:#060d18;text-decoration:none;
+       style="display:block;background:#3b82f6;color:#ffffff;text-decoration:none;
               text-align:center;padding:14px 24px;border-radius:12px;
               font-weight:700;font-size:15px;margin-top:24px">
       View full analysis →
