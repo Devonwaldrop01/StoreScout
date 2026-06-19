@@ -307,7 +307,7 @@ function CompetitorsContent() {
       const apiErr = err as { data?: { detail?: { code?: string } | string } };
       const detail = apiErr?.data?.detail;
       if (typeof detail === "object" && detail?.code === "discovery_limit_reached") {
-        setDiscoverError("You've used all your discovery searches this month. Upgrade to Pro for unlimited searches.");
+        setDiscoverError("You've used your 1 free discovery search this month. Upgrade to Pro for unlimited searches.");
       } else {
         setDiscoverError("Something went wrong generating suggestions. Please try again.");
       }
@@ -477,9 +477,11 @@ function CompetitorsContent() {
               <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Find competitors</p>
               <span className="text-xs" style={{ color: "var(--muted)" }}>— AI-powered</span>
             </div>
-            {subscription?.tier === "free" && discoverResult && discoverResult.searches_limit !== null && (
+            {subscription?.tier === "free" && (
               <span className="text-[11px] font-medium" style={{ color: "var(--muted)" }}>
-                {Math.max(0, (discoverResult.searches_limit ?? 0) - (discoverResult.searches_used ?? 0))} of {discoverResult.searches_limit} searches left this month
+                {discoverResult && discoverResult.searches_limit !== null
+                  ? `${Math.max(0, (discoverResult.searches_limit ?? 0) - (discoverResult.searches_used ?? 0))} of ${discoverResult.searches_limit} searches left this month`
+                  : "1 free search / month"}
               </span>
             )}
           </div>
@@ -724,7 +726,7 @@ function CompetitorsContent() {
           }}
         />
       )}
-      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="competitor_limit" />
+      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="competitor_limit" currentTier={subscription?.tier} />
     </div>
   );
 }

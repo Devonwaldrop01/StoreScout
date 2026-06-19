@@ -20,6 +20,7 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
   const [storeStatus, setStoreStatus] = useState<"idle" | "ok" | "restricted" | "error">("idle");
   const [error, setError] = useState("");
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [upgradeTier, setUpgradeTier] = useState<string | undefined>(undefined);
   const checkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Auto-check when opened with a pre-filled URL (e.g. from "Track →" in discovery)
@@ -83,9 +84,10 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
       const { data } = await api.add(normalizeUrl(url), displayName || undefined);
       onAdded(data);
     } catch (err: unknown) {
-      const apiErr = err as { data?: { detail?: string | { code?: string; limit?: number } } };
+      const apiErr = err as { data?: { detail?: string | { code?: string; limit?: number; tier?: string } } };
       const detail = apiErr?.data?.detail;
       if (typeof detail === "object" && detail?.code === "competitor_limit_reached") {
+        setUpgradeTier((detail as { tier?: string }).tier);
         setShowUpgrade(true);
       } else if (typeof detail === "string") {
         setError(detail);
@@ -98,7 +100,7 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
   }
 
   if (showUpgrade) {
-    return <UpgradeModal open={true} onClose={() => setShowUpgrade(false)} trigger="competitor_limit" />;
+    return <UpgradeModal open={true} onClose={() => setShowUpgrade(false)} trigger="competitor_limit" currentTier={upgradeTier} />;
   }
 
   return (
