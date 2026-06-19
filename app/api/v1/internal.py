@@ -102,7 +102,10 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
     if not raw:
         logger.error("[SCAN %s] fetch returned empty list for %r — see FETCH logs above for root cause",
                      competitor_id, store_url)
-        _mark_error(db, competitor_id, f"No products returned for {store_url}")
+        _mark_error(db, competitor_id,
+            "Could not access this store's catalog. It may use bot protection that blocks automated access. "
+            "Try rescanning, or remove it and add a different competitor."
+        )
         return {"status": "error", "reason": f"No products returned for {store_url}"}
 
     # ── 4. Normalize ─────────────────────────────────────────────────────────

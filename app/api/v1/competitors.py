@@ -448,7 +448,7 @@ async def discover_ai(
 
 Owner's description: {body.description.strip()}{store_context}
 
-Return exactly 12 Shopify stores that are DIRECT competitors to this specific business. These must be independent or mid-size DTC (direct-to-consumer) brands with their own Shopify store — not major publishers, retailers, marketplaces, or subscription box services unless their primary business is selling products directly through a Shopify store.
+Return exactly 15 Shopify stores that are DIRECT competitors to this specific business. These must be independent or mid-size DTC (direct-to-consumer) brands with their own Shopify store — not major publishers, retailers, marketplaces, or subscription box services unless their primary business is selling products directly through a Shopify store.
 
 Return ONLY valid JSON with no markdown, no code fences, no explanation — raw JSON only:
 {{
@@ -496,8 +496,9 @@ Strict rules:
         raise HTTPException(status_code=500, detail="Failed to generate suggestions — please try again.")
 
     # Validate each suggested domain is actually a Shopify store — run checks in parallel.
-    # Require a real 200 + products JSON response (not just a 403 "restricted" pass),
-    # because restricted stores fail the actual scan just as often as they fail this probe.
+    # Accept both 200 (open) and 403 (bot-protected) responses — both are real Shopify stores
+    # and the scanner's curl_cffi TLS fingerprinting handles 403 stores successfully in practice.
+    # Only reject stores where ok=False: DNS failures, HTML responses, confirmed non-Shopify.
     async def _is_shopify(domain: str) -> bool:
         try:
             from app.services.fetch import check_store as _check_store
@@ -506,8 +507,7 @@ Strict rules:
                 loop.run_in_executor(None, _check_store, f"https://{domain}"),
                 timeout=8.0,
             )
-            # ok=True + restricted=True means a 403 — treat as unscannnable
-            return bool(result.get("ok")) and not result.get("restricted")
+            return bool(result.get("ok"))
         except Exception:
             return False
 
