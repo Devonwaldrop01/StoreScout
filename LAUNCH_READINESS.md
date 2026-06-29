@@ -51,7 +51,10 @@ All integrations are wired end-to-end (backend + Settings UI + DB schema + the A
 - [x] ✅ GA4 report no longer 400s on properties without conversions (dropped unused metric).
 - [x] ✅ GSC search-query data (was broken — siteUrl now percent-encoded).
 - [x] ✅ Shopify Admin data now actually used — new `get_shopify_context()` feeds real inventory + active discount rules into the playbook, justifying the `read_inventory`/`read_price_rules`/`read_discounts` scopes the Connect flow requests.
-- [ ] 🚫 **Live verification required (Devon).** These call external APIs (Klaviyo, GA4, GSC, Shopify Admin) that can't be exercised from the dev environment without real connected accounts. Connect one real account per integration and confirm: Klaviyo shows real subscriber counts; GA4 dropdown lists properties; a generated playbook references your GA4/GSC/Shopify data. Set `google_client_id/secret`, `shopify_api_key/secret` in prod env.
+- [x] ✅ Deeper Klaviyo — context now includes email-campaign cadence (sends in last 30d + days since last send), not just list size.
+- [x] ✅ Playbook quality upgrades — ready-to-paste draft assets (email/ad copy) on act_now/right_now plays; small-account logic (1-competitor users get varied angles instead of impossible "different competitor per play"); channel variety (not every play is paid ads); 90-day trend intelligence (price/promo trajectory + discount-campaign cadence) fed into the prompt.
+- [x] ✅ Meta Ad Library competitor feed — `get_competitor_ads_context()` reads the PUBLIC Ad Library (not the user's ad account), token-gated and inert until `META_AD_LIBRARY_TOKEN` is set. ⚠️ Coverage caveat: official API fully covers EU-served ads; broader US commercial coverage aligns with the verified-business step (Meta Ads roadmap item).
+- [ ] 🚫 **Live verification required (Devon).** These call external APIs (Klaviyo, GA4, GSC, Shopify Admin, Meta Ad Library) that can't be exercised from the dev environment without real connected accounts. Connect one real account per integration and confirm: Klaviyo shows real subscriber counts + cadence; GA4 dropdown lists properties; a generated playbook references your GA4/GSC/Shopify data and includes draft email/ad copy. Set `google_client_id/secret`, `shopify_api_key/secret` (and optionally `meta_ad_library_token`) in prod env.
 
 ### 7. Demo account
 - [ ] ⬜ Stand up a presentable demo account with good-looking real data (for screenshots + sales calls). Confirm which `scripts/seed_test_data.py` user is safe to use.
@@ -80,6 +83,7 @@ All integrations are wired end-to-end (backend + Settings UI + DB schema + the A
 | `NEXT_PUBLIC_GA_ID` | frontend (Vercel) | Google Analytics 4 |
 | `NEXT_PUBLIC_FB_PIXEL_ID` | frontend | Meta Pixel |
 | Resend domain auth (SPF/DKIM/DMARC) | DNS | email deliverability |
+| `META_AD_LIBRARY_TOKEN` (optional) | backend | public competitor ad feed in the playbook |
 
 ---
 

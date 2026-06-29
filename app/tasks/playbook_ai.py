@@ -131,6 +131,68 @@ def _format_competitor_block(comp: dict, snap: dict) -> str:
     return "\n".join(lines)
 
 
+def _competitor_trend(db, competitor_id: str) -> str | None:
+    """Summarize a competitor's last-90-day trajectory from stored snapshots +
+    discount-campaign cadence. Returns a one-line string or None (needs >= 3 scans)."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
+    try:
+        snaps = (
+            db.table("scan_snapshots")
+            .select("scanned_at, median_price, promo_rate, product_count")
+            .eq("competitor_id", competitor_id)
+            .gte("scanned_at", cutoff)
+            .order("scanned_at", desc=False)
+            .execute()
+        )
+    except Exception:
+        return None
+    rows = snaps.data or []
+    if len(rows) < 3:
+        return None
+
+    first, last = rows[0], rows[-1]
+    parts: list[str] = []
+
+    fm, lm = first.get("median_price"), last.get("median_price")
+    if fm and lm and float(fm) > 0:
+        pct = (float(lm) - float(fm)) / float(fm) * 100
+        if abs(pct) >= 3:
+            parts.append(f"median ${float(fm):.0f}→${float(lm):.0f} ({pct:+.0f}%)")
+
+    fp, lp = first.get("promo_rate"), last.get("promo_rate")
+    if fp is not None and lp is not None and abs(float(lp) - float(fp)) >= 5:
+        parts.append(f"promo {float(fp):.0f}%→{float(lp):.0f}%")
+
+    fc, lc = first.get("product_count"), last.get("product_count")
+    if fc and lc and int(lc) - int(fc) != 0:
+        parts.append(f"catalog {int(fc)}→{int(lc)} ({int(lc) - int(fc):+d})")
+
+    # Discount-campaign cadence — the seasonality insight users pay for
+    try:
+        ev = (
+            db.table("change_events")
+            .select("detected_at")
+            .eq("competitor_id", competitor_id)
+            .eq("change_type", "discount_start")
+            .gte("detected_at", cutoff)
+            .order("detected_at", desc=False)
+            .execute()
+        )
+        dates = [
+            datetime.fromisoformat(e["detected_at"].replace("Z", "+00:00"))
+            for e in (ev.data or []) if e.get("detected_at")
+        ]
+        if len(dates) >= 2:
+            intervals = [(dates[i + 1] - dates[i]).days for i in range(len(dates) - 1)]
+            avg = sum(intervals) / len(intervals) if intervals else 0
+            if avg > 0:
+                parts.append(f"runs sales ~every {int(round(avg))}d ({len(dates)} in 90d)")
+    except Exception:
+        pass
+
+    return "  90d trend: " + " | ".join(parts) if parts else None
+
+
 @celery.task(name="app.tasks.playbook_ai.generate_ai_playbook")
 def generate_ai_playbook(user_id: str) -> dict:
     settings = get_settings()
@@ -247,6 +309,12 @@ def generate_ai_playbook(user_id: str) -> dict:
     except Exception as _e:
         logger.debug("Integration enrichment skipped: %s", _e)
 
+    # Optional public competitor ad-intelligence (inert unless a token is set)
+    try:
+        from app.api.v1.integrations import get_competitor_ads_context
+    except Exception:
+        get_competitor_ads_context = None  # type: ignore
+
     # Build rich per-competitor blocks
     comp_blocks: list[str] = []
     for comp in competitors:
@@ -261,7 +329,18 @@ def generate_ai_playbook(user_id: str) -> dict:
         )
         if not snap_res.data:
             continue
-        comp_blocks.append(_format_competitor_block(comp, snap_res.data))
+        block = _format_competitor_block(comp, snap_res.data)
+        trend = _competitor_trend(db, comp["id"])
+        if trend:
+            block += "\n" + trend
+        if get_competitor_ads_context:
+            try:
+                ads = get_competitor_ads_context(comp["hostname"])
+                if ads:
+                    block += "\n  " + ads
+            except Exception:
+                pass
+        comp_blocks.append(block)
 
     if not comp_blocks:
         return {"status": "no_snapshot_data"}
@@ -299,6 +378,16 @@ def generate_ai_playbook(user_id: str) -> dict:
         if change_lines
         else "No critical or warning changes detected in the last 7 days."
     )
+
+    # Adapt the per-play competitor rule to how many competitors the user actually has —
+    # forcing "a different competitor per play" is impossible for a 1-competitor free user.
+    n_comp = len(competitors)
+    if n_comp >= 3:
+        diversity_rule = "- Each play must spotlight a DIFFERENT competitor — do not feature the same hostname twice"
+    elif n_comp == 2:
+        diversity_rule = "- Spread the plays across both competitors; feature one twice only if its data clearly warrants it"
+    else:
+        diversity_rule = "- There is ONE competitor — make each play a DIFFERENT angle (e.g. pricing, catalog/positioning, timing); do not repeat the same move three times"
 
     my_store_prompt = (
         f"{my_store_section}\n" if my_store_section else ""
@@ -350,7 +439,13 @@ Rules:
 - this_week: strategic gap or trend (7 days)
 - No recent alerts = no act_now plays
 - Steps must follow the exact 3-step format above — Step 1 always has platform + nav path, Step 3 always has budget + scale trigger
-- Each play must spotlight a DIFFERENT competitor — do not feature the same hostname twice
+{diversity_rule}
+- Vary the channel across the 3 plays — do NOT make every play a paid-ads play. Include at least one email/Klaviyo, Shopify merchandising, or organic/SEO move. Recommend paid ads only when the data clearly supports it.
+- For each act_now and right_now play, replace "draft_asset": null with a ready-to-paste asset object:
+    email -> {{"type":"email","label":"<what it is>","subject":"<subject line>","body_opening":"<2-3 sentences ready to send>","headlines":[],"ad_body":null}}
+    ad    -> {{"type":"ad","label":"<what it is>","headlines":["<=30 chars","<=30 chars","<=30 chars"],"ad_body":"<1-2 sentences>","subject":null,"body_opening":null}}
+  this_week plays keep "draft_asset": null
+- If the data includes a "90d trend" or competitor ad activity, use it: cite the seasonality/cadence or their ad momentum in the play's why/competitor_metrics
 - Output exactly 3 plays, no more, no less"""
 
     try:

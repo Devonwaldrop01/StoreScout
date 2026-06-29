@@ -165,6 +165,41 @@ def get_klaviyo_context(user_id: str) -> Optional[str]:
         parts = [f"Email list: {total_profiles:,} subscribers across {list_count} list{'s' if list_count != 1 else ''}"]
         if largest_name and list_count > 1:
             parts.append(f"largest list: \"{largest_name}\" ({largest_count:,} subscribers)")
+
+        # Recent email campaign cadence — tells the AI how active their email program is
+        # and when they last sent, so it can recommend timing realistically.
+        try:
+            camp_resp = httpx.get(
+                f"{_KLAVIYO_BASE}/campaigns/",
+                headers=_klaviyo_headers(api_key),
+                # channel filter is required by the campaigns endpoint
+                params={"filter": "equals(messages.channel,'email')", "sort": "-created_at", "page[size]": 20},
+                timeout=8.0,
+            )
+            if camp_resp.status_code == 200:
+                camps = camp_resp.json().get("data", [])
+                cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+                recent = 0
+                last_send: Optional[datetime] = None
+                for c in camps:
+                    attrs = c.get("attributes", {})
+                    raw = attrs.get("send_time") or attrs.get("scheduled_at") or attrs.get("created_at")
+                    if not raw:
+                        continue
+                    try:
+                        sent = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+                    except Exception:
+                        continue
+                    if sent >= cutoff:
+                        recent += 1
+                    if last_send is None or sent > last_send:
+                        last_send = sent
+                if last_send:
+                    days_ago = max(0, (datetime.now(timezone.utc) - last_send).days)
+                    parts.append(f"email cadence: {recent} campaign{'s' if recent != 1 else ''} in last 30d, last sent {days_ago}d ago")
+        except Exception as _ce:
+            logger.debug("Klaviyo campaign cadence fetch failed for user %s: %s", user_id, _ce)
+
         return " · ".join(parts)
     except Exception as exc:
         logger.debug("Klaviyo context fetch failed for user %s: %s", user_id, exc)
@@ -589,3 +624,68 @@ def get_shopify_context(user_id: str) -> Optional[str]:
         logger.debug("Shopify price-rule context failed for user %s: %s", user_id, exc)
 
     return "\n  ".join(parts) if parts else None
+
+
+# ── Meta Ad Library (public competitor ad intelligence) ───────────────────────
+#
+# Uses Meta's OFFICIAL Ad Library Graph API (graph.facebook.com/.../ads_archive).
+# This does NOT use the user's own ad account and is independent of the user's
+# Meta Ads integration — it reads the public ad archive.
+#
+# COVERAGE CAVEAT (be honest in marketing): the official API returns ALL ads for
+# campaigns served in the EU (DSA) and political/issue ads everywhere, but US
+# *commercial* ads are only partially available. Broader access aligns with the
+# verified-business step (the same Meta business registration on the roadmap).
+# Gated on a configured token — returns None (inert) until META_AD_LIBRARY_TOKEN
+# is set, so it never breaks the playbook.
+
+def get_competitor_ads_context(hostname: str) -> Optional[str]:
+    """Best-effort: how many active ads a competitor is running, via the public
+    Meta Ad Library API. Returns a one-line context string or None."""
+    settings = _get_google_settings()
+    token = getattr(settings, "meta_ad_library_token", "") or ""
+    if not token or not hostname:
+        return None
+
+    # Brand name guess from hostname (e.g. "gymshark.com" -> "gymshark")
+    brand = hostname.split(".")[0].replace("-", " ").strip()
+    if not brand:
+        return None
+
+    try:
+        resp = httpx.get(
+            "https://graph.facebook.com/v19.0/ads_archive",
+            params={
+                "access_token": token,
+                "search_terms": brand,
+                "ad_type": "ALL",
+                "ad_active_status": "ACTIVE",
+                "ad_reached_countries": "['US']",
+                "fields": "id,ad_delivery_start_time,publisher_platforms",
+                "limit": 50,
+            },
+            timeout=10.0,
+        )
+        if resp.status_code != 200:
+            logger.debug("Meta Ad Library returned %s for %s: %s", resp.status_code, brand, resp.text[:200])
+            return None
+        ads = resp.json().get("data", [])
+        if not ads:
+            return None
+        # Longest-running active ad = their proven creative
+        starts = []
+        for a in ads:
+            raw = a.get("ad_delivery_start_time")
+            if raw:
+                try:
+                    starts.append(datetime.fromisoformat(str(raw).replace("Z", "+00:00")))
+                except Exception:
+                    pass
+        oldest_days = ""
+        if starts:
+            d = max(0, (datetime.now(timezone.utc) - min(starts)).days)
+            oldest_days = f", longest-running active {d}d"
+        return f"Meta Ads: {len(ads)} active ad{'s' if len(ads) != 1 else ''} in the Ad Library{oldest_days}"
+    except Exception as exc:
+        logger.debug("Meta Ad Library fetch failed for %s: %s", brand, exc)
+        return None
