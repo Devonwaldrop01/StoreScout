@@ -30,7 +30,11 @@ Status: ✅ done · 🟡 in progress · ⬜ not started · 🚫 blocker (can't s
 - [ ] ⬜ Confirm `hello@getstorescout.com` is a monitored inbox (replies will come back to it).
 
 ### 4. Testimonials / trust
-- [ ] 🚫 Confirm the 3 landing-page testimonials (Sarah M., Marcus R., Jake L.) are **real**, or replace/remove them. Fake testimonials are an FTC + trust risk — higher exposure now that we're doing outreach.
+- [x] ✅ Removed the 3 illustrative/hardcoded testimonials. Landing now shows ONLY real opt-in reviews via `GET /feedback/public` (`components/landing/Testimonials.tsx`); the section is hidden until real reviews exist — no fake social proof.
+- [ ] ⬜ Collect first real reviews: the in-app feedback loop now prompts users (checklist step + one-time auto-prompt) — get a few ★≥4 opt-in reviews so the landing testimonials section populates before/early in outreach.
+
+### 4b. Database migrations applied in prod
+- [ ] 🚫 Apply all `supabase/migrations/*.sql` in the production Supabase project — most recent: `006_product_watches.sql` (product watchlist). Until applied, the `/watchlist` endpoints error and the watchlist panel shows only its empty state.
 
 ---
 
@@ -61,6 +65,18 @@ All integrations are wired end-to-end (backend + Settings UI + DB schema + the A
 
 ### 8. Fresh-signup QA pass
 - [ ] ⬜ Walk the full new-free-user path once on production after recent changes (tier-aware upgrade modal, discovery limit = 1, free weekly alert, integration nudges): signup → onboarding → first scan populates → upgrade prompts fire correctly → free limits enforced.
+
+### 9. Activation & free-tier experience — built
+- [x] ✅ Getting Started checklist for free users (orientation so they're not stuck after the first scan).
+- [x] ✅ Product watchlist (pin competitor products, "since you pinned" deltas) — engagement loop. *(Needs migration 4b applied.)*
+- [x] ✅ Generosity bump (more quick wins / gaps / winning products / price points / changes visible to free).
+- [x] ✅ Dashboard "Your Move" widget shows free users 1–2 real plays (+ "more with Pro" footer).
+- [x] ✅ Feedback loop: checklist feedback step + one-time auto-prompt after engagement (`lib/feedbackPrompt.ts`, `FeedbackWidget` opens via `ss:open-feedback`).
+
+### 10. Landing page is current (no PDF-era artifacts)
+- [x] ✅ Replaced the 5 PDF-era screenshots with on-brand **inline mockups** (price distribution, positioning scores, launch-velocity chart, winning products, discount analysis) that match the current SaaS UI and never go stale. Deleted the unused `/public/screenshots/*.png` files.
+- [x] ✅ Copy sweep: the only "report/PDF/one-time" mentions left are **intentional competitor-contrast** (e.g. the comparison table's "One-time reports" column, "shareable report URLs replace PDF attachments") — not stale self-description.
+- [ ] ⬜ (Optional, later) Swap the inline mockups for real screenshots of the live app once the demo account (item 7) is polished, if you prefer literal screenshots.
 
 ---
 

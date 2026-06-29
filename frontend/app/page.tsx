@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import {
   Zap, Bell, ArrowRight, Check, Shield, Clock,
   TrendingUp, TrendingDown, Package, Tag, Sparkles,
@@ -453,6 +452,157 @@ function ComparisonTable() {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
+// ── Inline product mockups (replace PDF-era screenshots; always current) ──────
+
+function MiniKpi({ label, value, accent }: { label: string; value: string; accent?: string }) {
+  return (
+    <div className="rounded-xl px-3 py-2.5" style={{ background: "#080f1e", border: "1px solid #1a2744" }}>
+      <p className="text-lg font-bold leading-none" style={{ color: accent || "#eef3fa", fontFamily: "var(--font-mono)" }}>{value}</p>
+      <p className="text-[10px] mt-1.5" style={{ color: "#3a5070" }}>{label}</p>
+    </div>
+  );
+}
+
+// "Full pricing intelligence" — dashboard-style pricing view
+function PricingDashboardMock() {
+  const dist = [["<$25", 18], ["$25–49", 64], ["$50–99", 100], ["$100–199", 47], ["$200+", 16]] as const;
+  return (
+    <div className="p-5 sm:p-6" style={{ background: "#060d18" }}>
+      <div className="grid grid-cols-4 gap-2.5 mb-5">
+        <MiniKpi label="Products" value="312" />
+        <MiniKpi label="Median price" value="$58" accent="#3b82f6" />
+        <MiniKpi label="On sale" value="44%" accent="#f59e0b" />
+        <MiniKpi label="New · 30d" value="18" accent="#22c55e" />
+      </div>
+      <div className="rounded-xl p-4" style={{ background: "#080f1e", border: "1px solid #1a2744" }}>
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-xs font-semibold" style={{ color: "#eef3fa" }}>Price distribution</span>
+          <span className="text-[10px]" style={{ color: "#3a5070" }}>p25 $34 · median $58 · p75 $96</span>
+        </div>
+        <div className="flex items-end gap-2 h-28">
+          {dist.map(([label, h]) => (
+            <div key={label} className="flex-1 flex flex-col items-center gap-1.5">
+              <div className="w-full rounded-t" style={{ height: `${h}%`, background: "linear-gradient(180deg,#3b82f6,#1e40af)", minHeight: 6 }} />
+              <span className="text-[9px]" style={{ color: "#3a5070" }}>{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-2.5 mt-3">
+        <MiniKpi label="Discounted catalog" value="44%" accent="#f59e0b" />
+        <MiniKpi label="Median discount" value="−32%" accent="#f87171" />
+        <MiniKpi label="In stock" value="91%" accent="#22c55e" />
+      </div>
+    </div>
+  );
+}
+
+function ScoreBar({ label, score, tag }: { label: string; score: number; tag: string }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-xs font-medium" style={{ color: "#eef3fa" }}>{label}</span>
+        <span className="text-[11px] font-semibold" style={{ color: "#60a5fa" }}>{tag}</span>
+      </div>
+      <div className="h-2 rounded-full overflow-hidden" style={{ background: "#0d1626" }}>
+        <div className="h-full rounded-full" style={{ width: `${score}%`, background: "linear-gradient(90deg,#3b82f6,#60a5fa)" }} />
+      </div>
+    </div>
+  );
+}
+
+// "Know exactly where they sit" — positioning scores
+function PositioningMock() {
+  return (
+    <div className="p-6" style={{ background: "#060d18" }}>
+      <div className="space-y-5">
+        <ScoreBar label="Market Position" score={72} tag="Premium" />
+        <ScoreBar label="Launch Velocity" score={84} tag="Aggressive" />
+        <ScoreBar label="Promo Intensity" score={58} tag="Moderate" />
+        <ScoreBar label="Catalog Complexity" score={66} tag="Broad" />
+      </div>
+    </div>
+  );
+}
+
+// "Launch Velocity" — monthly launch bar chart
+function LaunchVelocityMock() {
+  const months = [3, 5, 4, 8, 6, 11, 9, 14, 12, 18, 16, 22];
+  const max = Math.max(...months);
+  return (
+    <div className="p-5" style={{ background: "#060d18" }}>
+      <div className="flex items-baseline gap-2 mb-4">
+        <span className="text-2xl font-bold" style={{ color: "#eef3fa", fontFamily: "var(--font-mono)" }}>22</span>
+        <span className="text-xs" style={{ color: "#3a5070" }}>launches last month · accelerating ↑</span>
+      </div>
+      <div className="flex items-end gap-1.5 h-40">
+        {months.map((v, i) => (
+          <div key={i} className="flex-1 rounded-t" style={{ height: `${(v / max) * 100}%`, background: i >= 9 ? "#3b82f6" : "rgba(59,130,246,.35)", minHeight: 4 }} />
+        ))}
+      </div>
+      <div className="flex justify-between mt-2 text-[9px]" style={{ color: "#3a5070" }}>
+        <span>Jul</span><span>Oct</span><span>Jan</span><span>Apr</span><span>Jun</span>
+      </div>
+    </div>
+  );
+}
+
+// "Winning Products" — scored product list
+function WinningProductsMock() {
+  const rows = [
+    { t: "Vital Seamless Leggings", p: "$60", v: "Worth Testing", c: "#3b82f6" },
+    { t: "Power Hoodie", p: "$75", v: "Worth Testing", c: "#3b82f6" },
+    { t: "Apex Sports Bra", p: "$45", v: "Watch First", c: "#f59e0b" },
+    { t: "Studio Joggers", p: "$68", v: "Watch First", c: "#f59e0b" },
+  ];
+  return (
+    <div style={{ background: "#060d18" }}>
+      {rows.map((r, i) => (
+        <div key={r.t} className="flex items-center gap-3 px-4 py-3" style={i < rows.length - 1 ? { borderBottom: "1px solid #1a2744" } : undefined}>
+          <span className="text-[11px] w-4 text-center shrink-0" style={{ color: "#3a5070", fontFamily: "var(--font-mono)" }}>{i + 1}</span>
+          <div className="w-9 h-9 rounded-lg shrink-0" style={{ background: "#13203a" }} />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate" style={{ color: "#eef3fa" }}>{r.t}</p>
+            <p className="text-xs" style={{ color: "#3a5070" }}>{r.p} · full price · 1.2yr in catalog</p>
+          </div>
+          <span className="text-[10px] font-bold px-2 py-1 rounded-lg shrink-0" style={{ background: `${r.c}1f`, color: r.c }}>{r.v}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// "Pricing & Discount Analysis" — distribution + discount depth
+function PricingDiscountMock() {
+  const dist = [22, 48, 100, 63, 28, 12];
+  const max = Math.max(...dist);
+  return (
+    <div className="p-5 grid sm:grid-cols-2 gap-5" style={{ background: "#060d18" }}>
+      <div>
+        <p className="text-xs font-semibold mb-3" style={{ color: "#eef3fa" }}>Price distribution</p>
+        <div className="flex items-end gap-1.5 h-32">
+          {dist.map((v, i) => (
+            <div key={i} className="flex-1 rounded-t" style={{ height: `${(v / max) * 100}%`, background: "linear-gradient(180deg,#3b82f6,#1e40af)", minHeight: 4 }} />
+          ))}
+        </div>
+      </div>
+      <div className="space-y-3">
+        <div className="rounded-xl p-3.5" style={{ background: "#080f1e", border: "1px solid #1a2744" }}>
+          <p className="text-[11px]" style={{ color: "#3a5070" }}>Discounted catalog</p>
+          <div className="flex items-center gap-2 mt-1.5">
+            <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "#0d1626" }}>
+              <div className="h-full rounded-full" style={{ width: "44%", background: "#f59e0b" }} />
+            </div>
+            <span className="text-sm font-bold" style={{ color: "#f59e0b", fontFamily: "var(--font-mono)" }}>44%</span>
+          </div>
+        </div>
+        <MiniKpi label="Median discount depth" value="−32%" accent="#f87171" />
+        <MiniKpi label="Deepest active markdown" value="−55%" accent="#f87171" />
+      </div>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen" style={{ background: "var(--bg)" }}>
@@ -619,16 +769,7 @@ export default function LandingPage() {
           </p>
         </div>
         <BrowserChrome url="app.storescout.com/dashboard/gymshark">
-          <div style={{ background: "#060d18" }}>
-            <Image
-              src="/screenshots/gymshark-pricing-report.png"
-              alt="Gymshark pricing analysis dashboard — price distribution, discount metrics, and catalog intelligence"
-              width={863}
-              height={693}
-              className="w-full h-auto"
-              priority
-            />
-          </div>
+          <PricingDashboardMock />
         </BrowserChrome>
         <p className="text-center text-xs mt-3" style={{ color: "var(--muted)", opacity: 0.5 }}>
           Real Gymshark data from a live scan — price distribution, top discounted products, and launch velocity
@@ -667,13 +808,7 @@ export default function LandingPage() {
             </ul>
           </div>
           <BrowserChrome url="app.storescout.com/dashboard/gymshark">
-            <Image
-              src="/screenshots/competitive-positioning.png"
-              alt="Competitive positioning analysis showing Market Position, Launch Velocity, Promo Intensity, and Catalog Complexity scores"
-              width={870}
-              height={505}
-              className="w-full h-auto"
-            />
+            <PositioningMock />
           </BrowserChrome>
         </div>
       </div>
@@ -753,13 +888,7 @@ export default function LandingPage() {
               <span className="text-xs font-semibold" style={{ color: "#eef3fa" }}>Launch Velocity</span>
               <span className="text-[10px] ml-auto" style={{ color: "#3a5070" }}>gymshark.com</span>
             </div>
-            <Image
-              src="/screenshots/launch-timeline.png"
-              alt="Launch velocity timeline showing monthly product launches for gymshark.com"
-              width={740}
-              height={891}
-              className="w-full h-auto"
-            />
+            <LaunchVelocityMock />
           </div>
 
           {/* Top products */}
@@ -769,13 +898,7 @@ export default function LandingPage() {
               <span className="text-xs font-semibold" style={{ color: "#eef3fa" }}>Winning Products</span>
               <span className="text-[10px] ml-auto" style={{ color: "#3a5070" }}>gymshark.com</span>
             </div>
-            <Image
-              src="/screenshots/top-products.png"
-              alt="Top products and winning catalog analysis for gymshark.com"
-              width={841}
-              height={634}
-              className="w-full h-auto"
-            />
+            <WinningProductsMock />
           </div>
 
           {/* Pricing & discounts */}
@@ -785,13 +908,7 @@ export default function LandingPage() {
               <span className="text-xs font-semibold" style={{ color: "#eef3fa" }}>Pricing &amp; Discount Analysis</span>
               <span className="text-[10px] ml-auto" style={{ color: "#3a5070" }}>gymshark.com · 90-day view</span>
             </div>
-            <Image
-              src="/screenshots/pricing-discount.png"
-              alt="Pricing and discount analysis showing 90-day history for gymshark.com"
-              width={860}
-              height={713}
-              className="w-full h-auto"
-            />
+            <PricingDiscountMock />
           </div>
         </div>
       </div>
