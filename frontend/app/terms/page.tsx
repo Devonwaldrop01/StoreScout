@@ -1,8 +1,9 @@
 // Terms of Service — StoreScout
 //
 // NOTE: Product-accurate starting Terms, not legal advice. Have counsel review
-// before going live. ACTION REQUIRED: replace [GOVERNING STATE] in section 13
-// with the US state whose law should govern (and the venue for disputes).
+// before going live. Governing law is set to New York (§14). If Anonymous
+// Mentality LLC is registered in a different state (e.g. VA or DE), update §14
+// to match the state of formation / principal place of business.
 
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -110,8 +111,8 @@ export default function TermsPage() {
             ceases; sections that by their nature should survive (e.g., 9–12, 14) survive.</p>
 
           <h2>14. Governing law</h2>
-          <p>These Terms are governed by the laws of the State of [GOVERNING STATE], without regard to its conflict-of-laws
-            rules. The exclusive venue for disputes will be the state or federal courts located in [GOVERNING STATE].</p>
+          <p>These Terms are governed by the laws of the State of New York, without regard to its conflict-of-laws
+            rules. The exclusive venue for disputes will be the state or federal courts located in New York.</p>
 
           <h2>15. Changes to these Terms</h2>
           <p>We may update these Terms. Material changes will be reflected by updating the effective date above and, where

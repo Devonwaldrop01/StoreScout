@@ -13,7 +13,7 @@ Status: ✅ done · 🟡 in progress · ⬜ not started · 🚫 blocker (can't s
 - [x] ✅ Privacy Policy page (`/privacy`) — product-accurate (Supabase, Stripe, Resend, Anthropic, GA4/Meta Pixel, integrations). `frontend/app/privacy/page.tsx`
 - [x] ✅ Terms of Service page (`/terms`). `frontend/app/terms/page.tsx`
 - [x] ✅ Footer links to Privacy + Terms on landing page.
-- [ ] 🚫 **Fill in `[GOVERNING STATE]`** in `frontend/app/terms/page.tsx` §14 (governing law + venue). Reply to Devon's chat with the US state and it gets dropped in.
+- [x] ✅ Governing law set to **New York** in Terms §14 (Devon = primary operator, Bronx NY). ⚠️ Confirm this matches the LLC's actual state of formation — change to VA/DE if Anonymous Mentality LLC is registered elsewhere.
 - [ ] ⬜ Have counsel skim both pages before relying on them (templates are solid but not legal advice). Both files carry a header comment to this effect.
 - [ ] ⬜ (Recommended) Link Privacy + Terms from the signup page and the Stripe checkout (Stripe lets you add policy URLs in the dashboard).
 
