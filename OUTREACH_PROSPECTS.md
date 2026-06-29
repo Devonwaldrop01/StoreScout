@@ -143,7 +143,53 @@ Track every prospect here (copy into a shared sheet). The post-conversation logg
 
 ---
 
-*Companion to `MARKETING_HANDOFF.md`. Same rule applies: if reality and this doc disagree, flag it to Devon. Never contact a prospect on an unverified assumption.*
+## 7. Ready-to-contact starter batch (Jaiden: start here)
+
+> **What's done for you:** niche, anchor competitor, size read, Shopify check, and a written hook for each. **The only step left:** open the site → click **Contact** (usually `/pages/contact`) or DM their Instagram → grab the email → paste the hook. ~30 seconds per brand.
+>
+> **Honesty notes:**
+> - **Shopify column:** "✓ source" = a credible industry roundup explicitly lists them as a Shopify/Shopify Plus store. "likely" = standard for the category but confirm with a 1-click Koala Inspector check.
+> - **Size read** is a best estimate, not gospel — confirm the ones marked *(check)* aren't too big before you treat them as a buyer (a too-big brand is still a great *demo competitor*).
+> - I did **not** include email addresses — I couldn't load the sites to read them (their bot-protection blocks automated tools; it's the same thing StoreScout's scraper is built to get past). Grab the email on-site; don't trust a guessed address.
+> - **Faster path for Devon:** these stores are exactly what StoreScout scrapes. Running them through our own scraper — or a Store Leads / ScraperCity export filtered to these niches — would return contact emails programmatically and turn this into a true one-click list. Recommended if outreach volume ramps.
+
+### Apparel / activewear (anchor: Vuori, Gymshark, True Classic)
+| Brand | Site | Shopify | Size read | Hook to open with |
+|---|---|---|---|---|
+| **Bonta Apparel** | wearbonta.com | likely | small *(good fit)* | "You're positioned as the non-toxic alt to Vuori — want to know the day Vuori actually moves on price?" |
+| **Jace Apparel** | jaceapparel.com | likely | small *(good fit)* | "You go head-to-head with the big activewear names on value — we'll ping you the morning any of them drop prices." |
+| **Disco** (men's basics) | discobrands.co | likely | small–mid *(check)* | "True Classic and the men's-basics crowd run promos constantly — want them tracked automatically?" |
+
+### Skincare / body care (anchor: Versed, Cocokind, Topicals)
+| Brand | Site | Shopify | Size read | Hook |
+|---|---|---|---|---|
+| **Iota** | iotabody.com | likely | small *(good fit)* | "Clean body-care is crowded and fast-moving — want a heads-up the moment a competitor launches or discounts?" |
+| **Cocokind** | cocokind.com | likely | mid *(check)* | "You compete on transparency and price — we'll tell you the day a rival clean-skincare brand changes either." |
+
+### Supplements / functional wellness (anchor: AG1, Grüns, Obvi) — subscription brands care most about competitor pricing
+| Brand | Site | Shopify | Size read | Hook |
+|---|---|---|---|---|
+| **Lean Greens** | leangreens.com | likely | small, founder-run *(good fit; UK)* | "You're the half-price-of-AG1 play — want to know the second AG1 or a rival greens brand reprices?" |
+| **Live it Up** (Super Greens) | liveitup.co | likely | small–mid *(check)* | "Greens is a price war right now — we'll watch every competitor's pricing and promos for you daily." |
+| **TMRW** | (search "TMRW supplement") | likely | new/small *(good fit)* | "New brand in a category full of giants — know their every move before you spend on ads against them." |
+
+### Coffee / specialty food (anchor: bigger roasters & subscription brands) — high repeat-purchase, promo-sensitive
+| Brand | Site | Shopify | Size read | Hook |
+|---|---|---|---|---|
+| **Driftaway Coffee** | driftaway.coffee | likely | small (~4k subs) *(good fit)* | "Subscription coffee lives and dies on retention — we'll alert you when a competing roaster changes pricing or launches." |
+| **Untold Coffee Lab** | (search; Rochester NY) | likely | new/small *(good fit)* | "As a newer roaster, knowing what established competitors charge and launch is an edge — want it automated?" |
+
+### Pet (anchor: Fable Pets, Frenchie Bulldog) — Shopify-confirmed via industry roundups
+| Brand | Site | Shopify | Size read | Hook |
+|---|---|---|---|---|
+| **Tactipup** (tactical dog gear) | tactipup.com | ✓ source | small–mid *(good fit)* | "USA-made tactical pet gear is a tight niche — we'll flag the day a competitor drops prices or launches a new line." |
+| **Fable Pets** | fablepets.com | ✓ source | mid *(check)* | "Modern pet brands move fast on launches — want a same-day alert when a rival ships something new?" |
+
+> **How to expand this batch yourself (Jaiden):** every "anchor" above links to dozens more right-sized brands via §3 Method 1 ("[anchor] alternative" search) and Method 2 (Reddit). The roundup sources in §1/§Sources (e.g. Elkfox's Shopify-Plus pet list, the indie-beauty lists) are pre-filtered to Shopify stores — mine them for more names, then apply the §3 qualification checklist.
+
+---
+
+*Companion to `MARKETING_HANDOFF.md`. Same rule applies: if reality and this doc disagree, flag it to Devon. Never contact a prospect on an unverified assumption — grab the real email on-site, and confirm size on the brands marked (check).*
 
 ---
 
