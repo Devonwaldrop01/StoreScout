@@ -30,6 +30,7 @@ interface Props {
 export function ActionPlaybook({ competitorCount }: Props) {
   const [items, setItems] = useState<ActionItem[]>([]);
   const [locked, setLocked] = useState(false);
+  const [lockedCount, setLockedCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
 
@@ -39,6 +40,7 @@ export function ActionPlaybook({ competitorCount }: Props) {
       .then((r) => {
         setItems(r.data || []);
         setLocked(r.locked ?? false);
+        setLockedCount(r.locked_count ?? 0);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -188,6 +190,17 @@ export function ActionPlaybook({ competitorCount }: Props) {
           />
         ))}
       </div>
+
+      {lockedCount > 0 && (
+        <Link
+          href="/settings?tab=billing"
+          className="mt-2.5 flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg transition-all hover:bg-white/[0.04]"
+          style={{ color: "var(--accent)", border: "1px dashed rgba(59,130,246,.3)" }}
+        >
+          <Zap className="w-3.5 h-3.5" />
+          {lockedCount} more move{lockedCount !== 1 ? "s" : ""} ready — unlock with Pro
+        </Link>
+      )}
     </div>
   );
 }

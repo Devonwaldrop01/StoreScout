@@ -41,11 +41,10 @@ def get_action_items(user_id: str = Depends(get_effective_user_id)):
 def _get_action_items_inner(user_id: str) -> dict:
     db = get_supabase()
 
-    # Check tier
+    # Check tier — free users get a couple of real plays (parity with /playbook),
+    # the rest are summarized as locked_count for an upgrade nudge.
     user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
     tier = (user.data or {}).get("tier", "free")
-    if tier == "free":
-        return {"data": [], "locked": True}
 
     # Get active competitors
     comps_res = db.table("competitors")\
@@ -186,5 +185,13 @@ def _get_action_items_inner(user_id: str) -> dict:
         })
         seen_competitors.add(comp_id)
 
+    # Free tier: surface the top 2 real plays + count the rest as locked
+    if tier == "free":
+        return {
+            "data": items[:2],
+            "locked": False,
+            "locked_count": max(0, len(items) - 2),
+        }
+
     # Return top 5
-    return {"data": items[:5], "locked": False}
+    return {"data": items[:5], "locked": False, "locked_count": 0}

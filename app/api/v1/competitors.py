@@ -734,24 +734,26 @@ def get_winning_products(competitor_id: str, user_id: str = Depends(get_effectiv
         return {"data": {"products": [], "newest": [], "locked": tier == "free", "locked_count": 0, "tier": tier}}
 
     if tier == "free":
-        top = products[0]
-        teaser = {
-            "title": top.get("title"),
-            "product_url": top.get("product_url"),
-            "price_min": top.get("price_min"),
-            "image": top.get("image"),
-            "score": top.get("score"),
+        # Free sees the top 3 products (title/price/score visible) — enough to
+        # explore and pin to the watchlist; the 'why/verdict' stays Pro-only.
+        teasers = [{
+            "handle": p.get("handle"),
+            "title": p.get("title"),
+            "product_url": p.get("product_url"),
+            "price_min": p.get("price_min"),
+            "image": p.get("image"),
+            "score": p.get("score"),
             # 'why' is locked
             "reason": None,
             "signal_tags": [],
             "locked": True,
-        }
+        } for p in products[:3]]
         return {
             "data": {
-                "products": [teaser],
+                "products": teasers,
                 "newest": [],
                 "locked": True,
-                "locked_count": max(0, len(products) - 1),
+                "locked_count": max(0, len(products) - 3),
                 "tier": tier,
             }
         }
@@ -791,12 +793,12 @@ def get_gaps(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
             "detail": None,  # locked
             "opportunity": g.get("opportunity"),
             "locked": True,
-        } for g in gaps[:2]]
+        } for g in gaps[:3]]
         return {
             "data": {
                 "gaps": teasers,
                 "locked": True,
-                "locked_count": max(0, len(gaps) - 2),
+                "locked_count": max(0, len(gaps) - 3),
                 "tier": tier,
             }
         }
@@ -927,9 +929,9 @@ def get_quick_wins(competitor_id: str, user_id: str = Depends(get_effective_user
 
     if tier == "free":
         return {"data": {
-            "wins": wins[:1],
+            "wins": wins[:2],
             "locked": True,
-            "locked_count": max(0, len(wins) - 1),
+            "locked_count": max(0, len(wins) - 2),
             "tier": tier,
         }}
 
@@ -952,7 +954,7 @@ def get_price_history(competitor_id: str, user_id: str = Depends(get_effective_u
             .select("scanned_at, median_price, promo_rate, product_count")\
             .eq("competitor_id", competitor_id)\
             .order("scanned_at", desc=True)\
-            .limit(2)\
+            .limit(7)\
             .execute()
         points = list(reversed(result.data or []))
         total = db.table("scan_snapshots").select("id", count="exact")\
@@ -961,7 +963,7 @@ def get_price_history(competitor_id: str, user_id: str = Depends(get_effective_u
         return {"data": {
             "points": points,
             "locked": True,
-            "locked_count": max(0, total_count - 2),
+            "locked_count": max(0, total_count - 7),
             "tier": tier,
         }}
 

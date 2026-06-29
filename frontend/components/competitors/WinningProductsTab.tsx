@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import {
   Trophy, Sparkles, ExternalLink, Copy, Check,
-  ChevronDown, ChevronUp, Flame,
+  ChevronDown, ChevronUp, Flame, Bookmark,
 } from "lucide-react";
 import { LockedValueCard } from "@/components/ui";
 import {
   competitors as api,
+  watchlist as watchlistApi,
   type WinningProductsResponse,
   type WinningProduct,
   type NewestProduct,
@@ -140,9 +141,11 @@ interface WinnerRowProps {
   expanded: boolean;
   onToggle: () => void;
   isLast: boolean;
+  pinned: boolean;
+  onPin: () => void;
 }
 
-function WinnerRow({ product, rank, expanded, onToggle, isLast }: WinnerRowProps) {
+function WinnerRow({ product, rank, expanded, onToggle, isLast, pinned, onPin }: WinnerRowProps) {
   const verdict = product.locked ? null : getVerdict(product.score);
   const reasons = product.locked ? [] : getReasons(product);
 
@@ -181,6 +184,16 @@ function WinnerRow({ product, rank, expanded, onToggle, isLast }: WinnerRowProps
                 <ExternalLink className="w-3 h-3" style={{ color: "var(--muted)" }} />
               </a>
             )}
+            <button
+              onClick={(e) => { e.stopPropagation(); onPin(); }}
+              title={pinned ? "Stop watching" : "Watch this product"}
+              className={`shrink-0 p-0.5 rounded transition-opacity ${pinned ? "opacity-100" : "opacity-0 group-hover:opacity-60 hover:!opacity-100"}`}
+            >
+              <Bookmark
+                className="w-3 h-3"
+                style={{ color: pinned ? "var(--accent)" : "var(--muted)", fill: pinned ? "var(--accent)" : "none" }}
+              />
+            </button>
           </div>
 
           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
@@ -394,6 +407,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
   const [activeFilters, setActiveFilters] = useState<Set<FilterKey>>(new Set());
   const [sort,        setSort]        = useState<SortKey>("score");
   const [expandedHandle, setExpandedHandle] = useState<string | null>(null);
+  const [pinnedMap, setPinnedMap] = useState<Record<string, string>>({}); // handle -> watch id
 
   useEffect(() => {
     api.winningProducts(competitorId)
@@ -401,6 +415,44 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [competitorId]);
+
+  const loadPins = useCallback(() => {
+    watchlistApi.list()
+      .then((r) => {
+        const m: Record<string, string> = {};
+        (r.data || [])
+          .filter((w) => w.competitor_id === competitorId)
+          .forEach((w) => { m[w.handle] = w.id; });
+        setPinnedMap(m);
+      })
+      .catch(() => {});
+  }, [competitorId]);
+
+  useEffect(() => { loadPins(); }, [loadPins]);
+
+  async function togglePin(p: WinningProduct) {
+    const handle = p.handle;
+    if (!handle) return;
+    const existingId = pinnedMap[handle];
+    if (existingId) {
+      setPinnedMap((prev) => { const n = { ...prev }; delete n[handle]; return n; });
+      await watchlistApi.remove(existingId).catch(() => loadPins());
+      return;
+    }
+    try {
+      await watchlistApi.add({
+        competitor_id: competitorId,
+        product_handle: handle,
+        product_title: p.title,
+        product_url: p.product_url,
+        pinned_price: p.price_min ?? null,
+      });
+      loadPins();
+    } catch (e: unknown) {
+      const detail = (e as { data?: { detail?: { code?: string } } })?.data?.detail;
+      if (detail?.code === "watchlist_limit_reached") setUpgradeOpen(true);
+    }
+  }
 
   const toggleFilter = (key: FilterKey) => {
     setActiveFilters((prev) => {
@@ -598,6 +650,8 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
                     onToggle={() =>
                       setExpandedHandle(expandedHandle === handle ? null : handle)
                     }
+                    pinned={!!p.handle && !!pinnedMap[p.handle]}
+                    onPin={() => togglePin(p)}
                   />
                 );
               })

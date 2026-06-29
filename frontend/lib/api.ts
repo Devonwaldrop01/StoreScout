@@ -156,7 +156,7 @@ export const billing = {
 // ── User ──────────────────────────────────────────────────────
 export const user = {
   subscription: () => apiFetch<{ data: UserSubscription }>("/user/subscription"),
-  actionItems: () => apiFetch<{ data: ActionItem[]; locked?: boolean }>("/action-items"),
+  actionItems: () => apiFetch<{ data: ActionItem[]; locked?: boolean; locked_count?: number }>("/action-items"),
   playbook: () => apiFetch<PlaybookResponse>("/playbook"),
   prefs: () => apiFetch<{ data: NotificationPrefs }>("/user/notification-prefs"),
   updatePrefs: (prefs: Partial<NotificationPrefs>) =>
@@ -602,6 +602,32 @@ export interface GoogleProperties {
   ga4_properties: { id: string; display_name: string; website_url: string }[];
   gsc_sites: { url: string; permission: string }[];
 }
+
+export interface WatchedProduct {
+  id: string;
+  competitor_id: string;
+  hostname: string;
+  handle: string;
+  title: string | null;
+  url: string | null;
+  pinned_price: number | null;
+  current_price: number | null;
+  available: boolean | null;
+  removed: boolean;
+  delta_pct: number | null;
+}
+
+export const watchlist = {
+  list: () => apiFetch<{ data: WatchedProduct[]; cap: number }>("/watchlist"),
+  add: (body: {
+    competitor_id: string;
+    product_handle: string;
+    product_title?: string | null;
+    product_url?: string | null;
+    pinned_price?: number | null;
+  }) => apiFetch<{ status: string }>("/watchlist", { method: "POST", body: JSON.stringify(body) }),
+  remove: (id: string) => apiFetch<void>(`/watchlist/${id}`, { method: "DELETE" }),
+};
 
 export const integrations = {
   get: () => apiFetch<{ data: { klaviyo: KlaviyoStatus } }>("/integrations"),

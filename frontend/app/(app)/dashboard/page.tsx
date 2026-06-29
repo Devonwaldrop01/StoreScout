@@ -18,6 +18,8 @@ import { SignalFeed } from "@/components/signals/SignalFeed";
 import { ActionPlaybook } from "@/components/competitors/ActionPlaybook";
 import UpgradeModal from "@/components/UpgradeModal";
 import { ScoutBrief, MetricCard } from "@/components/ui";
+import { GettingStarted } from "@/components/dashboard/GettingStarted";
+import { WatchlistPanel } from "@/components/dashboard/WatchlistPanel";
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -810,6 +812,15 @@ function DashboardContent() {
         </>
       ) : (
         <>
+          {/* Getting Started checklist — free users only, until completed/dismissed */}
+          {userTier === "free" && (
+            <GettingStarted
+              firstCompetitorId={competitorList[0]?.id}
+              competitorAdded={competitorList.length > 0}
+              onUpgrade={() => setUpgradeOpen(true)}
+            />
+          )}
+
           {/* Stats bar */}
           {!alertsLoading && <StatsBar competitorList={competitorList} signalGroups={signalGroups} alertList={alertList} />}
 
@@ -860,6 +871,9 @@ function DashboardContent() {
               {/* Competitor health */}
               <WatchPanel competitorList={competitorList} signalGroups={signalGroups} />
 
+              {/* Pinned products */}
+              <WatchlistPanel />
+
               {/* Playbook preview */}
               <PlaybookWidget />
 
@@ -885,6 +899,7 @@ function DashboardContent() {
           {/* Mobile: context panel stacked below */}
           <div className="lg:hidden mt-6 space-y-3">
             <WatchPanel competitorList={competitorList} signalGroups={signalGroups} />
+            <WatchlistPanel />
             <PlaybookWidget />
           </div>
         </>
