@@ -17,12 +17,26 @@ export function FeedbackWidget() {
   const [done, setDone]           = useState(false);
   const [error, setError]         = useState("");
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
+  const [heading, setHeading] = useState("Share your feedback");
   const pathname = usePathname();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       setAlreadySubmitted(!!localStorage.getItem(STORAGE_KEY));
     }
+  }, []);
+
+  // Allow other surfaces (checklist, visit-count fallback) to open the widget
+  // via a CustomEvent — respects the "already submitted" guard.
+  useEffect(() => {
+    function onOpen(e: Event) {
+      if (localStorage.getItem(STORAGE_KEY)) return;
+      const detail = (e as CustomEvent).detail as { heading?: string } | undefined;
+      if (detail?.heading) setHeading(detail.heading);
+      setOpen(true);
+    }
+    window.addEventListener("ss:open-feedback", onOpen);
+    return () => window.removeEventListener("ss:open-feedback", onOpen);
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -104,7 +118,7 @@ export function FeedbackWidget() {
               <div className="flex items-center gap-2">
                 <MessageSquare className="w-4 h-4" style={{ color: "var(--accent)" }} />
                 <span className="font-semibold text-sm" style={{ color: "var(--text)" }}>
-                  Share your feedback
+                  {heading}
                 </span>
               </div>
               <button

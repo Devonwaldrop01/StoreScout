@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: str = ""
 
+    # Meta Ad Library (public competitor ad intelligence — not the user's ad account)
+    meta_ad_library_token: str = ""
+
     # Email
     resend_api_key: str = ""
     resend_from: str = "StoreScout <hello@getstorescout.com>"

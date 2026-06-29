@@ -9,6 +9,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { competitors as competitorsApi, user as userApi } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { track } from "@/lib/analytics";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -216,6 +217,14 @@ function OnboardingContent() {
         const result = await competitorsApi.list();
         if ((result.data || []).length > 0) { router.replace("/dashboard"); return; }
       } catch {}
+      // New user reaching onboarding (0 competitors) = a completed signup.
+      // Guard so it fires at most once per browser.
+      try {
+        if (!localStorage.getItem("ss_signup_tracked")) {
+          track("signup_completed", { provider: session.user.app_metadata?.provider ?? "email" });
+          localStorage.setItem("ss_signup_tracked", "1");
+        }
+      } catch {}
       // Pre-fill competitor URL if coming from a shared report
       const prefilledCompetitor = searchParams.get("competitor");
       if (prefilledCompetitor) {
@@ -273,6 +282,7 @@ function OnboardingContent() {
         setScanDone(true);
         setScanProgress(100);
         setScanPhase("Scan complete!");
+        track("first_scan_completed", { competitor_id: newCompetitorId });
         clearTimeout(timeoutTimer);
       } catch {
         // 404 = still pending

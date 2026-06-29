@@ -3,7 +3,7 @@ import logging
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
@@ -98,7 +98,8 @@ def test_klaviyo(user_id: str = Depends(get_current_user_id)):
         resp = httpx.get(
             f"{_KLAVIYO_BASE}/lists/",
             headers=_klaviyo_headers(api_key),
-            params={"page[size]": 100},
+            # profile_count is a relationship field Klaviyo omits unless explicitly requested
+            params={"page[size]": 100, "additional-fields[list]": "profile_count"},
             timeout=10.0,
         )
         resp.raise_for_status()
@@ -143,7 +144,8 @@ def get_klaviyo_context(user_id: str) -> Optional[str]:
         resp = httpx.get(
             f"{_KLAVIYO_BASE}/lists/",
             headers=_klaviyo_headers(api_key),
-            params={"page[size]": 100},
+            # profile_count is a relationship field Klaviyo omits unless explicitly requested
+            params={"page[size]": 100, "additional-fields[list]": "profile_count"},
             timeout=8.0,
         )
         resp.raise_for_status()
@@ -163,6 +165,41 @@ def get_klaviyo_context(user_id: str) -> Optional[str]:
         parts = [f"Email list: {total_profiles:,} subscribers across {list_count} list{'s' if list_count != 1 else ''}"]
         if largest_name and list_count > 1:
             parts.append(f"largest list: \"{largest_name}\" ({largest_count:,} subscribers)")
+
+        # Recent email campaign cadence — tells the AI how active their email program is
+        # and when they last sent, so it can recommend timing realistically.
+        try:
+            camp_resp = httpx.get(
+                f"{_KLAVIYO_BASE}/campaigns/",
+                headers=_klaviyo_headers(api_key),
+                # channel filter is required by the campaigns endpoint
+                params={"filter": "equals(messages.channel,'email')", "sort": "-created_at", "page[size]": 20},
+                timeout=8.0,
+            )
+            if camp_resp.status_code == 200:
+                camps = camp_resp.json().get("data", [])
+                cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+                recent = 0
+                last_send: Optional[datetime] = None
+                for c in camps:
+                    attrs = c.get("attributes", {})
+                    raw = attrs.get("send_time") or attrs.get("scheduled_at") or attrs.get("created_at")
+                    if not raw:
+                        continue
+                    try:
+                        sent = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+                    except Exception:
+                        continue
+                    if sent >= cutoff:
+                        recent += 1
+                    if last_send is None or sent > last_send:
+                        last_send = sent
+                if last_send:
+                    days_ago = max(0, (datetime.now(timezone.utc) - last_send).days)
+                    parts.append(f"email cadence: {recent} campaign{'s' if recent != 1 else ''} in last 30d, last sent {days_ago}d ago")
+        except Exception as _ce:
+            logger.debug("Klaviyo campaign cadence fetch failed for user %s: %s", user_id, _ce)
+
         return " · ".join(parts)
     except Exception as exc:
         logger.debug("Klaviyo context fetch failed for user %s: %s", user_id, exc)
@@ -344,21 +381,26 @@ def google_properties(user_id: str = Depends(get_current_user_id)):
     ga4_properties = []
     gsc_sites = []
 
-    # GA4 properties
+    # GA4 properties — accountSummaries returns every property the user can access
+    # across all their accounts in one call (the properties.list endpoint requires a
+    # specific account filter and has no wildcard).
     try:
         resp = httpx.get(
-            "https://analyticsadmin.googleapis.com/v1beta/properties",
+            "https://analyticsadmin.googleapis.com/v1beta/accountSummaries",
             headers=headers,
-            params={"filter": "ancestor:accounts/-"},
+            params={"pageSize": 200},
             timeout=10.0,
         )
         if resp.status_code == 200:
-            for prop in resp.json().get("properties", []):
-                ga4_properties.append({
-                    "id": prop.get("name", "").replace("properties/", ""),
-                    "display_name": prop.get("displayName", ""),
-                    "website_url": prop.get("websiteUrl", ""),
-                })
+            for acct in resp.json().get("accountSummaries", []):
+                for prop in acct.get("propertySummaries", []):
+                    ga4_properties.append({
+                        "id": prop.get("property", "").replace("properties/", ""),
+                        "display_name": prop.get("displayName", ""),
+                        "website_url": "",
+                    })
+        else:
+            logger.warning("GA4 accountSummaries returned %s: %s", resp.status_code, resp.text[:200])
     except Exception as exc:
         logger.warning("GA4 property list failed: %s", exc)
 
@@ -446,7 +488,9 @@ def get_google_context(user_id: str) -> Optional[str]:
                 json={
                     "dateRanges": [{"startDate": thirty_ago, "endDate": today}],
                     "dimensions": [{"name": "pagePath"}],
-                    "metrics": [{"name": "sessions"}, {"name": "conversions"}],
+                    # Only request sessions — adding `conversions` 400s the whole report
+                    # on properties without a conversion configured, and we don't use it.
+                    "metrics": [{"name": "sessions"}],
                     "limit": 5,
                     "orderBys": [{"metric": {"metricName": "sessions"}, "desc": True}],
                 },
@@ -474,10 +518,11 @@ def get_google_context(user_id: str) -> Optional[str]:
         try:
             today = datetime.now(timezone.utc).date().isoformat()
             thirty_ago = (datetime.now(timezone.utc) - timedelta(days=30)).date().isoformat()
+            # The siteUrl is a path segment and MUST be percent-encoded — for a
+            # URL-prefix property it contains "https://" and slashes.
+            site_enc = quote(gsc_site_url, safe="")
             resp = httpx.post(
-                f"https://www.googleapis.com/webmasters/v3/sites/{gsc_site_url}/searchAnalytics/query".replace(
-                    "//sites/", "/sites/"
-                ),
+                f"https://www.googleapis.com/webmasters/v3/sites/{site_enc}/searchAnalytics/query",
                 headers=headers,
                 json={
                     "startDate": thirty_ago, "endDate": today,
@@ -499,3 +544,148 @@ def get_google_context(user_id: str) -> Optional[str]:
             logger.debug("GSC context failed for user %s: %s", user_id, exc)
 
     return "\n  ".join(parts) if parts else None
+
+
+# ── Shopify Admin context for playbook AI ─────────────────────────────────────
+
+def get_shopify_context(user_id: str) -> Optional[str]:
+    """Fetch private Shopify Admin data (real inventory + active discounts) for the
+    user's connected store and return a context string for the AI prompt.
+
+    Justifies the read_inventory / read_price_rules / read_discounts scopes the
+    Connect flow requests. Returns None if no store is connected or calls fail.
+    Public scan data already covers prices/catalog — this adds what's only visible
+    to the merchant: true stock levels and active discount rules.
+    """
+    db = get_supabase()
+    res = (
+        db.table("shopify_connections")
+        .select("shop, access_token")
+        .eq("user_id", user_id)
+        .is_("uninstalled_at", "null")
+        .maybe_single()
+        .execute()
+    )
+    row = (res.data or {}) if res else {}
+    shop = row.get("shop") or ""
+    token = row.get("access_token") or ""
+    if not shop or not token:
+        return None
+
+    headers = {"X-Shopify-Access-Token": token}
+    parts: list[str] = []
+
+    # Real inventory — public scans only see a boolean "available"; the Admin API
+    # exposes actual stock. Count out-of-stock variants among the first 250 products.
+    try:
+        resp = httpx.get(
+            f"https://{shop}/admin/api/2024-01/products.json",
+            headers=headers,
+            params={"limit": 250, "fields": "variants"},
+            timeout=8.0,
+        )
+        if resp.status_code == 200:
+            variants = [v for p in resp.json().get("products", []) for v in (p.get("variants") or [])]
+            tracked = [v for v in variants if v.get("inventory_management")]
+            oos = sum(1 for v in tracked if (v.get("inventory_quantity") or 0) <= 0)
+            if tracked:
+                parts.append(
+                    f"Your store inventory (Shopify Admin): {oos} of {len(tracked)} tracked variants out of stock"
+                )
+    except Exception as exc:
+        logger.debug("Shopify inventory context failed for user %s: %s", user_id, exc)
+
+    # Active discount rules — only the merchant can see these.
+    try:
+        resp = httpx.get(
+            f"https://{shop}/admin/api/2024-01/price_rules.json",
+            headers=headers,
+            params={"limit": 250},
+            timeout=8.0,
+        )
+        if resp.status_code == 200:
+            now = datetime.now(timezone.utc)
+            active = []
+            for rule in resp.json().get("price_rules", []):
+                ends_raw = rule.get("ends_at")
+                starts_raw = rule.get("starts_at")
+                try:
+                    started = (not starts_raw) or datetime.fromisoformat(starts_raw.replace("Z", "+00:00")) <= now
+                    not_ended = (not ends_raw) or datetime.fromisoformat(ends_raw.replace("Z", "+00:00")) >= now
+                except Exception:
+                    started, not_ended = True, True
+                if started and not_ended:
+                    active.append(rule)
+            if active:
+                example = (active[0].get("title") or "").strip()
+                example_str = f' (e.g. "{example}")' if example else ""
+                parts.append(f"Your active discount rules: {len(active)}{example_str}")
+    except Exception as exc:
+        logger.debug("Shopify price-rule context failed for user %s: %s", user_id, exc)
+
+    return "\n  ".join(parts) if parts else None
+
+
+# ── Meta Ad Library (public competitor ad intelligence) ───────────────────────
+#
+# Uses Meta's OFFICIAL Ad Library Graph API (graph.facebook.com/.../ads_archive).
+# This does NOT use the user's own ad account and is independent of the user's
+# Meta Ads integration — it reads the public ad archive.
+#
+# COVERAGE CAVEAT (be honest in marketing): the official API returns ALL ads for
+# campaigns served in the EU (DSA) and political/issue ads everywhere, but US
+# *commercial* ads are only partially available. Broader access aligns with the
+# verified-business step (the same Meta business registration on the roadmap).
+# Gated on a configured token — returns None (inert) until META_AD_LIBRARY_TOKEN
+# is set, so it never breaks the playbook.
+
+def get_competitor_ads_context(hostname: str) -> Optional[str]:
+    """Best-effort: how many active ads a competitor is running, via the public
+    Meta Ad Library API. Returns a one-line context string or None."""
+    settings = _get_google_settings()
+    token = getattr(settings, "meta_ad_library_token", "") or ""
+    if not token or not hostname:
+        return None
+
+    # Brand name guess from hostname (e.g. "gymshark.com" -> "gymshark")
+    brand = hostname.split(".")[0].replace("-", " ").strip()
+    if not brand:
+        return None
+
+    try:
+        resp = httpx.get(
+            "https://graph.facebook.com/v19.0/ads_archive",
+            params={
+                "access_token": token,
+                "search_terms": brand,
+                "ad_type": "ALL",
+                "ad_active_status": "ACTIVE",
+                "ad_reached_countries": "['US']",
+                "fields": "id,ad_delivery_start_time,publisher_platforms",
+                "limit": 50,
+            },
+            timeout=10.0,
+        )
+        if resp.status_code != 200:
+            logger.debug("Meta Ad Library returned %s for %s: %s", resp.status_code, brand, resp.text[:200])
+            return None
+        ads = resp.json().get("data", [])
+        if not ads:
+            return None
+        # Longest-running active ad = their proven creative
+        starts = []
+        for a in ads:
+            raw = a.get("ad_delivery_start_time")
+            if raw:
+                try:
+                    starts.append(datetime.fromisoformat(str(raw).replace("Z", "+00:00")))
+                except Exception:
+                    pass
+        oldest_days = ""
+        if starts:
+            d = max(0, (datetime.now(timezone.utc) - min(starts)).days)
+            oldest_days = f", longest-running active {d}d"
+        return f"Meta Ads: {len(ads)} active ad{'s' if len(ads) != 1 else ''} in the Ad Library{oldest_days}"
+    except Exception as exc:
+        logger.debug("Meta Ad Library fetch failed for %s: %s", brand, exc)
+        return None

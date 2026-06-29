@@ -24,6 +24,7 @@ import { PriceHistoryChart } from "@/components/charts/PriceHistoryChart";
 import { LaunchVelocityChart } from "@/components/charts/LaunchVelocityChart";
 import WinningProductsTab from "@/components/competitors/WinningProductsTab";
 import GapsTab from "@/components/competitors/GapsTab";
+import { WatchlistPanel } from "@/components/dashboard/WatchlistPanel";
 import StoreProfileTab from "@/components/competitors/StoreProfileTab";
 import ComparisonTab from "@/components/competitors/ComparisonTab";
 import { IntelligenceBrief } from "@/components/competitors/IntelligenceBrief";
@@ -693,7 +694,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   ];
 
   // Changes visibility
-  const FREE_CHANGES_LIMIT = 3;
+  const FREE_CHANGES_LIMIT = 5;
   const visibleChanges = isFree && !showAllChanges ? changes.slice(0, FREE_CHANGES_LIMIT) : changes;
   const hiddenCount    = isFree ? Math.max(0, changes.length - FREE_CHANGES_LIMIT) : 0;
 
@@ -1020,6 +1021,9 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   </div>
                   <span className="text-xs font-semibold shrink-0" style={{ color: "var(--accent)" }}>Set up →</span>
                 </Link>
+
+                {/* Watched products for this competitor */}
+                <WatchlistPanel competitorId={id} />
               </div>
             )}
 
