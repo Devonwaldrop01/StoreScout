@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase/client";
 import { alerts, user as userApi } from "@/lib/api";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { requestFeedbackOnce } from "@/lib/feedbackPrompt";
 
 // ── Brand Logo ────────────────────────────────────────────────────────────
 
@@ -40,6 +41,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     alerts.unreadCount().then((r) => setUnread(r.count)).catch(() => {});
     userApi.subscription().then((r) => setTier(r.data.tier)).catch(() => {});
   }, [pathname]);
+
+  // Fallback feedback prompt: if a user keeps coming back but never finished the
+  // checklist, ask once on their 3rd app session. Gated by requestFeedbackOnce.
+  useEffect(() => {
+    try {
+      const n = parseInt(localStorage.getItem("ss_visits") || "0", 10) + 1;
+      localStorage.setItem("ss_visits", String(n));
+      if (n >= 3) requestFeedbackOnce();
+    } catch { /* ignore */ }
+  }, []);
 
   async function handleSignOut() {
     await supabase.auth.signOut();

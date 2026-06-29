@@ -6,6 +6,7 @@ import {
   ChevronRight, Store, Users, Target, Eye, Rocket,
 } from "lucide-react";
 import { FaqAccordion } from "@/components/landing/FaqAccordion";
+import { Testimonials } from "@/components/landing/Testimonials";
 
 // ── Static data ───────────────────────────────────────────────────────────────
 
@@ -48,24 +49,6 @@ const BRANDS = [
   "gymshark.com", "fashionnova.com", "allbirds.com", "skims.com",
   "vuori.com", "lululemon.com", "bombas.com", "revolve.com",
   "brooklinen.com", "colourpop.com", "parachutehome.com", "ruggable.com",
-];
-
-const TESTIMONIALS = [
-  {
-    quote: "Being able to see exactly when Gymshark runs a sale — and get that in my inbox within the hour — changed how we set our own promotions. We matched their Black Friday offer the same day.",
-    name: "Sarah M.",
-    role: "DTC footwear brand, $2M ARR",
-  },
-  {
-    quote: "I share StoreScout reports with clients instead of PDFs. They actually open them, bookmark them, and ask for more stores. It's become a core part of our agency deliverables.",
-    name: "Marcus R.",
-    role: "Shopify agency, 14 clients",
-  },
-  {
-    quote: "We caught a competitor running 40% off their bestsellers two hours before it hit Reddit. Matched the promo same day and had our best weekend of the quarter.",
-    name: "Jake L.",
-    role: "Fashion brand operator",
-  },
 ];
 
 // ── Inline UI components (exact replicas of live app) ─────────────────────────
@@ -967,37 +950,8 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* ── Testimonials ────────────────────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-6 pb-28">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-black mb-3" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
-            What operators say
-          </h2>
-          <p className="text-sm" style={{ color: "var(--muted)" }}>From our early access group</p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-5">
-          {TESTIMONIALS.map(({ quote, name, role }) => (
-            <div
-              key={name}
-              className="rounded-2xl p-6 flex flex-col gap-4"
-              style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-            >
-              <div className="flex gap-0.5">
-                {[1,2,3,4,5].map((s) => (
-                  <span key={s} className="text-sm" style={{ color: "#3b82f6" }}>★</span>
-                ))}
-              </div>
-              <p className="text-sm leading-relaxed flex-1" style={{ color: "var(--muted)" }}>
-                &ldquo;{quote}&rdquo;
-              </p>
-              <div>
-                <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>{name}</p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>{role}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* ── Testimonials (live opt-in reviews; hidden until real ones exist) ── */}
+      <Testimonials />
 
       {/* ── Comparison ──────────────────────────────────────────────────────── */}
       <div className="max-w-4xl mx-auto px-6 pb-28">

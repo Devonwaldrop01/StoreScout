@@ -165,6 +165,8 @@ Operators find out what competitors did **days late** — usually after a custom
 - **What:** 2 invite-based seats on Agency. **Talking point:** "Bring your strategist or your client onto the account."
 
 ### 4.11 Integrations
+> **Positioning:** integrations are a **benefit, not a requirement.** Lead outreach with the core hook (competitor monitoring + AI plays); frame integrations as "it gets *smarter* when you connect your Shopify/Klaviyo/GA4." The product prompts users to connect in-app (dashboard nudge + Getting Started checklist) — don't make it sound like setup they *have* to do, or it reads as friction in a cold pitch.
+
 - **Shopify OAuth (connect your own store)** ✅ Live — verifies your store and personalizes playbook context.
 - **Klaviyo** ✅ Live — paste API key; we pull list/segment context into the playbook so email plays are personalized.
 - **Slack / generic webhooks** ✅ Live — route alerts anywhere.

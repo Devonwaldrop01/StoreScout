@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Check, ArrowRight, X, Rocket, Zap } from "lucide-react";
+import { openFeedback, requestFeedbackOnce } from "@/lib/feedbackPrompt";
+
+type Step = { id: string; label: string; auto?: boolean; href?: string; action?: boolean };
 
 const DONE_KEY = "ss_getting_started";
 const DISMISS_KEY = "ss_getting_started_dismissed";
@@ -58,16 +61,27 @@ export function GettingStarted({ firstCompetitorId, competitorAdded, onUpgrade }
 
   const detailHref = firstCompetitorId ? `/dashboard/${firstCompetitorId}` : "/competitors";
 
-  const steps = [
-    { id: "add", label: "Add your first competitor", auto: competitorAdded, href: undefined as string | undefined },
+  const steps: Step[] = [
+    { id: "add", label: "Add your first competitor", auto: competitorAdded },
     { id: "brief", label: "Read your competitor's Scout Brief", href: detailHref },
     { id: "pricing", label: "Explore their pricing & winning products", href: `${detailHref}?tab=pricing` },
     { id: "playbook", label: "Try a move from your Playbook", href: "/playbook", auto: playbookTried },
     { id: "connect", label: "Connect your store for personalized plays", href: "/settings?tab=integrations" },
+    { id: "feedback", label: "Tell us what you think", action: true },
   ];
 
   const isDone = (s: { id: string; auto?: boolean }) => !!s.auto || done.has(s.id);
   const completed = steps.filter(isDone).length;
+
+  // Once the core surfaces have been explored, ask for feedback once (gated).
+  const CORE = ["add", "brief", "pricing", "playbook", "connect"];
+  const coreComplete = CORE.every((id) => {
+    const s = steps.find((x) => x.id === id);
+    return s ? isDone(s) : false;
+  });
+  useEffect(() => {
+    if (coreComplete) requestFeedbackOnce();
+  }, [coreComplete]);
 
   if (dismissed || completed >= steps.length) return null;
 
@@ -124,16 +138,28 @@ export function GettingStarted({ firstCompetitorId, competitorAdded, onUpgrade }
               >
                 {s.label}
               </span>
-              {!complete && s.href && <ArrowRight className="w-4 h-4 shrink-0" style={{ color: "var(--accent)" }} />}
+              {!complete && (s.href || s.action) && <ArrowRight className="w-4 h-4 shrink-0" style={{ color: "var(--accent)" }} />}
             </div>
           );
-          return s.href ? (
-            <Link key={s.id} href={s.href} onClick={() => markDone(s.id)} className="block">
-              {content}
-            </Link>
-          ) : (
-            <div key={s.id}>{content}</div>
-          );
+          if (s.href) {
+            return (
+              <Link key={s.id} href={s.href} onClick={() => markDone(s.id)} className="block">
+                {content}
+              </Link>
+            );
+          }
+          if (s.action) {
+            return (
+              <button
+                key={s.id}
+                onClick={() => { openFeedback("How's StoreScout so far?"); markDone(s.id); }}
+                className="w-full text-left"
+              >
+                {content}
+              </button>
+            );
+          }
+          return <div key={s.id}>{content}</div>;
         })}
 
         {/* Upsell step — always shown, doesn't count toward completion */}
