@@ -168,7 +168,7 @@ Operators find out what competitors did **days late** — usually after a custom
 - **Shopify OAuth (connect your own store)** ✅ Live — verifies your store and personalizes playbook context.
 - **Klaviyo** ✅ Live — paste API key; we pull list/segment context into the playbook so email plays are personalized.
 - **Slack / generic webhooks** ✅ Live — route alerts anywhere.
-- **Google GA4 / Search Console** ⚠️ Partial — OAuth and property listing work, but **no data sync yet**. *Do not promise GA4-driven insights.* Position as "coming."
+- **Google GA4 / Search Console** ✅ Live — connect via OAuth, pick a property/site, and the playbook pulls in sessions, top pages, and top search queries to personalize recommendations. (Verify live with a real connected account before leaning on it in a demo.)
 - **API access** ✅ Live · Pro+ — up to 5 keys for developers.
 
 ### 4.12 Onboarding & lifecycle emails ✅ Live
@@ -176,9 +176,10 @@ Operators find out what competitors did **days late** — usually after a custom
 - **Talking point:** "You'll see real competitor data within ~60 seconds of signing up — free, no card."
 
 ### Roadmap (🗺️ — say "coming," never "have")
+- **Meta Ads integration** — pulling the user's ad-account performance and/or competitor ad intelligence into the playbook. **Deferred until the business is registered** (the Meta Business API requires a registered/verified business). Note: the playbook can still *recommend* Meta ad moves today; this is about *connecting* Meta as a data source. (A public **Meta Ad Library** competitor-ad feed does NOT need the business registered and could land sooner — see below.)
 - WooCommerce / BigCommerce support.
-- Google GA4/GSC data sync (currently partial).
 - Deeper benchmarking of your store vs. tracked competitors.
+- Competitor ad-activity feed via the public Meta Ad Library (independent of the user's own Meta account).
 
 ---
 
@@ -362,7 +363,7 @@ StoreScout accumulates **time-series catalog history** for every tracked store. 
 **Integrations & security**
 45. *Do you integrate with Slack?* — Yes, plus generic webhooks (Zapier, etc.).
 46. *Do you integrate with Klaviyo?* — Yes; it personalizes email-related plays.
-47. *Do you integrate with Google Analytics?* — Partially — connection works but data sync isn't live yet; treat as coming soon, don't rely on it.
+47. *Do you integrate with Google Analytics?* — Yes — connect GA4 + Search Console and the playbook factors in your sessions, top pages, and search queries. (Meta Ads as a connected data source is coming later.)
 48. *Is there an API?* — Yes, on paid plans (up to 5 keys).
 49. *How is my data / payment handled?* — Payments via Stripe; we don't store card data. Your account data is private to you (and your team on Agency).
 50. *Who's behind StoreScout?* — A small, focused team (Anonymous Mentality) building the competitive-intelligence layer for Shopify. *(Keep founder framing consistent with how Devon wants to present the company.)*
