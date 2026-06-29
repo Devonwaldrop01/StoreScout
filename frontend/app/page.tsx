@@ -1158,9 +1158,11 @@ export default function LandingPage() {
             <Link href="#how-it-works" className="text-sm hover:opacity-80 transition-opacity" style={{ color: "var(--muted)" }}>How it works</Link>
             <Link href="#pricing" className="text-sm hover:opacity-80 transition-opacity" style={{ color: "var(--muted)" }}>Pricing</Link>
             <Link href="#faq" className="text-sm hover:opacity-80 transition-opacity" style={{ color: "var(--muted)" }}>FAQ</Link>
+            <Link href="/privacy" className="text-sm hover:opacity-80 transition-opacity" style={{ color: "var(--muted)" }}>Privacy</Link>
+            <Link href="/terms" className="text-sm hover:opacity-80 transition-opacity" style={{ color: "var(--muted)" }}>Terms</Link>
             <Link href="/auth/login" className="text-sm hover:opacity-80 transition-opacity" style={{ color: "var(--muted)" }}>Sign in</Link>
           </div>
-          <p className="text-xs" style={{ color: "var(--muted)" }}>© 2025 StoreScout</p>
+          <p className="text-xs" style={{ color: "var(--muted)" }}>© 2026 StoreScout</p>
         </div>
       </footer>
 

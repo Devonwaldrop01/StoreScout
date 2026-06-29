@@ -5,6 +5,7 @@ import { X, Search, AlertCircle, CheckCircle2, AlertTriangle } from "lucide-reac
 import { competitors as api, type Competitor } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import UpgradeModal from "@/components/UpgradeModal";
+import { track } from "@/lib/analytics";
 
 interface Props {
   onClose: () => void;
@@ -82,6 +83,7 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
     setError("");
     try {
       const { data } = await api.add(normalizeUrl(url), displayName || undefined);
+      track("competitor_added", { store_status: storeStatus });
       onAdded(data);
     } catch (err: unknown) {
       const apiErr = err as { data?: { detail?: string | { code?: string; limit?: number; tier?: string } } };

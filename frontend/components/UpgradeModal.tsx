@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X, Zap, Building2, Check, AlertCircle } from "lucide-react";
 import { billing } from "@/lib/api";
+import { track } from "@/lib/analytics";
 
 interface Props {
   open: boolean;
@@ -100,6 +101,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general", curre
   async function handleUpgrade(plan: string) {
     setLoading(plan);
     setError("");
+    track("upgrade_clicked", { plan, trigger, billing: annual ? "annual" : "monthly", current_tier: currentTier ?? "free" });
     try {
       const { url } = await billing.checkout(plan, annual ? "annual" : "monthly");
       window.location.href = url;
