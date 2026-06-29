@@ -232,12 +232,13 @@ def generate_ai_playbook(user_id: str) -> dict:
                 + "\n"
             )
 
-    # Enrich with Klaviyo + Google data if connected
+    # Enrich with Klaviyo + Google + Shopify Admin data if connected
     try:
-        from app.api.v1.integrations import get_klaviyo_context, get_google_context
+        from app.api.v1.integrations import get_klaviyo_context, get_google_context, get_shopify_context
         klaviyo_ctx = get_klaviyo_context(user_id)
         google_ctx  = get_google_context(user_id)
-        extra_lines = [l for l in [klaviyo_ctx, google_ctx] if l]
+        shopify_ctx = get_shopify_context(user_id)
+        extra_lines = [l for l in [shopify_ctx, klaviyo_ctx, google_ctx] if l]
         if extra_lines:
             if my_store_section:
                 my_store_section = my_store_section.rstrip() + "\n  " + "\n  ".join(extra_lines) + "\n"

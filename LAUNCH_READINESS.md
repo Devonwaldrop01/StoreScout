@@ -44,8 +44,14 @@ Status: ✅ done · 🟡 in progress · ⬜ not started · 🚫 blocker (can't s
 - [ ] ⬜ Create the GA4 property + Meta Pixel; define the activation funnel (signup_completed → competitor_added → first_scan_completed → upgrade_clicked → subscription_started).
 - [ ] ⬜ (Optional, higher accuracy) Also fire `subscription_started` server-side from the Stripe webhook via GA4 Measurement Protocol / Meta Conversions API — the client-side version misses users who close the tab before the redirect.
 
-### 6. Google GA4/GSC integration (partial)
-- [ ] ⬜ Either finish data sync, or **hide the Google integration** from Settings/marketing so we don't promise what isn't live. (Klaviyo, Slack, Shopify-connect are fully shipped — those are fine to feature.)
+### 6. Integrations — all built; correctness fixes applied
+All integrations are wired end-to-end (backend + Settings UI + DB schema + the AI playbook consumes the data). Fixed several correctness bugs that made them return wrong/empty data:
+- [x] ✅ Klaviyo subscriber counts (was always 0 — Lists API needs `additional-fields[list]=profile_count`).
+- [x] ✅ GA4 property dropdown (was empty — switched to `accountSummaries`).
+- [x] ✅ GA4 report no longer 400s on properties without conversions (dropped unused metric).
+- [x] ✅ GSC search-query data (was broken — siteUrl now percent-encoded).
+- [x] ✅ Shopify Admin data now actually used — new `get_shopify_context()` feeds real inventory + active discount rules into the playbook, justifying the `read_inventory`/`read_price_rules`/`read_discounts` scopes the Connect flow requests.
+- [ ] 🚫 **Live verification required (Devon).** These call external APIs (Klaviyo, GA4, GSC, Shopify Admin) that can't be exercised from the dev environment without real connected accounts. Connect one real account per integration and confirm: Klaviyo shows real subscriber counts; GA4 dropdown lists properties; a generated playbook references your GA4/GSC/Shopify data. Set `google_client_id/secret`, `shopify_api_key/secret` in prod env.
 
 ### 7. Demo account
 - [ ] ⬜ Stand up a presentable demo account with good-looking real data (for screenshots + sales calls). Confirm which `scripts/seed_test_data.py` user is safe to use.
