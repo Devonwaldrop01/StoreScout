@@ -38,10 +38,11 @@ Status: ✅ done · 🟡 in progress · ⬜ not started · 🚫 blocker (can't s
 
 ### 5. Analytics & conversion tracking
 - [x] ✅ GA4 + Meta Pixel wired (env-gated, ships inert until keys set). `frontend/components/Analytics.tsx`, `frontend/lib/analytics.ts`, mounted in `app/layout.tsx`.
-- [x] ✅ Provider-agnostic `track()` helper + initial events: `upgrade_clicked`, `competitor_added`.
+- [x] ✅ Provider-agnostic `track()` helper + events: `upgrade_clicked`, `competitor_added`.
+- [x] ✅ Full funnel events wired: `signup_completed` (onboarding mount, once per browser), `first_scan_completed` (onboarding scan-poll success), `subscription_started` (settings post-checkout `?upgraded=1`, once per checkout). Meta standard-event mapping in place (`CompleteRegistration`, `Subscribe`, `InitiateCheckout`).
 - [ ] ⬜ Set env vars in prod: `NEXT_PUBLIC_GA_ID` (GA4 measurement ID) and `NEXT_PUBLIC_FB_PIXEL_ID` (Meta Pixel ID). Until set, no tracking fires.
-- [ ] ⬜ Add remaining funnel events from the blueprint: `signup_completed`, `first_scan_completed`, `subscription_started` (server-side from the Stripe webhook is most reliable for the last one). The helper + Meta standard-event mapping are already in place.
-- [ ] ⬜ Create the GA4 property + Meta Pixel; define the activation funnel (signup → competitor_added → first_scan → upgrade).
+- [ ] ⬜ Create the GA4 property + Meta Pixel; define the activation funnel (signup_completed → competitor_added → first_scan_completed → upgrade_clicked → subscription_started).
+- [ ] ⬜ (Optional, higher accuracy) Also fire `subscription_started` server-side from the Stripe webhook via GA4 Measurement Protocol / Meta Conversions API — the client-side version misses users who close the tab before the redirect.
 
 ### 6. Google GA4/GSC integration (partial)
 - [ ] ⬜ Either finish data sync, or **hide the Google integration** from Settings/marketing so we don't promise what isn't live. (Klaviyo, Slack, Shopify-connect are fully shipped — those are fine to feature.)

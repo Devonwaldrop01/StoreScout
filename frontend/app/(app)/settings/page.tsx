@@ -10,6 +10,7 @@ import {
   type GoogleProperties,
 } from "@/lib/api";
 import UpgradeModal from "@/components/UpgradeModal";
+import { track } from "@/lib/analytics";
 import { createClient } from "@/lib/supabase/client";
 import {
   Hash, Globe, Users, X, Loader2, Key, Copy, Check, Terminal,
@@ -144,7 +145,15 @@ function SettingsContent() {
           .then((r) => {
             setSubscription(r.data);
             const isPaid = ["pro", "agency", "developer"].includes(r.data.tier ?? "");
-            if (!isPaid && attempts < 6) setTimeout(poll, 2000);
+            if (isPaid) {
+              // Fire once per checkout return — the subscription is confirmed active.
+              try {
+                if (!sessionStorage.getItem("ss_sub_tracked")) {
+                  track("subscription_started", { tier: r.data.tier });
+                  sessionStorage.setItem("ss_sub_tracked", "1");
+                }
+              } catch {}
+            } else if (attempts < 6) setTimeout(poll, 2000);
           })
           .catch(() => { if (attempts < 6) setTimeout(poll, 2000); });
       };
