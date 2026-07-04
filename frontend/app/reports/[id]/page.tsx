@@ -231,7 +231,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
             <span className="w-2 h-2 rounded-full bg-current" />
             StoreScout Intelligence Report
           </div>
-          <h1 className="text-3xl font-black mb-1" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
+          <h1 className="text-3xl font-bold mb-1" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
             {hostname}
           </h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>

@@ -31,7 +31,7 @@ export function Testimonials() {
   return (
     <div className="max-w-5xl mx-auto px-6 pb-28">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-black mb-3" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
+        <h2 className="text-3xl font-bold mb-3" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
           What operators say
         </h2>
         <p className="text-sm" style={{ color: "var(--muted)" }}>From real StoreScout users</p>
