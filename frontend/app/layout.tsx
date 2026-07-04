@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { Suspense } from "react";
 import Analytics from "@/components/Analytics";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
+const grotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-jakarta",
+  variable: "--font-grotesk",
   display: "swap",
 });
 
@@ -31,7 +31,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${jetbrains.variable} h-full`}>
+    <html lang="en" className={`${grotesk.variable} ${jetbrains.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased">
         {children}
         <Suspense fallback={null}>

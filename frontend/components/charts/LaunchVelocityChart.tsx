@@ -70,21 +70,21 @@ export function LaunchVelocityChart({ launchData }: Props) {
         <BarChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 4 }}>
           <XAxis
             dataKey="month"
-            tick={{ fill: "#7d92aa", fontSize: 10 }}
+            tick={{ fill: "#6C7164", fontSize: 10 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: "#7d92aa", fontSize: 11 }}
+            tick={{ fill: "#6C7164", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
           <Tooltip
             contentStyle={{
-              background: "#111118",
+              background: "#161814",
               border: "1px solid rgba(255,255,255,.09)",
               borderRadius: 10,
-              color: "#eef3fa",
+              color: "#ECEEE6",
               fontSize: 13,
             }}
             cursor={{ fill: "rgba(255,255,255,.04)" }}
@@ -93,7 +93,7 @@ export function LaunchVelocityChart({ launchData }: Props) {
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={index === lastIndex ? "rgba(96,165,250,1)" : "rgba(96,165,250,.7)"}
+                fill={index === lastIndex ? "rgba(255,178,36,1)" : "rgba(255,178,36,.7)"}
               />
             ))}
           </Bar>

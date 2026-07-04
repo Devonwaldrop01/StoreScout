@@ -8,9 +8,9 @@ import UpgradeModal from "@/components/UpgradeModal";
 
 function opportunityLabel(opp?: number): { label: string; color: string } {
   const o = opp ?? 0;
-  if (o >= 0.6) return { label: "High opportunity", color: "#3b82f6" };
+  if (o >= 0.6) return { label: "High opportunity", color: "#FFB224" };
   if (o >= 0.35) return { label: "Moderate opportunity", color: "var(--amber)" };
-  return { label: "Opportunity", color: "#94a3b8" };
+  return { label: "Opportunity", color: "#A8AC9E" };
 }
 
 function getGapAction(type: string): string {
@@ -167,7 +167,7 @@ function GapCard({ gap, index, reviewed, onReviewed }: GapCardProps) {
                 setExpanded(false);
               }}
               className="flex items-center gap-1.5 text-[11px] font-medium transition-opacity hover:opacity-70"
-              style={{ color: isReviewed ? "#3b82f6" : "var(--muted)" }}
+              style={{ color: isReviewed ? "#FFB224" : "var(--muted)" }}
             >
               <Check className="w-3.5 h-3.5" />
               {isReviewed ? "Reviewed" : "Mark as reviewed"}
@@ -229,7 +229,7 @@ export default function GapsTab({ competitorId }: { competitorId: string }) {
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-2">
-          <Target className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#3b82f6" }} />
+          <Target className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#FFB224" }} />
           <div>
             <h3 className="font-semibold" style={{ color: "var(--text)" }}>
               Market Openings
@@ -244,7 +244,7 @@ export default function GapsTab({ competitorId }: { competitorId: string }) {
         {reviewedCount > 0 && (
           <span
             className="text-[11px] font-medium px-2.5 py-1 rounded-lg shrink-0 whitespace-nowrap"
-            style={{ background: "rgba(59,130,246,0.10)", color: "#3b82f6" }}
+            style={{ background: "rgba(255,178,36,0.10)", color: "#FFB224" }}
           >
             {reviewedCount} reviewed
           </span>

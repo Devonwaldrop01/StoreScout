@@ -55,11 +55,11 @@ export function MetricCard({ label, value, delta, deltaLabel = "vs last week", d
             <AreaChart data={sparkline.map((v, i) => ({ v, i }))} margin={{ top: 1, right: 0, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="mc-spark" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#FFB224" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="#FFB224" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <Area type="monotone" dataKey="v" stroke="#3b82f6" strokeWidth={1.5}
+              <Area type="monotone" dataKey="v" stroke="#FFB224" strokeWidth={1.5}
                 fill="url(#mc-spark)" dot={false} isAnimationActive={false} />
             </AreaChart>
           </ResponsiveContainer>

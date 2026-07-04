@@ -13,22 +13,41 @@ import { FeedbackWidget } from "@/components/FeedbackWidget";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { requestFeedbackOnce } from "@/lib/feedbackPrompt";
 
-// ── Brand Logo ────────────────────────────────────────────────────────────
+// ── Brand mark — scope lens on charcoal, signal-amber ─────────────────────
 
 function StoreLogo({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M30 35L30 80C30 85 32 88 37 88L63 88C68 88 70 85 70 80L70 35" stroke="#2463EB" strokeWidth="6" strokeLinecap="round" fill="none"/>
-      <path d="M25 35L75 35L72 42L28 42Z" fill="#2463EB"/>
-      <path d="M38 35L38 28C38 22 42 18 50 18C58 18 62 22 62 28L62 35" stroke="#2463EB" strokeWidth="6" strokeLinecap="round" fill="none"/>
-      <circle cx="65" cy="55" r="18" fill="#1E40AF" opacity="0.9"/>
-      <circle cx="65" cy="55" r="12" fill="white" opacity="0.25"/>
-      <path d="M78 68L88 78" stroke="#1E40AF" strokeWidth="5" strokeLinecap="round"/>
+      <path d="M30 35L30 80C30 85 32 88 37 88L63 88C68 88 70 85 70 80L70 35" stroke="#A8AC9E" strokeWidth="6" strokeLinecap="round" fill="none"/>
+      <path d="M25 35L75 35L72 42L28 42Z" fill="#A8AC9E"/>
+      <path d="M38 35L38 28C38 22 42 18 50 18C58 18 62 22 62 28L62 35" stroke="#A8AC9E" strokeWidth="6" strokeLinecap="round" fill="none"/>
+      <circle cx="65" cy="55" r="18" fill="#FFB224" opacity="0.92"/>
+      <circle cx="65" cy="55" r="12" fill="#0B0C0A" opacity="0.35"/>
+      <path d="M78 68L88 78" stroke="#FFB224" strokeWidth="5" strokeLinecap="round"/>
     </svg>
   );
 }
 
 // ── Layout ────────────────────────────────────────────────────────────────
+
+type NavItem = { href: string; icon: React.ElementType; label: string };
+
+const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
+  {
+    label: "Operate",
+    items: [
+      { href: "/dashboard",   icon: LayoutDashboard, label: "Dashboard" },
+      { href: "/competitors", icon: Target,          label: "Competitors" },
+    ],
+  },
+  {
+    label: "Intel",
+    items: [
+      { href: "/playbook", icon: BookOpen, label: "Playbook" },
+      { href: "/alerts",   icon: Bell,     label: "Signals" },
+    ],
+  },
+];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -57,13 +76,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     router.push("/");
   }
 
-  const nav = [
-    { href: "/dashboard",   icon: LayoutDashboard, label: "Dashboard"   },
-    { href: "/competitors", icon: Target,          label: "Competitors" },
-    { href: "/playbook",    icon: BookOpen,        label: "Playbook"    },
-    { href: "/alerts",      icon: Bell,            label: "Alerts",     badge: unread },
-  ];
-
   const isFree = tier === "free" || tier === null;
 
   function isActive(href: string) {
@@ -73,107 +85,102 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return pathname.startsWith(href);
   }
 
+  const flatNav = NAV_GROUPS.flatMap((g) => g.items);
+
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "var(--bg)" }}>
 
-      {/* ── Sidebar (desktop) ─────────────────────────────────────────────── */}
+      {/* ── Instrument rail (desktop) ─────────────────────────────────────── */}
       <aside
-        className="hidden md:flex flex-col w-[212px] shrink-0 border-r"
+        className="hidden md:flex flex-col w-[216px] shrink-0 border-r"
         style={{ background: "var(--bg2)", borderColor: "var(--border)" }}
       >
 
-        {/* ── Logo ── */}
-        <div className="px-4 pt-5 pb-4">
-          <Link href="/dashboard" className="flex items-center gap-2.5 group">
-            <StoreLogo size={20} />
-            <span
-              className="font-bold text-[15px] tracking-tight transition-colors"
-              style={{ color: "var(--text)" }}
-            >
+        {/* Brand */}
+        <div className="px-4 pt-5 pb-3">
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <StoreLogo size={22} />
+            <span className="font-bold text-[15px] tracking-tight" style={{ color: "var(--text)" }}>
               StoreScout
+            </span>
+          </Link>
+
+          {/* Live status line — real signal state, not decoration */}
+          <Link
+            href="/alerts"
+            className="mt-3 flex items-center gap-2 px-2 py-1.5 rounded"
+            style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+          >
+            <span className={cn("signal-dot", unread > 0 && "signal-dot--amber")} />
+            <span className="label-caps" style={{ color: unread > 0 ? "var(--accent)" : "var(--muted)" }}>
+              {unread > 0 ? `${unread > 9 ? "9+" : unread} new signal${unread === 1 ? "" : "s"}` : "monitoring"}
             </span>
           </Link>
         </div>
 
-        {/* ── Nav ── */}
-        <nav className="flex-1 px-2 space-y-0.5 overflow-y-auto">
-          {nav.map(({ href, icon: Icon, label, badge }) => {
-            const active = isActive(href);
-            return (
-              <Link
-                key={href}
-                href={href}
-                className="relative flex items-center gap-2.5 px-3 py-[9px] rounded-md text-sm font-medium transition-colors"
-                style={{
-                  color: active ? "var(--text)" : "var(--muted)",
-                  background: active ? "rgba(255,255,255,.05)" : "transparent",
-                }}
-                onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = "rgba(255,255,255,.03)"; }}
-                onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = "transparent"; }}
-              >
-                {active && (
-                  <span
-                    className="absolute left-0 inset-y-2 w-[2px] rounded-full"
-                    style={{ background: "var(--accent)" }}
-                  />
-                )}
-                <Icon className="w-[15px] h-[15px] shrink-0" />
-                <span className="flex-1">{label}</span>
-                {badge != null && badge > 0 && (
-                  <span
-                    className="text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center tabular-nums"
-                    style={{ background: "rgba(59,130,246,.18)", color: "var(--accent)" }}
-                  >
-                    {badge > 9 ? "9+" : badge}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
+        {/* Nav groups */}
+        <nav className="flex-1 px-2 overflow-y-auto">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.label} className="mb-4">
+              <p className="label-caps px-3 pt-3 pb-1.5">{group.label}</p>
+              <div className="space-y-0.5">
+                {group.items.map(({ href, icon: Icon, label }) => {
+                  const active = isActive(href);
+                  const badge = href === "/alerts" ? unread : 0;
+                  return (
+                    <Link key={href} href={href} className={cn("rail-item", active && "rail-item--active")}>
+                      <Icon className="w-[15px] h-[15px] shrink-0" />
+                      <span className="flex-1">{label}</span>
+                      {badge > 0 && (
+                        <span
+                          className="num text-[10px] font-bold px-1.5 py-0.5 rounded min-w-[18px] text-center"
+                          style={{ background: "rgba(255,178,36,.14)", color: "var(--accent)" }}
+                        >
+                          {badge > 9 ? "9+" : badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
 
-          {/* Divider */}
-          <div className="pt-3 pb-1">
-            <div className="h-px mx-2" style={{ background: "var(--border)" }} />
+          <hr className="rule mx-2 my-1" />
+
+          <div className="pt-2">
+            <Link
+              href="/settings"
+              className={cn("rail-item", (pathname === "/settings" || pathname.startsWith("/settings")) && "rail-item--active")}
+            >
+              <Settings className="w-[15px] h-[15px] shrink-0" />
+              Settings
+            </Link>
           </div>
-
-          {/* Settings */}
-          {(() => {
-            const active = pathname === "/settings" || pathname.startsWith("/settings");
-            return (
-              <Link
-                href="/settings"
-                className="relative flex items-center gap-2.5 px-3 py-[9px] rounded-md text-sm font-medium transition-colors"
-                style={{
-                  color: active ? "var(--text)" : "var(--muted)",
-                  background: active ? "rgba(255,255,255,.05)" : "transparent",
-                }}
-                onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = "rgba(255,255,255,.03)"; }}
-                onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = "transparent"; }}
-              >
-                {active && (
-                  <span
-                    className="absolute left-0 inset-y-2 w-[2px] rounded-full"
-                    style={{ background: "var(--accent)" }}
-                  />
-                )}
-                <Settings className="w-[15px] h-[15px] shrink-0" />
-                Settings
-              </Link>
-            );
-          })()}
         </nav>
 
-        {/* ── Bottom ── */}
+        {/* Bottom: tier + upgrade + sign out */}
         <div className="p-3 space-y-1.5" style={{ borderTop: "1px solid var(--border)" }}>
-          {/* Upgrade CTA — free users only */}
+          {tier && (
+            <div className="flex items-center justify-between px-3 py-1">
+              <span className="label-caps">Plan</span>
+              <span
+                className="label-caps"
+                style={{ color: isFree ? "var(--muted)" : "var(--accent)" }}
+              >
+                {tier}
+              </span>
+            </div>
+          )}
+
           {isFree && (
             <Link
               href="/settings?upgrade=1"
-              className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-xs font-semibold transition-colors"
+              className="flex items-center gap-2 w-full px-3 py-2 rounded text-xs font-semibold transition-colors"
               style={{
-                background: "rgba(59,130,246,.1)",
+                background: "rgba(255,178,36,.10)",
                 color: "var(--accent)",
-                border: "1px solid rgba(59,130,246,.18)",
+                border: "1px solid rgba(255,178,36,.22)",
               }}
             >
               <Zap className="w-3.5 h-3.5 shrink-0" />
@@ -182,13 +189,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </Link>
           )}
 
-          <button
-            onClick={handleSignOut}
-            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors"
-            style={{ color: "var(--muted)" }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,.03)"; e.currentTarget.style.color = "var(--text-2)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--muted)"; }}
-          >
+          <button onClick={handleSignOut} className="rail-item w-full">
             <LogOut className="w-[15px] h-[15px] shrink-0" />
             Sign out
           </button>
@@ -210,29 +211,30 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <nav
         className="fixed bottom-0 left-0 right-0 md:hidden flex border-t z-50"
         style={{
-          background: "rgba(10,10,15,0.96)",
+          background: "rgba(11,12,10,0.96)",
           borderColor: "var(--border)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
         }}
       >
-        {[...nav, { href: "/settings", icon: Settings, label: "Settings", badge: undefined }].map(({ href, icon: Icon, label, badge }) => {
+        {[...flatNav, { href: "/settings", icon: Settings, label: "Settings" }].map(({ href, icon: Icon, label }) => {
           const active = isActive(href);
+          const badge = href === "/alerts" ? unread : 0;
           return (
             <Link
               key={href + label}
               href={href}
-              className="flex-1 flex flex-col items-center gap-1 py-3 transition-colors"
+              className="relative flex-1 flex flex-col items-center gap-1 py-3 transition-colors"
               style={{ color: active ? "var(--accent)" : "var(--muted)" }}
             >
               <Icon className="w-5 h-5" />
               <span className="text-[10px] font-medium">{label}</span>
-              {badge != null && badge > 0 && (
+              {badge > 0 && (
                 <span
-                  className="absolute top-2 translate-x-2 text-[9px] font-bold w-3.5 h-3.5 flex items-center justify-center rounded-full"
-                  style={{ background: "var(--accent)", color: "#fff" }}
+                  className="absolute top-2 translate-x-2 text-[9px] font-bold w-3.5 h-3.5 flex items-center justify-center rounded-full num"
+                  style={{ background: "var(--accent)", color: "var(--ink)" }}
                 >
-                  {badge > 9 ? "9+" : badge}
+                  {badge > 9 ? "9" : badge}
                 </span>
               )}
             </Link>

@@ -1,23 +1,35 @@
 @import "tailwindcss";
 
-/* ── Color System ────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   STORESCOUT — "THE OPS ROOM"
+   Tactical command-center identity. Warm near-black charcoal, one signal-amber
+   accent reserved for live intelligence and actions, phosphor green strictly
+   for positive/live states, red for threats. Mono-first numerals.
+
+   Color discipline:
+   --accent  (signal amber)  → CTAs, links, active nav, live intelligence
+   --green               → success / in-stock / positive deltas ONLY
+   --red                 → threats / critical / destructive ONLY
+   --blue    (instrument cyan) → secondary CHART SERIES ONLY, never UI chrome
+   ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --bg:       #070B14;
-  --bg2:      #0D1320;
-  --bg3:      #131B2D;
-  --bg4:      #131B2D;
-  --bg-card:  #0D1320;
-  --border:   #1B2740;
-  --text:     #F3F6FC;
-  --text-2:   #9BA7BD;
-  --muted:    #647089;
-  --accent:   #3b82f6;
-  --green:    #22C55E;
-  --blue:     #60a5fa;
-  --emerald:  #22C55E;
-  --amber:    #f59e0b;
-  --red:      #ef4444;
-  /* --cyan and --purple reserved for chart series only — do not use in UI components */
+  --bg:       #0B0C0A;
+  --bg2:      #101110;
+  --bg3:      #161814;
+  --bg4:      #1B1E19;
+  --bg-card:  #101110;
+  --border:   #262A22;
+  --text:     #ECEEE6;
+  --text-2:   #A8AC9E;
+  --muted:    #6C7164;
+  --accent:   #FFB224;
+  --green:    #4CC38A;
+  --emerald:  #4CC38A;
+  --amber:    #FFB224;
+  --red:      #F2555A;
+  --blue:     #7DB8C9;
+  /* on-accent ink — text placed on amber surfaces */
+  --ink:      #0B0C0A;
 }
 
 @theme inline {
@@ -29,24 +41,24 @@
 html, body {
   background: var(--bg);
   color: var(--text);
-  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-family: var(--font-grotesk, "Space Grotesk"), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 * { box-sizing: border-box; }
 
-::selection { background: rgba(59,130,246,.18); color: var(--text); }
+::selection { background: rgba(255,178,36,.22); color: var(--text); }
 
 #__next, main { position: relative; }
 
 /* ── Scrollbar ───────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,.09); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.16); }
+::-webkit-scrollbar-thumb { background: rgba(236,238,230,.10); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,178,36,.35); }
 
-/* ── Animations ──────────────────────────────────────────────────────────── */
+/* ── Animations — state, not decoration ──────────────────────────────────── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -60,8 +72,12 @@ html, body {
   to   { transform: translateX(100%); }
 }
 @keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,.25); }
-  50%       { box-shadow: 0 0 0 5px rgba(59,130,246,.0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,178,36,.30); }
+  50%       { box-shadow: 0 0 0 5px rgba(255,178,36,.0); }
+}
+@keyframes signalBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .35; }
 }
 
 .fade-up   { animation: fadeUp  0.4s ease-out both; }
@@ -72,32 +88,85 @@ html, body {
 .fade-up-5 { animation: fadeUp  0.4s ease-out 0.25s both; }
 .fade-in   { animation: fadeIn  0.3s ease-out both; }
 
-/* ── Card interaction ────────────────────────────────────────────────────── */
-.card-lift {
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-.card-lift:hover {
-  border-color: rgba(59,130,246,.25) !important;
-  box-shadow: 0 0 0 1px rgba(59,130,246,.08), 0 12px 40px rgba(0,0,0,.5);
-  transform: translateY(-2px);
+/* ── Panel — the core surface. Hairline, flat, tight radius ─────────────── */
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
 }
 
-/* ── Numeric utility ─────────────────────────────────────────────────────── */
+/* Featured panel: amber corner tick, top-left */
+.panel-tick { position: relative; }
+.panel-tick::before {
+  content: "";
+  position: absolute;
+  top: -1px; left: -1px;
+  width: 14px; height: 14px;
+  border-top: 2px solid var(--accent);
+  border-left: 2px solid var(--accent);
+  border-top-left-radius: 6px;
+  pointer-events: none;
+}
+
+/* Hairline section divider */
+.rule { border: 0; border-top: 1px solid var(--border); }
+
+/* ── Card interaction — instrument focus, not levitation ────────────────── */
+.card-lift {
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.card-lift:hover {
+  border-color: rgba(255,178,36,.4) !important;
+  background: var(--bg3);
+}
+
+/* ── Numeric utility — every number is instrumentation ───────────────────── */
 .num {
   font-family: var(--font-mono, monospace);
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Label utility — consistent small caps labels ────────────────────────── */
+/* ── Micro-labels ────────────────────────────────────────────────────────── */
+/* label-caps: kept for compat; now mono + wide-tracked */
 .label-caps {
+  font-family: var(--font-mono, monospace);
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
 }
+/* tick-label: section header with leading tick */
+.tick-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tick-label::before {
+  content: "";
+  width: 3px; height: 10px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
 
-/* ── Scanning shimmer ────────────────────────────────────────────────────── */
+/* ── Signal dot — live status indicator ──────────────────────────────────── */
+.signal-dot {
+  width: 6px; height: 6px;
+  border-radius: 9999px;
+  background: var(--green);
+  animation: signalBlink 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.signal-dot--amber { background: var(--accent); }
+.signal-dot--red   { background: var(--red); }
+
+/* ── Scanning shimmer — used ONLY while a scan is running ────────────────── */
 .scan-shimmer {
   position: relative;
   overflow: hidden;
@@ -106,18 +175,45 @@ html, body {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(59,130,246,.06), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,178,36,.07), transparent);
   animation: scanLine 2s ease-in-out infinite;
 }
 
+/* ── Nav rail items (app shell) ──────────────────────────────────────────── */
+.rail-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  transition: color .12s ease, background .12s ease;
+}
+.rail-item:hover { color: var(--text-2); background: rgba(236,238,230,.03); }
+.rail-item--active { color: var(--text); background: rgba(255,178,36,.06); }
+.rail-item--active::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 6px; bottom: 6px;
+  width: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+
 /* ── Legal pages (privacy, terms) ────────────────────────────────────────── */
-.legal-prose { font-size: 15px; line-height: 1.7; }
+.legal-prose { font-size: 15px; line-height: 1.75; }
 .legal-prose h2 {
   color: var(--text);
-  font-size: 1.125rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  margin-top: 2rem;
+  letter-spacing: 0.01em;
+  margin-top: 2.25rem;
   margin-bottom: 0.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
 }
 .legal-prose p { margin-bottom: 1rem; }
 .legal-prose ul {

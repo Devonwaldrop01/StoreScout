@@ -54,19 +54,19 @@ const BRANDS = [
 
 function BrowserChrome({ url, children }: { url: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl overflow-hidden shadow-2xl" style={{ background: "#060d18", border: "1px solid #1a2744" }}>
-      <div className="flex items-center gap-3 px-4 py-3 border-b" style={{ background: "#080f1e", borderColor: "#1a2744" }}>
+    <div className="rounded-2xl overflow-hidden shadow-2xl" style={{ background: "#0B0C0A", border: "1px solid #262A22" }}>
+      <div className="flex items-center gap-3 px-4 py-3 border-b" style={{ background: "#101110", borderColor: "#262A22" }}>
         <div className="flex gap-1.5">
           <span className="w-3 h-3 rounded-full" style={{ background: "#ff5f57" }} />
           <span className="w-3 h-3 rounded-full" style={{ background: "#ffbd2e" }} />
           <span className="w-3 h-3 rounded-full" style={{ background: "#28c840" }} />
         </div>
-        <div className="flex-1 mx-3 rounded-md px-3 py-1 text-xs font-mono" style={{ background: "#060d18", color: "#3a5070" }}>
+        <div className="flex-1 mx-3 rounded-md px-3 py-1 text-xs font-mono" style={{ background: "#0B0C0A", color: "#6C7164" }}>
           {url}
         </div>
         <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" style={{ color: "#3b82f6" }} />
-          <span className="text-[10px] font-semibold" style={{ color: "#3b82f6" }}>LIVE</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" style={{ color: "#FFB224" }} />
+          <span className="text-[10px] font-semibold" style={{ color: "#FFB224" }}>LIVE</span>
         </div>
       </div>
       {children}
@@ -80,39 +80,39 @@ function FlashSaleCard() {
     <div
       className="rounded-2xl overflow-hidden"
       style={{
-        background: "rgba(239,68,68,.05)",
-        border: "1px solid rgba(239,68,68,.25)",
-        boxShadow: "0 0 0 1px rgba(239,68,68,.06), 0 8px 32px rgba(0,0,0,.3)",
+        background: "rgba(242,85,90,.05)",
+        border: "1px solid rgba(242,85,90,.25)",
+        boxShadow: "0 0 0 1px rgba(242,85,90,.06), 0 8px 32px rgba(0,0,0,.3)",
       }}
     >
       <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <Zap className="w-4 h-4 shrink-0" style={{ color: "#f87171" }} />
+          <Zap className="w-4 h-4 shrink-0" style={{ color: "#F2555A" }} />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full shrink-0"
-                style={{ background: "rgba(248,113,113,.2)", color: "#f87171" }}>Flash Sale</span>
-              <span className="text-xs font-semibold" style={{ color: "#eef3fa" }}>gymshark.com</span>
+                style={{ background: "rgba(242,85,90,.2)", color: "#F2555A" }}>Flash Sale</span>
+              <span className="text-xs font-semibold" style={{ color: "#ECEEE6" }}>gymshark.com</span>
             </div>
-            <p className="text-sm font-bold mt-1 leading-snug" style={{ color: "#eef3fa" }}>
+            <p className="text-sm font-bold mt-1 leading-snug" style={{ color: "#ECEEE6" }}>
               7 products dropped ≥20% — avg −24.6%
             </p>
           </div>
         </div>
-        <span className="text-[11px] shrink-0 ml-3" style={{ color: "#3a5070" }}>12m ago</span>
+        <span className="text-[11px] shrink-0 ml-3" style={{ color: "#6C7164" }}>12m ago</span>
       </div>
       <div className="mx-5 mb-3 px-3.5 py-3 rounded-xl text-xs leading-relaxed"
-        style={{ background: "rgba(0,0,0,.2)", color: "#94a3b8" }}>
-        <span className="font-semibold" style={{ color: "#f87171" }}>Why this matters · </span>
+        style={{ background: "rgba(0,0,0,.2)", color: "#A8AC9E" }}>
+        <span className="font-semibold" style={{ color: "#F2555A" }}>Why this matters · </span>
         Summer clearance or aggressive acquisition push. Flash sales this size typically run 48–72h and are often paired with Meta spend within hours.
       </div>
       <div className="mx-5 mb-4 px-3.5 py-3 rounded-xl text-xs leading-relaxed"
-        style={{ background: "rgba(59,130,246,.05)", border: "1px solid rgba(59,130,246,.18)" }}>
-        <span className="font-bold" style={{ color: "#3b82f6" }}>▶ Your move · </span>
-        <span style={{ color: "#94a3b8" }}>Open Meta Ads Manager, duplicate your best ad set targeting Gymshark followers. Test &ldquo;Gymshark is on sale. We never are.&rdquo; as headline copy — run $10/day for 5 days and compare CTR to your control.</span>
+        style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.18)" }}>
+        <span className="font-bold" style={{ color: "#FFB224" }}>▶ Your move · </span>
+        <span style={{ color: "#A8AC9E" }}>Open Meta Ads Manager, duplicate your best ad set targeting Gymshark followers. Test &ldquo;Gymshark is on sale. We never are.&rdquo; as headline copy — run $10/day for 5 days and compare CTR to your control.</span>
       </div>
       <div className="flex items-center justify-between px-5 py-2 text-xs font-semibold border-t"
-        style={{ borderColor: "rgba(239,68,68,.15)", color: "#3a5070" }}>
+        style={{ borderColor: "rgba(242,85,90,.15)", color: "#6C7164" }}>
         <span>View 7 affected products</span>
         <span>↓</span>
       </div>
@@ -126,39 +126,39 @@ function LaunchBurstCard() {
     <div
       className="rounded-2xl overflow-hidden"
       style={{
-        background: "rgba(59,130,246,.04)",
-        border: "1px solid rgba(59,130,246,.2)",
-        boxShadow: "0 0 0 1px rgba(59,130,246,.06), 0 8px 32px rgba(0,0,0,.3)",
+        background: "rgba(255,178,36,.04)",
+        border: "1px solid rgba(255,178,36,.2)",
+        boxShadow: "0 0 0 1px rgba(255,178,36,.06), 0 8px 32px rgba(0,0,0,.3)",
       }}
     >
       <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <Rocket className="w-4 h-4 shrink-0" style={{ color: "#3b82f6" }} />
+          <Rocket className="w-4 h-4 shrink-0" style={{ color: "#FFB224" }} />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full shrink-0"
-                style={{ background: "rgba(59,130,246,.2)", color: "#3b82f6" }}>Launch Burst</span>
-              <span className="text-xs font-semibold" style={{ color: "#eef3fa" }}>fashionnova.com</span>
+                style={{ background: "rgba(255,178,36,.2)", color: "#FFB224" }}>Launch Burst</span>
+              <span className="text-xs font-semibold" style={{ color: "#ECEEE6" }}>fashionnova.com</span>
             </div>
-            <p className="text-sm font-bold mt-1 leading-snug" style={{ color: "#eef3fa" }}>
+            <p className="text-sm font-bold mt-1 leading-snug" style={{ color: "#ECEEE6" }}>
               19 products launched in 4 hours
             </p>
           </div>
         </div>
-        <span className="text-[11px] shrink-0 ml-3" style={{ color: "#3a5070" }}>1h ago</span>
+        <span className="text-[11px] shrink-0 ml-3" style={{ color: "#6C7164" }}>1h ago</span>
       </div>
       <div className="mx-5 mb-3 px-3.5 py-3 rounded-xl text-xs leading-relaxed"
-        style={{ background: "rgba(0,0,0,.2)", color: "#94a3b8" }}>
-        <span className="font-semibold" style={{ color: "#3b82f6" }}>Why this matters · </span>
+        style={{ background: "rgba(0,0,0,.2)", color: "#A8AC9E" }}>
+        <span className="font-semibold" style={{ color: "#FFB224" }}>Why this matters · </span>
         A burst this large usually precedes a paid push. Expect heavy Meta spend on these SKUs within 48 hours — their best-case launch window.
       </div>
       <div className="mx-5 mb-4 px-3.5 py-3 rounded-xl text-xs leading-relaxed"
-        style={{ background: "rgba(59,130,246,.05)", border: "1px solid rgba(59,130,246,.18)" }}>
-        <span className="font-bold" style={{ color: "#3b82f6" }}>▶ Your move · </span>
-        <span style={{ color: "#94a3b8" }}>Watch fashionnova.com&apos;s social and email over the next 72h. If they&apos;re entering a category you cover, get your version into ads before their campaign peaks.</span>
+        style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.18)" }}>
+        <span className="font-bold" style={{ color: "#FFB224" }}>▶ Your move · </span>
+        <span style={{ color: "#A8AC9E" }}>Watch fashionnova.com&apos;s social and email over the next 72h. If they&apos;re entering a category you cover, get your version into ads before their campaign peaks.</span>
       </div>
       <div className="flex items-center justify-between px-5 py-2 text-xs font-semibold border-t"
-        style={{ borderColor: "rgba(59,130,246,.15)", color: "#3a5070" }}>
+        style={{ borderColor: "rgba(255,178,36,.15)", color: "#6C7164" }}>
         <span>View 19 new products</span>
         <span>↓</span>
       </div>
@@ -172,39 +172,39 @@ function PriceIncreaseCard() {
     <div
       className="rounded-2xl overflow-hidden"
       style={{
-        background: "rgba(96,165,250,.04)",
-        border: "1px solid rgba(96,165,250,.2)",
-        boxShadow: "0 0 0 1px rgba(96,165,250,.06), 0 8px 32px rgba(0,0,0,.3)",
+        background: "rgba(255,178,36,.04)",
+        border: "1px solid rgba(255,178,36,.2)",
+        boxShadow: "0 0 0 1px rgba(255,178,36,.06), 0 8px 32px rgba(0,0,0,.3)",
       }}
     >
       <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <TrendingUp className="w-4 h-4 shrink-0" style={{ color: "#60a5fa" }} />
+          <TrendingUp className="w-4 h-4 shrink-0" style={{ color: "#FFB224" }} />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full shrink-0"
-                style={{ background: "rgba(96,165,250,.2)", color: "#60a5fa" }}>Prices Rising</span>
-              <span className="text-xs font-semibold" style={{ color: "#eef3fa" }}>allbirds.com</span>
+                style={{ background: "rgba(255,178,36,.2)", color: "#FFB224" }}>Prices Rising</span>
+              <span className="text-xs font-semibold" style={{ color: "#ECEEE6" }}>allbirds.com</span>
             </div>
-            <p className="text-sm font-bold mt-1 leading-snug" style={{ color: "#eef3fa" }}>
+            <p className="text-sm font-bold mt-1 leading-snug" style={{ color: "#ECEEE6" }}>
               8 core styles raised +18% avg
             </p>
           </div>
         </div>
-        <span className="text-[11px] shrink-0 ml-3" style={{ color: "#3a5070" }}>3h ago</span>
+        <span className="text-[11px] shrink-0 ml-3" style={{ color: "#6C7164" }}>3h ago</span>
       </div>
       <div className="mx-5 mb-3 px-3.5 py-3 rounded-xl text-xs leading-relaxed"
-        style={{ background: "rgba(0,0,0,.2)", color: "#94a3b8" }}>
-        <span className="font-semibold" style={{ color: "#60a5fa" }}>Why this matters · </span>
+        style={{ background: "rgba(0,0,0,.2)", color: "#A8AC9E" }}>
+        <span className="font-semibold" style={{ color: "#FFB224" }}>Why this matters · </span>
         Allbirds raised prices on 8 core styles. Their price-sensitive customers are now actively comparison shopping — this is your window.
       </div>
       <div className="mx-5 mb-4 px-3.5 py-3 rounded-xl text-xs leading-relaxed"
-        style={{ background: "rgba(59,130,246,.05)", border: "1px solid rgba(59,130,246,.18)" }}>
-        <span className="font-bold" style={{ color: "#3b82f6" }}>▶ Your move · </span>
-        <span style={{ color: "#94a3b8" }}>Launch a Google Shopping campaign targeting their product names — their price-sensitive customers are now actively looking for alternatives.</span>
+        style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.18)" }}>
+        <span className="font-bold" style={{ color: "#FFB224" }}>▶ Your move · </span>
+        <span style={{ color: "#A8AC9E" }}>Launch a Google Shopping campaign targeting their product names — their price-sensitive customers are now actively looking for alternatives.</span>
       </div>
       <div className="flex items-center justify-between px-5 py-2 text-xs font-semibold border-t"
-        style={{ borderColor: "rgba(96,165,250,.15)", color: "#3a5070" }}>
+        style={{ borderColor: "rgba(255,178,36,.15)", color: "#6C7164" }}>
         <span>View 8 price changes</span>
         <span>↓</span>
       </div>
@@ -218,8 +218,8 @@ function IntelligenceBriefPreview() {
     <div
       className="rounded-2xl overflow-hidden"
       style={{
-        background: "#080f1e",
-        border: "1px solid rgba(59,130,246,.2)",
+        background: "#101110",
+        border: "1px solid rgba(255,178,36,.2)",
       }}
     >
       <div className="p-6 sm:p-8">
@@ -227,17 +227,17 @@ function IntelligenceBriefPreview() {
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "rgba(59,130,246,.12)", border: "1px solid rgba(59,130,246,.2)" }}>
-              <Sparkles className="w-4 h-4" style={{ color: "#3b82f6" }} />
+              style={{ background: "rgba(255,178,36,.12)", border: "1px solid rgba(255,178,36,.2)" }}>
+              <Sparkles className="w-4 h-4" style={{ color: "#FFB224" }} />
             </div>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
-                style={{ background: "rgba(59,130,246,.12)", color: "#3b82f6" }}>
+                style={{ background: "rgba(255,178,36,.12)", color: "#FFB224" }}>
                 AI Intelligence Brief
               </span>
-              <h3 className="text-base font-bold mt-1" style={{ color: "#eef3fa" }}>
+              <h3 className="text-base font-bold mt-1" style={{ color: "#ECEEE6" }}>
                 4 things you should know about{" "}
-                <span style={{ color: "#3b82f6" }}>gymshark.com</span>
+                <span style={{ color: "#FFB224" }}>gymshark.com</span>
               </h3>
             </div>
           </div>
@@ -246,70 +246,70 @@ function IntelligenceBriefPreview() {
         {/* 3 cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           {/* Signal card */}
-          <div className="rounded-xl p-5" style={{ background: "rgba(59,130,246,.07)", border: "1px solid rgba(59,130,246,.18)" }}>
+          <div className="rounded-xl p-5" style={{ background: "rgba(255,178,36,.07)", border: "1px solid rgba(255,178,36,.18)" }}>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: "rgba(59,130,246,.18)" }}>
-                <Target className="w-4 h-4" style={{ color: "#3b82f6" }} />
+                style={{ background: "rgba(255,178,36,.18)" }}>
+                <Target className="w-4 h-4" style={{ color: "#FFB224" }} />
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#3b82f6" }}>Most notable signal</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#FFB224" }}>Most notable signal</span>
             </div>
-            <h4 className="font-bold text-sm leading-snug mb-2" style={{ color: "#eef3fa" }}>
+            <h4 className="font-bold text-sm leading-snug mb-2" style={{ color: "#ECEEE6" }}>
               Seasonal discount cycle is accelerating
             </h4>
-            <p className="text-sm leading-relaxed" style={{ color: "#64748b" }}>
+            <p className="text-sm leading-relaxed" style={{ color: "#6C7164" }}>
               Gymshark pushed 34% of their catalog on sale this week — up from 18% last week. This is their fastest discount ramp in 6 months.
             </p>
           </div>
 
           {/* Opportunity card */}
-          <div className="rounded-xl p-5" style={{ background: "rgba(96,165,250,.07)", border: "1px solid rgba(96,165,250,.18)" }}>
+          <div className="rounded-xl p-5" style={{ background: "rgba(255,178,36,.07)", border: "1px solid rgba(255,178,36,.18)" }}>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: "rgba(96,165,250,.18)" }}>
-                <TrendingUp className="w-4 h-4" style={{ color: "#60a5fa" }} />
+                style={{ background: "rgba(255,178,36,.18)" }}>
+                <TrendingUp className="w-4 h-4" style={{ color: "#FFB224" }} />
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#60a5fa" }}>Your opening</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#FFB224" }}>Your opening</span>
             </div>
-            <h4 className="font-bold text-sm leading-snug mb-2" style={{ color: "#eef3fa" }}>
+            <h4 className="font-bold text-sm leading-snug mb-2" style={{ color: "#ECEEE6" }}>
               Full-price positioning window is open
             </h4>
-            <p className="text-sm leading-relaxed" style={{ color: "#64748b" }}>
+            <p className="text-sm leading-relaxed" style={{ color: "#6C7164" }}>
               While Gymshark discounts, their discount-fatigued customers are your best acquisition target. Push quality messaging this week.
             </p>
           </div>
 
           {/* Watch card */}
-          <div className="rounded-xl p-5" style={{ background: "rgba(245,158,11,.07)", border: "1px solid rgba(245,158,11,.18)" }}>
+          <div className="rounded-xl p-5" style={{ background: "rgba(255,178,36,.07)", border: "1px solid rgba(255,178,36,.18)" }}>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: "rgba(245,158,11,.18)" }}>
-                <Eye className="w-4 h-4" style={{ color: "#f59e0b" }} />
+                style={{ background: "rgba(255,178,36,.18)" }}>
+                <Eye className="w-4 h-4" style={{ color: "#FFB224" }} />
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#f59e0b" }}>Watch this</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#FFB224" }}>Watch this</span>
             </div>
-            <h4 className="font-bold text-sm leading-snug mb-2" style={{ color: "#eef3fa" }}>
+            <h4 className="font-bold text-sm leading-snug mb-2" style={{ color: "#ECEEE6" }}>
               14 new training styles this month
             </h4>
-            <p className="text-sm leading-relaxed" style={{ color: "#64748b" }}>
+            <p className="text-sm leading-relaxed" style={{ color: "#6C7164" }}>
               Strong launch velocity (+40% vs last month). A paid push on new training gear is likely within 2 weeks based on prior patterns.
             </p>
           </div>
         </div>
 
         {/* Action card — full width */}
-        <div className="rounded-xl p-5 mb-5" style={{ background: "rgba(34,197,94,.07)", border: "2px solid rgba(34,197,94,.18)" }}>
+        <div className="rounded-xl p-5 mb-5" style={{ background: "rgba(76,195,138,.07)", border: "2px solid rgba(76,195,138,.18)" }}>
           <div className="flex items-start gap-4">
             <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-              style={{ background: "rgba(34,197,94,.18)" }}>
-              <Zap className="w-4 h-4" style={{ color: "#22c55e" }} />
+              style={{ background: "rgba(76,195,138,.18)" }}>
+              <Zap className="w-4 h-4" style={{ color: "#4CC38A" }} />
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#22c55e" }}>Your move</span>
-              <h4 className="font-bold text-sm leading-snug mt-1 mb-1.5" style={{ color: "#eef3fa" }}>
+              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#4CC38A" }}>Your move</span>
+              <h4 className="font-bold text-sm leading-snug mt-1 mb-1.5" style={{ color: "#ECEEE6" }}>
                 Launch email campaign targeting Gymshark&apos;s discount-fatigued audience this week
               </h4>
-              <p className="text-sm leading-relaxed" style={{ color: "#64748b" }}>
+              <p className="text-sm leading-relaxed" style={{ color: "#6C7164" }}>
                 Send your email list with a full-price quality angle before Gymshark&apos;s sale ends. Subject: &ldquo;We&apos;re not on sale. Here&apos;s why that&apos;s better.&rdquo; Gymshark&apos;s discount-heavy week is creating the contrast you need.
               </p>
             </div>
@@ -317,7 +317,7 @@ function IntelligenceBriefPreview() {
         </div>
 
         <div className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
-          style={{ background: "#3b82f6", color: "#ffffff" }}>
+          style={{ background: "#FFB224", color: "var(--ink)" }}>
           View full analysis
           <ArrowRight className="w-4 h-4" />
         </div>
@@ -347,23 +347,23 @@ function AlertEmailPreview() {
       </div>
 
       {/* Email body */}
-      <div style={{ background: "#060d18", padding: "20px 20px 24px" }}>
+      <div style={{ background: "#0B0C0A", padding: "20px 20px 24px" }}>
         {/* Logo */}
         <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 24, height: 24, background: "#3b82f6", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Zap className="w-3.5 h-3.5" style={{ color: "#060d18" }} />
+          <div style={{ width: 24, height: 24, background: "#FFB224", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Zap className="w-3.5 h-3.5" style={{ color: "#0B0C0A" }} />
           </div>
-          <span style={{ color: "#3b82f6", fontWeight: 700, fontSize: 14, letterSpacing: -0.3 }}>StoreScout</span>
-          <span style={{ color: "#3a5070", fontSize: 11, marginLeft: "auto" }}>14 minutes ago</span>
+          <span style={{ color: "#FFB224", fontWeight: 700, fontSize: 14, letterSpacing: -0.3 }}>StoreScout</span>
+          <span style={{ color: "#6C7164", fontSize: 11, marginLeft: "auto" }}>14 minutes ago</span>
         </div>
 
         {/* Alert card */}
-        <div style={{ background: "rgba(248,113,113,.12)", border: "1px solid rgba(248,113,113,.25)", borderRadius: 10, padding: "12px 14px", marginBottom: 12 }}>
-          <p style={{ color: "#f87171", fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 4px" }}>
+        <div style={{ background: "rgba(242,85,90,.12)", border: "1px solid rgba(242,85,90,.25)", borderRadius: 10, padding: "12px 14px", marginBottom: 12 }}>
+          <p style={{ color: "#F2555A", fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 4px" }}>
             ⚡ Flash sale detected
           </p>
-          <p style={{ color: "#eef3fa", fontWeight: 700, fontSize: 16, margin: "0 0 4px" }}>gymshark.com</p>
-          <p style={{ color: "#94a3b8", fontSize: 12, margin: 0 }}>7 products dropped ≥20% — avg −24.6%</p>
+          <p style={{ color: "#ECEEE6", fontWeight: 700, fontSize: 16, margin: "0 0 4px" }}>gymshark.com</p>
+          <p style={{ color: "#A8AC9E", fontSize: 12, margin: 0 }}>7 products dropped ≥20% — avg −24.6%</p>
         </div>
 
         {/* Product list */}
@@ -374,24 +374,24 @@ function AlertEmailPreview() {
             ["Speed Shorts", "$42 → $29", "−31%"],
           ].map(([name, prices, delta]) => (
             <div key={name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,.05)" }}>
-              <span style={{ color: "#94a3b8", fontSize: 11, flex: 1 }}>{name}</span>
-              <span style={{ color: "#64748b", fontSize: 11, marginRight: 8 }}>{prices}</span>
-              <span style={{ color: "#f87171", fontSize: 11, fontWeight: 700 }}>{delta}</span>
+              <span style={{ color: "#A8AC9E", fontSize: 11, flex: 1 }}>{name}</span>
+              <span style={{ color: "#6C7164", fontSize: 11, marginRight: 8 }}>{prices}</span>
+              <span style={{ color: "#F2555A", fontSize: 11, fontWeight: 700 }}>{delta}</span>
             </div>
           ))}
-          <p style={{ color: "#3a5070", fontSize: 10, marginTop: 6, marginBottom: 0 }}>+ 4 more products</p>
+          <p style={{ color: "#6C7164", fontSize: 10, marginTop: 6, marginBottom: 0 }}>+ 4 more products</p>
         </div>
 
         {/* Your move block */}
-        <div style={{ background: "rgba(96,165,250,.08)", borderLeft: "3px solid #60a5fa", borderRadius: 8, padding: "10px 12px", marginBottom: 14 }}>
-          <p style={{ color: "#60a5fa", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 4px" }}>▶ Your Move</p>
-          <p style={{ color: "#94a3b8", fontSize: 12, lineHeight: 1.5, margin: 0 }}>
+        <div style={{ background: "rgba(255,178,36,.08)", borderLeft: "3px solid #FFB224", borderRadius: 8, padding: "10px 12px", marginBottom: 14 }}>
+          <p style={{ color: "#FFB224", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 4px" }}>▶ Your Move</p>
+          <p style={{ color: "#A8AC9E", fontSize: 12, lineHeight: 1.5, margin: 0 }}>
             Match with a counter-offer or push quality messaging. Flash sales this size typically run 48–72h.
           </p>
         </div>
 
         <a href="#"
-          style={{ display: "inline-block", background: "#3b82f6", color: "#ffffff", fontWeight: 700, fontSize: 13, padding: "9px 20px", borderRadius: 8, textDecoration: "none" }}>
+          style={{ display: "inline-block", background: "#FFB224", color: "var(--ink)", fontWeight: 700, fontSize: 13, padding: "9px 20px", borderRadius: 8, textDecoration: "none" }}>
           View full dashboard →
         </a>
       </div>
@@ -411,8 +411,8 @@ function ComparisonTable() {
     { feature: "Starts free, no card",       ext: false, report: false, us: true },
   ];
   const col = (v: boolean) => v
-    ? <span className="text-base" style={{ color: "#3b82f6" }}>✓</span>
-    : <span className="text-base opacity-20" style={{ color: "#94a3b8" }}>✕</span>;
+    ? <span className="text-base" style={{ color: "#FFB224" }}>✓</span>
+    : <span className="text-base opacity-20" style={{ color: "#A8AC9E" }}>✕</span>;
 
   return (
     <div className="overflow-x-auto">
@@ -424,7 +424,7 @@ function ComparisonTable() {
             <th className="text-center py-3 px-4 font-semibold text-xs" style={{ color: "var(--muted)" }}>One-time reports</th>
             <th
               className="text-center py-3 px-4 font-semibold text-xs rounded-t-xl"
-              style={{ color: "#3b82f6", background: "rgba(59,130,246,.07)", border: "1px solid rgba(59,130,246,.2)", borderBottom: "none" }}
+              style={{ color: "#FFB224", background: "rgba(255,178,36,.07)", border: "1px solid rgba(255,178,36,.2)", borderBottom: "none" }}
             >
               StoreScout
             </th>
@@ -438,7 +438,7 @@ function ComparisonTable() {
               <td className="text-center py-3 px-4">{col(report)}</td>
               <td
                 className={`text-center py-3 px-4 ${i === rows.length - 1 ? "rounded-b-xl" : ""}`}
-                style={{ background: "rgba(59,130,246,.07)", border: "1px solid rgba(59,130,246,.2)", borderTop: "none", borderBottom: i === rows.length - 1 ? undefined : "none" }}
+                style={{ background: "rgba(255,178,36,.07)", border: "1px solid rgba(255,178,36,.2)", borderTop: "none", borderBottom: i === rows.length - 1 ? undefined : "none" }}
               >
                 {col(us)}
               </td>
@@ -456,9 +456,9 @@ function ComparisonTable() {
 
 function MiniKpi({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
-    <div className="rounded-xl px-3 py-2.5" style={{ background: "#080f1e", border: "1px solid #1a2744" }}>
-      <p className="text-lg font-bold leading-none" style={{ color: accent || "#eef3fa", fontFamily: "var(--font-mono)" }}>{value}</p>
-      <p className="text-[10px] mt-1.5" style={{ color: "#3a5070" }}>{label}</p>
+    <div className="rounded-xl px-3 py-2.5" style={{ background: "#101110", border: "1px solid #262A22" }}>
+      <p className="text-lg font-bold leading-none" style={{ color: accent || "#ECEEE6", fontFamily: "var(--font-mono)" }}>{value}</p>
+      <p className="text-[10px] mt-1.5" style={{ color: "#6C7164" }}>{label}</p>
     </div>
   );
 }
@@ -467,31 +467,31 @@ function MiniKpi({ label, value, accent }: { label: string; value: string; accen
 function PricingDashboardMock() {
   const dist = [["<$25", 18], ["$25–49", 64], ["$50–99", 100], ["$100–199", 47], ["$200+", 16]] as const;
   return (
-    <div className="p-5 sm:p-6" style={{ background: "#060d18" }}>
+    <div className="p-5 sm:p-6" style={{ background: "#0B0C0A" }}>
       <div className="grid grid-cols-4 gap-2.5 mb-5">
         <MiniKpi label="Products" value="312" />
-        <MiniKpi label="Median price" value="$58" accent="#3b82f6" />
-        <MiniKpi label="On sale" value="44%" accent="#f59e0b" />
-        <MiniKpi label="New · 30d" value="18" accent="#22c55e" />
+        <MiniKpi label="Median price" value="$58" accent="#FFB224" />
+        <MiniKpi label="On sale" value="44%" accent="#FFB224" />
+        <MiniKpi label="New · 30d" value="18" accent="#4CC38A" />
       </div>
-      <div className="rounded-xl p-4" style={{ background: "#080f1e", border: "1px solid #1a2744" }}>
+      <div className="rounded-xl p-4" style={{ background: "#101110", border: "1px solid #262A22" }}>
         <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-semibold" style={{ color: "#eef3fa" }}>Price distribution</span>
-          <span className="text-[10px]" style={{ color: "#3a5070" }}>p25 $34 · median $58 · p75 $96</span>
+          <span className="text-xs font-semibold" style={{ color: "#ECEEE6" }}>Price distribution</span>
+          <span className="text-[10px]" style={{ color: "#6C7164" }}>p25 $34 · median $58 · p75 $96</span>
         </div>
         <div className="flex items-end gap-2 h-28">
           {dist.map(([label, h]) => (
             <div key={label} className="flex-1 flex flex-col items-center gap-1.5">
-              <div className="w-full rounded-t" style={{ height: `${h}%`, background: "linear-gradient(180deg,#3b82f6,#1e40af)", minHeight: 6 }} />
-              <span className="text-[9px]" style={{ color: "#3a5070" }}>{label}</span>
+              <div className="w-full rounded-t" style={{ height: `${h}%`, background: "linear-gradient(180deg,#FFB224,#1e40af)", minHeight: 6 }} />
+              <span className="text-[9px]" style={{ color: "#6C7164" }}>{label}</span>
             </div>
           ))}
         </div>
       </div>
       <div className="grid grid-cols-3 gap-2.5 mt-3">
-        <MiniKpi label="Discounted catalog" value="44%" accent="#f59e0b" />
-        <MiniKpi label="Median discount" value="−32%" accent="#f87171" />
-        <MiniKpi label="In stock" value="91%" accent="#22c55e" />
+        <MiniKpi label="Discounted catalog" value="44%" accent="#FFB224" />
+        <MiniKpi label="Median discount" value="−32%" accent="#F2555A" />
+        <MiniKpi label="In stock" value="91%" accent="#4CC38A" />
       </div>
     </div>
   );
@@ -501,11 +501,11 @@ function ScoreBar({ label, score, tag }: { label: string; score: number; tag: st
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-xs font-medium" style={{ color: "#eef3fa" }}>{label}</span>
-        <span className="text-[11px] font-semibold" style={{ color: "#60a5fa" }}>{tag}</span>
+        <span className="text-xs font-medium" style={{ color: "#ECEEE6" }}>{label}</span>
+        <span className="text-[11px] font-semibold" style={{ color: "#FFB224" }}>{tag}</span>
       </div>
       <div className="h-2 rounded-full overflow-hidden" style={{ background: "#0d1626" }}>
-        <div className="h-full rounded-full" style={{ width: `${score}%`, background: "linear-gradient(90deg,#3b82f6,#60a5fa)" }} />
+        <div className="h-full rounded-full" style={{ width: `${score}%`, background: "linear-gradient(90deg,#FFB224,#FFB224)" }} />
       </div>
     </div>
   );
@@ -514,7 +514,7 @@ function ScoreBar({ label, score, tag }: { label: string; score: number; tag: st
 // "Know exactly where they sit" — positioning scores
 function PositioningMock() {
   return (
-    <div className="p-6" style={{ background: "#060d18" }}>
+    <div className="p-6" style={{ background: "#0B0C0A" }}>
       <div className="space-y-5">
         <ScoreBar label="Market Position" score={72} tag="Premium" />
         <ScoreBar label="Launch Velocity" score={84} tag="Aggressive" />
@@ -530,17 +530,17 @@ function LaunchVelocityMock() {
   const months = [3, 5, 4, 8, 6, 11, 9, 14, 12, 18, 16, 22];
   const max = Math.max(...months);
   return (
-    <div className="p-5" style={{ background: "#060d18" }}>
+    <div className="p-5" style={{ background: "#0B0C0A" }}>
       <div className="flex items-baseline gap-2 mb-4">
-        <span className="text-2xl font-bold" style={{ color: "#eef3fa", fontFamily: "var(--font-mono)" }}>22</span>
-        <span className="text-xs" style={{ color: "#3a5070" }}>launches last month · accelerating ↑</span>
+        <span className="text-2xl font-bold" style={{ color: "#ECEEE6", fontFamily: "var(--font-mono)" }}>22</span>
+        <span className="text-xs" style={{ color: "#6C7164" }}>launches last month · accelerating ↑</span>
       </div>
       <div className="flex items-end gap-1.5 h-40">
         {months.map((v, i) => (
-          <div key={i} className="flex-1 rounded-t" style={{ height: `${(v / max) * 100}%`, background: i >= 9 ? "#3b82f6" : "rgba(59,130,246,.35)", minHeight: 4 }} />
+          <div key={i} className="flex-1 rounded-t" style={{ height: `${(v / max) * 100}%`, background: i >= 9 ? "#FFB224" : "rgba(255,178,36,.35)", minHeight: 4 }} />
         ))}
       </div>
-      <div className="flex justify-between mt-2 text-[9px]" style={{ color: "#3a5070" }}>
+      <div className="flex justify-between mt-2 text-[9px]" style={{ color: "#6C7164" }}>
         <span>Jul</span><span>Oct</span><span>Jan</span><span>Apr</span><span>Jun</span>
       </div>
     </div>
@@ -550,20 +550,20 @@ function LaunchVelocityMock() {
 // "Winning Products" — scored product list
 function WinningProductsMock() {
   const rows = [
-    { t: "Vital Seamless Leggings", p: "$60", v: "Worth Testing", c: "#3b82f6" },
-    { t: "Power Hoodie", p: "$75", v: "Worth Testing", c: "#3b82f6" },
-    { t: "Apex Sports Bra", p: "$45", v: "Watch First", c: "#f59e0b" },
-    { t: "Studio Joggers", p: "$68", v: "Watch First", c: "#f59e0b" },
+    { t: "Vital Seamless Leggings", p: "$60", v: "Worth Testing", c: "#FFB224" },
+    { t: "Power Hoodie", p: "$75", v: "Worth Testing", c: "#FFB224" },
+    { t: "Apex Sports Bra", p: "$45", v: "Watch First", c: "#FFB224" },
+    { t: "Studio Joggers", p: "$68", v: "Watch First", c: "#FFB224" },
   ];
   return (
-    <div style={{ background: "#060d18" }}>
+    <div style={{ background: "#0B0C0A" }}>
       {rows.map((r, i) => (
-        <div key={r.t} className="flex items-center gap-3 px-4 py-3" style={i < rows.length - 1 ? { borderBottom: "1px solid #1a2744" } : undefined}>
-          <span className="text-[11px] w-4 text-center shrink-0" style={{ color: "#3a5070", fontFamily: "var(--font-mono)" }}>{i + 1}</span>
-          <div className="w-9 h-9 rounded-lg shrink-0" style={{ background: "#13203a" }} />
+        <div key={r.t} className="flex items-center gap-3 px-4 py-3" style={i < rows.length - 1 ? { borderBottom: "1px solid #262A22" } : undefined}>
+          <span className="text-[11px] w-4 text-center shrink-0" style={{ color: "#6C7164", fontFamily: "var(--font-mono)" }}>{i + 1}</span>
+          <div className="w-9 h-9 rounded-lg shrink-0" style={{ background: "#1B1E19" }} />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate" style={{ color: "#eef3fa" }}>{r.t}</p>
-            <p className="text-xs" style={{ color: "#3a5070" }}>{r.p} · full price · 1.2yr in catalog</p>
+            <p className="text-sm font-medium truncate" style={{ color: "#ECEEE6" }}>{r.t}</p>
+            <p className="text-xs" style={{ color: "#6C7164" }}>{r.p} · full price · 1.2yr in catalog</p>
           </div>
           <span className="text-[10px] font-bold px-2 py-1 rounded-lg shrink-0" style={{ background: `${r.c}1f`, color: r.c }}>{r.v}</span>
         </div>
@@ -577,27 +577,27 @@ function PricingDiscountMock() {
   const dist = [22, 48, 100, 63, 28, 12];
   const max = Math.max(...dist);
   return (
-    <div className="p-5 grid sm:grid-cols-2 gap-5" style={{ background: "#060d18" }}>
+    <div className="p-5 grid sm:grid-cols-2 gap-5" style={{ background: "#0B0C0A" }}>
       <div>
-        <p className="text-xs font-semibold mb-3" style={{ color: "#eef3fa" }}>Price distribution</p>
+        <p className="text-xs font-semibold mb-3" style={{ color: "#ECEEE6" }}>Price distribution</p>
         <div className="flex items-end gap-1.5 h-32">
           {dist.map((v, i) => (
-            <div key={i} className="flex-1 rounded-t" style={{ height: `${(v / max) * 100}%`, background: "linear-gradient(180deg,#3b82f6,#1e40af)", minHeight: 4 }} />
+            <div key={i} className="flex-1 rounded-t" style={{ height: `${(v / max) * 100}%`, background: "linear-gradient(180deg,#FFB224,#1e40af)", minHeight: 4 }} />
           ))}
         </div>
       </div>
       <div className="space-y-3">
-        <div className="rounded-xl p-3.5" style={{ background: "#080f1e", border: "1px solid #1a2744" }}>
-          <p className="text-[11px]" style={{ color: "#3a5070" }}>Discounted catalog</p>
+        <div className="rounded-xl p-3.5" style={{ background: "#101110", border: "1px solid #262A22" }}>
+          <p className="text-[11px]" style={{ color: "#6C7164" }}>Discounted catalog</p>
           <div className="flex items-center gap-2 mt-1.5">
             <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "#0d1626" }}>
-              <div className="h-full rounded-full" style={{ width: "44%", background: "#f59e0b" }} />
+              <div className="h-full rounded-full" style={{ width: "44%", background: "#FFB224" }} />
             </div>
-            <span className="text-sm font-bold" style={{ color: "#f59e0b", fontFamily: "var(--font-mono)" }}>44%</span>
+            <span className="text-sm font-bold" style={{ color: "#FFB224", fontFamily: "var(--font-mono)" }}>44%</span>
           </div>
         </div>
-        <MiniKpi label="Median discount depth" value="−32%" accent="#f87171" />
-        <MiniKpi label="Deepest active markdown" value="−55%" accent="#f87171" />
+        <MiniKpi label="Median discount depth" value="−32%" accent="#F2555A" />
+        <MiniKpi label="Deepest active markdown" value="−55%" accent="#F2555A" />
       </div>
     </div>
   );
@@ -617,7 +617,7 @@ export default function LandingPage() {
             className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
             style={{ background: "var(--accent)" }}
           >
-            <Zap className="w-4 h-4" style={{ color: "#ffffff" }} />
+            <Zap className="w-4 h-4" style={{ color: "var(--ink)" }} />
           </div>
           <span className="font-bold text-lg" style={{ color: "var(--text)" }}>StoreScout</span>
         </div>
@@ -633,7 +633,7 @@ export default function LandingPage() {
           <Link
             href="/auth/signup"
             className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110"
-            style={{ background: "#3b82f6", color: "#ffffff" }}
+            style={{ background: "#FFB224", color: "var(--ink)" }}
           >
             Start free
           </Link>
@@ -644,7 +644,7 @@ export default function LandingPage() {
       <div className="max-w-5xl mx-auto px-6 pt-20 pb-14 text-center">
         <div
           className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-8"
-          style={{ background: "rgba(59,130,246,.1)", color: "#3b82f6", border: "1px solid rgba(59,130,246,.2)" }}
+          style={{ background: "rgba(255,178,36,.1)", color: "#FFB224", border: "1px solid rgba(255,178,36,.2)" }}
         >
           <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
           Live competitor intelligence for Shopify
@@ -656,7 +656,7 @@ export default function LandingPage() {
         >
           Your Shopify competitors<br />
           are making moves<br />
-          <span style={{ color: "#3b82f6" }}>right now.</span>
+          <span style={{ color: "#FFB224" }}>right now.</span>
         </h1>
 
         <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed" style={{ color: "var(--muted)" }}>
@@ -667,7 +667,7 @@ export default function LandingPage() {
           <Link
             href="/auth/signup"
             className="flex items-center gap-2 font-bold px-8 py-4 rounded-2xl text-lg transition-all hover:opacity-90"
-            style={{ background: "#3b82f6", color: "#ffffff" }}
+            style={{ background: "#FFB224", color: "var(--ink)" }}
           >
             Start tracking free
             <ArrowRight className="w-5 h-5" />
@@ -723,14 +723,14 @@ export default function LandingPage() {
         <div className="text-center mb-10">
           <div
             className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
-            style={{ background: "rgba(239,68,68,.1)", color: "#f87171", border: "1px solid rgba(239,68,68,.2)" }}
+            style={{ background: "rgba(242,85,90,.1)", color: "#F2555A", border: "1px solid rgba(242,85,90,.2)" }}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
             Detected in the last 3 hours
           </div>
           <h2 className="text-3xl md:text-4xl font-black mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
             Here&apos;s what you&apos;re<br />
-            <span style={{ color: "#f87171" }}>missing right now.</span>
+            <span style={{ color: "#F2555A" }}>missing right now.</span>
           </h2>
           <p className="text-base max-w-xl mx-auto" style={{ color: "var(--muted)" }}>
             These signals were detected across Shopify stores in the last 3 hours. Every store you&apos;re not monitoring is a blind spot.
@@ -745,12 +745,12 @@ export default function LandingPage() {
 
         <div className="text-center mt-8">
           <p className="text-sm mb-4" style={{ color: "var(--muted)" }}>
-            Without StoreScout, you find out about moves like these <span style={{ color: "#f87171" }}>days later</span> — after Reddit, after their customers have already bought.
+            Without StoreScout, you find out about moves like these <span style={{ color: "#F2555A" }}>days later</span> — after Reddit, after their customers have already bought.
           </p>
           <Link
             href="/auth/signup"
             className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all hover:opacity-90"
-            style={{ background: "#3b82f6", color: "#ffffff" }}
+            style={{ background: "#FFB224", color: "var(--ink)" }}
           >
             Start monitoring for free
             <ArrowRight className="w-4 h-4" />
@@ -782,7 +782,7 @@ export default function LandingPage() {
           <div>
             <div
               className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
-              style={{ background: "rgba(96,165,250,.1)", color: "#60a5fa", border: "1px solid rgba(96,165,250,.2)" }}
+              style={{ background: "rgba(255,178,36,.1)", color: "#FFB224", border: "1px solid rgba(255,178,36,.2)" }}
             >
               <Target className="w-3 h-3" />
               Strategic positioning analysis
@@ -801,7 +801,7 @@ export default function LandingPage() {
                 "Catalog Complexity — breadth and variety of their range",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-sm" style={{ color: "var(--muted)" }}>
-                  <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#3b82f6" }} />
+                  <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#FFB224" }} />
                   {item}
                 </li>
               ))}
@@ -818,7 +818,7 @@ export default function LandingPage() {
         <div className="text-center mb-10">
           <div
             className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
-            style={{ background: "rgba(59,130,246,.1)", color: "#3b82f6", border: "1px solid rgba(59,130,246,.2)" }}
+            style={{ background: "rgba(255,178,36,.1)", color: "#FFB224", border: "1px solid rgba(255,178,36,.2)" }}
           >
             <Sparkles className="w-3 h-3" />
             AI-powered weekly brief
@@ -839,7 +839,7 @@ export default function LandingPage() {
           <div>
             <div
               className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
-              style={{ background: "rgba(239,68,68,.1)", color: "#f87171", border: "1px solid rgba(239,68,68,.2)" }}
+              style={{ background: "rgba(242,85,90,.1)", color: "#F2555A", border: "1px solid rgba(242,85,90,.2)" }}
             >
               <Bell className="w-3 h-3" />
               In your inbox within 15 minutes
@@ -859,7 +859,7 @@ export default function LandingPage() {
                 "New launches and discount campaigns tracked start-to-finish",
               ].map((item) => (
                 <li key={item} className="flex items-center gap-3 text-sm" style={{ color: "var(--muted)" }}>
-                  <Check className="w-4 h-4 shrink-0" style={{ color: "#3b82f6" }} />
+                  <Check className="w-4 h-4 shrink-0" style={{ color: "#FFB224" }} />
                   {item}
                 </li>
               ))}
@@ -882,31 +882,31 @@ export default function LandingPage() {
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Launch timeline */}
-          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #1a2744" }}>
-            <div className="px-4 py-3 border-b flex items-center gap-2" style={{ background: "#080f1e", borderColor: "#1a2744" }}>
-              <Rocket className="w-3.5 h-3.5" style={{ color: "#3b82f6" }} />
-              <span className="text-xs font-semibold" style={{ color: "#eef3fa" }}>Launch Velocity</span>
-              <span className="text-[10px] ml-auto" style={{ color: "#3a5070" }}>gymshark.com</span>
+          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #262A22" }}>
+            <div className="px-4 py-3 border-b flex items-center gap-2" style={{ background: "#101110", borderColor: "#262A22" }}>
+              <Rocket className="w-3.5 h-3.5" style={{ color: "#FFB224" }} />
+              <span className="text-xs font-semibold" style={{ color: "#ECEEE6" }}>Launch Velocity</span>
+              <span className="text-[10px] ml-auto" style={{ color: "#6C7164" }}>gymshark.com</span>
             </div>
             <LaunchVelocityMock />
           </div>
 
           {/* Top products */}
-          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #1a2744" }}>
-            <div className="px-4 py-3 border-b flex items-center gap-2" style={{ background: "#080f1e", borderColor: "#1a2744" }}>
-              <TrendingUp className="w-3.5 h-3.5" style={{ color: "#60a5fa" }} />
-              <span className="text-xs font-semibold" style={{ color: "#eef3fa" }}>Winning Products</span>
-              <span className="text-[10px] ml-auto" style={{ color: "#3a5070" }}>gymshark.com</span>
+          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #262A22" }}>
+            <div className="px-4 py-3 border-b flex items-center gap-2" style={{ background: "#101110", borderColor: "#262A22" }}>
+              <TrendingUp className="w-3.5 h-3.5" style={{ color: "#FFB224" }} />
+              <span className="text-xs font-semibold" style={{ color: "#ECEEE6" }}>Winning Products</span>
+              <span className="text-[10px] ml-auto" style={{ color: "#6C7164" }}>gymshark.com</span>
             </div>
             <WinningProductsMock />
           </div>
 
           {/* Pricing & discounts */}
-          <div className="rounded-2xl overflow-hidden md:col-span-2" style={{ border: "1px solid #1a2744" }}>
-            <div className="px-4 py-3 border-b flex items-center gap-2" style={{ background: "#080f1e", borderColor: "#1a2744" }}>
-              <Tag className="w-3.5 h-3.5" style={{ color: "#f59e0b" }} />
-              <span className="text-xs font-semibold" style={{ color: "#eef3fa" }}>Pricing &amp; Discount Analysis</span>
-              <span className="text-[10px] ml-auto" style={{ color: "#3a5070" }}>gymshark.com · 90-day view</span>
+          <div className="rounded-2xl overflow-hidden md:col-span-2" style={{ border: "1px solid #262A22" }}>
+            <div className="px-4 py-3 border-b flex items-center gap-2" style={{ background: "#101110", borderColor: "#262A22" }}>
+              <Tag className="w-3.5 h-3.5" style={{ color: "#FFB224" }} />
+              <span className="text-xs font-semibold" style={{ color: "#ECEEE6" }}>Pricing &amp; Discount Analysis</span>
+              <span className="text-[10px] ml-auto" style={{ color: "#6C7164" }}>gymshark.com · 90-day view</span>
             </div>
             <PricingDiscountMock />
           </div>
@@ -923,7 +923,7 @@ export default function LandingPage() {
         </div>
         <div className="grid md:grid-cols-3 gap-8 relative">
           <div className="hidden md:block absolute top-6 left-[calc(16.67%+24px)] right-[calc(16.67%+24px)] h-px"
-            style={{ background: "linear-gradient(90deg, transparent, rgba(59,130,246,.3), transparent)" }} />
+            style={{ background: "linear-gradient(90deg, transparent, rgba(255,178,36,.3), transparent)" }} />
           {[
             {
               step: "01", icon: Package, title: "Paste any Shopify URL",
@@ -941,11 +941,11 @@ export default function LandingPage() {
             <div key={step} className="text-center relative">
               <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 relative z-10"
-                style={{ background: "rgba(59,130,246,.1)", border: "1px solid rgba(59,130,246,.2)" }}
+                style={{ background: "rgba(255,178,36,.1)", border: "1px solid rgba(255,178,36,.2)" }}
               >
-                <Icon className="w-5 h-5" style={{ color: "#3b82f6" }} />
+                <Icon className="w-5 h-5" style={{ color: "#FFB224" }} />
               </div>
-              <div className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: "rgba(59,130,246,.4)" }}>
+              <div className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: "rgba(255,178,36,.4)" }}>
                 Step {step}
               </div>
               <h3 className="font-bold mb-2" style={{ color: "var(--text)" }}>{title}</h3>
@@ -966,9 +966,9 @@ export default function LandingPage() {
           </p>
         </div>
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="rounded-2xl p-7" style={{ background: "rgba(59,130,246,.04)", border: "1px solid rgba(59,130,246,.15)" }}>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(59,130,246,.12)" }}>
-              <Store className="w-5 h-5" style={{ color: "#3b82f6" }} />
+          <div className="rounded-2xl p-7" style={{ background: "rgba(255,178,36,.04)", border: "1px solid rgba(255,178,36,.15)" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(255,178,36,.12)" }}>
+              <Store className="w-5 h-5" style={{ color: "#FFB224" }} />
             </div>
             <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text)" }}>DTC brand operators</h3>
             <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--muted)" }}>
@@ -982,15 +982,15 @@ export default function LandingPage() {
                 "Up to 10 competitors on Pro",
               ].map((f) => (
                 <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "var(--muted)" }}>
-                  <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#3b82f6" }} />
+                  <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#FFB224" }} />
                   {f}
                 </li>
               ))}
             </ul>
           </div>
-          <div className="rounded-2xl p-7" style={{ background: "rgba(96,165,250,.04)", border: "1px solid rgba(96,165,250,.15)" }}>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(96,165,250,.12)" }}>
-              <Users className="w-5 h-5" style={{ color: "#60a5fa" }} />
+          <div className="rounded-2xl p-7" style={{ background: "rgba(255,178,36,.04)", border: "1px solid rgba(255,178,36,.15)" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(255,178,36,.12)" }}>
+              <Users className="w-5 h-5" style={{ color: "#FFB224" }} />
             </div>
             <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text)" }}>Shopify agencies</h3>
             <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--muted)" }}>
@@ -1004,7 +1004,7 @@ export default function LandingPage() {
                 "Weekly AI digest per competitor",
               ].map((f) => (
                 <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "var(--muted)" }}>
-                  <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#60a5fa" }} />
+                  <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#FFB224" }} />
                   {f}
                 </li>
               ))}
@@ -1026,11 +1026,11 @@ export default function LandingPage() {
         <div className="grid md:grid-cols-2 gap-4">
           <div
             className="rounded-2xl p-7 flex flex-col justify-between md:row-span-2"
-            style={{ background: "rgba(59,130,246,.04)", border: "1px solid rgba(59,130,246,.15)" }}
+            style={{ background: "rgba(255,178,36,.04)", border: "1px solid rgba(255,178,36,.15)" }}
           >
             <div>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(59,130,246,.12)" }}>
-                <Bell className="w-5 h-5" style={{ color: "#3b82f6" }} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(255,178,36,.12)" }}>
+                <Bell className="w-5 h-5" style={{ color: "#FFB224" }} />
               </div>
               <h3 className="text-lg font-bold mb-3" style={{ color: "var(--text)" }}>
                 Flash sale detection in minutes
@@ -1039,13 +1039,13 @@ export default function LandingPage() {
                 When a competitor drops 20+ prices in one session, StoreScout detects it as a &ldquo;Flash Sale&rdquo; event and emails you within 15 minutes — before it shows up on social.
               </p>
             </div>
-            <div className="rounded-xl p-4" style={{ background: "rgba(0,0,0,.3)", border: "1px solid rgba(239,68,68,.2)" }}>
+            <div className="rounded-xl p-4" style={{ background: "rgba(0,0,0,.3)", border: "1px solid rgba(242,85,90,.2)" }}>
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full"
-                  style={{ background: "rgba(239,68,68,.15)", color: "#f87171" }}>⚡ Flash sale</span>
-                <span className="text-xs" style={{ color: "#94a3b8" }}>gymshark.com · just now</span>
+                  style={{ background: "rgba(242,85,90,.15)", color: "#F2555A" }}>⚡ Flash sale</span>
+                <span className="text-xs" style={{ color: "#A8AC9E" }}>gymshark.com · just now</span>
               </div>
-              <p className="text-xs leading-relaxed" style={{ color: "#94a3b8" }}>
+              <p className="text-xs leading-relaxed" style={{ color: "#A8AC9E" }}>
                 7 products dropped ≥20% — avg −24.6%. Summer clearance or aggressive acquisition push.
               </p>
             </div>
@@ -1057,8 +1057,8 @@ export default function LandingPage() {
             { icon: Tag, title: "Discount monitoring", desc: "Track what % of their catalog is on sale, the average depth, and when new sale events start and end." },
           ].map(({ icon: Icon, title, desc }) => (
             <div key={title} className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(59,130,246,.1)" }}>
-                <Icon className="w-5 h-5" style={{ color: "#3b82f6" }} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,178,36,.1)" }}>
+                <Icon className="w-5 h-5" style={{ color: "#FFB224" }} />
               </div>
               <h3 className="font-bold mb-2" style={{ color: "var(--text)" }}>{title}</h3>
               <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{desc}</p>
@@ -1094,8 +1094,8 @@ export default function LandingPage() {
             { icon: Zap, label: "Alerts within 15 minutes", desc: "Change detection runs immediately after each scan — you hear about it before it hits social media." },
           ].map(({ icon: Icon, label, desc }) => (
             <div key={label} className="flex items-start gap-4 rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-              <div className="rounded-xl p-2 shrink-0" style={{ background: "rgba(59,130,246,.1)" }}>
-                <Icon className="w-4 h-4" style={{ color: "#3b82f6" }} />
+              <div className="rounded-xl p-2 shrink-0" style={{ background: "rgba(255,178,36,.1)" }}>
+                <Icon className="w-4 h-4" style={{ color: "#FFB224" }} />
               </div>
               <div>
                 <p className="font-semibold text-sm mb-1" style={{ color: "var(--text)" }}>{label}</p>
@@ -1125,21 +1125,21 @@ export default function LandingPage() {
               key={name}
               className="rounded-2xl p-6 flex flex-col relative"
               style={{
-                background: highlight ? "rgba(59,130,246,.05)" : "var(--bg-card)",
-                border: `1px solid ${highlight ? "rgba(59,130,246,.3)" : "var(--border)"}`,
+                background: highlight ? "rgba(255,178,36,.05)" : "var(--bg-card)",
+                border: `1px solid ${highlight ? "rgba(255,178,36,.3)" : "var(--border)"}`,
               }}
             >
               {highlight && (
                 <div
                   className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full"
-                  style={{ background: "#3b82f6", color: "#ffffff" }}
+                  style={{ background: "#FFB224", color: "var(--ink)" }}
                 >
                   Most popular
                 </div>
               )}
               <h3 className="font-bold text-lg mb-1" style={{ color: "var(--text)" }}>{name}</h3>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-3xl font-black" style={{ color: highlight ? "#3b82f6" : "var(--text)" }}>{price}</span>
+                <span className="text-3xl font-black" style={{ color: highlight ? "#FFB224" : "var(--text)" }}>{price}</span>
                 <span className="text-sm" style={{ color: "var(--muted)" }}>{sub}</span>
               </div>
               {annualNote && (
@@ -1149,7 +1149,7 @@ export default function LandingPage() {
               <ul className="space-y-2.5 mb-6 flex-1">
                 {features.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "var(--muted)" }}>
-                    <Check className="w-4 h-4 shrink-0" style={{ color: highlight ? "#3b82f6" : "var(--muted)" }} />
+                    <Check className="w-4 h-4 shrink-0" style={{ color: highlight ? "#FFB224" : "var(--muted)" }} />
                     {f}
                   </li>
                 ))}
@@ -1158,7 +1158,7 @@ export default function LandingPage() {
                 href={href}
                 className="block text-center font-semibold py-3 rounded-xl transition-all hover:brightness-110"
                 style={highlight
-                  ? { background: "#3b82f6", color: "#ffffff" }
+                  ? { background: "#FFB224", color: "var(--ink)" }
                   : { border: "1px solid var(--border)", color: "var(--text)" }}
               >
                 {cta}
@@ -1183,12 +1183,12 @@ export default function LandingPage() {
       <div className="max-w-3xl mx-auto px-6 pb-28 text-center">
         <div
           className="rounded-3xl p-12"
-          style={{ background: "rgba(59,130,246,.05)", border: "1px solid rgba(59,130,246,.2)" }}
+          style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.2)" }}
         >
           <div>
             <h2 className="text-3xl md:text-4xl font-black mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
               Your competitors are already moving.<br />
-              <span style={{ color: "#3b82f6" }}>Now you will be too.</span>
+              <span style={{ color: "#FFB224" }}>Now you will be too.</span>
             </h2>
             <p className="mb-8 text-lg" style={{ color: "var(--muted)" }}>
               Free forever. No credit card. First scan ready in under 60 seconds.
@@ -1196,7 +1196,7 @@ export default function LandingPage() {
             <Link
               href="/auth/signup"
               className="inline-flex items-center gap-2 font-bold px-8 py-4 rounded-2xl text-lg transition-all hover:opacity-90"
-              style={{ background: "#3b82f6", color: "#ffffff" }}
+              style={{ background: "#FFB224", color: "var(--ink)" }}
             >
               Start tracking free
               <ArrowRight className="w-5 h-5" />
@@ -1221,7 +1221,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "var(--accent)" }}>
-              <Zap className="w-3.5 h-3.5" style={{ color: "#ffffff" }} />
+              <Zap className="w-3.5 h-3.5" style={{ color: "var(--ink)" }} />
             </div>
             <span className="font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
           </div>

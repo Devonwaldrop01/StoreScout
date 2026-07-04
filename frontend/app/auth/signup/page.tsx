@@ -32,7 +32,7 @@ function BrandPanel() {
       <div>
         <div className="flex items-center gap-2.5 mb-12">
           <div style={{ width: "30px", height: "30px", borderRadius: "8px", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Zap style={{ width: "15px", height: "15px", color: "#fff" }} />
+            <Zap style={{ width: "15px", height: "15px", color: "var(--ink)" }} />
           </div>
           <span className="text-base font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
         </div>
@@ -47,7 +47,7 @@ function BrandPanel() {
         <ul className="space-y-3">
           {BENEFITS.map((b) => (
             <li key={b} className="flex items-start gap-3">
-              <div className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "rgba(34,197,94,.15)" }}>
+              <div className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "rgba(76,195,138,.15)" }}>
                 <Check style={{ width: "10px", height: "10px", color: "var(--emerald)" }} />
               </div>
               <span className="text-sm" style={{ color: "var(--text-2)" }}>{b}</span>
@@ -121,9 +121,9 @@ function SignupContent() {
 
   const inputStyle = (field: string) => ({
     background: "var(--bg3)",
-    border: `1px solid ${focusedField === field ? "rgba(59,130,246,.5)" : "var(--border)"}`,
+    border: `1px solid ${focusedField === field ? "rgba(255,178,36,.5)" : "var(--border)"}`,
     color: "var(--text)",
-    boxShadow: focusedField === field ? "0 0 0 3px rgba(59,130,246,.08)" : "none",
+    boxShadow: focusedField === field ? "0 0 0 3px rgba(255,178,36,.08)" : "none",
     outline: "none",
     transition: "border-color 0.15s, box-shadow 0.15s",
   });
@@ -136,7 +136,7 @@ function SignupContent() {
           <div className="w-full max-w-sm text-center p-10 rounded-2xl"
                style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
             <div className="mx-auto mb-5 w-12 h-12 rounded-full flex items-center justify-center"
-                 style={{ background: "rgba(59,130,246,.1)" }}>
+                 style={{ background: "rgba(255,178,36,.1)" }}>
               <CheckCircle2 style={{ width: "24px", height: "24px", color: "var(--accent)" }} />
             </div>
             <h2 className="text-xl font-bold mb-2" style={{ color: "var(--text)" }}>Check your email</h2>
@@ -165,7 +165,7 @@ function SignupContent() {
           {/* Mobile logo */}
           <div className="flex items-center gap-2.5 mb-8 lg:hidden">
             <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Zap style={{ width: "14px", height: "14px", color: "#fff" }} />
+              <Zap style={{ width: "14px", height: "14px", color: "var(--ink)" }} />
             </div>
             <span className="text-base font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
           </div>
@@ -242,7 +242,7 @@ function SignupContent() {
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm" style={{ background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.2)", color: "#f87171" }}>
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm" style={{ background: "rgba(242,85,90,.08)", border: "1px solid rgba(242,85,90,.2)", color: "#F2555A" }}>
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </div>
@@ -252,7 +252,7 @@ function SignupContent() {
               type="submit"
               disabled={loading || googleLoading}
               className="w-full font-semibold py-3 rounded-xl transition-all disabled:opacity-50"
-              style={{ background: "var(--accent)", color: "#fff" }}
+              style={{ background: "var(--accent)", color: "var(--ink)" }}
               onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
               onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
             >

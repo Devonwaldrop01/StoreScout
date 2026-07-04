@@ -6,22 +6,22 @@ import { type BriefCard } from "@/lib/api";
 const CARD_CONFIG = {
   signal: {
     Icon: Target,
-    color: "#3b82f6",
+    color: "#FFB224",
     label: "Notable Signal",
   },
   opportunity: {
     Icon: TrendingUp,
-    color: "#3b82f6",
+    color: "#FFB224",
     label: "Opportunity",
   },
   watch: {
     Icon: Eye,
-    color: "#f59e0b",
+    color: "#FFB224",
     label: "Watch Closely",
   },
   action: {
     Icon: Zap,
-    color: "#22C55E",
+    color: "#4CC38A",
     label: "Your Move",
   },
 } as const;
@@ -44,7 +44,7 @@ export function IntelligenceBrief({ hostname, cards, onDismiss }: Props) {
           <div className="flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "rgba(59,130,246,.10)", border: "1px solid var(--border)" }}
+              style={{ background: "rgba(255,178,36,.10)", border: "1px solid var(--border)" }}
             >
               <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
             </div>
@@ -146,7 +146,7 @@ export function IntelligenceBrief({ hostname, cards, onDismiss }: Props) {
         <button
           onClick={onDismiss}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110"
-          style={{ background: "var(--accent)", color: "#ffffff" }}
+          style={{ background: "var(--accent)", color: "var(--ink)" }}
         >
           View full analysis
           <ArrowRight className="w-4 h-4" />

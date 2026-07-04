@@ -66,7 +66,7 @@ export function SignalCard({ group }: Props) {
       {group.your_move && (
         <div
           className="mx-4 mb-2.5 px-3 py-2.5 rounded-lg text-xs leading-relaxed"
-          style={{ background: "rgba(59,130,246,.06)", border: "1px solid rgba(59,130,246,.16)" }}
+          style={{ background: "rgba(255,178,36,.06)", border: "1px solid rgba(255,178,36,.16)" }}
         >
           <span className="font-bold" style={{ color: "var(--accent)" }}>▶ Your move · </span>
           <span style={{ color: "var(--text-2)" }}>{group.your_move}</span>
@@ -88,8 +88,8 @@ export function SignalCard({ group }: Props) {
       {group.tier === "strategic" && (() => {
         const level = impactLevel(group);
         const [impactBg, impactColor] =
-          level === "High"   ? ["rgba(239,68,68,.12)",   "var(--red)"]   :
-          level === "Medium" ? ["rgba(245,158,11,.12)",  "var(--amber)"] :
+          level === "High"   ? ["rgba(242,85,90,.12)",   "var(--red)"]   :
+          level === "Medium" ? ["rgba(255,178,36,.12)",  "var(--amber)"] :
                                ["rgba(100,112,137,.12)", "var(--muted)"];
         return (
           <div className="flex items-center gap-1.5 px-4 pb-2">

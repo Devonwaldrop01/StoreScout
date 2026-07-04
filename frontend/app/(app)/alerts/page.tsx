@@ -90,7 +90,7 @@ export default function AlertsPage() {
           {!loading && strategicCount > 0 && (
             <span
               className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
-              style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)" }}
+              style={{ background: "rgba(255,178,36,.12)", color: "var(--accent)" }}
             >
               {strategicCount} strategic signal{strategicCount !== 1 ? "s" : ""}
             </span>
@@ -98,7 +98,7 @@ export default function AlertsPage() {
           {!loading && strategicCount === 0 && alertList.length > 0 && (
             <span
               className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
-              style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)" }}
+              style={{ background: "rgba(255,178,36,.12)", color: "var(--accent)" }}
             >
               {alertList.length} change{alertList.length !== 1 ? "s" : ""}
             </span>
@@ -119,7 +119,7 @@ export default function AlertsPage() {
               Mark all read
               <span
                 className="px-1.5 py-0.5 rounded-full text-[10px] font-bold"
-                style={{ background: "rgba(59,130,246,.15)", color: "var(--accent)" }}
+                style={{ background: "rgba(255,178,36,.15)", color: "var(--accent)" }}
               >
                 {unreadCount}
               </span>
@@ -182,7 +182,7 @@ export default function AlertsPage() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
               style={
                 active
-                  ? { background: "var(--accent)", color: "#ffffff" }
+                  ? { background: "var(--accent)", color: "var(--ink)" }
                   : { background: "var(--bg4)", color: "var(--muted)", border: "1px solid var(--border)" }
               }
             >
@@ -191,7 +191,7 @@ export default function AlertsPage() {
                 className="px-1.5 py-0.5 rounded-full text-[10px] font-bold tabular-nums"
                 style={
                   active
-                    ? { background: "rgba(0,0,0,.18)", color: "#ffffff" }
+                    ? { background: "rgba(0,0,0,.22)", color: "var(--ink)" }
                     : { background: "rgba(255,255,255,.06)", color: "var(--muted)" }
                 }
               >
@@ -214,7 +214,7 @@ export default function AlertsPage() {
         <div className="rounded-2xl overflow-hidden fade-in" style={{ border: "1px solid var(--border)" }}>
           {/* Header */}
           <div className="flex flex-col items-center text-center px-6 pt-10 pb-6" style={{ background: "var(--bg3)" }}>
-            <div className="w-12 h-12 rounded-2xl mb-4 flex items-center justify-center" style={{ background: "rgba(59,130,246,.06)", border: "1px solid rgba(59,130,246,.14)" }}>
+            <div className="w-12 h-12 rounded-2xl mb-4 flex items-center justify-center" style={{ background: "rgba(255,178,36,.06)", border: "1px solid rgba(255,178,36,.14)" }}>
               <Bell className="w-6 h-6" style={{ color: "var(--accent)" }} />
             </div>
             <p className="text-base font-bold mb-2" style={{ color: "var(--text)" }}>All clear</p>
@@ -229,9 +229,9 @@ export default function AlertsPage() {
               What alerts look like
             </p>
             {[
-              { icon: "↓", label: "Price drop detected", desc: "Oversized T-Shirt dropped 22% — $45 → $35", time: "2h ago", color: "#22c55e" },
-              { icon: "+", label: "New product launched", desc: "Summer Pump Cover added to catalog", time: "Yesterday", color: "#60a5fa" },
-              { icon: "%", label: "Discount campaign started", desc: "17 products now showing sale pricing", time: "3 days ago", color: "#f59e0b" },
+              { icon: "↓", label: "Price drop detected", desc: "Oversized T-Shirt dropped 22% — $45 → $35", time: "2h ago", color: "#4CC38A" },
+              { icon: "+", label: "New product launched", desc: "Summer Pump Cover added to catalog", time: "Yesterday", color: "#FFB224" },
+              { icon: "%", label: "Discount campaign started", desc: "17 products now showing sale pricing", time: "3 days ago", color: "#FFB224" },
             ].map((ex) => (
               <div key={ex.label} className="flex items-start gap-3 px-4 py-3 rounded-xl" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-bold" style={{ background: `${ex.color}15`, color: ex.color }}>

@@ -24,7 +24,7 @@ export default function TermsPage() {
         <div className="flex items-center justify-between mb-10">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "var(--accent)" }}>
-              <Zap className="w-3.5 h-3.5" style={{ color: "#ffffff" }} />
+              <Zap className="w-3.5 h-3.5" style={{ color: "var(--ink)" }} />
             </div>
             <span className="font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
           </Link>

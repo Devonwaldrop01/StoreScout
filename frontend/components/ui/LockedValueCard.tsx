@@ -14,7 +14,7 @@ export function LockedValueCard({ title, teaser, plan = "pro" }: LockedValueCard
   return (
     <div
       className="rounded-xl px-5 py-4"
-      style={{ background: "rgba(59,130,246,.04)", border: "1px solid rgba(59,130,246,.14)" }}
+      style={{ background: "rgba(255,178,36,.04)", border: "1px solid rgba(255,178,36,.14)" }}
     >
       <div className="flex items-center gap-2 mb-2">
         <Lock className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--accent)" }} />

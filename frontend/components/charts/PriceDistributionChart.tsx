@@ -48,7 +48,7 @@ export function PriceDistributionChart({ pricingData }: Props) {
         {dominantEntry && (
           <span
             className="inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-full mt-2"
-            style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.18)" }}
+            style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.18)" }}
           >
             Dominant band: {dominantEntry.name} · {dominantPct}% of products
           </span>
@@ -58,12 +58,12 @@ export function PriceDistributionChart({ pricingData }: Props) {
         <BarChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 4 }}>
           <XAxis
             dataKey="name"
-            tick={{ fill: "#7d92aa", fontSize: 11 }}
+            tick={{ fill: "#6C7164", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: "#7d92aa", fontSize: 11 }}
+            tick={{ fill: "#6C7164", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
@@ -72,7 +72,7 @@ export function PriceDistributionChart({ pricingData }: Props) {
               background: "var(--bg3)",
               border: "1px solid rgba(255,255,255,.09)",
               borderRadius: 10,
-              color: "#eef3fa",
+              color: "#ECEEE6",
               fontSize: 13,
             }}
             cursor={{ fill: "rgba(255,255,255,.04)" }}
@@ -81,7 +81,7 @@ export function PriceDistributionChart({ pricingData }: Props) {
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry.count === maxCount ? "#3b82f6" : "rgba(96,165,250,.5)"}
+                fill={entry.count === maxCount ? "#FFB224" : "rgba(255,178,36,.5)"}
               />
             ))}
           </Bar>

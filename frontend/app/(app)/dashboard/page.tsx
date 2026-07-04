@@ -126,10 +126,10 @@ function SignalBreakdown({ groups }: { groups: SignalGroup[] }) {
     .reduce((s, g) => s + g.count, 0);
 
   const items = [
-    { label: "price changes", count: price, color: "var(--accent)", hex: "#3b82f6" },
-    { label: "launches", count: launch, color: "var(--emerald)", hex: "#10b981" },
+    { label: "price changes", count: price, color: "var(--accent)", hex: "#FFB224" },
+    { label: "launches", count: launch, color: "var(--emerald)", hex: "#4CC38A" },
     { label: "discounts", count: discount, color: "var(--amber)", hex: "var(--amber)" },
-    { label: "stock events", count: stock, color: "var(--muted)", hex: "#64748b" },
+    { label: "stock events", count: stock, color: "var(--muted)", hex: "#6C7164" },
   ].filter((i) => i.count > 0);
 
   if (items.length === 0) return null;
@@ -150,10 +150,10 @@ function SignalBreakdown({ groups }: { groups: SignalGroup[] }) {
 // ── Playbook sidebar widget ───────────────────────────────────────────────
 
 const DEADLINE_COLOR: Record<string, string> = {
-  "right now": "#f87171",
+  "right now": "#F2555A",
   "today": "var(--amber)",
   "within 48h": "var(--amber)",
-  "this week": "#3b82f6",
+  "this week": "#FFB224",
 };
 
 function PlaybookWidget() {
@@ -211,8 +211,8 @@ function PlaybookWidget() {
               <span
                 className="text-[9px] font-bold px-1.5 py-0.5 rounded mt-0.5 whitespace-nowrap shrink-0"
                 style={{
-                  background: `${DEADLINE_COLOR[p.deadline] ?? "#94a3b8"}18`,
-                  color: DEADLINE_COLOR[p.deadline] ?? "#94a3b8",
+                  background: `${DEADLINE_COLOR[p.deadline] ?? "#A8AC9E"}18`,
+                  color: DEADLINE_COLOR[p.deadline] ?? "#A8AC9E",
                 }}
               >
                 {p.deadline}
@@ -272,9 +272,9 @@ function CompetitorMonitor({
   const statusColor = isScanning ? "var(--accent)" : hasStrategic ? ALERT_COLOR : "var(--emerald)";
 
   const borderColor = isSelected
-    ? "rgba(59,130,246,.3)"
+    ? "rgba(255,178,36,.3)"
     : hasStrategic
-    ? "rgba(245,158,11,.2)"
+    ? "rgba(255,178,36,.2)"
     : "var(--border)";
 
   const rowBody = (
@@ -291,7 +291,7 @@ function CompetitorMonitor({
         }}
         onClick={!selectMode ? (e) => { e.preventDefault(); e.stopPropagation(); onToggle(); } : undefined}
       >
-        {isSelected && <Check className="w-2.5 h-2.5" style={{ color: "#ffffff" }} />}
+        {isSelected && <Check className="w-2.5 h-2.5" style={{ color: "var(--ink)" }} />}
       </div>
 
       {/* Status dot — hidden when checkbox is shown */}
@@ -314,7 +314,7 @@ function CompetitorMonitor({
           {changeCount > 0 && (
             <span
               className="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
-              style={{ background: hasStrategic ? "rgba(239,68,68,.15)" : "rgba(59,130,246,.1)", color: hasStrategic ? "var(--red)" : "var(--accent)" }}
+              style={{ background: hasStrategic ? "rgba(242,85,90,.15)" : "rgba(255,178,36,.1)", color: hasStrategic ? "var(--red)" : "var(--accent)" }}
             >
               {changeCount}
             </span>
@@ -358,7 +358,7 @@ function CompetitorMonitor({
           ) : changeCount > 0 ? (
             <span
               className="text-[10px] font-semibold px-2 py-1 rounded-md"
-              style={{ background: "rgba(59,130,246,.08)", color: "var(--accent)" }}
+              style={{ background: "rgba(255,178,36,.08)", color: "var(--accent)" }}
             >
               {changeCount} change{changeCount !== 1 ? "s" : ""}
             </span>
@@ -382,11 +382,11 @@ function CompetitorMonitor({
   const sharedClass = cn(
     "flex items-center gap-3 rounded-xl px-4 py-3 transition-colors group",
     isScanning && !selectMode && "scan-shimmer",
-    isSelected && "bg-[rgba(59,130,246,.03)]"
+    isSelected && "bg-[rgba(255,178,36,.03)]"
   );
   const sharedStyle = {
     border: `1px solid ${borderColor}`,
-    background: isSelected ? "rgba(59,130,246,.03)" : "var(--bg3)",
+    background: isSelected ? "rgba(255,178,36,.03)" : "var(--bg3)",
   };
 
   if (selectMode) {
@@ -499,7 +499,7 @@ function EmptyState() {
       <Link
         href="/competitors"
         className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg transition-all"
-        style={{ background: "var(--accent)", color: "#ffffff" }}
+        style={{ background: "var(--accent)", color: "var(--ink)" }}
       >
         Add your first competitor
       </Link>
@@ -535,7 +535,7 @@ function DiscoverySuggestions({
           {isCurated ? "Popular stores to track" : "Similar to what you're tracking"}
         </p>
         {!isCurated && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(59,130,246,.08)", color: "var(--muted)" }}>
+          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(255,178,36,.08)", color: "var(--muted)" }}>
             Based on your catalog
           </span>
         )}
@@ -597,7 +597,7 @@ function DiscoverySuggestions({
                 onClick={() => onTrack(s.hostname)}
                 disabled={tracking === s.hostname}
                 className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all hover:brightness-110 disabled:opacity-50"
-                style={{ background: "var(--accent)", color: "#ffffff" }}
+                style={{ background: "var(--accent)", color: "var(--ink)" }}
               >
                 {tracking === s.hostname
                   ? <RefreshCw className="w-3 h-3 animate-spin" />
@@ -881,11 +881,11 @@ function DashboardContent() {
               <Link
                 href="/settings?tab=integrations"
                 className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl transition-all block"
-                style={{ background: "rgba(59,130,246,.04)", border: "1px solid rgba(59,130,246,.1)" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(59,130,246,.07)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(59,130,246,.04)"; }}
+                style={{ background: "rgba(255,178,36,.04)", border: "1px solid rgba(255,178,36,.1)" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,178,36,.07)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,178,36,.04)"; }}
               >
-                <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 mt-0.5" style={{ background: "rgba(59,130,246,.12)" }}>
+                <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 mt-0.5" style={{ background: "rgba(255,178,36,.12)" }}>
                   <Zap className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
                 </div>
                 <div className="min-w-0">

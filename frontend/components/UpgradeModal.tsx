@@ -19,11 +19,11 @@ const PLANS = [
     price: 29,
     annualPrice: 23,
     icon: Zap,
-    color: "#3b82f6",
-    colorBg: "rgba(59,130,246,.06)",
-    colorBorder: "rgba(59,130,246,.3)",
+    color: "#FFB224",
+    colorBg: "rgba(255,178,36,.06)",
+    colorBorder: "rgba(255,178,36,.3)",
     checkColor: "var(--accent)",
-    glowShadow: "0 0 0 1px rgba(59,130,246,.3), 0 8px 32px rgba(59,130,246,.06)",
+    glowShadow: "0 0 0 1px rgba(255,178,36,.3), 0 8px 32px rgba(255,178,36,.06)",
     popular: true,
     features: [
       "10 competitors",
@@ -40,11 +40,11 @@ const PLANS = [
     price: 79,
     annualPrice: 63,
     icon: Building2,
-    color: "#60a5fa",
-    colorBg: "rgba(96,165,250,.06)",
-    colorBorder: "rgba(96,165,250,.25)",
+    color: "#FFB224",
+    colorBg: "rgba(255,178,36,.06)",
+    colorBorder: "rgba(255,178,36,.25)",
     checkColor: "var(--blue)",
-    glowShadow: "0 0 0 1px rgba(96,165,250,.25), 0 8px 32px rgba(96,165,250,.05)",
+    glowShadow: "0 0 0 1px rgba(255,178,36,.25), 0 8px 32px rgba(255,178,36,.05)",
     popular: false,
     features: [
       "50 competitors",
@@ -123,7 +123,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general", curre
         style={{
           background: "var(--bg2)",
           border: "1px solid var(--border)",
-          boxShadow: "0 -1px 0 0 rgba(59,130,246,.15), 0 24px 80px rgba(0,0,0,.6)",
+          boxShadow: "0 -1px 0 0 rgba(255,178,36,.15), 0 24px 80px rgba(0,0,0,.6)",
         }}
       >
         {/* Close button */}
@@ -141,8 +141,8 @@ export default function UpgradeModal({ open, onClose, trigger = "general", curre
           <div
             className="flex items-center justify-center w-10 h-10 rounded-full mb-4"
             style={{
-              background: "rgba(59,130,246,.12)",
-              border: "1px solid rgba(59,130,246,.2)",
+              background: "rgba(255,178,36,.12)",
+              border: "1px solid rgba(255,178,36,.2)",
             }}
           >
             <Zap className="w-5 h-5" style={{ color: "var(--accent)" }} />
@@ -165,7 +165,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general", curre
               className="px-4 py-1.5 rounded-lg text-sm font-medium transition-all"
               style={{
                 background: !annual ? "var(--accent)" : "transparent",
-                color: !annual ? "#0a0a0f" : "var(--muted)",
+                color: !annual ? "#0B0C0A" : "var(--muted)",
               }}
             >
               Monthly
@@ -175,15 +175,15 @@ export default function UpgradeModal({ open, onClose, trigger = "general", curre
               className="px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
               style={{
                 background: annual ? "var(--accent)" : "transparent",
-                color: annual ? "#0a0a0f" : "var(--muted)",
+                color: annual ? "#0B0C0A" : "var(--muted)",
               }}
             >
               Annual
               <span
                 className="text-xs font-bold px-1.5 py-0.5 rounded-md"
                 style={{
-                  background: annual ? "rgba(0,0,0,.18)" : "rgba(59,130,246,.12)",
-                  color: annual ? "#0a0a0f" : "var(--accent)",
+                  background: annual ? "rgba(0,0,0,.18)" : "rgba(255,178,36,.12)",
+                  color: annual ? "#0B0C0A" : "var(--accent)",
                 }}
               >
                 20% off
@@ -221,9 +221,9 @@ export default function UpgradeModal({ open, onClose, trigger = "general", curre
                   <span
                     className="absolute top-4 right-4 text-xs font-bold px-2 py-0.5 rounded-full tracking-wide"
                     style={{
-                      background: "rgba(59,130,246,.12)",
+                      background: "rgba(255,178,36,.12)",
                       color: "var(--accent)",
-                      border: "1px solid rgba(59,130,246,.2)",
+                      border: "1px solid rgba(255,178,36,.2)",
                     }}
                   >
                     MOST POPULAR
@@ -268,7 +268,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general", curre
                   onClick={() => handleUpgrade(plan.key)}
                   disabled={!!loading}
                   className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all hover:brightness-110 disabled:opacity-50"
-                  style={{ background: plan.color, color: "#ffffff" }}
+                  style={{ background: plan.color, color: "var(--ink)" }}
                 >
                   {loading === plan.key ? "Redirecting…" : `Upgrade to ${plan.name}`}
                 </button>
@@ -278,7 +278,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general", curre
         </div>}
 
         {error && (
-          <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm mt-4" style={{ background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.2)", color: "#f87171" }}>
+          <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm mt-4" style={{ background: "rgba(242,85,90,.1)", border: "1px solid rgba(242,85,90,.2)", color: "#F2555A" }}>
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             {error}
           </div>

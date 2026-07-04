@@ -39,7 +39,7 @@ export class ErrorBoundary extends Component<Props, State> {
         className="flex flex-col items-center justify-center min-h-[40vh] rounded-2xl p-10 text-center"
         style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
       >
-        <AlertTriangle className="w-8 h-8 mb-3" style={{ color: "#f87171" }} />
+        <AlertTriangle className="w-8 h-8 mb-3" style={{ color: "#F2555A" }} />
         <p className="font-semibold mb-1" style={{ color: "var(--text)" }}>
           Something went wrong
         </p>

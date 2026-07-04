@@ -34,10 +34,10 @@ interface Props {
 
 const CHART_STYLE = {
   contentStyle: {
-    background: "#0e1d35",
+    background: "#161814",
     border: "1px solid rgba(255,255,255,.09)",
     borderRadius: 10,
-    color: "#eef3fa",
+    color: "#ECEEE6",
     fontSize: 13,
   },
 };
@@ -50,9 +50,9 @@ function Chart({ chartData, showBFLine = false }: {
     <ResponsiveContainer width="100%" height={200}>
       <LineChart data={chartData} margin={{ top: 4, right: 16, left: -20, bottom: 4 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,.04)" />
-        <XAxis dataKey="date" tick={{ fill: "#7d92aa", fontSize: 11 }} axisLine={false} tickLine={false} />
-        <YAxis yAxisId="price" tick={{ fill: "#7d92aa", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}`} />
-        <YAxis yAxisId="pct" orientation="right" tick={{ fill: "#7d92aa", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
+        <XAxis dataKey="date" tick={{ fill: "#6C7164", fontSize: 11 }} axisLine={false} tickLine={false} />
+        <YAxis yAxisId="price" tick={{ fill: "#6C7164", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}`} />
+        <YAxis yAxisId="pct" orientation="right" tick={{ fill: "#6C7164", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
         <Tooltip
           {...CHART_STYLE}
           formatter={(value, name) =>
@@ -60,12 +60,12 @@ function Chart({ chartData, showBFLine = false }: {
           }
         />
         {showBFLine && (
-          <ReferenceLine yAxisId="price" x="Nov 25" stroke="rgba(239,68,68,.4)" strokeDasharray="4 2"
-            label={{ value: "BF", position: "top", fill: "#ef4444", fontSize: 9 }}
+          <ReferenceLine yAxisId="price" x="Nov 25" stroke="rgba(242,85,90,.4)" strokeDasharray="4 2"
+            label={{ value: "BF", position: "top", fill: "#F2555A", fontSize: 9 }}
           />
         )}
-        <Line yAxisId="price" type="monotone" dataKey="median_price" stroke="#3b82f6" strokeWidth={2} dot={false} connectNulls />
-        <Line yAxisId="pct" type="monotone" dataKey="promo_rate" stroke="#f59e0b" strokeWidth={2} dot={false} connectNulls />
+        <Line yAxisId="price" type="monotone" dataKey="median_price" stroke="#FFB224" strokeWidth={2} dot={false} connectNulls />
+        <Line yAxisId="pct" type="monotone" dataKey="promo_rate" stroke="#FFB224" strokeWidth={2} dot={false} connectNulls />
       </LineChart>
     </ResponsiveContainer>
   );
@@ -123,7 +123,7 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
       <div>
         <div className="flex items-center gap-4 text-xs mb-3" style={{ color: "var(--muted)" }}>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block w-3 h-0.5 rounded" style={{ background: "#3b82f6" }} />
+            <span className="inline-block w-3 h-0.5 rounded" style={{ background: "#FFB224" }} />
             Median price
           </span>
           <span className="flex items-center gap-1.5">
@@ -154,7 +154,7 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
       <div className="flex items-center justify-between px-5 pt-4 pb-2">
         <div className="flex items-center gap-4 text-xs" style={{ color: "var(--muted)" }}>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block w-3 h-0.5 rounded" style={{ background: "#3b82f6" }} />
+            <span className="inline-block w-3 h-0.5 rounded" style={{ background: "#FFB224" }} />
             Median price
           </span>
           <span className="flex items-center gap-1.5">
@@ -163,7 +163,7 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
           </span>
         </div>
         {!hasPartialData && (
-          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)" }}>
+          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)" }}>
             Example
           </span>
         )}
@@ -184,7 +184,7 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
       <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center pb-6 px-6 text-center">
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center mb-3"
-          style={{ background: "rgba(59,130,246,.1)", border: "1px solid rgba(59,130,246,.2)" }}
+          style={{ background: "rgba(255,178,36,.1)", border: "1px solid rgba(255,178,36,.2)" }}
         >
           <Lock className="w-4 h-4" style={{ color: "var(--accent)" }} />
         </div>
@@ -201,7 +201,7 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
         <button
           onClick={onUpgrade}
           className="flex items-center gap-1.5 font-bold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110"
-          style={{ background: "var(--accent)", color: "#ffffff" }}
+          style={{ background: "var(--accent)", color: "var(--ink)" }}
         >
           <Zap className="w-3.5 h-3.5" />
           Unlock history — $29/mo

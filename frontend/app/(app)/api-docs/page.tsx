@@ -15,7 +15,7 @@ function CodeBlock({ code, language = "bash" }: { code: string; language?: strin
     });
   }
   return (
-    <div className="relative rounded-xl overflow-hidden" style={{ background: "#0a1628", border: "1px solid var(--border)" }}>
+    <div className="relative rounded-xl overflow-hidden" style={{ background: "#101110", border: "1px solid var(--border)" }}>
       <div className="flex items-center justify-between px-4 py-2 border-b" style={{ borderColor: "var(--border)" }}>
         <span className="text-xs font-mono" style={{ color: "var(--muted)" }}>{language}</span>
         <button
@@ -27,7 +27,7 @@ function CodeBlock({ code, language = "bash" }: { code: string; language?: strin
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
-      <pre className="px-4 py-4 overflow-x-auto text-sm font-mono leading-relaxed" style={{ color: "#c8d8f0" }}>
+      <pre className="px-4 py-4 overflow-x-auto text-sm font-mono leading-relaxed" style={{ color: "#A8AC9E" }}>
         <code>{code}</code>
       </pre>
     </div>
@@ -74,7 +74,7 @@ function Endpoint({
   const methodColor: Record<string, string> = {
     GET: "var(--emerald)",
     POST: "var(--accent)",
-    DELETE: "#f87171",
+    DELETE: "#F2555A",
     PUT: "var(--amber)",
   };
 
@@ -86,7 +86,7 @@ function Endpoint({
         {auth && (
           <span
             className="ml-auto shrink-0 text-xs px-2 py-0.5 rounded-md"
-            style={{ background: "rgba(59,130,246,.1)", color: "#3b82f6", border: "1px solid rgba(59,130,246,.2)" }}
+            style={{ background: "rgba(255,178,36,.1)", color: "#FFB224", border: "1px solid rgba(255,178,36,.2)" }}
           >
             Auth required
           </span>
@@ -100,12 +100,12 @@ function Endpoint({
           <div className="space-y-2">
             {params.map((p) => (
               <div key={p.name} className="flex gap-3 text-sm">
-                <code className="shrink-0 font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: "var(--bg3)", color: "#c084fc" }}>
+                <code className="shrink-0 font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: "var(--bg3)", color: "#7DB8C9" }}>
                   {p.name}
                 </code>
                 <span className="text-xs" style={{ color: "var(--muted)" }}>{p.type}</span>
                 {p.required && (
-                  <span className="text-xs font-semibold" style={{ color: "#f87171" }}>required</span>
+                  <span className="text-xs font-semibold" style={{ color: "#F2555A" }}>required</span>
                 )}
                 <span className="text-xs" style={{ color: "var(--muted)" }}>{p.desc}</span>
               </div>
@@ -132,7 +132,7 @@ export default function ApiDocsPage() {
   return (
     <div className="max-w-4xl">
       <div className="flex items-center gap-3 mb-2">
-        <Terminal className="w-5 h-5" style={{ color: "#c084fc" }} />
+        <Terminal className="w-5 h-5" style={{ color: "#7DB8C9" }} />
         <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>API Reference</h1>
       </div>
       <p className="text-sm mb-8" style={{ color: "var(--muted)" }}>
@@ -149,7 +149,7 @@ export default function ApiDocsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div>
               <p className="text-xs font-semibold mb-2 flex items-center gap-1.5" style={{ color: "var(--text)" }}>
-                <Key className="w-3.5 h-3.5" style={{ color: "#c084fc" }} />
+                <Key className="w-3.5 h-3.5" style={{ color: "#7DB8C9" }} />
                 API key (recommended for integrations)
               </p>
               <CodeBlock
@@ -167,7 +167,7 @@ export default function ApiDocsPage() {
           </div>
           <p className="text-xs mt-4" style={{ color: "var(--muted)" }}>
             Generate API keys in{" "}
-            <Link href="/settings" className="underline" style={{ color: "#c084fc" }}>
+            <Link href="/settings" className="underline" style={{ color: "#7DB8C9" }}>
               Settings → API keys
             </Link>
             . Keys are available on Pro, Agency, and Developer plans.
@@ -407,11 +407,11 @@ export default function ApiDocsPage() {
           />
           <div className="mt-4 space-y-2 text-sm" style={{ color: "var(--muted)" }}>
             <div className="flex gap-3">
-              <code className="font-mono text-xs shrink-0" style={{ color: "#f87171" }}>401</code>
+              <code className="font-mono text-xs shrink-0" style={{ color: "#F2555A" }}>401</code>
               <span>Missing or invalid token / revoked API key</span>
             </div>
             <div className="flex gap-3">
-              <code className="font-mono text-xs shrink-0" style={{ color: "#f87171" }}>403</code>
+              <code className="font-mono text-xs shrink-0" style={{ color: "#F2555A" }}>403</code>
               <span>Feature not available on your current plan</span>
             </div>
             <div className="flex gap-3">
@@ -419,7 +419,7 @@ export default function ApiDocsPage() {
               <span>Rate limit exceeded — check <code className="font-mono text-xs">Retry-After</code> header</span>
             </div>
             <div className="flex gap-3">
-              <code className="font-mono text-xs shrink-0" style={{ color: "#f87171" }}>422</code>
+              <code className="font-mono text-xs shrink-0" style={{ color: "#F2555A" }}>422</code>
               <span>Validation error — malformed request body</span>
             </div>
           </div>

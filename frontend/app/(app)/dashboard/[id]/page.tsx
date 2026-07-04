@@ -52,7 +52,7 @@ function KpiCard({
   const clickable = !!insight;
   const deltaUp   = delta?.up === true;
   const deltaDown = delta?.up === false;
-  const accentHex = accent?.startsWith("var(") ? "#3b82f6" : (accent ?? "#3b82f6");
+  const accentHex = accent?.startsWith("var(") ? "#FFB224" : (accent ?? "#FFB224");
 
   // Extract the numeric part: "▲ +5 vs last scan" → "+5"
   const badgeText = delta
@@ -83,11 +83,11 @@ function KpiCard({
               className="text-[10px] font-bold px-1.5 py-0.5 rounded-md"
               style={{
                 background: deltaUp
-                  ? "rgba(34,197,94,.15)"
+                  ? "rgba(76,195,138,.15)"
                   : deltaDown
-                  ? "rgba(239,68,68,.15)"
+                  ? "rgba(242,85,90,.15)"
                   : "rgba(255,255,255,.06)",
-                color: deltaUp ? "var(--emerald)" : deltaDown ? "#ef4444" : "var(--muted)",
+                color: deltaUp ? "var(--emerald)" : deltaDown ? "#F2555A" : "var(--muted)",
               }}
             >
               {deltaUp ? "↑" : deltaDown ? "↓" : "→"} {badgeText}
@@ -156,7 +156,7 @@ function KpiCard({
               style={
                 locked
                   ? { background: "rgba(255,255,255,.04)", color: "var(--muted)", border: "1px solid var(--border)" }
-                  : { background: "rgba(59,130,246,.1)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.2)" }
+                  : { background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.2)" }
               }
             >
               {locked && <Lock className="w-3 h-3" />}
@@ -164,7 +164,7 @@ function KpiCard({
               {locked && (
                 <span
                   className="text-[10px] px-1.5 py-0.5 rounded-full ml-0.5"
-                  style={{ background: "rgba(59,130,246,.15)", color: "var(--accent)" }}
+                  style={{ background: "rgba(255,178,36,.15)", color: "var(--accent)" }}
                 >
                   Pro
                 </span>
@@ -201,7 +201,7 @@ function positioningDescription(label: string, score: number): string {
 }
 
 function PositioningBar({ label, score, scoreLabel }: { label: string; score: number; scoreLabel: string }) {
-  const color = score < 34 ? "#60a5fa" : score < 67 ? "var(--amber)" : "var(--amber)";
+  const color = score < 34 ? "#FFB224" : score < 67 ? "var(--amber)" : "var(--amber)";
   const desc  = positioningDescription(label, score);
   return (
     <div
@@ -225,8 +225,8 @@ function TopAlertBanner({ change, hostname, onViewAll }: { change: ChangeEvent; 
   const isCritical = change.severity === "critical";
   // Orange for "urgent intelligence" — red is reserved for errors/broken states
   const color      = isCritical ? "var(--amber)" : "var(--amber)";
-  const bg         = isCritical ? "rgba(245,158,11,.06)" : "rgba(245,158,11,.04)";
-  const border     = isCritical ? "rgba(245,158,11,.22)" : "rgba(245,158,11,.16)";
+  const bg         = isCritical ? "rgba(255,178,36,.06)" : "rgba(255,178,36,.04)";
+  const border     = isCritical ? "rgba(255,178,36,.22)" : "rgba(255,178,36,.16)";
   const old_v      = change.old_value || {};
   const new_v      = change.new_value || {};
   const action     = getChangeAction(change.change_type, change.delta_pct, change.severity, hostname);
@@ -270,7 +270,7 @@ function TopAlertBanner({ change, hostname, onViewAll }: { change: ChangeEvent; 
           {action && (
             <p
               className="text-xs mt-2.5 px-2.5 py-1.5 rounded-lg inline-block"
-              style={{ background: "rgba(59,130,246,.07)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.14)" }}
+              style={{ background: "rgba(255,178,36,.07)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.14)" }}
             >
               ▶ {action}
             </p>
@@ -336,9 +336,9 @@ function ChangeRow({ change, hostname }: { change: ChangeEvent; hostname?: strin
           <p
             className="text-[11px] mt-1.5 px-2.5 py-1 rounded-md inline-block"
             style={{
-              background: "rgba(59,130,246,.07)",
+              background: "rgba(255,178,36,.07)",
               color: "var(--accent)",
-              border: "1px solid rgba(59,130,246,.15)",
+              border: "1px solid rgba(255,178,36,.15)",
             }}
           >
             ▶ {action}
@@ -362,14 +362,14 @@ function ProGate({ children, onUpgrade, label = "Unlock with Pro" }: {
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div
           className="flex flex-col items-center gap-3 px-6 py-5 rounded-2xl text-center"
-          style={{ background: "rgba(10,10,15,.85)", border: "1px solid rgba(59,130,246,.2)", backdropFilter: "blur(8px)" }}
+          style={{ background: "rgba(10,10,15,.85)", border: "1px solid rgba(255,178,36,.2)", backdropFilter: "blur(8px)" }}
         >
           <Lock className="w-5 h-5" style={{ color: "var(--accent)" }} />
           <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>{label}</p>
           <button
             onClick={onUpgrade}
             className="text-xs font-bold px-4 py-2 rounded-xl transition-all hover:brightness-110"
-            style={{ background: "var(--accent)", color: "#ffffff" }}
+            style={{ background: "var(--accent)", color: "var(--ink)" }}
           >
             <Zap className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
             Upgrade to Pro — $29/mo
@@ -417,7 +417,7 @@ function TabBar<T extends string>({
           {t.pro && (
             <span
               className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-              style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)" }}
+              style={{ background: "rgba(255,178,36,.12)", color: "var(--accent)" }}
             >
               PRO
             </span>
@@ -715,7 +715,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
       <div
         className="-mx-4 sm:-mx-6 px-4 sm:px-6 pt-6 pb-5 mb-6 relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, rgba(59,130,246,.05) 0%, transparent 60%)",
+          background: "linear-gradient(135deg, rgba(255,178,36,.05) 0%, transparent 60%)",
           borderBottom: "1px solid var(--border)",
         }}
       >
@@ -766,7 +766,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
               onClick={handleRescan}
               disabled={rescanning || isScanning}
               className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.2)" }}
+              style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.2)" }}
             >
               <RefreshCw className={cn("w-3.5 h-3.5", (rescanning || isScanning) && "animate-spin")} />
               {isScanning ? "Scanning…" : rescanning ? "Queued…" : "Rescan"}
@@ -774,7 +774,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
             <button
               onClick={handleDelete}
               className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl transition-all hover:bg-red-500/10"
-              style={{ color: "var(--red)", border: "1px solid rgba(239,68,68,.25)" }}
+              style={{ color: "var(--red)", border: "1px solid rgba(242,85,90,.25)" }}
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
@@ -787,7 +787,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
         competitor?.scan_status === "error" ? (
           <div
             className="rounded-2xl p-8 text-center space-y-3"
-            style={{ background: "var(--bg-card)", border: "1px solid rgba(239,68,68,.25)" }}
+            style={{ background: "var(--bg-card)", border: "1px solid rgba(242,85,90,.25)" }}
           >
             <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Scan failed</p>
             <p className="text-xs max-w-xs mx-auto" style={{ color: "var(--muted)" }}>
@@ -797,7 +797,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
               onClick={handleRescan}
               disabled={rescanning || isScanning}
               className="text-xs font-bold px-4 py-2 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
-              style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.2)" }}
+              style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.2)" }}
             >
               {rescanning ? "Queued…" : "Try again"}
             </button>
@@ -846,13 +846,13 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
               <button
                 onClick={() => setBriefExpanded(true)}
                 className="w-full flex items-center gap-2.5 mb-6 px-4 py-3 rounded-xl transition-all text-left"
-                style={{ background: "rgba(59,130,246,.05)", border: "1px solid rgba(59,130,246,.16)" }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(59,130,246,.08)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(59,130,246,.05)"; }}
+                style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.16)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,178,36,.08)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,178,36,.05)"; }}
               >
                 <div
                   className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ background: "rgba(59,130,246,.12)" }}
+                  style={{ background: "rgba(255,178,36,.12)" }}
                 >
                   <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
                 </div>
@@ -894,7 +894,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   <KpiCard
                     label="Products"
                     value={(catalog.total_products as number)?.toLocaleString() ?? "—"}
-                    accent="#60a5fa"
+                    accent="#FFB224"
                     delta={deltaProd}
                     sparkline={sparkProducts}
                     insight={`This store has ${(catalog.total_products as number)?.toLocaleString() ?? "an unknown number of"} active products. Compare this to your own catalog size to gauge competitive breadth.`}
@@ -905,7 +905,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   <KpiCard
                     label="Median Price"
                     value={formatPrice(pricing.median as number)}
-                    accent="#3b82f6"
+                    accent="#FFB224"
                     delta={deltaPrice}
                     sparkline={sparkPrice}
                     insight={`Their median price is ${formatPrice(pricing.median as number)}, ranging from ${formatPrice(pricing.min as number)} to ${formatPrice(pricing.max as number)}. This positions them in the ${(positioning.market_position as Record<string, unknown>)?.label ?? "mid-market"} segment.`}
@@ -927,7 +927,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   <KpiCard
                     label="New (30d)"
                     value={((launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? "—").toString()}
-                    accent="#10b981"
+                    accent="#4CC38A"
                     delta={deltaNew30d}
                     insight={`They launched ${((launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? 0)} products in the last 30 days. A high velocity often signals an aggressive growth phase or seasonal push.`}
                     actionLabel="Alert me when they launch"
@@ -1010,9 +1010,9 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                 <Link
                   href="/settings?tab=integrations"
                   className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/[0.03]"
-                  style={{ background: "rgba(59,130,246,.04)", border: "1px solid rgba(59,130,246,.12)" }}
+                  style={{ background: "rgba(255,178,36,.04)", border: "1px solid rgba(255,178,36,.12)" }}
                 >
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(59,130,246,.1)" }}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(255,178,36,.1)" }}>
                     <Zap className="w-4 h-4" style={{ color: "var(--accent)" }} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -1081,7 +1081,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                         const toXY = (a: number) => ({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
                         const s    = toXY(sA); const e = toXY(eA - 0.001); const f = toXY(filled);
                         const la   = (eA - sA) * (pct / 100) > Math.PI ? 1 : 0;
-                        const color = pct > 50 ? "#f59e0b" : pct > 25 ? "#3b82f6" : "#22d3ee";
+                        const color = pct > 50 ? "#FFB224" : pct > 25 ? "#FFB224" : "#7DB8C9";
                         return (
                           <svg viewBox="0 0 128 70" className="w-full h-full">
                             <path d={`M ${s.x} ${s.y} A ${r} ${r} 0 1 1 ${e.x} ${e.y}`} fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="10" strokeLinecap="round" />
@@ -1115,13 +1115,13 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     >
                       <Lock className="w-3.5 h-3.5" />
                       Get alerted when they run a flash sale
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: "rgba(59,130,246,.15)", color: "var(--accent)" }}>Pro</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: "rgba(255,178,36,.15)", color: "var(--accent)" }}>Pro</span>
                     </button>
                   ) : (
                     <button
                       onClick={() => router.push("/settings#notifications")}
                       className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 text-xs font-semibold rounded-xl transition-all hover:brightness-110"
-                      style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.2)" }}
+                      style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.2)" }}
                     >
                       <Bell className="w-3.5 h-3.5" />
                       Set flash sale alert
@@ -1152,7 +1152,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     {isFree && (
                       <span
                         className="text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-auto"
-                        style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)" }}
+                        style={{ background: "rgba(255,178,36,.12)", color: "var(--accent)" }}
                       >
                         PRO
                       </span>
@@ -1184,7 +1184,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                       {changes.length} change{changes.length !== 1 ? "s" : ""} detected
                     </h3>
                     {isFree && changes.length > FREE_CHANGES_LIMIT && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)" }}>
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(255,178,36,.12)", color: "var(--accent)" }}>
                         PRO for full history
                       </span>
                     )}
@@ -1203,10 +1203,10 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                       </div>
                       <div className="grid grid-cols-2 gap-2 max-w-xs mx-auto">
                         {[
-                          { icon: "↓", label: "Price drop",       color: "#22c55e" },
-                          { icon: "↑", label: "Price increase",   color: "#ef4444" },
-                          { icon: "+", label: "New product",      color: "#60a5fa" },
-                          { icon: "✕", label: "Product removed",  color: "#f59e0b" },
+                          { icon: "↓", label: "Price drop",       color: "#4CC38A" },
+                          { icon: "↑", label: "Price increase",   color: "#F2555A" },
+                          { icon: "+", label: "New product",      color: "#FFB224" },
+                          { icon: "✕", label: "Product removed",  color: "#FFB224" },
                         ].map(({ icon, label, color }) => (
                           <div key={label} className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
                             <span className="text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: `${color}15`, color }}>{icon}</span>
@@ -1251,11 +1251,11 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                       {isFree ? (
                         <div
                           className="rounded-2xl p-8 text-center relative overflow-hidden"
-                          style={{ background: "var(--bg-card)", border: "1px solid rgba(59,130,246,.2)" }}
+                          style={{ background: "var(--bg-card)", border: "1px solid rgba(255,178,36,.2)" }}
                         >
-                          <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(59,130,246,.06)" }} />
+                          <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(255,178,36,.06)" }} />
                           <div className="relative">
-                            <div className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(59,130,246,.1)", border: "1px solid rgba(59,130,246,.2)" }}>
+                            <div className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(255,178,36,.1)", border: "1px solid rgba(255,178,36,.2)" }}>
                               <Sparkles className="w-6 h-6" style={{ color: "var(--accent)" }} />
                             </div>
                             <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text)" }}>Scout Brief</h3>
@@ -1283,7 +1283,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                             <button
                               onClick={() => setUpgradeOpen(true)}
                               className="font-semibold text-sm px-6 py-3 rounded-xl transition-all hover:brightness-110"
-                              style={{ background: "var(--accent)", color: "#ffffff" }}
+                              style={{ background: "var(--accent)", color: "var(--ink)" }}
                             >
                               <Zap className="w-4 h-4 inline mr-1.5 -mt-0.5" />
                               Unlock Scout Brief — from $29/mo
@@ -1301,7 +1301,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           <button
                             onClick={() => setAiStatus("idle")}
                             className="text-xs font-bold px-4 py-2 rounded-xl transition-all hover:brightness-110"
-                            style={{ background: "var(--accent)", color: "#ffffff" }}
+                            style={{ background: "var(--accent)", color: "var(--ink)" }}
                           >
                             Try again
                           </button>
@@ -1311,7 +1311,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           <div className="flex items-center gap-3 mb-5">
                             <div
                               className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                              style={{ background: "rgba(59,130,246,.1)", border: "1px solid rgba(59,130,246,.15)" }}
+                              style={{ background: "rgba(255,178,36,.1)", border: "1px solid rgba(255,178,36,.15)" }}
                             >
                               <Sparkles className="w-4 h-4 animate-pulse" style={{ color: "var(--accent)" }} />
                             </div>
@@ -1339,7 +1339,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           className="rounded-2xl p-8 text-center"
                           style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
                         >
-                          <div className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(59,130,246,.06)", border: "1px solid rgba(59,130,246,.14)" }}>
+                          <div className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(255,178,36,.06)", border: "1px solid rgba(255,178,36,.14)" }}>
                             <Sparkles className="w-6 h-6" style={{ color: "var(--accent)" }} />
                           </div>
                           <h3 className="text-base font-bold mb-2" style={{ color: "var(--text)" }}>No analysis yet</h3>
@@ -1361,7 +1361,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           <button
                             onClick={handleRegenerate}
                             className="font-semibold text-sm px-6 py-3 rounded-xl transition-all hover:brightness-110"
-                            style={{ background: "var(--accent)", color: "#ffffff" }}
+                            style={{ background: "var(--accent)", color: "var(--ink)" }}
                           >
                             <Sparkles className="w-4 h-4 inline mr-1.5 -mt-0.5" />
                             Generate analysis
@@ -1373,10 +1373,10 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                         if (!aiSummary) return null;
                         const parsed = parseSummaryText(aiSummary.summary_text);
                         const INSIGHT_CONFIG = {
-                          signal:      { color: "#3b82f6", label: "Notable Signal",  Icon: Target },
-                          opportunity: { color: "#3b82f6", label: "Opportunity",     Icon: TrendingUp },
-                          watch:       { color: "#f59e0b", label: "Watch Closely",   Icon: Eye },
-                          action:      { color: "#22C55E", label: "Your Move",       Icon: Zap },
+                          signal:      { color: "#FFB224", label: "Notable Signal",  Icon: Target },
+                          opportunity: { color: "#FFB224", label: "Opportunity",     Icon: TrendingUp },
+                          watch:       { color: "#FFB224", label: "Watch Closely",   Icon: Eye },
+                          action:      { color: "#4CC38A", label: "Your Move",       Icon: Zap },
                         } as const;
                         type InsightKey = keyof typeof INSIGHT_CONFIG;
                         return (
@@ -1386,7 +1386,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                             <div className="flex items-center gap-3 pb-4" style={{ borderBottom: "1px solid var(--border)" }}>
                               <div
                                 className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                                style={{ background: "rgba(59,130,246,.10)", border: "1px solid var(--border)" }}
+                                style={{ background: "rgba(255,178,36,.10)", border: "1px solid var(--border)" }}
                               >
                                 <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
                               </div>

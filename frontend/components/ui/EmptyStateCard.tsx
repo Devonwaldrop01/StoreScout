@@ -51,7 +51,7 @@ export function EmptyStateCard({ icon: Icon, headline, body, hint, examples, cta
             <Link
               href={cta_href}
               className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:brightness-110"
-              style={{ background: "var(--accent)", color: "#ffffff" }}
+              style={{ background: "var(--accent)", color: "var(--ink)" }}
             >
               {cta_label}
             </Link>
@@ -59,7 +59,7 @@ export function EmptyStateCard({ icon: Icon, headline, body, hint, examples, cta
             <button
               onClick={cta_onClick}
               className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:brightness-110"
-              style={{ background: "var(--accent)", color: "#ffffff" }}
+              style={{ background: "var(--accent)", color: "var(--ink)" }}
             >
               {cta_label}
             </button>

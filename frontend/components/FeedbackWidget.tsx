@@ -135,7 +135,7 @@ export function FeedbackWidget() {
               <div className="px-5 py-10 text-center">
                 <div
                   className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
-                  style={{ background: "rgba(59,130,246,.12)", border: "1px solid rgba(59,130,246,.25)" }}
+                  style={{ background: "rgba(255,178,36,.12)", border: "1px solid rgba(255,178,36,.25)" }}
                 >
                   <Check className="w-6 h-6" style={{ color: "var(--accent)" }} />
                 </div>
@@ -202,7 +202,7 @@ export function FeedbackWidget() {
                       border: "1px solid var(--border)",
                       color: "var(--text)",
                     }}
-                    onFocus={(e) => { e.target.style.borderColor = "rgba(59,130,246,.35)"; }}
+                    onFocus={(e) => { e.target.style.borderColor = "rgba(255,178,36,.35)"; }}
                     onBlur={(e) => { e.target.style.borderColor = "var(--border)"; }}
                   />
                   <div className="flex justify-end mt-1">
@@ -228,7 +228,7 @@ export function FeedbackWidget() {
                         border: `1px solid ${allowTestimonial ? "var(--accent)" : "var(--border)"}`,
                       }}
                     >
-                      {allowTestimonial && <Check className="w-2.5 h-2.5" style={{ color: "#ffffff" }} />}
+                      {allowTestimonial && <Check className="w-2.5 h-2.5" style={{ color: "var(--ink)" }} />}
                     </div>
                   </div>
                   <span className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
@@ -237,14 +237,14 @@ export function FeedbackWidget() {
                 </label>
 
                 {error && (
-                  <p className="text-xs" style={{ color: "#f87171" }}>{error}</p>
+                  <p className="text-xs" style={{ color: "#F2555A" }}>{error}</p>
                 )}
 
                 <button
                   type="submit"
                   disabled={submitting || alreadySubmitted}
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ background: "var(--accent)", color: "#ffffff" }}
+                  style={{ background: "var(--accent)", color: "var(--ink)" }}
                 >
                   {submitting ? (
                     <span className="animate-pulse">Sending…</span>

@@ -62,22 +62,22 @@ function computeStreak(ts: Record<string, string>): number {
 // ── section meta ──────────────────────────────────────────────────────────────
 
 const SECTION_META = {
-  act_now:   { label: "Act Now",      desc: "Time-sensitive — competitor moves that need a response today",                           color: "#f87171", dot: "#ef4444" },
-  right_now: { label: "Right Now",    desc: "Derived from your competitors' current catalog — no new move needed to trigger these",   color: "#60a5fa", dot: "#3b82f6" },
-  this_week: { label: "This Week",    desc: "Opportunities that are open now and compound the longer you wait",                      color: "#3b82f6", dot: "#3b82f6" },
+  act_now:   { label: "Act Now",      desc: "Time-sensitive — competitor moves that need a response today",                           color: "#F2555A", dot: "#F2555A" },
+  right_now: { label: "Right Now",    desc: "Derived from your competitors' current catalog — no new move needed to trigger these",   color: "#FFB224", dot: "#FFB224" },
+  this_week: { label: "This Week",    desc: "Opportunities that are open now and compound the longer you wait",                      color: "#FFB224", dot: "#FFB224" },
 } as const;
 
 const SECTION_ORDER = ["act_now", "right_now", "this_week"] as const;
 
 const DEADLINE_STYLE: Record<string, { bg: string; color: string }> = {
-  "right now":  { bg: "rgba(239,68,68,0.12)",  color: "#f87171" },
-  "today":      { bg: "rgba(245,158,11,0.10)",  color: "var(--amber)" },
-  "within 48h": { bg: "rgba(245,158,11,0.10)", color: "var(--amber)" },
-  "this week":  { bg: "rgba(59,130,246,0.08)",  color: "#3b82f6" },
+  "right now":  { bg: "rgba(242,85,90,0.12)",  color: "#F2555A" },
+  "today":      { bg: "rgba(255,178,36,0.10)",  color: "var(--amber)" },
+  "within 48h": { bg: "rgba(255,178,36,0.10)", color: "var(--amber)" },
+  "this week":  { bg: "rgba(255,178,36,0.08)",  color: "#FFB224" },
 };
 
 function deadlineStyle(d: string) {
-  return DEADLINE_STYLE[d] ?? { bg: "rgba(148,163,184,0.08)", color: "#94a3b8" };
+  return DEADLINE_STYLE[d] ?? { bg: "rgba(148,163,184,0.08)", color: "#A8AC9E" };
 }
 
 function typeIcon(t: string): React.ElementType {
@@ -156,7 +156,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
             <button
               onClick={() => copy(asset.subject!, "subject")}
               className="shrink-0 p-1.5 rounded-lg transition-all hover:bg-white/[0.06] mt-0.5"
-              style={{ color: copied === "subject" ? "#3b82f6" : "var(--muted)" }}
+              style={{ color: copied === "subject" ? "#FFB224" : "var(--muted)" }}
               title="Copy to clipboard"
             >
               {copied === "subject" ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -175,7 +175,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
             <button
               onClick={() => copy(asset.body_opening!, "body")}
               className="shrink-0 p-1.5 rounded-lg transition-all hover:bg-white/[0.06] mt-0.5"
-              style={{ color: copied === "body" ? "#3b82f6" : "var(--muted)" }}
+              style={{ color: copied === "body" ? "#FFB224" : "var(--muted)" }}
               title="Copy to clipboard"
             >
               {copied === "body" ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -199,7 +199,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
               <button
                 onClick={() => copy(asset.headlines!.join("\n"), "headlines")}
                 className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-md transition-all hover:bg-white/[0.06]"
-                style={{ color: copied === "headlines" ? "#3b82f6" : "var(--muted)" }}
+                style={{ color: copied === "headlines" ? "#FFB224" : "var(--muted)" }}
               >
                 {copied === "headlines" ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                 {copied === "headlines" ? "Copied" : "Copy all"}
@@ -231,7 +231,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
             <button
               onClick={() => copy(asset.ad_body!, "ad_body")}
               className="shrink-0 p-1.5 rounded-lg transition-all hover:bg-white/[0.06] mt-0.5"
-              style={{ color: copied === "ad_body" ? "#3b82f6" : "var(--muted)" }}
+              style={{ color: copied === "ad_body" ? "#FFB224" : "var(--muted)" }}
               title="Copy to clipboard"
             >
               {copied === "ad_body" ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -255,7 +255,7 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
   feedback: Record<string, string>;
   onFeedback: (id: string, value: string) => void;
 }) {
-  const sectionColor = SECTION_META[play.section as keyof typeof SECTION_META]?.color ?? "#94a3b8";
+  const sectionColor = SECTION_META[play.section as keyof typeof SECTION_META]?.color ?? "#A8AC9E";
   const dlStyle = deadlineStyle(play.deadline);
   const Icon = typeIcon(play.type);
   const detail = play.detail;
@@ -395,9 +395,9 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
           {play.draft_asset && play.draft_asset.type !== "none" && (
             <div
               className="p-4 rounded-xl"
-              style={{ background: "rgba(96,165,250,0.04)", border: "1px solid rgba(96,165,250,0.15)" }}
+              style={{ background: "rgba(255,178,36,0.04)", border: "1px solid rgba(255,178,36,0.15)" }}
             >
-              <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "#60a5fa" }}>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "#FFB224" }}>
                 ▶ {play.draft_asset.label || (play.draft_asset.type === "email" ? "Ready-to-send email" : "Ad copy options")}
               </p>
               <DraftAssetSection asset={play.draft_asset} />
@@ -408,9 +408,9 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
           {detail?.outcome && (
             <div
               className="rounded-xl p-4"
-              style={{ background: "rgba(59,130,246,0.05)", border: "1px solid rgba(59,130,246,0.15)" }}
+              style={{ background: "rgba(255,178,36,0.05)", border: "1px solid rgba(255,178,36,0.15)" }}
             >
-              <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "#3b82f6" }}>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "#FFB224" }}>
                 Expected outcome
               </p>
               <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
@@ -442,9 +442,9 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
               onClick={() => { onDone(); onClose(); }}
               className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110 flex-1 justify-center"
               style={{
-                background: isDone ? "rgba(59,130,246,0.12)" : "rgba(59,130,246,0.15)",
-                color: "#3b82f6",
-                border: "1px solid rgba(59,130,246,0.25)",
+                background: isDone ? "rgba(255,178,36,0.12)" : "rgba(255,178,36,0.15)",
+                color: "#FFB224",
+                border: "1px solid rgba(255,178,36,0.25)",
               }}
             >
               <Check className="w-4 h-4" />
@@ -485,7 +485,7 @@ function PlayCard({ play, done, onDone, onOpen, isLast }: {
   isLast: boolean;
 }) {
   const sectionMeta = SECTION_META[play.section as keyof typeof SECTION_META];
-  const sectionColor = sectionMeta?.color ?? "#94a3b8";
+  const sectionColor = sectionMeta?.color ?? "#A8AC9E";
   const why = play.detail?.why;
 
   return (
@@ -522,9 +522,9 @@ function PlayCard({ play, done, onDone, onOpen, isLast }: {
             onClick={onDone}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
             style={{
-              background: done ? "rgba(34,197,94,0.10)" : "rgba(255,255,255,0.06)",
+              background: done ? "rgba(76,195,138,0.10)" : "rgba(255,255,255,0.06)",
               color: done ? "var(--emerald)" : "var(--muted)",
-              border: done ? "1px solid rgba(34,197,94,0.2)" : "1px solid transparent",
+              border: done ? "1px solid rgba(76,195,138,0.2)" : "1px solid transparent",
             }}
           >
             <Check className="w-3 h-3" />
@@ -701,7 +701,7 @@ export default function PlaybookPage() {
           <Link
             href="/dashboard"
             className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110"
-            style={{ background: "var(--accent)", color: "#ffffff" }}
+            style={{ background: "var(--accent)", color: "var(--ink)" }}
           >
             Add competitor <ArrowRight className="w-4 h-4" />
           </Link>
@@ -734,7 +734,7 @@ export default function PlaybookPage() {
               {activePlays.length > 0 && (
                 <span
                   className="text-xs font-bold px-2 py-1 rounded-full"
-                  style={{ background: "rgba(59,130,246,0.12)", color: "#3b82f6" }}
+                  style={{ background: "rgba(255,178,36,0.12)", color: "#FFB224" }}
                 >
                   {activePlays.length} open
                 </span>
@@ -742,7 +742,7 @@ export default function PlaybookPage() {
               {streak > 0 && (
                 <span
                   className="text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"
-                  style={{ background: "rgba(245,158,11,0.12)", color: "var(--amber)" }}
+                  style={{ background: "rgba(255,178,36,0.12)", color: "var(--amber)" }}
                   title="Consecutive days you've executed at least one play"
                 >
                   <Flame className="w-3 h-3" />
@@ -752,7 +752,7 @@ export default function PlaybookPage() {
               {data.ai_source && (
                 <span
                   className="label-caps px-2 py-1 rounded-full flex items-center gap-1"
-                  style={{ background: "rgba(59,130,246,0.10)", color: "var(--accent)" }}
+                  style={{ background: "rgba(255,178,36,0.10)", color: "var(--accent)" }}
                 >
                   <Zap className="w-3 h-3" />
                   Scout AI
@@ -782,9 +782,9 @@ export default function PlaybookPage() {
           <div
             className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-xs"
             style={{
-              background: "rgba(96,165,250,0.06)",
-              border: "1px solid rgba(96,165,250,0.18)",
-              color: "#60a5fa",
+              background: "rgba(255,178,36,0.06)",
+              border: "1px solid rgba(255,178,36,0.18)",
+              color: "#FFB224",
             }}
           >
             <RefreshCw className="w-3.5 h-3.5 animate-spin shrink-0" />
@@ -817,8 +817,8 @@ export default function PlaybookPage() {
                   <span
                     className="text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
                     style={{
-                      background: tab === t ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.08)",
-                      color: tab === t ? "#3b82f6" : "var(--muted)",
+                      background: tab === t ? "rgba(255,178,36,0.15)" : "rgba(255,255,255,0.08)",
+                      color: tab === t ? "#FFB224" : "var(--muted)",
                     }}
                   >
                     {count}
@@ -895,7 +895,7 @@ export default function PlaybookPage() {
                     style={i < donePlays.length - 1 ? { borderBottom: "1px solid var(--border)" } : undefined}
                   >
                     <div className="flex items-center gap-3">
-                      <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#10b981" }} />
+                      <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#4CC38A" }} />
                       <p className="text-sm flex-1 truncate" style={{ color: "var(--muted)" }}>
                         {p.headline}
                       </p>

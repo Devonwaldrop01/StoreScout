@@ -119,7 +119,7 @@ const PLANS = [
     label: "Pro",
     price: "$29",
     per: "/mo",
-    accent: "#3b82f6",
+    accent: "#FFB224",
     features: [
       "10 competitors",
       "Daily auto-scans",
@@ -134,7 +134,7 @@ const PLANS = [
     label: "Agency",
     price: "$79",
     per: "/mo",
-    accent: "#38bdf8",
+    accent: "#7DB8C9",
     features: [
       "50 competitors",
       "Daily auto-scans",
@@ -397,7 +397,7 @@ function OnboardingContent() {
   const urlBorderColor =
     storeStatus === "ok" ? "var(--emerald)"
     : storeStatus === "restricted" ? "var(--amber)"
-    : storeStatus === "error" ? "#f87171"
+    : storeStatus === "error" ? "#F2555A"
     : "var(--border)";
 
   const categorySuggestions = category ? SUGGESTED_STORES[category] : [];
@@ -408,7 +408,7 @@ function OnboardingContent() {
       <header className="flex items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2">
           <div style={{ width: "24px", height: "24px", borderRadius: "6px", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Zap style={{ width: "12px", height: "12px", color: "#fff" }} />
+            <Zap style={{ width: "12px", height: "12px", color: "var(--ink)" }} />
           </div>
           <span className="font-bold text-sm" style={{ color: "var(--text)" }}>StoreScout</span>
         </div>
@@ -486,7 +486,7 @@ function OnboardingContent() {
                 </div>
 
                 {addError && (
-                  <div className="flex items-start gap-2 p-3 rounded-xl text-sm" style={{ background: "rgba(248,113,113,.1)", border: "1px solid rgba(248,113,113,.3)", color: "#fca5a5" }}>
+                  <div className="flex items-start gap-2 p-3 rounded-xl text-sm" style={{ background: "rgba(242,85,90,.1)", border: "1px solid rgba(242,85,90,.3)", color: "#F7999C" }}>
                     <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                     {addError}
                   </div>
@@ -501,7 +501,7 @@ function OnboardingContent() {
                       ? "opacity-50 cursor-not-allowed"
                       : "hover:brightness-110"
                   )}
-                  style={{ background: "var(--accent)", color: "#fff" }}
+                  style={{ background: "var(--accent)", color: "var(--ink)" }}
                 >
                   {submitting ? (
                     <>
@@ -552,7 +552,7 @@ function OnboardingContent() {
               {newCompetitorId && (
                 <div
                   className="flex items-center gap-2 px-3 py-2 rounded-lg mb-6"
-                  style={{ background: "rgba(59,130,246,.07)", border: "1px solid rgba(59,130,246,.15)" }}
+                  style={{ background: "rgba(255,178,36,.07)", border: "1px solid rgba(255,178,36,.15)" }}
                 >
                   <div className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ background: "var(--green)" }} />
                   <p className="text-xs font-medium" style={{ color: "var(--green)" }}>
@@ -567,10 +567,10 @@ function OnboardingContent() {
               {skipped && (
                 <div
                   className="flex items-center gap-2 px-3 py-2 rounded-lg mb-6"
-                  style={{ background: "rgba(56,189,248,.07)", border: "1px solid rgba(56,189,248,.2)" }}
+                  style={{ background: "rgba(125,184,201,.07)", border: "1px solid rgba(125,184,201,.2)" }}
                 >
-                  <Sparkles className="w-3.5 h-3.5 shrink-0" style={{ color: "#38bdf8" }} />
-                  <p className="text-xs font-medium" style={{ color: "#38bdf8" }}>
+                  <Sparkles className="w-3.5 h-3.5 shrink-0" style={{ color: "#7DB8C9" }} />
+                  <p className="text-xs font-medium" style={{ color: "#7DB8C9" }}>
                     Pick your category below and we'll suggest competitors to track
                   </p>
                 </div>
@@ -612,8 +612,8 @@ function OnboardingContent() {
                         onClick={() => setCategory(c)}
                         className="px-3 py-2.5 rounded-xl text-xs font-medium transition-all text-left"
                         style={{
-                          background: category === c ? "rgba(59,130,246,.1)" : "var(--bg3)",
-                          border: `1px solid ${category === c ? "rgba(59,130,246,.5)" : "var(--border)"}`,
+                          background: category === c ? "rgba(255,178,36,.1)" : "var(--bg3)",
+                          border: `1px solid ${category === c ? "rgba(255,178,36,.5)" : "var(--border)"}`,
                           color: category === c ? "var(--accent)" : "var(--muted)",
                         }}
                       >
@@ -688,8 +688,8 @@ function OnboardingContent() {
                           onClick={() => setGoalId(g.id)}
                           className="w-full flex items-start gap-3 px-4 py-3 rounded-xl transition-all text-left"
                           style={{
-                            background: selected ? "rgba(59,130,246,.07)" : "var(--bg3)",
-                            border: `1px solid ${selected ? "rgba(59,130,246,.5)" : "var(--border)"}`,
+                            background: selected ? "rgba(255,178,36,.07)" : "var(--bg3)",
+                            border: `1px solid ${selected ? "rgba(255,178,36,.5)" : "var(--border)"}`,
                           }}
                         >
                           <div
@@ -730,7 +730,7 @@ function OnboardingContent() {
                   "mt-8 w-full flex items-center justify-center gap-2 font-semibold py-3.5 rounded-xl transition-all",
                   !category || !goalId ? "opacity-40 cursor-not-allowed" : "hover:opacity-90"
                 )}
-                style={{ background: "var(--accent)", color: "#fff" }}
+                style={{ background: "var(--accent)", color: "var(--ink)" }}
               >
                 Next <ArrowRight className="w-4 h-4" />
               </button>
@@ -753,7 +753,7 @@ function OnboardingContent() {
               {newCompetitorId && (
                 <div
                   className="flex items-center gap-2 px-3 py-2 rounded-lg mb-6"
-                  style={{ background: "rgba(59,130,246,.07)", border: "1px solid rgba(59,130,246,.15)" }}
+                  style={{ background: "rgba(255,178,36,.07)", border: "1px solid rgba(255,178,36,.15)" }}
                 >
                   <div className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ background: scanDone ? "var(--emerald)" : "var(--green)" }} />
                   <p className="text-xs font-medium" style={{ color: "var(--green)" }}>
@@ -783,9 +783,9 @@ function OnboardingContent() {
                       style={{
                         background: selected
                           ? plan.id === "pro"
-                            ? "rgba(59,130,246,.07)"
+                            ? "rgba(255,178,36,.07)"
                             : plan.id === "agency"
-                            ? "rgba(56,189,248,.07)"
+                            ? "rgba(125,184,201,.07)"
                             : "rgba(255,255,255,.04)"
                           : "var(--bg3)",
                         border: `1px solid ${selected ? plan.accent : "var(--border)"}`,
@@ -803,7 +803,7 @@ function OnboardingContent() {
                             {selected && (
                               <div
                                 className="w-1.5 h-1.5 rounded-full"
-                                style={{ background: plan.id === "free" ? "var(--bg)" : "#060d18" }}
+                                style={{ background: plan.id === "free" ? "var(--bg)" : "#0B0C0A" }}
                               />
                             )}
                           </div>
@@ -813,7 +813,7 @@ function OnboardingContent() {
                           {plan.recommended && (
                             <span
                               className="text-xs px-2 py-0.5 rounded-full font-semibold"
-                              style={{ background: "rgba(59,130,246,.14)", color: "var(--green)" }}
+                              style={{ background: "rgba(255,178,36,.14)", color: "var(--green)" }}
                             >
                               Recommended
                             </span>
@@ -839,7 +839,7 @@ function OnboardingContent() {
               <button
                 onClick={() => setStep(4)}
                 className="w-full flex items-center justify-center gap-2 font-semibold py-3.5 rounded-xl hover:opacity-90 transition-all"
-                style={{ background: "var(--accent)", color: "#fff" }}
+                style={{ background: "var(--accent)", color: "var(--ink)" }}
               >
                 Continue with {PLANS.find((p) => p.id === selectedPlan)?.label}
                 <ArrowRight className="w-4 h-4" />
@@ -891,7 +891,7 @@ function OnboardingContent() {
                   <button
                     onClick={finish}
                     className="w-full flex items-center justify-center gap-2 font-semibold py-3.5 rounded-xl hover:opacity-90 transition-all"
-                    style={{ background: "var(--accent)", color: "#fff" }}
+                    style={{ background: "var(--accent)", color: "var(--ink)" }}
                   >
                     Go to dashboard <ArrowRight className="w-4 h-4" />
                   </button>
@@ -912,8 +912,8 @@ function OnboardingContent() {
                   <div
                     className="rounded-xl p-5 mb-6 transition-all duration-500"
                     style={{
-                      background: scanDone ? "rgba(34,197,94,.06)" : "var(--bg3)",
-                      border: `1px solid ${scanDone ? "rgba(34,197,94,.3)" : "var(--border)"}`,
+                      background: scanDone ? "rgba(76,195,138,.06)" : "var(--bg3)",
+                      border: `1px solid ${scanDone ? "rgba(76,195,138,.3)" : "var(--border)"}`,
                     }}
                   >
                     <div className="flex items-center gap-3 mb-4">
@@ -961,7 +961,7 @@ function OnboardingContent() {
                               <div
                                 className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-500"
                                 style={{
-                                  background: done ? "rgba(59,130,246,.14)" : "var(--bg3)",
+                                  background: done ? "rgba(255,178,36,.14)" : "var(--bg3)",
                                   border: `1px solid ${done ? "var(--green)" : "var(--border)"}`,
                                 }}
                               >
