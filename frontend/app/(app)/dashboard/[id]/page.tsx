@@ -54,7 +54,7 @@ function KpiCard({
   const deltaDown = delta?.up === false;
   const accentHex = accent?.startsWith("var(") ? "#FFB224" : (accent ?? "#FFB224");
   // Data marks use the validated series step, not the UI accent (dataviz)
-  const sparkHex = "#C47F00";
+  const sparkHex = "#6C7164";
 
   // Extract the numeric part: "▲ +5 vs last scan" → "+5"
   const badgeText = delta
@@ -156,7 +156,7 @@ function KpiCard({
               style={
                 locked
                   ? { background: "rgba(255,255,255,.04)", color: "var(--muted)", border: "1px solid var(--border)" }
-                  : { background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.2)" }
+                  : { background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }
               }
             >
               {locked && <Lock className="w-3 h-3" />}
@@ -201,7 +201,7 @@ function positioningDescription(label: string, score: number): string {
 }
 
 function PositioningBar({ label, score, scoreLabel }: { label: string; score: number; scoreLabel: string }) {
-  const color = score < 34 ? "#FFB224" : score < 67 ? "var(--amber)" : "var(--amber)";
+  const color = "#A8AC9E";
   const desc  = positioningDescription(label, score);
   return (
     <div
@@ -221,66 +221,6 @@ function PositioningBar({ label, score, scoreLabel }: { label: string; score: nu
 }
 
 // ── Top alert banner ──────────────────────────────────────────────────────────
-function TopAlertBanner({ change, hostname, onViewAll }: { change: ChangeEvent; hostname?: string; onViewAll: () => void }) {
-  const isCritical = change.severity === "critical";
-  // Orange for "urgent intelligence" — red is reserved for errors/broken states
-  const color      = isCritical ? "var(--amber)" : "var(--amber)";
-  const bg         = isCritical ? "rgba(255,178,36,.06)" : "rgba(255,178,36,.04)";
-  const border     = isCritical ? "rgba(255,178,36,.22)" : "rgba(255,178,36,.16)";
-  const old_v      = change.old_value || {};
-  const new_v      = change.new_value || {};
-  const action     = getChangeAction(change.change_type, change.delta_pct, change.severity, hostname);
-  let detail = "";
-  if (change.change_type === "price_change" && change.delta_pct != null)
-    detail = `${formatPrice(old_v.price as number)} → ${formatPrice(new_v.price as number)} (${formatDelta(change.delta_pct)})`;
-  else if (change.change_type === "discount_start" || change.change_type === "discount_end")
-    detail = `${formatPct(old_v.discounted_pct as number)} → ${formatPct(new_v.discounted_pct as number)} of catalog`;
-
-  return (
-    <div className="rounded-md p-4" style={{ background: bg, border: `1px solid ${border}` }}>
-      <div className="flex items-start gap-3">
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-          style={{ background: `${color}1a` }}
-        >
-          <Bell className="w-4 h-4" style={{ color }} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color }}>
-                {isCritical ? "Critical change" : "Recent alert"}
-              </span>
-              <span className="text-[10px]" style={{ color: "var(--muted)" }}>
-                {formatRelativeTime(change.detected_at)}
-              </span>
-            </div>
-            <button
-              onClick={onViewAll}
-              className="text-[11px] font-medium hover:underline shrink-0"
-              style={{ color: "var(--accent)" }}
-            >
-              View all →
-            </button>
-          </div>
-          <p className="text-sm font-semibold mt-0.5" style={{ color: "var(--text)" }}>
-            {change.product_title || change.change_type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
-          </p>
-          {detail && <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>{detail}</p>}
-          {action && (
-            <p
-              className="text-xs mt-2.5 px-2.5 py-1.5 rounded-lg inline-block"
-              style={{ background: "rgba(255,178,36,.07)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.14)" }}
-            >
-              ▶ {action}
-            </p>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── Change row ────────────────────────────────────────────────────────────────
 function ChangeRow({ change, hostname }: { change: ChangeEvent; hostname?: string }) {
   const Icon    = changeTypeIcon(change.change_type);
@@ -306,7 +246,7 @@ function ChangeRow({ change, hostname }: { change: ChangeEvent; hostname?: strin
     detail = inStock === false ? "went out of stock" : inStock === true ? "back in stock" : "";
   }
   const borderColor =
-    change.severity === "critical" ? "var(--amber)" :
+    change.severity === "critical" ? "var(--red)" :
     change.severity === "warning"  ? "var(--amber)" : "transparent";
 
   const action = getChangeAction(change.change_type, change.delta_pct, change.severity, hostname);
@@ -331,18 +271,6 @@ function ChangeRow({ change, hostname }: { change: ChangeEvent; hostname?: strin
         </div>
         {detail && (
           <p className="text-[11px] mt-0.5" style={{ color: "var(--muted)" }}>{detail}</p>
-        )}
-        {action && (change.severity === "critical" || change.severity === "warning") && (
-          <p
-            className="text-[11px] mt-1.5 px-2.5 py-1 rounded-md inline-block"
-            style={{
-              background: "rgba(255,178,36,.07)",
-              color: "var(--accent)",
-              border: "1px solid rgba(255,178,36,.15)",
-            }}
-          >
-            ▶ {action}
-          </p>
         )}
       </div>
       <p className="text-xs shrink-0" style={{ color: "var(--muted)" }}>
@@ -715,7 +643,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
       <div
         className="-mx-4 sm:-mx-6 px-4 sm:px-6 pt-6 pb-5 mb-6 relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, rgba(255,178,36,.05) 0%, transparent 60%)",
+          background: "linear-gradient(135deg, rgba(236,238,230,.04) 0%, transparent 60%)",
           borderBottom: "1px solid var(--border)",
         }}
       >
@@ -847,15 +775,15 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
               <button
                 onClick={() => setBriefExpanded(true)}
                 className="w-full flex items-center gap-2.5 mb-6 px-4 py-3 rounded-md transition-all text-left"
-                style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.16)" }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,178,36,.08)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,178,36,.05)"; }}
+                style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg3)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "var(--bg-card)"; }}
               >
                 <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ background: "rgba(255,178,36,.12)" }}
+                  className="w-7 h-7 rounded flex items-center justify-center shrink-0"
+                  style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
                 >
-                  <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
+                  <Sparkles className="w-4 h-4" style={{ color: "var(--text-2)" }} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Scout Brief ready</p>
@@ -881,23 +809,12 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
             {tab === "overview" && (
               <div className="space-y-6 fade-up">
 
-                {/* Top alert banner — most urgent change first */}
-                {topAlert && (
-                  <TopAlertBanner
-                    change={topAlert}
-                    hostname={hostname}
-                    onViewAll={() => setTab("changes")}
-                  />
-                )}
-
                 {/* KPI cards with trend deltas */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <KpiCard
                     label="Products"
                     value={(catalog.total_products as number)?.toLocaleString() ?? "—"}
-                    accent="#FFB224"
                     delta={deltaProd}
-                    sparkline={sparkProducts}
                     insight={`This store has ${(catalog.total_products as number)?.toLocaleString() ?? "an unknown number of"} active products. Compare this to your own catalog size to gauge competitive breadth.`}
                     actionLabel="Alert me when count changes"
                     onAction={() => isFree ? setUpgradeOpen(true) : router.push("/settings#notifications")}
@@ -906,7 +823,6 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   <KpiCard
                     label="Median Price"
                     value={formatPrice(pricing.median as number)}
-                    accent="#FFB224"
                     delta={deltaPrice}
                     sparkline={sparkPrice}
                     insight={`Their median price is ${formatPrice(pricing.median as number)}, ranging from ${formatPrice(pricing.min as number)} to ${formatPrice(pricing.max as number)}. This positions them in the ${(positioning.market_position as Record<string, unknown>)?.label ?? "mid-market"} segment.`}
@@ -917,7 +833,6 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   <KpiCard
                     label="Promo Rate"
                     value={formatPct(discounts.discounted_pct as number)}
-                    accent="var(--amber)"
                     delta={deltaPromo}
                     sparkline={sparkPromo}
                     insight={`${formatPct(discounts.discounted_pct as number)} of their catalog is currently discounted — average discount depth is ${formatPct(discounts.avg_discount_pct as number)}. A high promo rate can signal pricing pressure or clearance cycles.`}
@@ -928,7 +843,6 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   <KpiCard
                     label="New (30d)"
                     value={((launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? "—").toString()}
-                    accent="#4CC38A"
                     delta={deltaNew30d}
                     insight={`They launched ${((launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? 0)} products in the last 30 days. A high velocity often signals an aggressive growth phase or seasonal push.`}
                     actionLabel="Alert me when they launch"
@@ -948,11 +862,20 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                       <button
                         onClick={() => setTab("changes")}
                         className="text-xs font-medium hover:underline"
-                        style={{ color: "var(--accent)" }}
+                        style={{ color: "var(--text-2)" }}
                       >
                         View all {changes.length} →
                       </button>
                     </div>
+                    {topAlert && (() => {
+                      const action = getChangeAction(topAlert.change_type, topAlert.delta_pct, topAlert.severity, hostname);
+                      return action ? (
+                        <div className="px-5 py-3" style={{ background: "rgba(255,178,36,.05)", borderBottom: "1px solid var(--border)" }}>
+                          <p className="tick-label tick-label--live mb-1">Your move</p>
+                          <p className="text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>{action}</p>
+                        </div>
+                      ) : null;
+                    })()}
                     <div className="px-5" style={{ background: "var(--bg-card)" }}>
                       {changes.slice(0, 4).map((c) => <ChangeRow key={c.id} change={c} hostname={hostname} />)}
                     </div>
@@ -993,13 +916,13 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
                   >
                     <div className="flex items-center gap-2 mb-4">
-                      <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
+                      <Sparkles className="w-4 h-4" style={{ color: "var(--text-2)" }} />
                       <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>What This Means</h3>
                     </div>
                     <ul className="space-y-3">
                       {takeaways.map((t, i) => (
                         <li key={i} className="flex items-start gap-3 text-sm leading-snug" style={{ color: "var(--text-2)" }}>
-                          <span className="mt-1.5 w-1 h-1 rounded-full shrink-0" style={{ background: "var(--accent)" }} />
+                          <span className="mt-1.5 w-1 h-1 rounded-full shrink-0" style={{ background: "var(--muted)" }} />
                           {t}
                         </li>
                       ))}
@@ -1011,16 +934,16 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                 <Link
                   href="/settings?tab=integrations"
                   className="flex items-center gap-3 px-4 py-3 rounded-md transition-all hover:bg-white/[0.03]"
-                  style={{ background: "rgba(255,178,36,.04)", border: "1px solid rgba(255,178,36,.12)" }}
+                  style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
                 >
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(255,178,36,.1)" }}>
-                    <Zap className="w-4 h-4" style={{ color: "var(--accent)" }} />
+                  <div className="w-8 h-8 rounded flex items-center justify-center shrink-0" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+                    <Zap className="w-4 h-4" style={{ color: "var(--text-2)" }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>Connect Shopify, GA4, or Klaviyo</p>
                     <p className="text-xs" style={{ color: "var(--muted)" }}>Playbook recommendations become personalized to your actual store data</p>
                   </div>
-                  <span className="text-xs font-semibold shrink-0" style={{ color: "var(--accent)" }}>Set up →</span>
+                  <span className="text-xs font-semibold shrink-0" style={{ color: "var(--text-2)" }}>Set up →</span>
                 </Link>
 
                 {/* Watched products for this competitor */}
@@ -1068,7 +991,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
                 >
                   <div className="flex items-center gap-2 mb-4">
-                    <Tag className="w-4 h-4" style={{ color: "var(--amber)" }} />
+                    <Tag className="w-4 h-4" style={{ color: "var(--text-2)" }} />
                     <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Discount activity</h3>
                   </div>
                   <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -1082,7 +1005,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                         const toXY = (a: number) => ({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
                         const s    = toXY(sA); const e = toXY(eA - 0.001); const f = toXY(filled);
                         const la   = (eA - sA) * (pct / 100) > Math.PI ? 1 : 0;
-                        const color = pct > 50 ? "#FFB224" : pct > 25 ? "#FFB224" : "#7DB8C9";
+                        const color = pct > 50 ? "#F2555A" : pct > 25 ? "#FFB224" : "#7DB8C9";
                         return (
                           <svg viewBox="0 0 128 70" className="w-full h-full">
                             <path d={`M ${s.x} ${s.y} A ${r} ${r} 0 1 1 ${e.x} ${e.y}`} fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="10" strokeLinecap="round" />
@@ -1121,8 +1044,8 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   ) : (
                     <button
                       onClick={() => router.push("/settings#notifications")}
-                      className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 text-xs font-semibold rounded-md transition-all hover:brightness-110"
-                      style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.2)" }}
+                      className="mt-4 flex items-center gap-2 px-3 py-2 text-xs font-medium rounded transition-colors hover:bg-white/[.04]"
+                      style={{ color: "var(--text-2)", border: "1px solid var(--border)" }}
                     >
                       <Bell className="w-3.5 h-3.5" />
                       Set flash sale alert
@@ -1206,8 +1129,8 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                         {[
                           { icon: "↓", label: "Price drop",       color: "#4CC38A" },
                           { icon: "↑", label: "Price increase",   color: "#F2555A" },
-                          { icon: "+", label: "New product",      color: "#FFB224" },
-                          { icon: "✕", label: "Product removed",  color: "#FFB224" },
+                          { icon: "+", label: "New product",      color: "#2F9FC9" },
+                          { icon: "✕", label: "Product removed",  color: "#6C7164" },
                         ].map(({ icon, label, color }) => (
                           <div key={label} className="flex items-center gap-2 px-3 py-2 rounded-md" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
                             <span className="text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: `${color}15`, color }}>{icon}</span>
@@ -1275,7 +1198,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                                   : "Price positioning relative to market analyzed",
                               ].map((line, i) => (
                                 <div key={i} className="flex items-start gap-2">
-                                  <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--accent)" }} />
+                                  <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--muted)" }} />
                                   <p className="text-sm blur-sm" style={{ color: "var(--text-2)" }}>{line}</p>
                                 </div>
                               ))}
@@ -1353,7 +1276,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                               "One specific action you could take this week",
                             ].map((line, i) => (
                               <div key={i} className="flex items-start gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--accent)" }} />
+                                <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--muted)" }} />
                                 <p className="text-xs" style={{ color: "var(--text-2)" }}>{line}</p>
                               </div>
                             ))}

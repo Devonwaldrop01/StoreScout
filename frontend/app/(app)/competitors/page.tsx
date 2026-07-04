@@ -170,8 +170,8 @@ function CompetitorCard({
       <div className="flex items-center gap-2 mt-auto">
         <Link
           href={`/dashboard/${c.id}`}
-          className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-lg transition-all hover:brightness-110"
-          style={{ background: "var(--accent)", color: "var(--ink)" }}
+          className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded transition-colors hover:bg-white/[.06]"
+          style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
         >
           View details <ArrowRight className="w-3.5 h-3.5" />
         </Link>
@@ -401,12 +401,12 @@ function CompetitorsContent() {
               key={label}
               className="rounded-md px-4 py-3"
               style={{
-                background: highlight ? "rgba(255,178,36,.05)" : "var(--bg3)",
-                border: highlight ? "1px solid rgba(255,178,36,.2)" : "1px solid var(--border)",
+                background: "var(--bg3)",
+                border: "1px solid var(--border)",
               }}
             >
               <p className="text-[11px] font-medium mb-1" style={{ color: "var(--muted)" }}>{label}</p>
-              <p className="text-sm font-bold" style={{ color: highlight ? "var(--accent)" : "var(--text)" }}>{value}</p>
+              <p className="text-sm font-bold num" style={{ color: "var(--text)" }}>{value}</p>
             </div>
           ))}
         </div>
@@ -415,7 +415,7 @@ function CompetitorsContent() {
       {/* Competitor cards */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
-          <Target className="w-4 h-4" style={{ color: "var(--accent)" }} />
+          <Target className="w-4 h-4" style={{ color: "var(--text-2)" }} />
           <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Tracked stores</p>
         </div>
 
@@ -474,7 +474,7 @@ function CompetitorsContent() {
             style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
           >
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
+              <Sparkles className="w-4 h-4" style={{ color: "var(--text-2)" }} />
               <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Find competitors</p>
               <span className="text-xs" style={{ color: "var(--muted)" }}>— AI-powered</span>
             </div>

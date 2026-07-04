@@ -60,7 +60,7 @@ export function LaunchVelocityChart({ launchData }: Props) {
             {trendLabel}
           </span>
         </div>
-        <p className="num text-xs mt-1 font-semibold" style={{ color: "var(--accent)" }}>
+        <p className="num text-xs mt-1 font-semibold" style={{ color: "var(--text)" }}>
           {mostRecentCount} new this month
         </p>
       </div>
@@ -92,7 +92,7 @@ export function LaunchVelocityChart({ launchData }: Props) {
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={index === lastIndex ? "#FFB224" : "#C47F00"}
+                fill={index === lastIndex ? "#FFB224" : "#4A4E44"}
               />
             ))}
           </Bar>

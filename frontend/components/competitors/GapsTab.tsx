@@ -8,8 +8,8 @@ import UpgradeModal from "@/components/UpgradeModal";
 
 function opportunityLabel(opp?: number): { label: string; color: string } {
   const o = opp ?? 0;
-  if (o >= 0.6) return { label: "High opportunity", color: "#FFB224" };
-  if (o >= 0.35) return { label: "Moderate opportunity", color: "var(--amber)" };
+  if (o >= 0.6) return { label: "High opportunity", color: "#4CC38A" };
+  if (o >= 0.35) return { label: "Moderate opportunity", color: "var(--text-2)" };
   return { label: "Opportunity", color: "#A8AC9E" };
 }
 

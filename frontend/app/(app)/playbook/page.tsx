@@ -39,6 +39,16 @@ function saveFeedback(fb: Record<string, string>) {
   try { localStorage.setItem(FEEDBACK_KEY, JSON.stringify(fb)); } catch {}
 }
 
+// Per-play step checklist progress — the unit of "actually doing it"
+const STEPS_KEY = "playbook_steps_v1";
+function getSteps(): Record<string, boolean[]> {
+  try { return JSON.parse(localStorage.getItem(STEPS_KEY) || "{}"); }
+  catch { return {}; }
+}
+function saveSteps(steps: Record<string, boolean[]>) {
+  try { localStorage.setItem(STEPS_KEY, JSON.stringify(steps)); } catch {}
+}
+
 function computeStreak(ts: Record<string, string>): number {
   const dates = new Set(Object.values(ts).map((iso) => iso.slice(0, 10)));
   if (dates.size === 0) return 0;
@@ -63,8 +73,8 @@ function computeStreak(ts: Record<string, string>): number {
 
 const SECTION_META = {
   act_now:   { label: "Act Now",      desc: "Time-sensitive — competitor moves that need a response today",                           color: "#F2555A", dot: "#F2555A" },
-  right_now: { label: "Right Now",    desc: "Derived from your competitors' current catalog — no new move needed to trigger these",   color: "#FFB224", dot: "#FFB224" },
-  this_week: { label: "This Week",    desc: "Opportunities that are open now and compound the longer you wait",                      color: "#FFB224", dot: "#FFB224" },
+  right_now: { label: "Right Now",    desc: "Derived from your competitors' current catalog — no new move needed to trigger these",   color: "#A8AC9E", dot: "#A8AC9E" },
+  this_week: { label: "This Week",    desc: "Opportunities that are open now and compound the longer you wait",                      color: "#6C7164", dot: "#6C7164" },
 } as const;
 
 const SECTION_ORDER = ["act_now", "right_now", "this_week"] as const;
@@ -73,7 +83,7 @@ const DEADLINE_STYLE: Record<string, { bg: string; color: string }> = {
   "right now":  { bg: "rgba(242,85,90,0.12)",  color: "#F2555A" },
   "today":      { bg: "rgba(255,178,36,0.10)",  color: "var(--amber)" },
   "within 48h": { bg: "rgba(255,178,36,0.10)", color: "var(--amber)" },
-  "this week":  { bg: "rgba(255,178,36,0.08)",  color: "#FFB224" },
+  "this week":  { bg: "rgba(236,238,230,.06)",  color: "var(--text-2)" },
 };
 
 function deadlineStyle(d: string) {
@@ -156,7 +166,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
             <button
               onClick={() => copy(asset.subject!, "subject")}
               className="shrink-0 p-1.5 rounded-lg transition-all hover:bg-white/[0.06] mt-0.5"
-              style={{ color: copied === "subject" ? "#FFB224" : "var(--muted)" }}
+              style={{ color: copied === "subject" ? "#4CC38A" : "var(--muted)" }}
               title="Copy to clipboard"
             >
               {copied === "subject" ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -175,7 +185,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
             <button
               onClick={() => copy(asset.body_opening!, "body")}
               className="shrink-0 p-1.5 rounded-lg transition-all hover:bg-white/[0.06] mt-0.5"
-              style={{ color: copied === "body" ? "#FFB224" : "var(--muted)" }}
+              style={{ color: copied === "body" ? "#4CC38A" : "var(--muted)" }}
               title="Copy to clipboard"
             >
               {copied === "body" ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -199,7 +209,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
               <button
                 onClick={() => copy(asset.headlines!.join("\n"), "headlines")}
                 className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-md transition-all hover:bg-white/[0.06]"
-                style={{ color: copied === "headlines" ? "#FFB224" : "var(--muted)" }}
+                style={{ color: copied === "headlines" ? "#4CC38A" : "var(--muted)" }}
               >
                 {copied === "headlines" ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                 {copied === "headlines" ? "Copied" : "Copy all"}
@@ -231,7 +241,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
             <button
               onClick={() => copy(asset.ad_body!, "ad_body")}
               className="shrink-0 p-1.5 rounded-lg transition-all hover:bg-white/[0.06] mt-0.5"
-              style={{ color: copied === "ad_body" ? "#FFB224" : "var(--muted)" }}
+              style={{ color: copied === "ad_body" ? "#4CC38A" : "var(--muted)" }}
               title="Copy to clipboard"
             >
               {copied === "ad_body" ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -395,9 +405,9 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
           {play.draft_asset && play.draft_asset.type !== "none" && (
             <div
               className="p-4 rounded-md"
-              style={{ background: "rgba(255,178,36,0.04)", border: "1px solid rgba(255,178,36,0.15)" }}
+              style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
             >
-              <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "#FFB224" }}>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "var(--text-2)" }}>
                 ▶ {play.draft_asset.label || (play.draft_asset.type === "email" ? "Ready-to-send email" : "Ad copy options")}
               </p>
               <DraftAssetSection asset={play.draft_asset} />
@@ -408,9 +418,9 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
           {detail?.outcome && (
             <div
               className="rounded-md p-4"
-              style={{ background: "rgba(255,178,36,0.05)", border: "1px solid rgba(255,178,36,0.15)" }}
+              style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
             >
-              <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "#FFB224" }}>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--text-2)" }}>
                 Expected outcome
               </p>
               <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
@@ -442,9 +452,9 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
               onClick={() => { onDone(); onClose(); }}
               className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-md transition-all hover:brightness-110 flex-1 justify-center"
               style={{
-                background: isDone ? "rgba(255,178,36,0.12)" : "rgba(255,178,36,0.15)",
-                color: "#FFB224",
-                border: "1px solid rgba(255,178,36,0.25)",
+                background: isDone ? "rgba(76,195,138,.12)" : "var(--accent)",
+                color: isDone ? "var(--emerald)" : "var(--ink)",
+                border: isDone ? "1px solid rgba(76,195,138,.25)" : "1px solid transparent",
               }}
             >
               <Check className="w-4 h-4" />
@@ -477,16 +487,148 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
 
 // ── play card ─────────────────────────────────────────────────────────────────
 
-function PlayCard({ play, done, onDone, onOpen, isLast }: {
+// ── interactive step checklist ────────────────────────────────────────────────
+
+function StepChecklist({ steps, checked, onToggle }: {
+  steps: string[];
+  checked: boolean[];
+  onToggle: (idx: number) => void;
+}) {
+  if (steps.length === 0) return null;
+  const doneCount = checked.filter(Boolean).length;
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <p className="label-caps">Steps</p>
+        <span className="num text-[10px]" style={{ color: doneCount > 0 ? "var(--emerald)" : "var(--muted)" }}>
+          {doneCount}/{steps.length}
+        </span>
+      </div>
+      <div className="space-y-1">
+        {steps.map((step, i) => {
+          const isChecked = !!checked[i];
+          return (
+            <button
+              key={i}
+              onClick={(e) => { e.stopPropagation(); onToggle(i); }}
+              className="w-full flex items-start gap-2.5 px-3 py-2 rounded text-left transition-colors hover:bg-white/[.03]"
+              style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+            >
+              <span
+                className="w-4 h-4 rounded-sm flex items-center justify-center shrink-0 mt-px transition-colors"
+                style={{
+                  background: isChecked ? "var(--emerald)" : "transparent",
+                  border: isChecked ? "1px solid var(--emerald)" : "1px solid var(--muted)",
+                }}
+              >
+                {isChecked && <Check className="w-3 h-3" style={{ color: "var(--ink)" }} />}
+              </span>
+              <span
+                className="text-xs leading-relaxed flex-1"
+                style={{ color: isChecked ? "var(--muted)" : "var(--text-2)", textDecoration: isChecked ? "line-through" : "none" }}
+              >
+                {step}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── focus card — the single play to do FIRST ──────────────────────────────────
+
+function FocusCard({ play, onDone, onOpen, stepsChecked, onToggleStep }: {
+  play: PlaybookPlay;
+  onDone: () => void;
+  onOpen: () => void;
+  stepsChecked: boolean[];
+  onToggleStep: (idx: number) => void;
+}) {
+  const sectionMeta = SECTION_META[play.section as keyof typeof SECTION_META];
+  const sectionColor = sectionMeta?.color ?? "#A8AC9E";
+  const steps = play.detail?.steps ?? [];
+  const why = play.detail?.why;
+  const outcome = play.detail?.outcome;
+  const dl = deadlineStyle(play.deadline);
+
+  return (
+    <div className="panel panel-tick overflow-hidden fade-up">
+      <div className="px-5 pt-4 pb-5">
+        <div className="flex items-center gap-2 flex-wrap mb-2">
+          <p className="tick-label tick-label--live">Up next</p>
+          <span className="label-caps" style={{ color: sectionColor }}>{sectionMeta?.label ?? play.section}</span>
+          <span className="num text-[10px] px-1.5 py-0.5 rounded" style={{ background: dl.bg, color: dl.color }}>{play.deadline}</span>
+          <span className="num text-[10px] ml-auto" style={{ color: "var(--muted)" }}>{play.hostname}</span>
+        </div>
+
+        <p className="text-lg font-bold leading-snug mb-1" style={{ color: "var(--text)" }}>
+          {play.headline}
+        </p>
+        {why && (
+          <p className="text-xs leading-relaxed mb-3" style={{ color: "var(--text-2)" }}>
+            <span className="font-semibold" style={{ color: "var(--muted)" }}>Why now · </span>{why}
+          </p>
+        )}
+
+        <div className="space-y-4">
+          <StepChecklist steps={steps} checked={stepsChecked} onToggle={onToggleStep} />
+
+          {play.draft_asset && (
+            <div>
+              <p className="label-caps mb-2">Ready to paste</p>
+              <DraftAssetSection asset={play.draft_asset} />
+            </div>
+          )}
+
+          {outcome && (
+            <p className="text-xs leading-relaxed px-3 py-2 rounded" style={{ background: "var(--bg3)", color: "var(--muted)" }}>
+              <span className="font-semibold" style={{ color: "var(--emerald)" }}>Expected outcome · </span>{outcome}
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3 mt-4">
+          <button
+            onClick={onDone}
+            className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded transition-all hover:brightness-110"
+            style={{ background: "var(--accent)", color: "var(--ink)" }}
+          >
+            <Check className="w-3.5 h-3.5" />
+            Mark done
+          </button>
+          <button
+            onClick={onOpen}
+            className="flex items-center gap-1 text-xs font-medium ml-auto transition-opacity hover:opacity-70"
+            style={{ color: "var(--muted)" }}
+          >
+            Full detail <ArrowRight className="w-3 h-3" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── queue row — compact, expands in place ─────────────────────────────────────
+
+function PlayCard({ play, done, onDone, onOpen, isLast, stepsChecked, onToggleStep }: {
   play: PlaybookPlay;
   done: boolean;
   onDone: () => void;
   onOpen: () => void;
   isLast: boolean;
+  stepsChecked: boolean[];
+  onToggleStep: (idx: number) => void;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const sectionMeta = SECTION_META[play.section as keyof typeof SECTION_META];
   const sectionColor = sectionMeta?.color ?? "#A8AC9E";
+  const steps = play.detail?.steps ?? [];
+  const startedCount = stepsChecked.filter(Boolean).length;
   const why = play.detail?.why;
+  const dl = deadlineStyle(play.deadline);
 
   return (
     <div
@@ -497,61 +639,85 @@ function PlayCard({ play, done, onDone, onOpen, isLast }: {
         borderLeft: `3px solid ${sectionColor}`,
       }}
     >
-      <div className="px-4 py-4">
-        <div className="flex items-start justify-between gap-2 mb-1.5">
-          <span className="label-caps" style={{ color: sectionColor }}>{sectionMeta?.label ?? play.deadline}</span>
-          <span className="text-[10px]" style={{ color: "var(--muted)" }}>{play.hostname}</span>
+      {/* Compact row — click to expand in place */}
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full text-left px-4 py-3 transition-colors hover:bg-white/[.015]"
+      >
+        <div className="flex items-center gap-2 flex-wrap">
+          <p className="text-sm font-semibold leading-snug flex-1 min-w-[200px]" style={{ color: "var(--text)" }}>
+            {play.headline}
+          </p>
+          {startedCount > 0 && steps.length > 0 && (
+            <span className="num text-[10px] px-1.5 py-0.5 rounded" style={{ background: "rgba(76,195,138,.12)", color: "var(--emerald)" }}>
+              {startedCount}/{steps.length}
+            </span>
+          )}
+          <span className="num text-[10px] px-1.5 py-0.5 rounded shrink-0" style={{ background: dl.bg, color: dl.color }}>{play.deadline}</span>
+          <span className="num text-[10px] shrink-0" style={{ color: "var(--muted)" }}>{play.hostname}</span>
+          {expanded
+            ? <ChevronRight className="w-3.5 h-3.5 shrink-0 rotate-90 transition-transform" style={{ color: "var(--muted)" }} />
+            : <ChevronRight className="w-3.5 h-3.5 shrink-0 transition-transform" style={{ color: "var(--muted)" }} />}
         </div>
-
-        <p className="text-sm font-semibold leading-snug mb-1.5 line-clamp-2" style={{ color: "var(--text)" }}>
-          {play.headline}
-        </p>
-
-        {why && (
-          <p className="text-xs leading-relaxed mb-1.5 italic line-clamp-2" style={{ color: "var(--text-2)" }}>
-            {why.slice(0, 100)}{why.length > 100 ? "…" : ""}
+        {!expanded && (
+          <p className="text-xs leading-relaxed mt-1 line-clamp-1" style={{ color: "var(--muted)" }}>
+            {play.action}
           </p>
         )}
+      </button>
 
-        <p className="text-xs leading-relaxed mb-3 line-clamp-2" style={{ color: "var(--muted)" }}>
-          {play.action}
-        </p>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onDone}
-            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
-            style={{
-              background: done ? "rgba(76,195,138,0.10)" : "rgba(255,255,255,0.06)",
-              color: done ? "var(--emerald)" : "var(--muted)",
-              border: done ? "1px solid rgba(76,195,138,0.2)" : "1px solid transparent",
-            }}
-          >
-            <Check className="w-3 h-3" />
-            {done ? "Done" : "Mark done"}
-          </button>
-
-          <button
-            onClick={onOpen}
-            className="flex items-center gap-1 text-xs font-semibold ml-auto transition-opacity hover:opacity-70"
-            style={{ color: sectionColor }}
-          >
-            Details <ArrowRight className="w-3 h-3" />
-          </button>
+      {/* Expanded working area */}
+      {expanded && (
+        <div className="px-4 pb-4 space-y-4">
+          {why && (
+            <p className="text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>
+              <span className="font-semibold" style={{ color: "var(--muted)" }}>Why now · </span>{why}
+            </p>
+          )}
+          <StepChecklist steps={steps} checked={stepsChecked} onToggle={onToggleStep} />
+          {play.draft_asset && (
+            <div>
+              <p className="label-caps mb-2">Ready to paste</p>
+              <DraftAssetSection asset={play.draft_asset} />
+            </div>
+          )}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={(e) => { e.stopPropagation(); onDone(); }}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded transition-all"
+              style={{
+                background: done ? "rgba(76,195,138,0.10)" : "rgba(255,255,255,0.06)",
+                color: done ? "var(--emerald)" : "var(--text-2)",
+                border: done ? "1px solid rgba(76,195,138,0.2)" : "1px solid var(--border)",
+              }}
+            >
+              <Check className="w-3 h-3" />
+              {done ? "Done" : "Mark done"}
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onOpen(); }}
+              className="flex items-center gap-1 text-xs font-medium ml-auto transition-opacity hover:opacity-70"
+              style={{ color: "var(--muted)" }}
+            >
+              Full detail <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
 
 // ── section ───────────────────────────────────────────────────────────────────
 
-function PlaySection({ section, plays, done, onDone, onOpen }: {
+function PlaySection({ section, plays, done, onDone, onOpen, steps, onToggleStep }: {
   section: keyof typeof SECTION_META;
   plays: PlaybookPlay[];
   done: Set<string>;
   onDone: (id: string) => void;
   onOpen: (play: PlaybookPlay) => void;
+  steps: Record<string, boolean[]>;
+  onToggleStep: (playId: string, idx: number) => void;
 }) {
   const meta = SECTION_META[section];
   if (plays.length === 0) return null;
@@ -584,6 +750,8 @@ function PlaySection({ section, plays, done, onDone, onOpen }: {
             onDone={() => onDone(p.id)}
             onOpen={() => onOpen(p)}
             isLast={i === plays.length - 1}
+            stepsChecked={steps[p.id] ?? []}
+            onToggleStep={(idx) => onToggleStep(p.id, idx)}
           />
         ))}
       </div>
@@ -631,6 +799,7 @@ export default function PlaybookPage() {
   const [detailPlay,  setDetailPlay]  = useState<PlaybookPlay | null>(null);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [userTier,    setUserTier]    = useState<string>("free");
+  const [steps,       setSteps]       = useState<Record<string, boolean[]>>({});
 
   function load(isRefresh = false) {
     if (isRefresh) setRefreshing(true); else setLoading(true);
@@ -643,9 +812,20 @@ export default function PlaybookPage() {
   useEffect(() => {
     setDone(getDone());
     setFeedback(getFeedback());
+    setSteps(getSteps());
     load();
     userApi.subscription().then((r) => setUserTier(r.data.tier ?? "free")).catch(() => {});
   }, []);
+
+  function toggleStep(playId: string, idx: number) {
+    setSteps((prev) => {
+      const arr = [...(prev[playId] ?? [])];
+      arr[idx] = !arr[idx];
+      const next = { ...prev, [playId]: arr };
+      saveSteps(next);
+      return next;
+    });
+  }
 
   function markDone(id: string) {
     setDone((prev) => {
@@ -721,7 +901,9 @@ export default function PlaybookPage() {
     this_week: list.filter((p) => p.section === "this_week"),
   });
 
-  const activeSections = bySection(activePlays);
+  const focusPlay = activePlays[0] ?? null;
+  const queuePlays = activePlays.slice(1);
+  const activeSections = bySection(queuePlays);
 
   return (
     <>
@@ -736,7 +918,7 @@ export default function PlaybookPage() {
               {activePlays.length > 0 && (
                 <span
                   className="text-xs font-bold px-2 py-1 rounded-full"
-                  style={{ background: "rgba(255,178,36,0.12)", color: "#FFB224" }}
+                  style={{ background: "var(--bg3)", color: "var(--text-2)", border: "1px solid var(--border)" }}
                 >
                   {activePlays.length} open
                 </span>
@@ -744,7 +926,7 @@ export default function PlaybookPage() {
               {streak > 0 && (
                 <span
                   className="text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"
-                  style={{ background: "rgba(255,178,36,0.12)", color: "var(--amber)" }}
+                  style={{ background: "var(--bg3)", color: "var(--text-2)", border: "1px solid var(--border)" }}
                   title="Consecutive days you've executed at least one play"
                 >
                   <Flame className="w-3 h-3" />
@@ -754,7 +936,7 @@ export default function PlaybookPage() {
               {data.ai_source && (
                 <span
                   className="label-caps px-2 py-1 rounded-full flex items-center gap-1"
-                  style={{ background: "rgba(255,178,36,0.10)", color: "var(--accent)" }}
+                  style={{ background: "var(--bg3)", color: "var(--text-2)", border: "1px solid var(--border)" }}
                 >
                   <Zap className="w-3 h-3" />
                   Scout AI
@@ -784,9 +966,9 @@ export default function PlaybookPage() {
           <div
             className="flex items-center gap-2.5 px-4 py-3 rounded-md text-xs"
             style={{
-              background: "rgba(255,178,36,0.06)",
-              border: "1px solid rgba(255,178,36,0.18)",
-              color: "#FFB224",
+              background: "var(--bg3)",
+              border: "1px solid var(--border)",
+              color: "var(--text-2)",
             }}
           >
             <RefreshCw className="w-3.5 h-3.5 animate-spin shrink-0" />
@@ -819,8 +1001,8 @@ export default function PlaybookPage() {
                   <span
                     className="text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
                     style={{
-                      background: tab === t ? "rgba(255,178,36,0.15)" : "rgba(255,255,255,0.08)",
-                      color: tab === t ? "#FFB224" : "var(--muted)",
+                      background: tab === t ? "rgba(236,238,230,.10)" : "transparent",
+                      color: tab === t ? "var(--text)" : "var(--muted)",
                     }}
                   >
                     {count}
@@ -850,6 +1032,16 @@ export default function PlaybookPage() {
               )
             ) : (
               <div className="space-y-8">
+                {focusPlay && (
+                  <FocusCard
+                    play={focusPlay}
+                    onDone={() => markDone(focusPlay.id)}
+                    onOpen={() => setDetailPlay(focusPlay)}
+                    stepsChecked={steps[focusPlay.id] ?? []}
+                    onToggleStep={(idx) => toggleStep(focusPlay.id, idx)}
+                  />
+                )}
+                {queuePlays.length > 0 && <p className="tick-label -mb-4">Queue · {queuePlays.length}</p>}
                 {SECTION_ORDER.map((section) => (
                   <PlaySection
                     key={section}
@@ -858,6 +1050,8 @@ export default function PlaybookPage() {
                     done={done}
                     onDone={markDone}
                     onOpen={setDetailPlay}
+                    steps={steps}
+                    onToggleStep={toggleStep}
                   />
                 ))}
               </div>

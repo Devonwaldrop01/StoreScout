@@ -627,7 +627,7 @@ function SettingsContent() {
                       {isCurrent && (
                         <span
                           className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: "rgba(255,178,36,.1)", color: "#FFB224" }}
+                          style={{ background: "var(--bg3)", color: "var(--text-2)", border: "1px solid var(--border)" }}
                         >
                           Current
                         </span>
@@ -635,7 +635,7 @@ function SettingsContent() {
                       {plan.popular && !isCurrent && (
                         <span
                           className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: "rgba(255,178,36,.1)", color: "#FFB224" }}
+                          style={{ background: "var(--bg3)", color: "var(--text-2)", border: "1px solid var(--border)" }}
                         >
                           Popular
                         </span>
@@ -687,7 +687,7 @@ function SettingsContent() {
         <section className={sectionClass} style={sectionStyle}>
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4" style={{ color: "#FFB224" }} />
+              <Bell className="w-4 h-4" style={{ color: "var(--text-2)" }} />
               <h2 className="font-semibold" style={{ color: "var(--text)" }}>Email notifications</h2>
             </div>
             <span
@@ -713,8 +713,8 @@ function SettingsContent() {
                 disabled={saving}
                 className="w-full flex items-center justify-between gap-4 px-4 py-3.5 rounded-md text-left transition-all"
                 style={{
-                  background: prefs[key] ? "rgba(255,178,36,.06)" : "var(--bg3)",
-                  border: `1px solid ${prefs[key] ? "rgba(255,178,36,.2)" : "var(--border)"}`,
+                  background: prefs[key] ? "rgba(76,195,138,.05)" : "var(--bg3)",
+                  border: `1px solid ${prefs[key] ? "rgba(76,195,138,.2)" : "var(--border)"}`,
                 }}
               >
                 <div className="min-w-0">
@@ -723,7 +723,7 @@ function SettingsContent() {
                 </div>
                 <div
                   className="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors"
-                  style={{ background: prefs[key] ? "#FFB224" : "rgba(255,255,255,.12)" }}
+                  style={{ background: prefs[key] ? "#4CC38A" : "rgba(255,255,255,.12)" }}
                 >
                   <span
                     className="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg transition-transform"
@@ -833,7 +833,7 @@ function SettingsContent() {
           {/* Klaviyo */}
           <div className="mb-6 pb-6" style={{ borderBottom: "1px solid var(--border)" }}>
             <div className="flex items-center gap-2 mb-2">
-              <Zap className="w-4 h-4" style={{ color: "var(--amber)" }} />
+              <Zap className="w-4 h-4" style={{ color: "var(--text-2)" }} />
               <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Klaviyo</p>
               {klaviyoStatus?.connected && (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,178,36,0.1)", color: "#FFB224" }}>
@@ -849,14 +849,14 @@ function SettingsContent() {
             {klaviyoStatus?.connected ? (
               <div
                 className="flex items-center justify-between gap-4 px-4 py-3 rounded-md"
-                style={{ background: "rgba(255,178,36,0.05)", border: "1px solid rgba(255,178,36,0.18)" }}
+                style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
               >
                 <div>
                   <p className="text-xs font-mono font-medium" style={{ color: "var(--text)" }}>
                     {klaviyoStatus.key_preview}
                   </p>
                   {klaviyoTestResult && (
-                    <p className="text-xs mt-0.5" style={{ color: "#FFB224" }}>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>
                       {klaviyoTestResult.total_profiles.toLocaleString()} subscribers
                       {" · "}{klaviyoTestResult.list_count} list{klaviyoTestResult.list_count !== 1 ? "s" : ""}
                     </p>
@@ -906,7 +906,7 @@ function SettingsContent() {
           {/* Slack */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
-              <Hash className="w-4 h-4" style={{ color: "#FFB224" }} />
+              <Hash className="w-4 h-4" style={{ color: "var(--text-2)" }} />
               <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Slack incoming webhook</p>
               {prefs && (
                 <button
@@ -916,7 +916,7 @@ function SettingsContent() {
                     userApi.updatePrefs({ slack_enabled: next }).catch(() => {});
                   }}
                   className="ml-auto relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors"
-                  style={{ background: prefs.slack_enabled ? "#FFB224" : "rgba(255,255,255,.12)" }}
+                  style={{ background: prefs.slack_enabled ? "#4CC38A" : "rgba(255,255,255,.12)" }}
                 >
                   <span
                     className="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg transition-transform"
@@ -956,7 +956,7 @@ function SettingsContent() {
           {/* Generic webhook */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Globe className="w-4 h-4" style={{ color: "#FFB224" }} />
+              <Globe className="w-4 h-4" style={{ color: "var(--text-2)" }} />
               <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Webhook (Zapier, Make, custom)</p>
               {prefs && (
                 <button
@@ -966,7 +966,7 @@ function SettingsContent() {
                     userApi.updatePrefs({ webhook_enabled: next }).catch(() => {});
                   }}
                   className="ml-auto relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors"
-                  style={{ background: prefs.webhook_enabled ? "#FFB224" : "rgba(255,255,255,.12)" }}
+                  style={{ background: prefs.webhook_enabled ? "#4CC38A" : "rgba(255,255,255,.12)" }}
                 >
                   <span
                     className="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg transition-transform"
@@ -1010,7 +1010,7 @@ function SettingsContent() {
         <section className={sectionClass} style={sectionStyle}>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4" style={{ color: "#FFB224" }} />
+              <Users className="w-4 h-4" style={{ color: "var(--text-2)" }} />
               <h2 className="font-semibold" style={{ color: "var(--text)" }}>Team seats</h2>
             </div>
             <span className="text-xs font-mono" style={{ color: "var(--muted)" }}>
