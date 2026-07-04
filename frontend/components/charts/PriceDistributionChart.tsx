@@ -18,7 +18,7 @@ export function PriceDistributionChart({ pricingData }: Props) {
   if (!data.length) {
     return (
       <div
-        className="rounded-2xl p-8 text-center"
+        className="panel p-8 text-center"
         style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
       >
         <p className="text-sm" style={{ color: "var(--muted)" }}>No pricing data available</p>
@@ -35,20 +35,18 @@ export function PriceDistributionChart({ pricingData }: Props) {
 
   return (
     <div
-      className="rounded-2xl p-5"
+      className="panel p-5"
       style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
     >
       <div className="mb-4">
-        <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>
-          Price Distribution
-        </h3>
+        <h3 className="tick-label">Price distribution</h3>
         <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
           {totalCount} products across {data.length} price bands
         </p>
         {dominantEntry && (
           <span
-            className="inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-full mt-2"
-            style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)", border: "1px solid rgba(59,130,246,.18)" }}
+            className="inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded mt-2"
+            style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.18)" }}
           >
             Dominant band: {dominantEntry.name} · {dominantPct}% of products
           </span>
@@ -58,30 +56,31 @@ export function PriceDistributionChart({ pricingData }: Props) {
         <BarChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 4 }}>
           <XAxis
             dataKey="name"
-            tick={{ fill: "#7d92aa", fontSize: 11 }}
+            tick={{ fill: "#6C7164", fontSize: 10, fontFamily: "var(--font-mono)" }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: "#7d92aa", fontSize: 11 }}
+            tick={{ fill: "#6C7164", fontSize: 10, fontFamily: "var(--font-mono)" }}
             axisLine={false}
             tickLine={false}
           />
           <Tooltip
             contentStyle={{
-              background: "var(--bg3)",
-              border: "1px solid rgba(255,255,255,.09)",
-              borderRadius: 10,
-              color: "#eef3fa",
-              fontSize: 13,
+              background: "#161814",
+              border: "1px solid #262A22",
+              borderRadius: 6,
+              color: "#ECEEE6",
+              fontSize: 12,
+              fontFamily: "var(--font-mono)",
             }}
             cursor={{ fill: "rgba(255,255,255,.04)" }}
           />
-          <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+          <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={40}>
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry.count === maxCount ? "#3b82f6" : "rgba(96,165,250,.5)"}
+                fill={entry.count === maxCount ? "#FFB224" : "#C47F00"}
               />
             ))}
           </Bar>

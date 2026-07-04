@@ -30,7 +30,7 @@ function BrandPanel() {
       <div>
         <div className="flex items-center gap-2.5 mb-12">
           <div style={{ width: "30px", height: "30px", borderRadius: "8px", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Zap style={{ width: "15px", height: "15px", color: "#fff" }} />
+            <Zap style={{ width: "15px", height: "15px", color: "var(--ink)" }} />
           </div>
           <span className="text-base font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
         </div>
@@ -45,7 +45,7 @@ function BrandPanel() {
         <ul className="space-y-3">
           {BENEFITS.map((b) => (
             <li key={b} className="flex items-start gap-3">
-              <div className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "rgba(34,197,94,.15)" }}>
+              <div className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "rgba(76,195,138,.15)" }}>
                 <Check style={{ width: "10px", height: "10px", color: "var(--emerald)" }} />
               </div>
               <span className="text-sm" style={{ color: "var(--text-2)" }}>{b}</span>
@@ -100,9 +100,9 @@ export default function LoginPage() {
 
   const inputStyle = (field: string) => ({
     background: "var(--bg3)",
-    border: `1px solid ${focusedField === field ? "rgba(59,130,246,.5)" : "var(--border)"}`,
+    border: `1px solid ${focusedField === field ? "rgba(255,178,36,.5)" : "var(--border)"}`,
     color: "var(--text)",
-    boxShadow: focusedField === field ? "0 0 0 3px rgba(59,130,246,.08)" : "none",
+    boxShadow: focusedField === field ? "0 0 0 3px rgba(255,178,36,.08)" : "none",
     outline: "none",
     transition: "border-color 0.15s, box-shadow 0.15s",
   });
@@ -116,7 +116,7 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="flex items-center gap-2.5 mb-8 lg:hidden">
             <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Zap style={{ width: "14px", height: "14px", color: "#fff" }} />
+              <Zap style={{ width: "14px", height: "14px", color: "var(--ink)" }} />
             </div>
             <span className="text-base font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
           </div>
@@ -129,7 +129,7 @@ export default function LoginPage() {
             type="button"
             onClick={handleGoogleLogin}
             disabled={googleLoading || loading}
-            className="w-full flex items-center justify-center gap-3 py-3 rounded-xl font-medium text-sm mb-4 transition-all disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-3 py-3 rounded-md font-medium text-sm mb-4 transition-all disabled:opacity-50"
             style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
             onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,.15)")}
             onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
@@ -157,7 +157,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoFocus
-                className="w-full px-4 py-3 rounded-xl text-sm"
+                className="w-full px-4 py-3 rounded-md text-sm"
                 style={inputStyle("email")}
                 onFocus={() => setFocusedField("email")}
                 onBlur={() => setFocusedField(null)}
@@ -177,7 +177,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 pr-11 rounded-xl text-sm"
+                  className="w-full px-4 py-3 pr-11 rounded-md text-sm"
                   style={inputStyle("password")}
                   onFocus={() => setFocusedField("password")}
                   onBlur={() => setFocusedField(null)}
@@ -195,7 +195,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm" style={{ background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.2)", color: "#f87171" }}>
+              <div className="flex items-center gap-2 px-4 py-3 rounded-md text-sm" style={{ background: "rgba(242,85,90,.08)", border: "1px solid rgba(242,85,90,.2)", color: "#F2555A" }}>
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </div>
@@ -204,8 +204,8 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full font-semibold py-3 rounded-xl transition-all disabled:opacity-50"
-              style={{ background: "var(--accent)", color: "#fff" }}
+              className="w-full font-semibold py-3 rounded-md transition-all disabled:opacity-50"
+              style={{ background: "var(--accent)", color: "var(--ink)" }}
               onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
               onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
             >

@@ -18,7 +18,7 @@ export function LaunchVelocityChart({ launchData }: Props) {
   if (!data.length) {
     return (
       <div
-        className="rounded-2xl p-8 text-center"
+        className="panel p-8 text-center"
         style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
       >
         <p className="text-sm" style={{ color: "var(--muted)" }}>No launch timeline data</p>
@@ -50,19 +50,17 @@ export function LaunchVelocityChart({ launchData }: Props) {
 
   return (
     <div
-      className="rounded-2xl p-5"
+      className="panel p-5"
       style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
     >
       <div className="mb-4">
         <div className="flex items-center justify-between gap-3">
-          <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>
-            Monthly Product Launches (last 12 months)
-          </h3>
-          <span className="text-xs font-semibold shrink-0" style={{ color: trendColor }}>
+          <h3 className="tick-label">Monthly launches · 12 mo</h3>
+          <span className="num text-xs font-semibold shrink-0" style={{ color: trendColor }}>
             {trendLabel}
           </span>
         </div>
-        <p className="text-xs mt-1 font-semibold" style={{ color: "var(--accent)" }}>
+        <p className="num text-xs mt-1 font-semibold" style={{ color: "var(--accent)" }}>
           {mostRecentCount} new this month
         </p>
       </div>
@@ -70,30 +68,31 @@ export function LaunchVelocityChart({ launchData }: Props) {
         <BarChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 4 }}>
           <XAxis
             dataKey="month"
-            tick={{ fill: "#7d92aa", fontSize: 10 }}
+            tick={{ fill: "#6C7164", fontSize: 10, fontFamily: "var(--font-mono)" }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: "#7d92aa", fontSize: 11 }}
+            tick={{ fill: "#6C7164", fontSize: 10, fontFamily: "var(--font-mono)" }}
             axisLine={false}
             tickLine={false}
           />
           <Tooltip
             contentStyle={{
-              background: "#111118",
-              border: "1px solid rgba(255,255,255,.09)",
-              borderRadius: 10,
-              color: "#eef3fa",
-              fontSize: 13,
+              background: "#161814",
+              border: "1px solid #262A22",
+              borderRadius: 6,
+              color: "#ECEEE6",
+              fontSize: 12,
+              fontFamily: "var(--font-mono)",
             }}
             cursor={{ fill: "rgba(255,255,255,.04)" }}
           />
-          <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+          <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={28}>
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={index === lastIndex ? "rgba(96,165,250,1)" : "rgba(96,165,250,.7)"}
+                fill={index === lastIndex ? "#FFB224" : "#C47F00"}
               />
             ))}
           </Bar>

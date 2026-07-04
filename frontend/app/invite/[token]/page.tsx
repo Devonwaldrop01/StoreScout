@@ -58,58 +58,58 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#060d18" }}>
-        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#3b82f6" }} />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0B0C0A" }}>
+        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#FFB224" }} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: "#060d18" }}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: "#0B0C0A" }}>
       <div className="mb-8">
-        <span style={{ color: "#3b82f6", fontWeight: 700, fontSize: 18 }}>StoreScout</span>
+        <span style={{ color: "#FFB224", fontWeight: 700, fontSize: 18 }}>StoreScout</span>
       </div>
 
       <div
-        className="w-full max-w-md rounded-2xl p-8"
-        style={{ background: "#0e1d35", border: "1px solid #1e3a5f" }}
+        className="w-full max-w-md rounded-md p-8"
+        style={{ background: "#161814", border: "1px solid #262A22" }}
       >
         {inviteError ? (
           <div className="text-center">
-            <XCircle className="w-10 h-10 mx-auto mb-4" style={{ color: "#f87171" }} />
-            <h1 className="text-lg font-bold mb-2" style={{ color: "#eef3fa" }}>Invite unavailable</h1>
+            <XCircle className="w-10 h-10 mx-auto mb-4" style={{ color: "#F2555A" }} />
+            <h1 className="text-lg font-bold mb-2" style={{ color: "#ECEEE6" }}>Invite unavailable</h1>
             <p className="text-sm" style={{ color: "#6b7fa3" }}>{inviteError}</p>
-            <Link href="/" className="inline-block mt-6 text-sm font-medium hover:underline" style={{ color: "#3b82f6" }}>
+            <Link href="/" className="inline-block mt-6 text-sm font-medium hover:underline" style={{ color: "#FFB224" }}>
               Go to StoreScout →
             </Link>
           </div>
         ) : accepted ? (
           <div className="text-center">
-            <CheckCircle className="w-10 h-10 mx-auto mb-4" style={{ color: "#3b82f6" }} />
-            <h1 className="text-lg font-bold mb-2" style={{ color: "#eef3fa" }}>You&apos;re in!</h1>
+            <CheckCircle className="w-10 h-10 mx-auto mb-4" style={{ color: "#FFB224" }} />
+            <h1 className="text-lg font-bold mb-2" style={{ color: "#ECEEE6" }}>You&apos;re in!</h1>
             <p className="text-sm" style={{ color: "#6b7fa3" }}>Redirecting to the dashboard…</p>
           </div>
         ) : (
           <>
             <div className="flex items-center gap-3 mb-6">
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: "rgba(59,130,246,.1)", border: "1px solid rgba(59,130,246,.2)" }}
+                className="w-10 h-10 rounded-md flex items-center justify-center shrink-0"
+                style={{ background: "rgba(255,178,36,.1)", border: "1px solid rgba(255,178,36,.2)" }}
               >
-                <Users className="w-5 h-5" style={{ color: "#3b82f6" }} />
+                <Users className="w-5 h-5" style={{ color: "#FFB224" }} />
               </div>
               <div>
-                <h1 className="font-bold text-base" style={{ color: "#eef3fa" }}>Team invite</h1>
+                <h1 className="font-bold text-base" style={{ color: "#ECEEE6" }}>Team invite</h1>
                 <p className="text-xs" style={{ color: "#6b7fa3" }}>StoreScout</p>
               </div>
             </div>
 
-            <p className="text-sm leading-relaxed mb-2" style={{ color: "#c8d8f0" }}>
-              <strong style={{ color: "#eef3fa" }}>{invite?.owner_email}</strong> has invited you
+            <p className="text-sm leading-relaxed mb-2" style={{ color: "#A8AC9E" }}>
+              <strong style={{ color: "#ECEEE6" }}>{invite?.owner_email}</strong> has invited you
               to access their competitor intelligence dashboard.
             </p>
             <p className="text-sm mb-6" style={{ color: "#6b7fa3" }}>
-              This invite is for <strong style={{ color: "#c8d8f0" }}>{invite?.invited_email}</strong>.
+              This invite is for <strong style={{ color: "#A8AC9E" }}>{invite?.invited_email}</strong>.
             </p>
 
             {session ? (
@@ -118,19 +118,19 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                   <button
                     onClick={handleAccept}
                     disabled={accepting}
-                    className="w-full flex items-center justify-center gap-2 font-bold py-3 rounded-xl transition-all hover:brightness-110 disabled:opacity-60"
-                    style={{ background: "#3b82f6", color: "#060d18" }}
+                    className="w-full flex items-center justify-center gap-2 font-bold py-3 rounded-md transition-all hover:brightness-110 disabled:opacity-60"
+                    style={{ background: "#FFB224", color: "#0B0C0A" }}
                   >
                     {accepting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                     Accept invite
                   </button>
                   {acceptError && (
-                    <p className="text-xs mt-3 text-center" style={{ color: "#f87171" }}>{acceptError}</p>
+                    <p className="text-xs mt-3 text-center" style={{ color: "#F2555A" }}>{acceptError}</p>
                   )}
                 </>
               ) : (
-                <div className="rounded-xl p-4 text-sm" style={{ background: "rgba(248,113,113,.08)", border: "1px solid rgba(248,113,113,.2)" }}>
-                  <p style={{ color: "#fca5a5" }}>
+                <div className="rounded-md p-4 text-sm" style={{ background: "rgba(242,85,90,.08)", border: "1px solid rgba(242,85,90,.2)" }}>
+                  <p style={{ color: "#F7999C" }}>
                     You&apos;re signed in as <strong>{session.email}</strong>, but this invite is for{" "}
                     <strong>{invite?.invited_email}</strong>.
                   </p>
@@ -142,19 +142,19 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
             ) : (
               <div className="space-y-3">
                 <p className="text-sm mb-4" style={{ color: "#6b7fa3" }}>
-                  Sign in or create an account with <strong style={{ color: "#c8d8f0" }}>{invite?.invited_email}</strong> to accept.
+                  Sign in or create an account with <strong style={{ color: "#A8AC9E" }}>{invite?.invited_email}</strong> to accept.
                 </p>
                 <Link
                   href={`/auth/sign-in?redirect=/invite/${token}`}
-                  className="block w-full text-center font-bold py-3 rounded-xl transition-all hover:brightness-110"
-                  style={{ background: "#3b82f6", color: "#060d18" }}
+                  className="block w-full text-center font-bold py-3 rounded-md transition-all hover:brightness-110"
+                  style={{ background: "#FFB224", color: "#0B0C0A" }}
                 >
                   Sign in
                 </Link>
                 <Link
                   href={`/auth/sign-up?redirect=/invite/${token}`}
-                  className="block w-full text-center font-semibold py-3 rounded-xl transition-all hover:bg-white/5"
-                  style={{ border: "1px solid #1e3a5f", color: "#c8d8f0" }}
+                  className="block w-full text-center font-semibold py-3 rounded-md transition-all hover:bg-white/5"
+                  style={{ border: "1px solid #262A22", color: "#A8AC9E" }}
                 >
                   Create account
                 </Link>

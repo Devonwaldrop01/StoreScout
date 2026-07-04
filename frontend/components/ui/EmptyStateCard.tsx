@@ -16,12 +16,12 @@ interface EmptyStateCardProps {
 export function EmptyStateCard({ icon: Icon, headline, body, hint, examples, cta_label, cta_href, cta_onClick }: EmptyStateCardProps) {
   return (
     <div
-      className="rounded-xl p-8 text-center fade-in"
+      className="rounded-md p-8 text-center fade-in"
       style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
     >
       {Icon && (
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-4"
+          className="w-10 h-10 rounded-md flex items-center justify-center mx-auto mb-4"
           style={{ background: "rgba(255,255,255,.04)", border: "1px solid var(--border)" }}
         >
           <Icon className="w-5 h-5" style={{ color: "var(--muted)" }} />
@@ -51,7 +51,7 @@ export function EmptyStateCard({ icon: Icon, headline, body, hint, examples, cta
             <Link
               href={cta_href}
               className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:brightness-110"
-              style={{ background: "var(--accent)", color: "#ffffff" }}
+              style={{ background: "var(--accent)", color: "var(--ink)" }}
             >
               {cta_label}
             </Link>
@@ -59,7 +59,7 @@ export function EmptyStateCard({ icon: Icon, headline, body, hint, examples, cta
             <button
               onClick={cta_onClick}
               className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg transition-all hover:brightness-110"
-              style={{ background: "var(--accent)", color: "#ffffff" }}
+              style={{ background: "var(--accent)", color: "var(--ink)" }}
             >
               {cta_label}
             </button>

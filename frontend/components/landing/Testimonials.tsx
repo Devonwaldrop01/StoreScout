@@ -31,7 +31,7 @@ export function Testimonials() {
   return (
     <div className="max-w-5xl mx-auto px-6 pb-28">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-black mb-3" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
+        <h2 className="text-3xl font-bold mb-3" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
           What operators say
         </h2>
         <p className="text-sm" style={{ color: "var(--muted)" }}>From real StoreScout users</p>
@@ -45,7 +45,7 @@ export function Testimonials() {
           >
             <div className="flex gap-0.5">
               {[1, 2, 3, 4, 5].map((s) => (
-                <span key={s} className="text-sm" style={{ color: s <= t.rating ? "#3b82f6" : "var(--border)" }}>★</span>
+                <span key={s} className="text-sm" style={{ color: s <= t.rating ? "#FFB224" : "var(--border)" }}>★</span>
               ))}
             </div>
             <p className="text-sm leading-relaxed flex-1" style={{ color: "var(--muted)" }}>
@@ -54,7 +54,7 @@ export function Testimonials() {
             <div className="flex items-center gap-2.5">
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)" }}
+                style={{ background: "rgba(255,178,36,.12)", color: "var(--accent)" }}
               >
                 {t.initials || "★"}
               </div>

@@ -8,7 +8,7 @@ type ActionCardType = "threat" | "opportunity" | "gap";
 const TYPE_CONFIG: Record<ActionCardType, { color: string; label: string }> = {
   threat:      { color: "var(--red)",     label: "Threat" },
   opportunity: { color: "var(--emerald)", label: "Opportunity" },
-  gap:         { color: "#7c8aa0",        label: "Gap" },
+  gap:         { color: "#6C7164",        label: "Gap" },
 };
 
 interface ActionCardProps {
@@ -26,7 +26,7 @@ export function ActionCard({ type, headline, action_text, context, hostname, com
   const cfg = TYPE_CONFIG[type] ?? TYPE_CONFIG.opportunity;
   return (
     <div
-      className="relative rounded-xl p-5 flex flex-col fade-in"
+      className="relative rounded-md p-5 flex flex-col fade-in"
       style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: `3px solid ${cfg.color}` }}
     >
       {onDismiss && (

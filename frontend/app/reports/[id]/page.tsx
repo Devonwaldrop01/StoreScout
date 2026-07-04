@@ -10,7 +10,7 @@ import { PriceDistributionChart } from "@/components/charts/PriceDistributionCha
 
 function KpiCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl p-4 space-y-1" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+    <div className="rounded-md p-4 space-y-1" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
       <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>{label}</p>
       <p className="text-2xl font-bold font-mono" style={{ color: "var(--text)" }}>{value}</p>
     </div>
@@ -21,9 +21,9 @@ function PositioningBar({ label, pos }: { label: string; pos: Record<string, unk
   if (!pos) return null;
   const score = (pos.score as number) ?? 50;
   const scoreLabel = (pos.label as string) ?? "—";
-  const color = score < 34 ? "#22d3ee" : score < 67 ? "#3b82f6" : "#f87171";
+  const color = score < 34 ? "#7DB8C9" : score < 67 ? "#FFB224" : "#F2555A";
   return (
-    <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+    <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
       <p className="text-xs mb-2" style={{ color: "var(--muted)" }}>{label}</p>
       <div className="flex items-center justify-between mb-2">
         <span className="font-semibold text-sm" style={{ color }}>{scoreLabel}</span>
@@ -38,30 +38,30 @@ function PositioningBar({ label, pos }: { label: string; pos: Record<string, unk
 
 const BRIEF_CARD_STYLES = {
   signal: {
-    color: "#3b82f6",
-    bg: "rgba(59,130,246,.06)",
-    border: "rgba(59,130,246,.18)",
+    color: "#FFB224",
+    bg: "rgba(255,178,36,.06)",
+    border: "rgba(255,178,36,.18)",
     label: "Signal",
     Icon: TrendingUp,
   },
   opportunity: {
-    color: "#3b82f6",
-    bg: "rgba(59,130,246,.06)",
-    border: "rgba(59,130,246,.18)",
+    color: "#FFB224",
+    bg: "rgba(255,178,36,.06)",
+    border: "rgba(255,178,36,.18)",
     label: "Opportunity",
     Icon: Target,
   },
   watch: {
-    color: "#f59e0b",
-    bg: "rgba(245,158,11,.06)",
-    border: "rgba(245,158,11,.18)",
+    color: "#FFB224",
+    bg: "rgba(255,178,36,.06)",
+    border: "rgba(255,178,36,.18)",
     label: "Watch Closely",
     Icon: Eye,
   },
   action: {
-    color: "#22c55e",
-    bg: "rgba(34,197,94,.06)",
-    border: "rgba(34,197,94,.18)",
+    color: "#4CC38A",
+    bg: "rgba(76,195,138,.06)",
+    border: "rgba(76,195,138,.18)",
     label: "Your Move",
     Icon: Zap,
   },
@@ -75,14 +75,14 @@ function AiBriefSection({ brief }: { brief: NonNullable<PublicReport["ai_brief"]
       <div className="flex items-center gap-2 mb-4">
         <div
           className="w-6 h-6 rounded-lg flex items-center justify-center"
-          style={{ background: "rgba(59,130,246,.12)" }}
+          style={{ background: "rgba(255,178,36,.12)" }}
         >
-          <Zap className="w-3.5 h-3.5" style={{ color: "#3b82f6" }} />
+          <Zap className="w-3.5 h-3.5" style={{ color: "#FFB224" }} />
         </div>
         <h2 className="text-sm font-bold" style={{ color: "var(--text)" }}>AI Intelligence Brief</h2>
         <span
           className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
-          style={{ background: "rgba(59,130,246,.1)", color: "#3b82f6" }}
+          style={{ background: "rgba(255,178,36,.1)", color: "#FFB224" }}
         >
           Powered by Claude
         </span>
@@ -94,7 +94,7 @@ function AiBriefSection({ brief }: { brief: NonNullable<PublicReport["ai_brief"]
           return (
             <div
               key={card.type}
-              className="rounded-2xl p-5"
+              className="rounded-md p-5"
               style={{ background: style.bg, border: `1px solid ${style.border}` }}
             >
               <div className="flex items-center gap-2 mb-3">
@@ -160,8 +160,8 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
         <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>This link may have expired or be invalid.</p>
         <Link
           href="/auth/signup"
-          className="flex items-center gap-2 font-semibold px-6 py-3 rounded-xl transition-all hover:brightness-110"
-          style={{ background: "var(--accent)", color: "#060d18" }}
+          className="flex items-center gap-2 font-semibold px-6 py-3 rounded-md transition-all hover:brightness-110"
+          style={{ background: "var(--accent)", color: "#0B0C0A" }}
         >
           Track your own competitors free
           <ArrowRight className="w-4 h-4" />
@@ -188,14 +188,14 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
             className="w-6 h-6 rounded-lg flex items-center justify-center"
             style={{ background: "var(--accent)" }}
           >
-            <Zap className="w-3.5 h-3.5" style={{ color: "#ffffff" }} />
+            <Zap className="w-3.5 h-3.5" style={{ color: "var(--ink)" }} />
           </div>
           <span className="font-bold" style={{ color: "var(--text)" }}>StoreScout</span>
         </Link>
         <div className="flex items-center gap-3">
           <button
             onClick={handleShare}
-            className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-xl transition-colors hover:bg-white/10"
+            className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-md transition-colors hover:bg-white/10"
             style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
           >
             {copied ? <Check className="w-3.5 h-3.5" style={{ color: "var(--emerald)" }} /> : <Share2 className="w-3.5 h-3.5" />}
@@ -204,16 +204,16 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
           {isLoggedIn ? (
             <Link
               href={dashboardAddUrl}
-              className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110"
-              style={{ background: "var(--accent)", color: "#060d18" }}
+              className="text-sm font-semibold px-4 py-2 rounded-md transition-all hover:brightness-110"
+              style={{ background: "var(--accent)", color: "#0B0C0A" }}
             >
               Add to dashboard
             </Link>
           ) : (
             <Link
               href={signupUrl}
-              className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110"
-              style={{ background: "var(--accent)", color: "#060d18" }}
+              className="text-sm font-semibold px-4 py-2 rounded-md transition-all hover:brightness-110"
+              style={{ background: "var(--accent)", color: "#0B0C0A" }}
             >
               Track competitors free
             </Link>
@@ -226,12 +226,12 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
         <div className="mb-8">
           <div
             className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-4"
-            style={{ background: "rgba(59,130,246,.1)", color: "#3b82f6", border: "1px solid rgba(59,130,246,.2)" }}
+            style={{ background: "rgba(255,178,36,.1)", color: "#FFB224", border: "1px solid rgba(255,178,36,.2)" }}
           >
             <span className="w-2 h-2 rounded-full bg-current" />
             StoreScout Intelligence Report
           </div>
-          <h1 className="text-3xl font-black mb-1" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
+          <h1 className="text-3xl font-bold mb-1" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
             {hostname}
           </h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
@@ -281,8 +281,8 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
         {/* Key takeaways */}
         {takeaways.length > 0 && (
           <div
-            className="rounded-2xl p-5 mb-8"
-            style={{ background: "rgba(59,130,246,.08)", border: "1px solid rgba(59,130,246,.2)" }}
+            className="rounded-md p-5 mb-8"
+            style={{ background: "rgba(255,178,36,.08)", border: "1px solid rgba(255,178,36,.2)" }}
           >
             <h3 className="font-semibold mb-3 text-sm" style={{ color: "#93c5fd" }}>Key insights</h3>
             <ul className="space-y-2">
@@ -298,8 +298,8 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
 
         {/* CTA */}
         <div
-          className="rounded-2xl p-8 text-center"
-          style={{ background: "rgba(59,130,246,.05)", border: "1px solid rgba(59,130,246,.2)" }}
+          className="rounded-md p-8 text-center"
+          style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.2)" }}
         >
           {isLoggedIn ? (
             <>
@@ -311,8 +311,8 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
               </p>
               <Link
                 href={dashboardAddUrl}
-                className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all hover:brightness-110"
-                style={{ background: "var(--accent)", color: "#060d18" }}
+                className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-md transition-all hover:brightness-110"
+                style={{ background: "var(--accent)", color: "#0B0C0A" }}
               >
                 Add to my dashboard
                 <ArrowRight className="w-4 h-4" />
@@ -328,8 +328,8 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
               </p>
               <Link
                 href={signupUrl}
-                className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all hover:brightness-110"
-                style={{ background: "var(--accent)", color: "#060d18" }}
+                className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-md transition-all hover:brightness-110"
+                style={{ background: "var(--accent)", color: "#0B0C0A" }}
               >
                 Start tracking free
                 <ArrowRight className="w-4 h-4" />
@@ -341,7 +341,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
         {/* Footer attribution */}
         <div className="mt-8 flex items-center justify-center gap-2 text-xs" style={{ color: "var(--muted)" }}>
           <span>Powered by</span>
-          <Link href="/" className="flex items-center gap-1 font-semibold hover:opacity-80" style={{ color: "#3b82f6" }}>
+          <Link href="/" className="flex items-center gap-1 font-semibold hover:opacity-80" style={{ color: "#FFB224" }}>
             <Zap className="w-3 h-3" />
             StoreScout
           </Link>

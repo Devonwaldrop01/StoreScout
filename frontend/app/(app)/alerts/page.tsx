@@ -83,14 +83,16 @@ export default function AlertsPage() {
     <div className="fade-up">
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold" style={{ color: "var(--text)" }}>
-            Alerts
+        <div>
+          <p className="tick-label mb-1.5">Intel · live feed</p>
+          <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold tracking-tight" style={{ color: "var(--text)" }}>
+            Signals
           </h1>
           {!loading && strategicCount > 0 && (
             <span
               className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
-              style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)" }}
+              style={{ background: "rgba(255,178,36,.12)", color: "var(--accent)" }}
             >
               {strategicCount} strategic signal{strategicCount !== 1 ? "s" : ""}
             </span>
@@ -98,11 +100,12 @@ export default function AlertsPage() {
           {!loading && strategicCount === 0 && alertList.length > 0 && (
             <span
               className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
-              style={{ background: "rgba(59,130,246,.12)", color: "var(--accent)" }}
+              style={{ background: "rgba(255,178,36,.12)", color: "var(--accent)" }}
             >
               {alertList.length} change{alertList.length !== 1 ? "s" : ""}
             </span>
           )}
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -111,7 +114,7 @@ export default function AlertsPage() {
             <button
               onClick={handleMarkAllRead}
               disabled={markingRead}
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl transition-all hover:opacity-80 disabled:opacity-50"
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md transition-all hover:opacity-80 disabled:opacity-50"
               style={{ background: "var(--bg3)", color: "var(--muted)", border: "1px solid var(--border)" }}
               title={`Mark all ${unreadCount} as read`}
             >
@@ -119,7 +122,7 @@ export default function AlertsPage() {
               Mark all read
               <span
                 className="px-1.5 py-0.5 rounded-full text-[10px] font-bold"
-                style={{ background: "rgba(59,130,246,.15)", color: "var(--accent)" }}
+                style={{ background: "rgba(255,178,36,.15)", color: "var(--accent)" }}
               >
                 {unreadCount}
               </span>
@@ -130,7 +133,7 @@ export default function AlertsPage() {
           <button
             onClick={() => load(true)}
             disabled={refreshing || loading}
-            className="p-1.5 rounded-xl transition-all hover:bg-white/5 disabled:opacity-40"
+            className="p-1.5 rounded-md transition-all hover:bg-white/5 disabled:opacity-40"
             style={{ color: "var(--muted)" }}
             title="Refresh"
           >
@@ -159,7 +162,7 @@ export default function AlertsPage() {
       {/* ── Narrative bar ────────────────────────────────────────────────────── */}
       {!loading && narrative && (
         <div
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl mb-5 text-xs font-medium fade-up-1"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-md mb-5 text-xs font-medium fade-up-1"
           style={{
             background: "var(--bg3)",
             border: "1px solid var(--border)",
@@ -182,7 +185,7 @@ export default function AlertsPage() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
               style={
                 active
-                  ? { background: "var(--accent)", color: "#ffffff" }
+                  ? { background: "var(--accent)", color: "var(--ink)" }
                   : { background: "var(--bg4)", color: "var(--muted)", border: "1px solid var(--border)" }
               }
             >
@@ -191,7 +194,7 @@ export default function AlertsPage() {
                 className="px-1.5 py-0.5 rounded-full text-[10px] font-bold tabular-nums"
                 style={
                   active
-                    ? { background: "rgba(0,0,0,.18)", color: "#ffffff" }
+                    ? { background: "rgba(0,0,0,.22)", color: "var(--ink)" }
                     : { background: "rgba(255,255,255,.06)", color: "var(--muted)" }
                 }
               >
@@ -206,15 +209,15 @@ export default function AlertsPage() {
       {loading ? (
         <div className="space-y-3 fade-in">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-16 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />
+            <div key={i} className="h-16 rounded-md animate-pulse" style={{ background: "var(--bg3)" }} />
           ))}
         </div>
 
       ) : alertList.length === 0 ? (
-        <div className="rounded-2xl overflow-hidden fade-in" style={{ border: "1px solid var(--border)" }}>
+        <div className="rounded-md overflow-hidden fade-in" style={{ border: "1px solid var(--border)" }}>
           {/* Header */}
           <div className="flex flex-col items-center text-center px-6 pt-10 pb-6" style={{ background: "var(--bg3)" }}>
-            <div className="w-12 h-12 rounded-2xl mb-4 flex items-center justify-center" style={{ background: "rgba(59,130,246,.06)", border: "1px solid rgba(59,130,246,.14)" }}>
+            <div className="w-12 h-12 rounded-md mb-4 flex items-center justify-center" style={{ background: "rgba(255,178,36,.06)", border: "1px solid rgba(255,178,36,.14)" }}>
               <Bell className="w-6 h-6" style={{ color: "var(--accent)" }} />
             </div>
             <p className="text-base font-bold mb-2" style={{ color: "var(--text)" }}>All clear</p>
@@ -229,11 +232,11 @@ export default function AlertsPage() {
               What alerts look like
             </p>
             {[
-              { icon: "↓", label: "Price drop detected", desc: "Oversized T-Shirt dropped 22% — $45 → $35", time: "2h ago", color: "#22c55e" },
-              { icon: "+", label: "New product launched", desc: "Summer Pump Cover added to catalog", time: "Yesterday", color: "#60a5fa" },
-              { icon: "%", label: "Discount campaign started", desc: "17 products now showing sale pricing", time: "3 days ago", color: "#f59e0b" },
+              { icon: "↓", label: "Price drop detected", desc: "Oversized T-Shirt dropped 22% — $45 → $35", time: "2h ago", color: "#4CC38A" },
+              { icon: "+", label: "New product launched", desc: "Summer Pump Cover added to catalog", time: "Yesterday", color: "#FFB224" },
+              { icon: "%", label: "Discount campaign started", desc: "17 products now showing sale pricing", time: "3 days ago", color: "#FFB224" },
             ].map((ex) => (
-              <div key={ex.label} className="flex items-start gap-3 px-4 py-3 rounded-xl" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+              <div key={ex.label} className="flex items-start gap-3 px-4 py-3 rounded-md" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-bold" style={{ background: `${ex.color}15`, color: ex.color }}>
                   {ex.icon}
                 </div>
@@ -249,7 +252,7 @@ export default function AlertsPage() {
 
       ) : filtered.length === 0 ? (
         <div
-          className="flex flex-col items-center justify-center min-h-[200px] text-center rounded-2xl fade-in"
+          className="flex flex-col items-center justify-center min-h-[200px] text-center rounded-md fade-in"
           style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
         >
           <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>

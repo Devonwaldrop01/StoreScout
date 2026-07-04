@@ -57,7 +57,10 @@ export function ScoutBrief({ firstName, competitorCount, lastScan, nextScan, cha
       style={{ borderBottom: "1px solid var(--border)" }}
     >
       <div className="min-w-0">
-        <h1 className="text-2xl font-black" style={{ color: "var(--text)" }}>{greeting}</h1>
+        <p className="tick-label mb-2">
+          Daily brief · {new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+        </p>
+        <h1 className="text-2xl font-bold tracking-tight" style={{ color: "var(--text)" }}>{greeting}</h1>
         <div className="mt-1.5">
           {changesThisWeek > 0 && requireAction > 0 ? (
             <p className="text-sm leading-snug" style={{ color: "var(--text-2)" }}>
@@ -86,13 +89,14 @@ export function ScoutBrief({ firstName, competitorCount, lastScan, nextScan, cha
         <button
           onClick={onRefresh}
           disabled={refreshing}
-          className="shrink-0 flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg transition-all disabled:opacity-40"
-          style={{ color: "var(--muted)", border: "1px solid var(--border)", background: "transparent" }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,.04)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+          className={cn(
+            "shrink-0 flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded transition-colors disabled:opacity-40 hover:bg-white/[.04]",
+            refreshing && "scan-shimmer"
+          )}
+          style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
         >
           <RefreshCw className={cn("w-3.5 h-3.5", refreshing && "animate-spin")} />
-          {refreshing ? "Scanning…" : "Refresh all"}
+          {refreshing ? "Scanning…" : "Rescan all"}
         </button>
       )}
     </div>

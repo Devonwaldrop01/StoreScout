@@ -11,7 +11,7 @@ function Signal({ active, label }: { active: boolean; label: string }) {
   return (
     <div className="flex items-center gap-2 py-1.5">
       {active
-        ? <CheckCircle className="w-4 h-4 shrink-0" style={{ color: "#3b82f6" }} />
+        ? <CheckCircle className="w-4 h-4 shrink-0" style={{ color: "#FFB224" }} />
         : <XCircle className="w-4 h-4 shrink-0" style={{ color: "var(--muted)" }} />
       }
       <span className="text-sm" style={{ color: active ? "var(--text)" : "var(--muted)" }}>{label}</span>
@@ -20,7 +20,7 @@ function Signal({ active, label }: { active: boolean; label: string }) {
 }
 
 function ScoreBar({ score }: { score: number }) {
-  const color = score >= 70 ? "#3b82f6" : score >= 40 ? "var(--amber)" : "#94a3b8";
+  const color = score >= 70 ? "#FFB224" : score >= 40 ? "var(--amber)" : "#A8AC9E";
   const label = score >= 70 ? "High investment" : score >= 40 ? "Moderate" : "Low investment";
   return (
     <div>
@@ -51,9 +51,9 @@ function FreeTierView({
   return (
     <div className="space-y-4">
       {/* Teasers */}
-      <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2 mb-4">
-          <Building2 className="w-4 h-4" style={{ color: "#3b82f6" }} />
+          <Building2 className="w-4 h-4" style={{ color: "#FFB224" }} />
           <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Catalog structure</h4>
         </div>
         <div className="grid grid-cols-2 gap-x-6">
@@ -71,9 +71,9 @@ function FreeTierView({
         </div>
       </div>
 
-      <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2 mb-3">
-          <FileText className="w-4 h-4" style={{ color: "#60a5fa" }} />
+          <FileText className="w-4 h-4" style={{ color: "#FFB224" }} />
           <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Brand signals</h4>
         </div>
         <Signal active={!!data.has_wholesale} label="Wholesale / B2B channel" />
@@ -87,10 +87,10 @@ function FreeTierView({
 
       {/* Upgrade CTA */}
       <div
-        className="rounded-2xl p-6 text-center"
-        style={{ background: "rgba(59,130,246,.06)", border: "1px dashed rgba(59,130,246,.3)" }}
+        className="rounded-md p-6 text-center"
+        style={{ background: "rgba(255,178,36,.06)", border: "1px dashed rgba(255,178,36,.3)" }}
       >
-        <Lock className="w-5 h-5 mx-auto mb-2" style={{ color: "#3b82f6" }} />
+        <Lock className="w-5 h-5 mx-auto mb-2" style={{ color: "#FFB224" }} />
         <p className="text-sm font-medium mb-1" style={{ color: "var(--text)" }}>
           Full brand intelligence locked
         </p>
@@ -100,8 +100,8 @@ function FreeTierView({
         </p>
         <button
           onClick={onUpgrade}
-          className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110"
-          style={{ background: "#3b82f6", color: "#060d18" }}
+          className="font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:brightness-110"
+          style={{ background: "#FFB224", color: "#0B0C0A" }}
         >
           Unlock Brand Intelligence
         </button>
@@ -119,7 +119,7 @@ function CollectionTag({ name }: { name: string }) {
   const isBest = lower.includes("best") || lower.includes("popular") || lower.includes("trend");
   const isBundle = lower.includes("bundle") || lower.includes("kit") || lower.includes("combo");
 
-  const accent = isSale ? "#f87171" : isNew ? "#60a5fa" : isBest ? "#3b82f6" : isBundle ? "#c084fc" : undefined;
+  const accent = isSale ? "#F2555A" : isNew ? "#FFB224" : isBest ? "#FFB224" : isBundle ? "#7DB8C9" : undefined;
 
   return (
     <span
@@ -143,10 +143,10 @@ function ProView({ data }: { data: StoreProfileResponse }) {
     <div className="space-y-5">
       {/* Collections */}
       {col && (
-        <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4" style={{ color: "#3b82f6" }} />
+              <Building2 className="w-4 h-4" style={{ color: "#FFB224" }} />
               <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Collections ({col.count})</h4>
             </div>
           </div>
@@ -174,9 +174,9 @@ function ProView({ data }: { data: StoreProfileResponse }) {
 
       {/* Brand signals */}
       {brand && (
-        <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center gap-2 mb-3">
-            <ChevronRight className="w-4 h-4" style={{ color: "#60a5fa" }} />
+            <ChevronRight className="w-4 h-4" style={{ color: "#FFB224" }} />
             <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Brand signals ({brand.page_count} pages)</h4>
           </div>
           <div className="grid grid-cols-2 gap-x-8">
@@ -196,9 +196,9 @@ function ProView({ data }: { data: StoreProfileResponse }) {
 
       {/* Content intelligence */}
       {content && (
-        <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center gap-2 mb-4">
-            <BookOpen className="w-4 h-4" style={{ color: "#c084fc" }} />
+            <BookOpen className="w-4 h-4" style={{ color: "#7DB8C9" }} />
             <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Content intelligence</h4>
           </div>
           <ScoreBar score={content.content_investment_score} />
@@ -225,7 +225,7 @@ function ProView({ data }: { data: StoreProfileResponse }) {
 
       {/* Fallback if all Pro fields are unexpectedly missing */}
       {!col && !brand && !content && (
-        <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <p style={{ color: "var(--muted)" }}>Brand profile data will appear after the next full rescan.</p>
         </div>
       )}
@@ -250,14 +250,14 @@ export default function StoreProfileTab({ competitorId }: { competitorId: string
   if (loading) {
     return (
       <div className="space-y-3">
-        {[1, 2, 3].map((i) => <div key={i} className="h-32 rounded-2xl animate-pulse" style={{ background: "var(--bg-card)" }} />)}
+        {[1, 2, 3].map((i) => <div key={i} className="h-32 rounded-md animate-pulse" style={{ background: "var(--bg-card)" }} />)}
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <p style={{ color: "var(--muted)" }}>Brand profile not available yet. Trigger a rescan to collect this data.</p>
       </div>
     );
@@ -266,7 +266,7 @@ export default function StoreProfileTab({ competitorId }: { competitorId: string
   return (
     <div className="space-y-4">
       <div className="flex items-start gap-2">
-        <Building2 className="w-5 h-5 mt-0.5" style={{ color: "#3b82f6" }} />
+        <Building2 className="w-5 h-5 mt-0.5" style={{ color: "#FFB224" }} />
         <div>
           <h3 className="font-semibold" style={{ color: "var(--text)" }}>Brand Intelligence</h3>
           <p className="text-sm" style={{ color: "var(--muted)" }}>

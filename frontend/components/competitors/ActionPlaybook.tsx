@@ -79,7 +79,7 @@ export function ActionPlaybook({ competitorCount }: Props) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-36 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />
+            <div key={i} className="h-36 rounded-md animate-pulse" style={{ background: "var(--bg3)" }} />
           ))}
         </div>
       </div>
@@ -89,7 +89,7 @@ export function ActionPlaybook({ competitorCount }: Props) {
   if (!loading && visible.length === 0 && !locked) {
     return (
       <div
-        className="mb-6 rounded-xl px-5 py-3 fade-in flex items-center gap-3"
+        className="mb-6 rounded-md px-5 py-3 fade-in flex items-center gap-3"
         style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
       >
         <Zap className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--muted)" }} />
@@ -104,13 +104,13 @@ export function ActionPlaybook({ competitorCount }: Props) {
   if (locked) {
     return (
       <div
-        className="mb-6 rounded-xl px-5 py-4 fade-in flex items-center justify-between gap-4"
+        className="mb-6 rounded-md px-5 py-4 fade-in flex items-center justify-between gap-4"
         style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
       >
         <div className="flex items-center gap-3">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-            style={{ background: "rgba(59,130,246,.08)", border: "1px solid rgba(59,130,246,.14)" }}
+            style={{ background: "rgba(255,178,36,.08)", border: "1px solid rgba(255,178,36,.14)" }}
           >
             <Zap className="w-4 h-4" style={{ color: "var(--accent)" }} />
           </div>
@@ -126,7 +126,7 @@ export function ActionPlaybook({ competitorCount }: Props) {
         <Link
           href="/settings?tab=billing"
           className="shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg transition-all hover:brightness-110"
-          style={{ background: "var(--accent)", color: "#ffffff" }}
+          style={{ background: "var(--accent)", color: "var(--ink)" }}
         >
           Upgrade
         </Link>
@@ -137,7 +137,7 @@ export function ActionPlaybook({ competitorCount }: Props) {
   if (!loading && visible.length === 0) {
     return (
       <div
-        className="mb-6 rounded-xl px-5 py-3 fade-in flex items-center justify-between gap-3"
+        className="mb-6 rounded-md px-5 py-3 fade-in flex items-center justify-between gap-3"
         style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
       >
         <div className="flex items-center gap-3 min-w-0">
@@ -195,7 +195,7 @@ export function ActionPlaybook({ competitorCount }: Props) {
         <Link
           href="/settings?tab=billing"
           className="mt-2.5 flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg transition-all hover:bg-white/[0.04]"
-          style={{ color: "var(--accent)", border: "1px dashed rgba(59,130,246,.3)" }}
+          style={{ color: "var(--accent)", border: "1px dashed rgba(255,178,36,.3)" }}
         >
           <Zap className="w-3.5 h-3.5" />
           {lockedCount} more move{lockedCount !== 1 ? "s" : ""} ready — unlock with Pro

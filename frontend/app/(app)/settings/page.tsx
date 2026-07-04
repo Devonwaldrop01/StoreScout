@@ -368,9 +368,9 @@ function SettingsContent() {
 
   const tierBadgeStyle: Record<string, { background: string; color: string }> = {
     free:      { background: "rgba(255,255,255,.06)",   color: "var(--muted)" },
-    pro:       { background: "rgba(59,130,246,.12)",    color: "#3b82f6" },
-    agency:    { background: "rgba(59,130,246,.12)",    color: "#60a5fa" },
-    developer: { background: "rgba(168,85,247,.12)",    color: "#c084fc" },
+    pro:       { background: "rgba(255,178,36,.12)",    color: "#FFB224" },
+    agency:    { background: "rgba(255,178,36,.12)",    color: "#FFB224" },
+    developer: { background: "rgba(168,85,247,.12)",    color: "#7DB8C9" },
   };
 
   const upgraded = searchParams.get("upgraded") === "1";
@@ -385,37 +385,38 @@ function SettingsContent() {
     ...(tier === "developer" ? ["api"] : []),
   ];
 
-  const sectionClass = "rounded-2xl p-6";
+  const sectionClass = "rounded-md p-6";
   const sectionStyle = { background: "var(--bg-card)", border: "1px solid var(--border)" };
-  const inputClass = "flex-1 px-4 py-2.5 rounded-xl text-sm outline-none";
+  const inputClass = "flex-1 px-4 py-2.5 rounded-md text-sm outline-none";
   const inputStyle = { background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" };
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-xl font-bold mb-6" style={{ color: "var(--text)" }}>Settings</h1>
+      <p className="tick-label mb-1.5">Configuration</p>
+      <h1 className="text-xl font-bold tracking-tight mb-6" style={{ color: "var(--text)" }}>Settings</h1>
 
       {upgraded && (
         <div
-          className="mb-6 px-4 py-3 rounded-xl text-sm font-medium"
-          style={{ background: "rgba(59,130,246,.12)", border: "1px solid rgba(59,130,246,.25)", color: "#3b82f6" }}
+          className="mb-6 px-4 py-3 rounded-md text-sm font-medium"
+          style={{ background: "rgba(255,178,36,.12)", border: "1px solid rgba(255,178,36,.25)", color: "#FFB224" }}
         >
           Your plan has been upgraded. Welcome to Pro!
         </div>
       )}
 
-      {/* Tab bar */}
-      <div className="flex items-center gap-1 mb-7 flex-wrap">
+      {/* Tab bar — underline rail */}
+      <div className="flex items-center gap-1 mb-7 flex-wrap border-b" style={{ borderColor: "var(--border)" }}>
         {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className="px-4 py-2 text-sm font-medium capitalize rounded-lg transition-colors"
-            style={activeTab === tab
-              ? { background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }
-              : { color: "var(--muted)" }
-            }
+            className="relative px-4 py-2 text-sm font-medium capitalize transition-colors"
+            style={{ color: activeTab === tab ? "var(--text)" : "var(--muted)" }}
           >
             {tab}
+            {activeTab === tab && (
+              <span className="absolute -bottom-px left-3 right-3 h-0.5" style={{ background: "var(--accent)" }} />
+            )}
           </button>
         ))}
       </div>
@@ -457,7 +458,7 @@ function SettingsContent() {
                 <button
                   onClick={handleResetPassword}
                   disabled={passwordResetSent || !userEmail}
-                  className="shrink-0 text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:opacity-80 disabled:opacity-50"
+                  className="shrink-0 text-sm font-semibold px-4 py-2 rounded-md transition-all hover:opacity-80 disabled:opacity-50"
                   style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
                 >
                   {passwordResetSent ? "Sent ✓" : "Reset password"}
@@ -466,14 +467,14 @@ function SettingsContent() {
             </div>
 
             <div className="mt-5 pt-5 border-t" style={{ borderColor: "var(--border)" }}>
-              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#f87171" }}>
+              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#F2555A" }}>
                 Danger zone
               </p>
               <button
                 onClick={handleDeleteAccount}
                 disabled={deletingAccount}
-                className="text-sm font-semibold px-4 py-2.5 rounded-xl transition-all hover:opacity-80 disabled:opacity-60"
-                style={{ background: "rgba(248,113,113,.1)", color: "#f87171", border: "1px solid rgba(248,113,113,.25)" }}
+                className="text-sm font-semibold px-4 py-2.5 rounded-md transition-all hover:opacity-80 disabled:opacity-60"
+                style={{ background: "rgba(242,85,90,.1)", color: "#F2555A", border: "1px solid rgba(242,85,90,.25)" }}
               >
                 {deletingAccount ? "Deleting…" : "Delete account"}
               </button>
@@ -537,8 +538,8 @@ function SettingsContent() {
                   {subscription.tier === "free" ? (
                     <button
                       onClick={() => setUpgradeOpen(true)}
-                      className="flex items-center gap-2 font-semibold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-110 w-full justify-center"
-                      style={{ background: "var(--accent)", color: "#ffffff" }}
+                      className="flex items-center gap-2 font-semibold text-sm px-4 py-2.5 rounded-md transition-all hover:brightness-110 w-full justify-center"
+                      style={{ background: "var(--accent)", color: "var(--ink)" }}
                     >
                       <Zap className="w-4 h-4" />
                       Upgrade to Pro
@@ -547,7 +548,7 @@ function SettingsContent() {
                     <button
                       onClick={handleManageBilling}
                       disabled={portalLoading}
-                      className="font-semibold text-sm px-4 py-2.5 rounded-xl transition-all hover:opacity-80 disabled:opacity-50 w-full"
+                      className="font-semibold text-sm px-4 py-2.5 rounded-md transition-all hover:opacity-80 disabled:opacity-50 w-full"
                       style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
                     >
                       {portalLoading ? "Loading…" : "Manage billing"}
@@ -568,7 +569,7 @@ function SettingsContent() {
                   Billing email
                 </p>
                 <p
-                  className="text-sm font-mono px-4 py-2.5 rounded-xl"
+                  className="text-sm font-mono px-4 py-2.5 rounded-md"
                   style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
                 >
                   {userEmail || "—"}
@@ -589,7 +590,7 @@ function SettingsContent() {
                 <button
                   onClick={handleManageBilling}
                   disabled={portalLoading}
-                  className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:opacity-80 disabled:opacity-50"
+                  className="text-sm font-semibold px-4 py-2 rounded-md transition-all hover:opacity-80 disabled:opacity-50"
                   style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
                 >
                   {portalLoading
@@ -613,11 +614,11 @@ function SettingsContent() {
                 return (
                   <div
                     key={plan.tier}
-                    className="rounded-2xl p-5 flex flex-col"
+                    className="rounded-md p-5 flex flex-col"
                     style={{
                       background: "var(--bg-card)",
                       border: isCurrent
-                        ? "1px solid rgba(59,130,246,.45)"
+                        ? "1px solid rgba(255,178,36,.45)"
                         : "1px solid var(--border)",
                     }}
                   >
@@ -626,7 +627,7 @@ function SettingsContent() {
                       {isCurrent && (
                         <span
                           className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: "rgba(59,130,246,.1)", color: "#3b82f6" }}
+                          style={{ background: "rgba(255,178,36,.1)", color: "#FFB224" }}
                         >
                           Current
                         </span>
@@ -634,7 +635,7 @@ function SettingsContent() {
                       {plan.popular && !isCurrent && (
                         <span
                           className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: "rgba(59,130,246,.1)", color: "#3b82f6" }}
+                          style={{ background: "rgba(255,178,36,.1)", color: "#FFB224" }}
                         >
                           Popular
                         </span>
@@ -655,7 +656,7 @@ function SettingsContent() {
                     {isCurrent ? (
                       <button
                         disabled
-                        className="w-full py-2 rounded-xl text-sm font-medium"
+                        className="w-full py-2 rounded-md text-sm font-medium"
                         style={{ background: "var(--bg3)", color: "var(--muted)" }}
                       >
                         Current Plan
@@ -663,11 +664,11 @@ function SettingsContent() {
                     ) : (
                       <button
                         onClick={() => setUpgradeOpen(true)}
-                        className="w-full py-2 rounded-xl text-sm font-semibold transition-all hover:brightness-110"
+                        className="w-full py-2 rounded-md text-sm font-semibold transition-all hover:brightness-110"
                         style={{
-                          background: "rgba(59,130,246,.12)",
-                          color: "#3b82f6",
-                          border: "1px solid rgba(59,130,246,.2)",
+                          background: "rgba(255,178,36,.12)",
+                          color: "#FFB224",
+                          border: "1px solid rgba(255,178,36,.2)",
                         }}
                       >
                         Upgrade to {plan.label}
@@ -686,7 +687,7 @@ function SettingsContent() {
         <section className={sectionClass} style={sectionStyle}>
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4" style={{ color: "#3b82f6" }} />
+              <Bell className="w-4 h-4" style={{ color: "#FFB224" }} />
               <h2 className="font-semibold" style={{ color: "var(--text)" }}>Email notifications</h2>
             </div>
             <span
@@ -710,10 +711,10 @@ function SettingsContent() {
                 key={key}
                 onClick={() => handleTogglePref(key)}
                 disabled={saving}
-                className="w-full flex items-center justify-between gap-4 px-4 py-3.5 rounded-xl text-left transition-all"
+                className="w-full flex items-center justify-between gap-4 px-4 py-3.5 rounded-md text-left transition-all"
                 style={{
-                  background: prefs[key] ? "rgba(59,130,246,.06)" : "var(--bg3)",
-                  border: `1px solid ${prefs[key] ? "rgba(59,130,246,.2)" : "var(--border)"}`,
+                  background: prefs[key] ? "rgba(255,178,36,.06)" : "var(--bg3)",
+                  border: `1px solid ${prefs[key] ? "rgba(255,178,36,.2)" : "var(--border)"}`,
                 }}
               >
                 <div className="min-w-0">
@@ -722,7 +723,7 @@ function SettingsContent() {
                 </div>
                 <div
                   className="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors"
-                  style={{ background: prefs[key] ? "#3b82f6" : "rgba(255,255,255,.12)" }}
+                  style={{ background: prefs[key] ? "#FFB224" : "rgba(255,255,255,.12)" }}
                 >
                   <span
                     className="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg transition-transform"
@@ -749,7 +750,7 @@ function SettingsContent() {
               <Globe className="w-4 h-4" style={{ color: "#4285f4" }} />
               <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Google Analytics + Search Console</p>
               {googleConnected && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(59,130,246,0.1)", color: "#3b82f6" }}>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,178,36,0.1)", color: "#FFB224" }}>
                   Connected
                 </span>
               )}
@@ -759,7 +760,7 @@ function SettingsContent() {
             </p>
 
             {googleConnectedBanner && (
-              <div className="flex items-center gap-2 px-4 py-3 rounded-xl mb-3 text-sm font-medium" style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", color: "var(--emerald)" }}>
+              <div className="flex items-center gap-2 px-4 py-3 rounded-md mb-3 text-sm font-medium" style={{ background: "rgba(76,195,138,0.08)", border: "1px solid rgba(76,195,138,0.2)", color: "var(--emerald)" }}>
                 <Check className="w-4 h-4 shrink-0" /> Google account connected. Select your property below.
               </div>
             )}
@@ -772,7 +773,7 @@ function SettingsContent() {
                     <select
                       value={googleGA4}
                       onChange={(e) => setGoogleGA4(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
+                      className="w-full px-4 py-2.5 rounded-md text-sm outline-none"
                       style={inputStyle}
                     >
                       <option value="">— Select a property —</option>
@@ -788,7 +789,7 @@ function SettingsContent() {
                     <select
                       value={googleGSC}
                       onChange={(e) => setGoogleGSC(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
+                      className="w-full px-4 py-2.5 rounded-md text-sm outline-none"
                       style={inputStyle}
                     >
                       <option value="">— Select a site —</option>
@@ -802,15 +803,15 @@ function SettingsContent() {
                   <button
                     onClick={handleGoogleSaveProperty}
                     disabled={googleSavingProperty || (!googleGA4 && !googleGSC)}
-                    className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
-                    style={{ background: "#3b82f6", color: "#ffffff" }}
+                    className="text-sm font-semibold px-4 py-2 rounded-md transition-all hover:brightness-110 disabled:opacity-50"
+                    style={{ background: "#FFB224", color: "var(--ink)" }}
                   >
                     {googleSavingProperty ? "Saving…" : "Save"}
                   </button>
                   <button
                     onClick={handleGoogleDisconnect}
-                    className="text-sm font-medium px-4 py-2 rounded-xl transition-all hover:opacity-70"
-                    style={{ color: "#f87171" }}
+                    className="text-sm font-medium px-4 py-2 rounded-md transition-all hover:opacity-70"
+                    style={{ color: "#F2555A" }}
                   >
                     Disconnect
                   </button>
@@ -820,7 +821,7 @@ function SettingsContent() {
               <button
                 onClick={handleGoogleConnect}
                 disabled={googleConnecting}
-                className="flex items-center gap-2 font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-60"
+                className="flex items-center gap-2 font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:brightness-110 disabled:opacity-60"
                 style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
               >
                 {googleConnecting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" style={{ color: "#4285f4" }} />}
@@ -835,7 +836,7 @@ function SettingsContent() {
               <Zap className="w-4 h-4" style={{ color: "var(--amber)" }} />
               <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Klaviyo</p>
               {klaviyoStatus?.connected && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(59,130,246,0.1)", color: "#3b82f6" }}>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,178,36,0.1)", color: "#FFB224" }}>
                   Connected
                 </span>
               )}
@@ -847,15 +848,15 @@ function SettingsContent() {
 
             {klaviyoStatus?.connected ? (
               <div
-                className="flex items-center justify-between gap-4 px-4 py-3 rounded-xl"
-                style={{ background: "rgba(59,130,246,0.05)", border: "1px solid rgba(59,130,246,0.18)" }}
+                className="flex items-center justify-between gap-4 px-4 py-3 rounded-md"
+                style={{ background: "rgba(255,178,36,0.05)", border: "1px solid rgba(255,178,36,0.18)" }}
               >
                 <div>
                   <p className="text-xs font-mono font-medium" style={{ color: "var(--text)" }}>
                     {klaviyoStatus.key_preview}
                   </p>
                   {klaviyoTestResult && (
-                    <p className="text-xs mt-0.5" style={{ color: "#3b82f6" }}>
+                    <p className="text-xs mt-0.5" style={{ color: "#FFB224" }}>
                       {klaviyoTestResult.total_profiles.toLocaleString()} subscribers
                       {" · "}{klaviyoTestResult.list_count} list{klaviyoTestResult.list_count !== 1 ? "s" : ""}
                     </p>
@@ -873,7 +874,7 @@ function SettingsContent() {
                   <button
                     onClick={handleRemoveKlaviyo}
                     className="text-xs font-medium px-3 py-1.5 rounded-lg transition-all hover:opacity-70"
-                    style={{ color: "#f87171" }}
+                    style={{ color: "#F2555A" }}
                   >
                     Remove
                   </button>
@@ -892,20 +893,20 @@ function SettingsContent() {
                 <button
                   onClick={handleSaveKlaviyo}
                   disabled={klaviyoSaving || !klaviyoKey.trim()}
-                  className="font-semibold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
+                  className="font-semibold text-sm px-4 py-2.5 rounded-md transition-all hover:brightness-110 disabled:opacity-50"
                   style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
                 >
                   {klaviyoSaving ? "Saving…" : "Save"}
                 </button>
               </div>
             )}
-            {klaviyoError && <p className="text-xs mt-2" style={{ color: "#f87171" }}>{klaviyoError}</p>}
+            {klaviyoError && <p className="text-xs mt-2" style={{ color: "#F2555A" }}>{klaviyoError}</p>}
           </div>
 
           {/* Slack */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
-              <Hash className="w-4 h-4" style={{ color: "#3b82f6" }} />
+              <Hash className="w-4 h-4" style={{ color: "#FFB224" }} />
               <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Slack incoming webhook</p>
               {prefs && (
                 <button
@@ -915,7 +916,7 @@ function SettingsContent() {
                     userApi.updatePrefs({ slack_enabled: next }).catch(() => {});
                   }}
                   className="ml-auto relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors"
-                  style={{ background: prefs.slack_enabled ? "#3b82f6" : "rgba(255,255,255,.12)" }}
+                  style={{ background: prefs.slack_enabled ? "#FFB224" : "rgba(255,255,255,.12)" }}
                 >
                   <span
                     className="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg transition-transform"
@@ -939,14 +940,14 @@ function SettingsContent() {
               <button
                 onClick={handleTestSlack}
                 disabled={testingSlack || !slackUrl}
-                className="font-semibold text-sm px-4 py-2.5 rounded-xl transition-all hover:opacity-80 disabled:opacity-40 shrink-0"
+                className="font-semibold text-sm px-4 py-2.5 rounded-md transition-all hover:opacity-80 disabled:opacity-40 shrink-0"
                 style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
               >
                 {testingSlack ? "Sending…" : "Test"}
               </button>
             </div>
             {slackTestResult && (
-              <p className="text-xs mt-2" style={{ color: slackTestResult === "ok" ? "var(--emerald)" : "#f87171" }}>
+              <p className="text-xs mt-2" style={{ color: slackTestResult === "ok" ? "var(--emerald)" : "#F2555A" }}>
                 {slackTestResult === "ok" ? "✓ Test message sent to Slack" : "✗ Failed — check the webhook URL"}
               </p>
             )}
@@ -955,7 +956,7 @@ function SettingsContent() {
           {/* Generic webhook */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Globe className="w-4 h-4" style={{ color: "#60a5fa" }} />
+              <Globe className="w-4 h-4" style={{ color: "#FFB224" }} />
               <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Webhook (Zapier, Make, custom)</p>
               {prefs && (
                 <button
@@ -965,7 +966,7 @@ function SettingsContent() {
                     userApi.updatePrefs({ webhook_enabled: next }).catch(() => {});
                   }}
                   className="ml-auto relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors"
-                  style={{ background: prefs.webhook_enabled ? "#3b82f6" : "rgba(255,255,255,.12)" }}
+                  style={{ background: prefs.webhook_enabled ? "#FFB224" : "rgba(255,255,255,.12)" }}
                 >
                   <span
                     className="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg transition-transform"
@@ -989,14 +990,14 @@ function SettingsContent() {
               <button
                 onClick={handleTestWebhook}
                 disabled={testingWebhook || !webhookUrl}
-                className="font-semibold text-sm px-4 py-2.5 rounded-xl transition-all hover:opacity-80 disabled:opacity-40 shrink-0"
+                className="font-semibold text-sm px-4 py-2.5 rounded-md transition-all hover:opacity-80 disabled:opacity-40 shrink-0"
                 style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
               >
                 {testingWebhook ? "Sending…" : "Test"}
               </button>
             </div>
             {webhookTestResult && (
-              <p className="text-xs mt-2" style={{ color: webhookTestResult === "ok" ? "var(--emerald)" : "#f87171" }}>
+              <p className="text-xs mt-2" style={{ color: webhookTestResult === "ok" ? "var(--emerald)" : "#F2555A" }}>
                 {webhookTestResult === "ok" ? "✓ Test payload delivered" : "✗ Failed — check the URL and try again"}
               </p>
             )}
@@ -1009,7 +1010,7 @@ function SettingsContent() {
         <section className={sectionClass} style={sectionStyle}>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4" style={{ color: "#60a5fa" }} />
+              <Users className="w-4 h-4" style={{ color: "#FFB224" }} />
               <h2 className="font-semibold" style={{ color: "var(--text)" }}>Team seats</h2>
             </div>
             <span className="text-xs font-mono" style={{ color: "var(--muted)" }}>
@@ -1025,7 +1026,7 @@ function SettingsContent() {
               {teamMembers.map((m) => (
                 <div
                   key={m.id}
-                  className="flex items-center justify-between gap-3 rounded-xl px-4 py-3"
+                  className="flex items-center justify-between gap-3 rounded-md px-4 py-3"
                   style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
                 >
                   <div>
@@ -1040,7 +1041,7 @@ function SettingsContent() {
                   <button
                     onClick={() => handleRemoveMember(m.id)}
                     className="p-1.5 rounded-lg transition-colors hover:bg-red-500/10"
-                    style={{ color: "#f87171" }}
+                    style={{ color: "#F2555A" }}
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -1064,14 +1065,14 @@ function SettingsContent() {
                 <button
                   onClick={handleInvite}
                   disabled={inviting || !inviteEmail.trim()}
-                  className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-50 flex items-center gap-2 shrink-0"
-                  style={{ background: "#60a5fa", color: "#060d18" }}
+                  className="font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:brightness-110 disabled:opacity-50 flex items-center gap-2 shrink-0"
+                  style={{ background: "#FFB224", color: "#0B0C0A" }}
                 >
                   {inviting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                   {inviting ? "Sending…" : "Invite"}
                 </button>
               </div>
-              {inviteError && <p className="text-xs mt-2" style={{ color: "#f87171" }}>{inviteError}</p>}
+              {inviteError && <p className="text-xs mt-2" style={{ color: "#F2555A" }}>{inviteError}</p>}
               {inviteSent && <p className="text-xs mt-2" style={{ color: "var(--emerald)" }}>✓ Invite sent</p>}
             </div>
           )}
@@ -1083,13 +1084,13 @@ function SettingsContent() {
         <section className={sectionClass} style={sectionStyle}>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Key className="w-4 h-4" style={{ color: "#c084fc" }} />
+              <Key className="w-4 h-4" style={{ color: "#7DB8C9" }} />
               <h2 className="font-semibold" style={{ color: "var(--text)" }}>API keys</h2>
             </div>
             <a
               href="/api-docs"
               className="flex items-center gap-1 text-xs font-medium hover:underline"
-              style={{ color: "#c084fc" }}
+              style={{ color: "#7DB8C9" }}
             >
               <Terminal className="w-3 h-3" />
               API reference →
@@ -1106,7 +1107,7 @@ function SettingsContent() {
               {keys.map((k) => (
                 <div
                   key={k.id}
-                  className="flex items-center justify-between gap-3 rounded-xl px-4 py-3"
+                  className="flex items-center justify-between gap-3 rounded-md px-4 py-3"
                   style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
                 >
                   <div className="min-w-0">
@@ -1121,7 +1122,7 @@ function SettingsContent() {
                   <button
                     onClick={() => handleRevokeKey(k.id)}
                     className="shrink-0 p-1.5 rounded-lg transition-colors hover:bg-red-500/10"
-                    style={{ color: "#f87171" }}
+                    style={{ color: "#F2555A" }}
                     title="Revoke key"
                   >
                     <X className="w-4 h-4" />
@@ -1133,10 +1134,10 @@ function SettingsContent() {
 
           {newKeyPlaintext && (
             <div
-              className="mb-5 rounded-xl p-4"
+              className="mb-5 rounded-md p-4"
               style={{ background: "rgba(168,85,247,.08)", border: "1px solid rgba(168,85,247,.25)" }}
             >
-              <p className="text-xs font-semibold mb-2" style={{ color: "#c084fc" }}>
+              <p className="text-xs font-semibold mb-2" style={{ color: "#7DB8C9" }}>
                 Your new API key — copy it now, it won&apos;t be shown again
               </p>
               <div className="flex items-center gap-2">
@@ -1150,7 +1151,7 @@ function SettingsContent() {
                   onClick={handleCopyKey}
                   className="shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all"
                   style={{
-                    background: copiedKey ? "rgba(34,197,94,.15)" : "var(--bg3)",
+                    background: copiedKey ? "rgba(76,195,138,.15)" : "var(--bg3)",
                     color: copiedKey ? "var(--emerald)" : "var(--muted)",
                     border: "1px solid var(--border)",
                   }}
@@ -1175,8 +1176,8 @@ function SettingsContent() {
               <button
                 onClick={handleCreateKey}
                 disabled={creatingKey}
-                className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-50 flex items-center gap-2 shrink-0"
-                style={{ background: "#c084fc", color: "#060d18" }}
+                className="font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:brightness-110 disabled:opacity-50 flex items-center gap-2 shrink-0"
+                style={{ background: "#7DB8C9", color: "#0B0C0A" }}
               >
                 {creatingKey ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
                 Generate key

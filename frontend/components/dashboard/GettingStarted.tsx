@@ -87,8 +87,8 @@ export function GettingStarted({ firstCompetitorId, competitorAdded, onUpgrade }
 
   return (
     <div
-      className="mb-6 rounded-2xl p-5 fade-up relative"
-      style={{ background: "var(--bg-card)", border: "1px solid rgba(59,130,246,.18)" }}
+      className="mb-6 rounded-md p-5 fade-up relative"
+      style={{ background: "var(--bg-card)", border: "1px solid rgba(255,178,36,.18)" }}
     >
       <button
         onClick={dismiss}
@@ -120,7 +120,7 @@ export function GettingStarted({ firstCompetitorId, competitorAdded, onUpgrade }
           const complete = isDone(s);
           const content = (
             <div
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-md transition-all"
               style={{ background: complete ? "transparent" : "var(--bg3)" }}
             >
               <div
@@ -130,7 +130,7 @@ export function GettingStarted({ firstCompetitorId, competitorAdded, onUpgrade }
                   border: complete ? "none" : "1.5px solid var(--border)",
                 }}
               >
-                {complete && <Check className="w-3 h-3" style={{ color: "#fff" }} />}
+                {complete && <Check className="w-3 h-3" style={{ color: "var(--ink)" }} />}
               </div>
               <span
                 className="text-sm flex-1"
@@ -165,10 +165,10 @@ export function GettingStarted({ firstCompetitorId, competitorAdded, onUpgrade }
         {/* Upsell step — always shown, doesn't count toward completion */}
         <button onClick={onUpgrade} className="w-full text-left">
           <div
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all hover:brightness-110"
-            style={{ background: "rgba(59,130,246,.06)", border: "1px solid rgba(59,130,246,.18)" }}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-md transition-all hover:brightness-110"
+            style={{ background: "rgba(255,178,36,.06)", border: "1px solid rgba(255,178,36,.18)" }}
           >
-            <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(59,130,246,.15)" }}>
+            <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(255,178,36,.15)" }}>
               <Zap className="w-3 h-3" style={{ color: "var(--accent)" }} />
             </div>
             <span className="text-sm flex-1 font-medium" style={{ color: "var(--text)" }}>

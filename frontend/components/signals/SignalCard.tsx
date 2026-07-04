@@ -17,7 +17,7 @@ export function SignalCard({ group }: Props) {
 
   return (
     <div
-      className="rounded-xl overflow-hidden mb-2.5 fade-up"
+      className="rounded-md overflow-hidden mb-2.5 fade-up"
       style={{
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
@@ -28,17 +28,17 @@ export function SignalCard({ group }: Props) {
       <div className="flex items-start justify-between px-4 pt-3.5 pb-2.5">
         <div className="flex items-start gap-2.5 min-w-0">
           <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+            className="w-7 h-7 rounded flex items-center justify-center shrink-0 mt-0.5"
             style={{ background: `${cfg.color}1a` }}
           >
             <Icon className="w-3.5 h-3.5" style={{ color: cfg.color }} />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-bold shrink-0" style={{ color: cfg.color }}>
+              <span className="label-caps shrink-0" style={{ color: cfg.color }}>
                 {group.headline}
               </span>
-              <span className="text-xs truncate" style={{ color: "var(--muted)" }}>
+              <span className="num text-[11px] truncate" style={{ color: "var(--muted)" }}>
                 {group.hostname}
               </span>
             </div>
@@ -48,12 +48,12 @@ export function SignalCard({ group }: Props) {
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-3">
-          <span className="text-[11px]" style={{ color: "var(--muted)" }}>
+          <span className="num text-[10px]" style={{ color: "var(--muted)" }}>
             {formatRelativeTime(group.detected_at)}
           </span>
           <Link
             href={`/dashboard/${group.competitor_id}`}
-            className="p-1.5 rounded-lg transition-colors hover:bg-white/10"
+            className="p-1.5 rounded transition-colors hover:bg-white/10"
             style={{ color: "var(--muted)" }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -65,8 +65,8 @@ export function SignalCard({ group }: Props) {
       {/* Your move — always visible, action-first */}
       {group.your_move && (
         <div
-          className="mx-4 mb-2.5 px-3 py-2.5 rounded-lg text-xs leading-relaxed"
-          style={{ background: "rgba(59,130,246,.06)", border: "1px solid rgba(59,130,246,.16)" }}
+          className="mx-4 mb-2.5 px-3 py-2.5 rounded text-xs leading-relaxed"
+          style={{ background: "rgba(255,178,36,.06)", border: "1px solid rgba(255,178,36,.16)" }}
         >
           <span className="font-bold" style={{ color: "var(--accent)" }}>▶ Your move · </span>
           <span style={{ color: "var(--text-2)" }}>{group.your_move}</span>
@@ -76,7 +76,7 @@ export function SignalCard({ group }: Props) {
       {/* Why this matters — context, capped at 2 lines */}
       {group.why_this_matters && (
         <p
-          className="mx-4 mb-2.5 px-3 py-2 rounded-lg text-xs leading-relaxed line-clamp-2"
+          className="mx-4 mb-2.5 px-3 py-2 rounded text-xs leading-relaxed line-clamp-2"
           style={{ background: "var(--bg3)", color: "var(--muted)" }}
         >
           <span className="font-semibold" style={{ color: "var(--text-2)" }}>Why · </span>
@@ -88,8 +88,8 @@ export function SignalCard({ group }: Props) {
       {group.tier === "strategic" && (() => {
         const level = impactLevel(group);
         const [impactBg, impactColor] =
-          level === "High"   ? ["rgba(239,68,68,.12)",   "var(--red)"]   :
-          level === "Medium" ? ["rgba(245,158,11,.12)",  "var(--amber)"] :
+          level === "High"   ? ["rgba(242,85,90,.12)",   "var(--red)"]   :
+          level === "Medium" ? ["rgba(255,178,36,.12)",  "var(--amber)"] :
                                ["rgba(100,112,137,.12)", "var(--muted)"];
         return (
           <div className="flex items-center gap-1.5 px-4 pb-2">

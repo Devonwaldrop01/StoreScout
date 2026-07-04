@@ -34,40 +34,52 @@ interface Props {
 
 const CHART_STYLE = {
   contentStyle: {
-    background: "#0e1d35",
-    border: "1px solid rgba(255,255,255,.09)",
-    borderRadius: 10,
-    color: "#eef3fa",
-    fontSize: 13,
+    background: "#161814",
+    border: "1px solid #262A22",
+    borderRadius: 6,
+    color: "#ECEEE6",
+    fontSize: 12,
+    fontFamily: "var(--font-mono)",
   },
 };
 
+// Data-series colors — validated against surface #101110 (dataviz six checks).
+const SERIES_AMBER = "#C47F00";
+const SERIES_CYAN  = "#2F9FC9";
+
+/** Two stacked single-axis panels sharing the same dates — never a dual-axis chart. */
 function Chart({ chartData, showBFLine = false }: {
   chartData: { date: string; median_price: number | null; promo_rate: number | null }[];
   showBFLine?: boolean;
 }) {
   return (
-    <ResponsiveContainer width="100%" height={200}>
-      <LineChart data={chartData} margin={{ top: 4, right: 16, left: -20, bottom: 4 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,.04)" />
-        <XAxis dataKey="date" tick={{ fill: "#7d92aa", fontSize: 11 }} axisLine={false} tickLine={false} />
-        <YAxis yAxisId="price" tick={{ fill: "#7d92aa", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}`} />
-        <YAxis yAxisId="pct" orientation="right" tick={{ fill: "#7d92aa", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
-        <Tooltip
-          {...CHART_STYLE}
-          formatter={(value, name) =>
-            name === "median_price" ? [`$${value}`, "Median price"] : [`${value}%`, "Promo rate"]
-          }
-        />
-        {showBFLine && (
-          <ReferenceLine yAxisId="price" x="Nov 25" stroke="rgba(239,68,68,.4)" strokeDasharray="4 2"
-            label={{ value: "BF", position: "top", fill: "#ef4444", fontSize: 9 }}
-          />
-        )}
-        <Line yAxisId="price" type="monotone" dataKey="median_price" stroke="#3b82f6" strokeWidth={2} dot={false} connectNulls />
-        <Line yAxisId="pct" type="monotone" dataKey="promo_rate" stroke="#f59e0b" strokeWidth={2} dot={false} connectNulls />
-      </LineChart>
-    </ResponsiveContainer>
+    <div>
+      <p className="label-caps px-1 mb-1">Median price</p>
+      <ResponsiveContainer width="100%" height={140}>
+        <LineChart data={chartData} margin={{ top: 4, right: 16, left: -20, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,.04)" vertical={false} />
+          <XAxis dataKey="date" tick={false} axisLine={false} tickLine={false} height={4} />
+          <YAxis tick={{ fill: "#6C7164", fontSize: 10, fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}`} width={52} />
+          <Tooltip {...CHART_STYLE} formatter={(value) => [`$${value}`, "Median price"]} />
+          {showBFLine && (
+            <ReferenceLine x="Nov 25" stroke="rgba(242,85,90,.4)" strokeDasharray="4 2"
+              label={{ value: "BF", position: "top", fill: "#F2555A", fontSize: 9 }}
+            />
+          )}
+          <Line type="monotone" dataKey="median_price" stroke={SERIES_AMBER} strokeWidth={2} dot={false} connectNulls />
+        </LineChart>
+      </ResponsiveContainer>
+      <p className="label-caps px-1 mt-2 mb-1">Promo rate</p>
+      <ResponsiveContainer width="100%" height={90}>
+        <LineChart data={chartData} margin={{ top: 4, right: 16, left: -20, bottom: 4 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,.04)" vertical={false} />
+          <XAxis dataKey="date" tick={{ fill: "#6C7164", fontSize: 10, fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fill: "#6C7164", fontSize: 10, fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} width={52} />
+          <Tooltip {...CHART_STYLE} formatter={(value) => [`${value}%`, "Promo rate"]} />
+          <Line type="monotone" dataKey="promo_rate" stroke={SERIES_CYAN} strokeWidth={2} dot={false} connectNulls />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
 
@@ -85,14 +97,14 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
   }, [competitorId]);
 
   if (loading) {
-    return <div className="h-64 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />;
+    return <div className="h-64 rounded-md animate-pulse" style={{ background: "var(--bg3)" }} />;
   }
 
   // Paid user but API call failed — show a neutral message, not the paywall
   if (!isFree && (fetchError || !data || !data.locked)) {
     if (fetchError || !data) {
       return (
-        <div className="rounded-xl px-5 py-8 text-center" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+        <div className="rounded-md px-5 py-8 text-center" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
             Price history builds over time — check back after a few more daily scans.
           </p>
@@ -111,7 +123,7 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
 
     if (chartData.length < 2) {
       return (
-        <div className="rounded-xl px-5 py-8 text-center" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+        <div className="rounded-md px-5 py-8 text-center" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
             Price history builds over time — check back after a few more scans.
           </p>
@@ -121,16 +133,6 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
 
     return (
       <div>
-        <div className="flex items-center gap-4 text-xs mb-3" style={{ color: "var(--muted)" }}>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-3 h-0.5 rounded" style={{ background: "#3b82f6" }} />
-            Median price
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-3 h-0.5 rounded" style={{ background: "var(--amber)" }} />
-            Promo rate
-          </span>
-        </div>
         <Chart chartData={chartData} />
       </div>
     );
@@ -149,21 +151,12 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
   const lockedCount = data?.locked_count ?? 0;
 
   return (
-    <div className="relative rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+    <div className="relative rounded-md overflow-hidden" style={{ border: "1px solid var(--border)" }}>
       {/* Legend */}
       <div className="flex items-center justify-between px-5 pt-4 pb-2">
-        <div className="flex items-center gap-4 text-xs" style={{ color: "var(--muted)" }}>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-3 h-0.5 rounded" style={{ background: "#3b82f6" }} />
-            Median price
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-3 h-0.5 rounded" style={{ background: "var(--amber)" }} />
-            Promo rate
-          </span>
-        </div>
+        <p className="label-caps">Price & promo history</p>
         {!hasPartialData && (
-          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "rgba(59,130,246,.1)", color: "var(--accent)" }}>
+          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)" }}>
             Example
           </span>
         )}
@@ -177,14 +170,14 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
       {/* Lock overlay — gradient from bottom, but lets the top data breathe */}
       <div
         className="absolute inset-0"
-        style={{ background: "linear-gradient(to top, rgba(6,13,24,1) 38%, rgba(6,13,24,.6) 62%, transparent 100%)" }}
+        style={{ background: "linear-gradient(to top, rgba(11,12,10,1) 38%, rgba(11,12,10,.6) 62%, transparent 100%)" }}
       />
 
       {/* CTA */}
       <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center pb-6 px-6 text-center">
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center mb-3"
-          style={{ background: "rgba(59,130,246,.1)", border: "1px solid rgba(59,130,246,.2)" }}
+          style={{ background: "rgba(255,178,36,.1)", border: "1px solid rgba(255,178,36,.2)" }}
         >
           <Lock className="w-4 h-4" style={{ color: "var(--accent)" }} />
         </div>
@@ -200,8 +193,8 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
         </p>
         <button
           onClick={onUpgrade}
-          className="flex items-center gap-1.5 font-bold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110"
-          style={{ background: "var(--accent)", color: "#ffffff" }}
+          className="flex items-center gap-1.5 font-bold text-sm px-5 py-2.5 rounded-md transition-all hover:brightness-110"
+          style={{ background: "var(--accent)", color: "var(--ink)" }}
         >
           <Zap className="w-3.5 h-3.5" />
           Unlock history — $29/mo
