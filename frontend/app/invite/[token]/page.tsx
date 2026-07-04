@@ -72,7 +72,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
 
       <div
         className="w-full max-w-md rounded-md p-8"
-        style={{ background: "#161814", border: "1px solid #1e3a5f" }}
+        style={{ background: "#161814", border: "1px solid #262A22" }}
       >
         {inviteError ? (
           <div className="text-center">
@@ -154,7 +154,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                 <Link
                   href={`/auth/sign-up?redirect=/invite/${token}`}
                   className="block w-full text-center font-semibold py-3 rounded-md transition-all hover:bg-white/5"
-                  style={{ border: "1px solid #1e3a5f", color: "#A8AC9E" }}
+                  style={{ border: "1px solid #262A22", color: "#A8AC9E" }}
                 >
                   Create account
                 </Link>

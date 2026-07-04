@@ -78,6 +78,11 @@ All integrations are wired end-to-end (backend + Settings UI + DB schema + the A
 - [x] ✅ Copy sweep: the only "report/PDF/one-time" mentions left are **intentional competitor-contrast** (e.g. the comparison table's "One-time reports" column, "shareable report URLs replace PDF attachments") — not stale self-description.
 - [ ] ⬜ (Optional, later) Swap the inline mockups for real screenshots of the live app once the demo account (item 7) is polished, if you prefer literal screenshots.
 
+### 11. "Ops Room" full UI redesign — shipped
+- [x] ✅ Complete visual identity replacement across every surface (landing, auth, onboarding, app, public reports, legal, emails): warm-charcoal + signal-amber system, Space Grotesk + mono-first instrumentation, panel/hairline shape language, chart palette validated for accessibility, dual-axis chart eliminated.
+- [ ] ⬜ **Recapture all marketing assets** — any screenshots/videos Jaiden has (or captures for outreach) must use the new Ops Room look; anything showing the old blue UI is now off-brand.
+- [ ] ⬜ Visual QA pass in a real browser across app pages (logged-in surfaces couldn't be smoke-tested in dev container; public routes verified 200 + tsc clean).
+
 ---
 
 ## 🟢 Polish — before scaling, not before first sales

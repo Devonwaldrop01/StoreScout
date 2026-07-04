@@ -17,9 +17,9 @@ logger = logging.getLogger(__name__)
 ALERT_COOLDOWN_HOURS = 4
 
 _SEVERITY_STYLES = {
-    "critical": ("#f87171", "rgba(248,113,113,.15)", "CRITICAL"),
-    "warning":  ("#facc15", "rgba(250,204,21,.15)",  "WARNING"),
-    "info":     ("#60a5fa", "rgba(96,165,250,.15)",   "INFO"),
+    "critical": ("#F2555A", "rgba(242,85,90,.15)", "CRITICAL"),
+    "warning":  ("#FFB224", "rgba(250,204,21,.15)",  "WARNING"),
+    "info":     ("#FFB224", "rgba(255,178,36,.15)",   "INFO"),
 }
 
 _CHANGE_TYPE_PREF = {
@@ -175,10 +175,10 @@ def _build_alert_html(hostname: str, subject: str, n: int, change_list: list,
 
         rows_html += (
             f"<tr>"
-            f"<td style='padding:8px 0;border-bottom:1px solid #1e3a5f'>"
+            f"<td style='padding:8px 0;border-bottom:1px solid #262A22'>"
             f"<span style='color:{c_color};font-weight:700;font-size:12px;margin-right:8px'>{icon}</span>"
-            f"<span style='color:#c8d8f0;font-size:13px'>{title}</span></td>"
-            f"<td style='padding:8px 0;border-bottom:1px solid #1e3a5f;color:#8aa0b8;"
+            f"<span style='color:#A8AC9E;font-size:13px'>{title}</span></td>"
+            f"<td style='padding:8px 0;border-bottom:1px solid #262A22;color:#8aa0b8;"
             f"font-size:12px;text-align:right'>{detail}</td>"
             f"</tr>"
         )
@@ -186,11 +186,11 @@ def _build_alert_html(hostname: str, subject: str, n: int, change_list: list,
     interp_block = ""
     if interpretation:
         interp_block = (
-            f"<div style='background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);"
-            f"border-left:3px solid #22c55e;border-radius:8px;padding:14px 16px;margin-bottom:20px'>"
+            f"<div style='background:rgba(76,195,138,.08);border:1px solid rgba(76,195,138,.2);"
+            f"border-left:3px solid #4CC38A;border-radius:8px;padding:14px 16px;margin-bottom:20px'>"
             f"<div style='font-size:10px;font-weight:700;text-transform:uppercase;"
-            f"letter-spacing:.05em;color:#22c55e;margin-bottom:6px'>What this likely means</div>"
-            f"<p style='color:#c8d8f0;font-size:13px;line-height:1.5;margin:0'>{interpretation}</p>"
+            f"letter-spacing:.05em;color:#4CC38A;margin-bottom:6px'>What this likely means</div>"
+            f"<p style='color:#A8AC9E;font-size:13px;line-height:1.5;margin:0'>{interpretation}</p>"
             f"</div>"
         )
 
@@ -198,34 +198,34 @@ def _build_alert_html(hostname: str, subject: str, n: int, change_list: list,
     your_move_block = ""
     if your_move:
         your_move_block = (
-            f"<div style='background:rgba(96,165,250,.08);border-left:3px solid #60a5fa;"
+            f"<div style='background:rgba(255,178,36,.08);border-left:3px solid #FFB224;"
             f"border-radius:8px;padding:14px 16px;margin-bottom:20px'>"
             f"<div style='font-size:10px;font-weight:700;text-transform:uppercase;"
-            f"letter-spacing:.05em;color:#60a5fa;margin-bottom:6px'>▶ Your Move</div>"
-            f"<p style='color:#c8d8f0;font-size:13px;line-height:1.5;margin:0'>{your_move}</p>"
+            f"letter-spacing:.05em;color:#FFB224;margin-bottom:6px'>▶ Your Move</div>"
+            f"<p style='color:#A8AC9E;font-size:13px;line-height:1.5;margin:0'>{your_move}</p>"
             f"</div>"
         )
 
     return f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#060d18;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<body style="margin:0;padding:0;background:#0B0C0A;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
 <div style="max-width:560px;margin:0 auto;padding:32px 16px">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-    <span style="color:#3b82f6;font-weight:700;font-size:16px">StoreScout</span>
+    <span style="color:#FFB224;font-weight:700;font-size:16px">StoreScout</span>
     <span style="background:{sev_bg};color:{sev_color};border:1px solid {sev_color}40;
            padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">{sev_label}</span>
   </div>
-  <h1 style="color:#eef3fa;font-size:20px;font-weight:700;margin:0 0 6px;line-height:1.3">{subject}</h1>
+  <h1 style="color:#ECEEE6;font-size:20px;font-weight:700;margin:0 0 6px;line-height:1.3">{subject}</h1>
   <p style="color:#6b7fa3;font-size:13px;margin:0 0 20px">
     {n} change{'s' if n != 1 else ''} detected at {hostname}
   </p>
   {interp_block}
-  <div style="background:#0e1d35;border:1px solid #1e3a5f;border-radius:12px;padding:16px 20px;margin-bottom:20px">
+  <div style="background:#101110;border:1px solid #262A22;border-radius:12px;padding:16px 20px;margin-bottom:20px">
     <table style="width:100%;border-collapse:collapse">{rows_html}</table>
   </div>
   {your_move_block}
   <a href="{dashboard_url}"
-     style="display:block;background:#3b82f6;color:#ffffff;text-decoration:none;
+     style="display:block;background:#FFB224;color:#0B0C0A;text-decoration:none;
             text-align:center;padding:14px 24px;border-radius:12px;font-weight:700;font-size:15px">
     View full dashboard →
   </a>
@@ -524,10 +524,10 @@ def _build_multi_alert_html(sections: list, settings) -> tuple:
                 detail = ""
             rows_html += (
                 f"<tr>"
-                f"<td style='padding:6px 0;border-bottom:1px solid #1e3a5f'>"
+                f"<td style='padding:6px 0;border-bottom:1px solid #262A22'>"
                 f"<span style='color:{c_color};font-weight:700;font-size:12px;margin-right:8px'>{icon}</span>"
-                f"<span style='color:#c8d8f0;font-size:13px'>{title}</span></td>"
-                f"<td style='padding:6px 0;border-bottom:1px solid #1e3a5f;color:#8aa0b8;"
+                f"<span style='color:#A8AC9E;font-size:13px'>{title}</span></td>"
+                f"<td style='padding:6px 0;border-bottom:1px solid #262A22;color:#8aa0b8;"
                 f"font-size:12px;text-align:right'>{detail}</td>"
                 f"</tr>"
             )
@@ -537,26 +537,26 @@ def _build_multi_alert_html(sections: list, settings) -> tuple:
             if interp else ""
         )
         move_snippet = (
-            f"<p style='color:#60a5fa;font-size:12px;margin:6px 0 0;line-height:1.5'>"
+            f"<p style='color:#FFB224;font-size:12px;margin:6px 0 0;line-height:1.5'>"
             f"<strong>▶</strong> {your_move}</p>"
             if your_move else ""
         )
         divider = (
-            "<div style='border-top:1px solid #1e3a5f;margin:20px 0'></div>"
+            "<div style='border-top:1px solid #262A22;margin:20px 0'></div>"
             if i < n_comps - 1 else ""
         )
 
         sections_html += (
             f"<div>"
             f"<div style='display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px'>"
-            f"<span style='color:#eef3fa;font-size:15px;font-weight:700'>{hostname}</span>"
+            f"<span style='color:#ECEEE6;font-size:15px;font-weight:700'>{hostname}</span>"
             f"<span style='color:#6b7fa3;font-size:12px'>{n_eff} change{'s' if n_eff != 1 else ''}</span>"
             f"</div>"
-            f"<div style='background:#0e1d35;border:1px solid #1e3a5f;border-radius:10px;padding:12px 16px;margin-bottom:10px'>"
+            f"<div style='background:#101110;border:1px solid #262A22;border-radius:10px;padding:12px 16px;margin-bottom:10px'>"
             f"<table style='width:100%;border-collapse:collapse'>{rows_html}</table>"
             f"</div>"
             f"{interp_snippet}{move_snippet}"
-            f"<a href='{dashboard_url}' style='display:inline-block;color:#60a5fa;font-size:13px;"
+            f"<a href='{dashboard_url}' style='display:inline-block;color:#FFB224;font-size:13px;"
             f"font-weight:600;text-decoration:none;margin-top:10px'>View {hostname} →</a>"
             f"{divider}"
             f"</div>"
@@ -567,20 +567,20 @@ def _build_multi_alert_html(sections: list, settings) -> tuple:
     html = (
         f"<!DOCTYPE html><html><head><meta charset='utf-8'>"
         f"<meta name='viewport' content='width=device-width,initial-scale=1'></head>"
-        f"<body style='margin:0;padding:0;background:#060d18;"
+        f"<body style='margin:0;padding:0;background:#0B0C0A;"
         f"font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif'>"
         f"<div style='max-width:560px;margin:0 auto;padding:32px 16px'>"
         f"<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:16px'>"
-        f"<span style='color:#3b82f6;font-weight:700;font-size:16px'>StoreScout</span>"
+        f"<span style='color:#FFB224;font-weight:700;font-size:16px'>StoreScout</span>"
         f"<span style='background:{sev_bg};color:{sev_color};border:1px solid {sev_color}40;"
         f"padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700'>{sev_label}</span>"
         f"</div>"
-        f"<h1 style='color:#eef3fa;font-size:20px;font-weight:700;margin:0 0 6px;line-height:1.3'>"
+        f"<h1 style='color:#ECEEE6;font-size:20px;font-weight:700;margin:0 0 6px;line-height:1.3'>"
         f"{n_comps} competitors had activity</h1>"
         f"<p style='color:#6b7fa3;font-size:13px;margin:0 0 24px'>"
         f"{total_changes} total change{'s' if total_changes != 1 else ''} in the last 30 minutes</p>"
         f"{sections_html}"
-        f"<a href='{all_url}' style='display:block;background:#3b82f6;color:#ffffff;"
+        f"<a href='{all_url}' style='display:block;background:#FFB224;color:#0B0C0A;"
         f"text-decoration:none;text-align:center;padding:14px 24px;border-radius:12px;"
         f"font-weight:700;font-size:15px;margin-top:24px'>View all dashboards →</a>"
         f"<p style='color:#2a3a4a;font-size:11px;text-align:center;margin-top:24px'>"
@@ -612,9 +612,9 @@ def _send_free_alert_email(db, user_id: str, email: str, competitor_ids: list,
         all_change_ids.extend(change_ids)
         rows_html += (
             f"<tr>"
-            f"<td style='padding:8px 0;border-bottom:1px solid #1e3a5f;color:#c8d8f0;font-size:13px'>"
-            f"<span style='color:#60a5fa;margin-right:8px'>◉</span>{hostname}</td>"
-            f"<td style='padding:8px 0;border-bottom:1px solid #1e3a5f;color:#6b7fa3;"
+            f"<td style='padding:8px 0;border-bottom:1px solid #262A22;color:#A8AC9E;font-size:13px'>"
+            f"<span style='color:#FFB224;margin-right:8px'>◉</span>{hostname}</td>"
+            f"<td style='padding:8px 0;border-bottom:1px solid #262A22;color:#6b7fa3;"
             f"font-size:12px;text-align:right'>{n} change{'s' if n != 1 else ''}</td>"
             f"</tr>"
         )
@@ -632,38 +632,38 @@ def _send_free_alert_email(db, user_id: str, email: str, competitor_ids: list,
     html = (
         f"<!DOCTYPE html><html><head><meta charset='utf-8'>"
         f"<meta name='viewport' content='width=device-width,initial-scale=1'></head>"
-        f"<body style='margin:0;padding:0;background:#060d18;"
+        f"<body style='margin:0;padding:0;background:#0B0C0A;"
         f"font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif'>"
         f"<div style='max-width:560px;margin:0 auto;padding:32px 16px'>"
         f"<div style='margin-bottom:20px'>"
-        f"<span style='color:#3b82f6;font-weight:700;font-size:16px;letter-spacing:-.3px'>StoreScout</span>"
+        f"<span style='color:#FFB224;font-weight:700;font-size:16px;letter-spacing:-.3px'>StoreScout</span>"
         f"</div>"
-        f"<h1 style='color:#eef3fa;font-size:20px;font-weight:700;margin:0 0 6px'>"
+        f"<h1 style='color:#ECEEE6;font-size:20px;font-weight:700;margin:0 0 6px'>"
         f"Your weekly scan is complete</h1>"
         f"<p style='color:#6b7fa3;font-size:14px;margin:0 0 20px'>"
         f"We detected {total} change{'s' if total != 1 else ''} across your "
         f"{n_comps} tracked competitor{'s' if n_comps != 1 else ''} this week.</p>"
-        f"<div style='background:#0e1d35;border:1px solid #1e3a5f;border-radius:12px;"
+        f"<div style='background:#101110;border:1px solid #262A22;border-radius:12px;"
         f"padding:16px 20px;margin-bottom:20px'>"
         f"<table style='width:100%;border-collapse:collapse'>{rows_html}</table>"
         f"</div>"
-        f"<div style='background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);"
-        f"border-left:3px solid #3b82f6;border-radius:8px;padding:14px 16px;margin-bottom:20px'>"
+        f"<div style='background:rgba(255,178,36,.07);border:1px solid rgba(255,178,36,.2);"
+        f"border-left:3px solid #FFB224;border-radius:8px;padding:14px 16px;margin-bottom:20px'>"
         f"<div style='font-size:10px;font-weight:700;text-transform:uppercase;"
-        f"letter-spacing:.05em;color:#60a5fa;margin-bottom:6px'>Upgrade to Pro</div>"
-        f"<p style='color:#c8d8f0;font-size:13px;line-height:1.5;margin:0 0 10px'>"
+        f"letter-spacing:.05em;color:#FFB224;margin-bottom:6px'>Upgrade to Pro</div>"
+        f"<p style='color:#A8AC9E;font-size:13px;line-height:1.5;margin:0 0 10px'>"
         f"Get alerted within 15 minutes of any price change, new launch, or discount — "
         f"plus daily scans so you never miss a move.</p>"
-        f"<a href='{upgrade_url}' style='display:inline-block;background:#3b82f6;color:#ffffff;"
+        f"<a href='{upgrade_url}' style='display:inline-block;background:#FFB224;color:#0B0C0A;"
         f"padding:9px 18px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px'>"
         f"Get real-time alerts — $29/month →</a>"
         f"</div>"
-        f"<a href='{competitors_url}' style='display:block;background:#0e1d35;color:#c8d8f0;"
+        f"<a href='{competitors_url}' style='display:block;background:#101110;color:#A8AC9E;"
         f"text-decoration:none;text-align:center;padding:12px 24px;border-radius:12px;"
-        f"font-weight:600;font-size:14px;border:1px solid #1e3a5f'>View your dashboard →</a>"
-        f"<p style='color:#1e3a5f;font-size:11px;text-align:center;margin-top:24px'>"
+        f"font-weight:600;font-size:14px;border:1px solid #262A22'>View your dashboard →</a>"
+        f"<p style='color:#262A22;font-size:11px;text-align:center;margin-top:24px'>"
         f"StoreScout &nbsp;·&nbsp;"
-        f"<a href='{settings_url}' style='color:#1e3a5f'>Manage notifications</a>"
+        f"<a href='{settings_url}' style='color:#262A22'>Manage notifications</a>"
         f"</p>"
         f"</div></body></html>"
     )
@@ -900,7 +900,7 @@ def _build_competitor_block(competitor: dict, summary: Optional[dict],
 
     # Header row
     header = (
-        f"<div style='border-bottom:2px solid #3b82f6;padding-bottom:8px;margin-bottom:16px;"
+        f"<div style='border-bottom:2px solid #FFB224;padding-bottom:8px;margin-bottom:16px;"
         f"display:flex;justify-content:space-between;align-items:baseline'>"
         f"<span style='font-size:15px;font-weight:700;color:#111'>{hostname}</span>"
         f"<span style='font-size:12px;color:#888'>{week_changes} change{'s' if week_changes != 1 else ''} this week</span>"
@@ -940,7 +940,7 @@ def _build_competitor_block(competitor: dict, summary: Optional[dict],
         )
 
     cta = (
-        f"<a href='{dashboard_url}' style='display:inline-block;background:#3b82f6;color:#ffffff;"
+        f"<a href='{dashboard_url}' style='display:inline-block;background:#FFB224;color:#0B0C0A;"
         f"padding:8px 18px;border-radius:6px;text-decoration:none;font-weight:600;font-size:13px'>"
         f"View dashboard →</a>"
     )
@@ -1051,16 +1051,16 @@ def send_weekly_digest_email(user_id: str) -> dict:
   <div style="max-width:580px;margin:32px auto;padding:0 16px 32px">
 
     <!-- Header -->
-    <div style="background:#0a1628;padding:24px 28px;border-radius:12px 12px 0 0">
+    <div style="background:#101110;padding:24px 28px;border-radius:12px 12px 0 0">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="color:#3b82f6;font-weight:700;font-size:16px">StoreScout</span>
+        <span style="color:#FFB224;font-weight:700;font-size:16px">StoreScout</span>
         <span style="color:#6b7fa3;font-size:12px">Weekly digest</span>
       </div>
-      <p style="color:#c8d8f0;font-size:22px;font-weight:700;margin:12px 0 0">{date_range}</p>
+      <p style="color:#A8AC9E;font-size:22px;font-weight:700;margin:12px 0 0">{date_range}</p>
     </div>
 
     <!-- Body -->
-    <div style="background:#f9f9f9;padding:24px 28px;border:1px solid #e0e0e0;border-top:none;border-radius:0 0 12px 12px">
+    <div style="background:#ECEEE6;padding:24px 28px;border:1px solid #e0e0e0;border-top:none;border-radius:0 0 12px 12px">
       <p style="color:#555;font-size:13px;margin:0 0 20px">
         Tracking <strong>{n_comps} competitor{'s' if n_comps != 1 else ''}</strong> ·
         <strong>{total_changes} change{'s' if total_changes != 1 else ''}</strong> detected this week
@@ -1096,9 +1096,9 @@ def send_weekly_digest_email(user_id: str) -> dict:
 # ── First-scan email ──────────────────────────────────────────────────────────
 
 _CARD_COLORS = {
-    "signal": ("#22c55e", "rgba(34,197,94,0.12)", "Most notable signal"),
-    "opportunity": ("#60a5fa", "rgba(96,165,250,0.12)", "Your opening"),
-    "watch": ("#facc15", "rgba(250,204,21,0.12)", "Watch this"),
+    "signal": ("#4CC38A", "rgba(76,195,138,0.12)", "Most notable signal"),
+    "opportunity": ("#FFB224", "rgba(255,178,36,0.12)", "Your opening"),
+    "watch": ("#FFB224", "rgba(250,204,21,0.12)", "Watch this"),
     "action": ("#4ade80", "rgba(74,222,128,0.12)", "Your move"),
 }
 
@@ -1113,7 +1113,7 @@ def _build_brief_card_html(card: dict) -> str:
         f"border-radius:12px;padding:16px 18px;margin-bottom:12px'>"
         f"<div style='font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;"
         f"color:{color};margin-bottom:6px'>{label}</div>"
-        f"<div style='font-size:14px;font-weight:600;color:#eef3fa;margin-bottom:6px'>{headline}</div>"
+        f"<div style='font-size:14px;font-weight:600;color:#ECEEE6;margin-bottom:6px'>{headline}</div>"
         f"<div style='font-size:13px;color:#8aa0b8;line-height:1.5'>{body}</div>"
         f"</div>"
     )
@@ -1161,19 +1161,19 @@ def _build_multi_first_scan_html(ready_comps: list, briefs_by_comp: dict, settin
         card_html = _build_brief_card_html(best_card) if best_card else ""
 
         divider = (
-            "<div style='border-top:1px solid #0e1d35;margin:20px 0'></div>"
+            "<div style='border-top:1px solid #101110;margin:20px 0'></div>"
             if i < n - 1 else ""
         )
 
         comp_sections.append(
             f"<div>"
             f"<div style='margin-bottom:12px'>"
-            f"<span style='color:#eef3fa;font-size:15px;font-weight:700'>{hostname}</span>"
+            f"<span style='color:#ECEEE6;font-size:15px;font-weight:700'>{hostname}</span>"
             f"{product_label}"
             f"</div>"
             f"{card_html}"
-            f"<a href='{dashboard_url}' style='display:inline-block;background:#1e3a5f;"
-            f"color:#60a5fa;padding:7px 14px;border-radius:8px;font-size:13px;"
+            f"<a href='{dashboard_url}' style='display:inline-block;background:#262A22;"
+            f"color:#FFB224;padding:7px 14px;border-radius:8px;font-size:13px;"
             f"font-weight:600;text-decoration:none'>View {hostname} →</a>"
             f"</div>"
             f"{divider}"
@@ -1184,12 +1184,12 @@ def _build_multi_first_scan_html(ready_comps: list, briefs_by_comp: dict, settin
 
     html = f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#060d18;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<body style="margin:0;padding:0;background:#0B0C0A;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px">
 
     <div style="margin-bottom:28px">
-      <div style="color:#3b82f6;font-weight:700;font-size:18px;margin-bottom:16px">StoreScout</div>
-      <h1 style="color:#eef3fa;font-size:22px;font-weight:700;margin:0 0 8px;line-height:1.3">
+      <div style="color:#FFB224;font-weight:700;font-size:18px;margin-bottom:16px">StoreScout</div>
+      <h1 style="color:#ECEEE6;font-size:22px;font-weight:700;margin:0 0 8px;line-height:1.3">
         Your {n} competitor scans are ready
       </h1>
       <p style="color:#6b7fa3;font-size:13px;margin:0">Here's the top finding from each</p>
@@ -1304,12 +1304,12 @@ def send_first_scan_email(self, competitor_id: str) -> dict:
 
         html = f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#060d18;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<body style="margin:0;padding:0;background:#0B0C0A;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px">
 
     <div style="margin-bottom:28px">
-      <div style="color:#3b82f6;font-weight:700;font-size:18px;margin-bottom:16px">StoreScout</div>
-      <h1 style="color:#eef3fa;font-size:22px;font-weight:700;margin:0 0 8px;line-height:1.3">
+      <div style="color:#FFB224;font-weight:700;font-size:18px;margin-bottom:16px">StoreScout</div>
+      <h1 style="color:#ECEEE6;font-size:22px;font-weight:700;margin:0 0 8px;line-height:1.3">
         Your first scan of {hostname} is ready
       </h1>
       <p style="color:#6b7fa3;font-size:13px;margin:0">{product_label}here's what stood out</p>
@@ -1318,7 +1318,7 @@ def send_first_scan_email(self, competitor_id: str) -> dict:
     {cards_html}
 
     <a href="{dashboard_url}"
-       style="display:block;background:#3b82f6;color:#ffffff;text-decoration:none;
+       style="display:block;background:#FFB224;color:#0B0C0A;text-decoration:none;
               text-align:center;padding:14px 24px;border-radius:12px;
               font-weight:700;font-size:15px;margin-top:24px">
       View full analysis →
