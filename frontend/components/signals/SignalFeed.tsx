@@ -19,7 +19,7 @@ function TacticalGroup({ group }: { group: SignalGroup }) {
 
   return (
     <div
-      className="rounded-xl overflow-hidden mb-2"
+      className="rounded-md overflow-hidden mb-2"
       style={{ border: "1px solid var(--border)", borderLeft: `3px solid ${cfg.color}`, background: "var(--bg-card)" }}
     >
       <button
@@ -163,7 +163,7 @@ export function SignalFeed({ groups, loading = false, maxRaw = 12 }: Props) {
     return (
       <div className="space-y-2">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-16 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />
+          <div key={i} className="h-16 rounded-md animate-pulse" style={{ background: "var(--bg3)" }} />
         ))}
       </div>
     );
@@ -191,9 +191,9 @@ export function SignalFeed({ groups, loading = false, maxRaw = 12 }: Props) {
       {/* Strategic signals */}
       {showStrategicDividers ? (
         <>
-          <div className="label-caps mb-2 px-1">Today</div>
+          <div className="tick-label mb-2 px-1">Today</div>
           {strategicToday.map((g) => <SignalCard key={g.id} group={g} />)}
-          <div className="label-caps mt-4 mb-2 px-1">Earlier this week</div>
+          <div className="tick-label mt-4 mb-2 px-1">Earlier this week</div>
           {strategicEarlier.map((g) => <SignalCard key={g.id} group={g} />)}
         </>
       ) : (
@@ -217,7 +217,7 @@ export function SignalFeed({ groups, loading = false, maxRaw = 12 }: Props) {
       )}
       {raw.length > 0 && (
         <div
-          className="rounded-xl overflow-hidden"
+          className="rounded-md overflow-hidden"
           style={{ border: "1px solid var(--border)", background: "var(--bg3)" }}
         >
           {visibleRaw.map((g) => (
@@ -229,7 +229,7 @@ export function SignalFeed({ groups, loading = false, maxRaw = 12 }: Props) {
       {hiddenRawCount > 0 && (
         <button
           onClick={() => setShowAllRaw(true)}
-          className="w-full mt-2 py-2 text-xs font-semibold rounded-xl transition-colors hover:bg-white/[0.03]"
+          className="w-full mt-2 py-2 text-xs font-semibold rounded-md transition-colors hover:bg-white/[0.03]"
           style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
         >
           Show {hiddenRawCount} more

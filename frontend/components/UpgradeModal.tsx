@@ -119,7 +119,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general", curre
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="relative w-full max-w-xl rounded-2xl p-7"
+        className="relative w-full max-w-xl rounded-md p-7"
         style={{
           background: "var(--bg2)",
           border: "1px solid var(--border)",
@@ -157,7 +157,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general", curre
 
           {/* Monthly / Annual toggle */}
           <div
-            className="inline-flex items-center mt-5 p-1 rounded-xl"
+            className="inline-flex items-center mt-5 p-1 rounded-md"
             style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
           >
             <button
@@ -194,7 +194,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general", curre
 
         {/* Top-tier message — no plans to show */}
         {isTopTier && (
-          <div className="text-center py-6 px-4 rounded-2xl" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+          <div className="text-center py-6 px-4 rounded-md" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
             <p className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>You&apos;re on our top plan</p>
             <p className="text-xs" style={{ color: "var(--muted)" }}>Contact us if you need custom limits or white-labeling.</p>
             <a href="mailto:hello@getstorescout.com" className="inline-block mt-3 text-xs font-semibold" style={{ color: "var(--accent)" }}>hello@getstorescout.com →</a>
@@ -209,7 +209,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general", curre
             return (
               <div
                 key={plan.key}
-                className="relative rounded-2xl p-5"
+                className="relative rounded-md p-5"
                 style={{
                   background: plan.colorBg,
                   boxShadow: plan.glowShadow,
@@ -267,7 +267,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general", curre
                 <button
                   onClick={() => handleUpgrade(plan.key)}
                   disabled={!!loading}
-                  className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all hover:brightness-110 disabled:opacity-50"
+                  className="w-full py-2.5 rounded-md font-semibold text-sm transition-all hover:brightness-110 disabled:opacity-50"
                   style={{ background: plan.color, color: "var(--ink)" }}
                 >
                   {loading === plan.key ? "Redirecting…" : `Upgrade to ${plan.name}`}
@@ -278,7 +278,7 @@ export default function UpgradeModal({ open, onClose, trigger = "general", curre
         </div>}
 
         {error && (
-          <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm mt-4" style={{ background: "rgba(242,85,90,.1)", border: "1px solid rgba(242,85,90,.2)", color: "#F2555A" }}>
+          <div className="flex items-center gap-2 px-4 py-3 rounded-md text-sm mt-4" style={{ background: "rgba(242,85,90,.1)", border: "1px solid rgba(242,85,90,.2)", color: "#F2555A" }}>
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             {error}
           </div>

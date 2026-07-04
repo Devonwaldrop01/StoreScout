@@ -13,7 +13,7 @@ export function LockedValueCard({ title, teaser, plan = "pro" }: LockedValueCard
   const planLabel = plan === "agency" ? "Agency" : "Pro";
   return (
     <div
-      className="rounded-xl px-5 py-4"
+      className="rounded-md px-5 py-4"
       style={{ background: "rgba(255,178,36,.04)", border: "1px solid rgba(255,178,36,.14)" }}
     >
       <div className="flex items-center gap-2 mb-2">

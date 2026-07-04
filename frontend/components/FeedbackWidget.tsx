@@ -103,7 +103,7 @@ export function FeedbackWidget() {
           style={{ background: "rgba(0,0,0,.5)" }}
         >
           <div
-            className="w-full sm:w-96 rounded-2xl overflow-hidden fade-up"
+            className="w-full sm:w-96 rounded-md overflow-hidden fade-up"
             style={{
               background: "var(--bg-card)",
               border: "1px solid var(--border)",
@@ -196,7 +196,7 @@ export function FeedbackWidget() {
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="What's working, what's not, what would make you tell a friend about this..."
                     rows={4}
-                    className="w-full rounded-xl px-3.5 py-3 text-sm resize-none outline-none transition-colors"
+                    className="w-full rounded-md px-3.5 py-3 text-sm resize-none outline-none transition-colors"
                     style={{
                       background: "var(--bg3)",
                       border: "1px solid var(--border)",
@@ -243,7 +243,7 @@ export function FeedbackWidget() {
                 <button
                   type="submit"
                   disabled={submitting || alreadySubmitted}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-md font-semibold text-sm transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ background: "var(--accent)", color: "var(--ink)" }}
                 >
                   {submitting ? (

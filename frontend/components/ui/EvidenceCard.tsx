@@ -23,7 +23,7 @@ export function EvidenceCard({ title, items, maxVisible = 5 }: EvidenceCardProps
   const hidden = items.length - maxVisible;
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)", background: "var(--bg3)" }}>
+    <div className="rounded-md overflow-hidden" style={{ border: "1px solid var(--border)", background: "var(--bg3)" }}>
       {title && (
         <div className="px-4 py-2.5" style={{ borderBottom: "1px solid var(--border)", background: "var(--bg-card)" }}>
           <p className="label-caps">{title}</p>
