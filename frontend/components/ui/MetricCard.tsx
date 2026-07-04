@@ -4,7 +4,7 @@ import { AreaChart, Area, ResponsiveContainer } from "recharts";
 
 // Chart data-series colors — validated against surface #101110 (dataviz six checks).
 // Brand amber (--accent #FFB224) is reserved for UI emphasis, not data marks.
-const SERIES_AMBER = "#C47F00";
+const SPARK_NEUTRAL = "#6C7164";
 
 interface MetricCardProps {
   label: string;
@@ -57,11 +57,11 @@ export function MetricCard({ label, value, delta, deltaLabel = "vs last week", d
             <AreaChart data={sparkline.map((v, i) => ({ v, i }))} margin={{ top: 1, right: 0, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="mc-spark" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={SERIES_AMBER} stopOpacity={0.3} />
-                  <stop offset="100%" stopColor={SERIES_AMBER} stopOpacity={0} />
+                  <stop offset="0%" stopColor={SPARK_NEUTRAL} stopOpacity={0.3} />
+                  <stop offset="100%" stopColor={SPARK_NEUTRAL} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <Area type="monotone" dataKey="v" stroke={SERIES_AMBER} strokeWidth={2}
+              <Area type="monotone" dataKey="v" stroke={SPARK_NEUTRAL} strokeWidth={2}
                 fill="url(#mc-spark)" dot={false} isAnimationActive={false} />
             </AreaChart>
           </ResponsiveContainer>

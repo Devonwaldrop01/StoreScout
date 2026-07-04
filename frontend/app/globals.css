@@ -6,11 +6,14 @@
    accent reserved for live intelligence and actions, phosphor green strictly
    for positive/live states, red for threats. Mono-first numerals.
 
-   Color discipline:
-   --accent  (signal amber)  → CTAs, links, active nav, live intelligence
-   --green               → success / in-stock / positive deltas ONLY
-   --red                 → threats / critical / destructive ONLY
-   --blue    (instrument cyan) → secondary CHART SERIES ONLY, never UI chrome
+   THE AMBER BUDGET — per screen, amber may appear ONLY as:
+     1. the active nav / tab tick
+     2. ONE primary CTA
+     3. genuine act-now / urgent markers
+     4. the live-status dot when new signals exist
+   Everything else is neutral warm gray chrome. Semantics: --green success /
+   positive, --red threat / critical, --blue (cyan) market-activity + second
+   chart series. Data marks are neutral with a single amber-emphasized element.
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
   --bg:       #0B0C0A;
@@ -56,7 +59,7 @@ html, body {
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(236,238,230,.10); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,178,36,.35); }
+::-webkit-scrollbar-thumb:hover { background: rgba(236,238,230,.22); }
 
 /* ── Animations — state, not decoration ──────────────────────────────────── */
 @keyframes fadeUp {
@@ -116,7 +119,7 @@ html, body {
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 .card-lift:hover {
-  border-color: rgba(255,178,36,.4) !important;
+  border-color: rgba(236,238,230,.22) !important;
   background: var(--bg3);
 }
 
@@ -151,9 +154,11 @@ html, body {
 .tick-label::before {
   content: "";
   width: 3px; height: 10px;
-  background: var(--accent);
+  background: var(--muted);
   flex-shrink: 0;
 }
+/* live variant — reserved for DAILY BRIEF + live feeds */
+.tick-label--live::before { background: var(--accent); }
 
 /* ── Signal dot — live status indicator ──────────────────────────────────── */
 .signal-dot {

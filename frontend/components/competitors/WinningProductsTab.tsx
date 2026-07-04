@@ -23,9 +23,9 @@ function getVerdict(score: number): {
 } {
   if (score >= 75) return {
     label: "Worth Testing",
-    color: "#FFB224",
-    bg: "rgba(255,178,36,0.10)",
-    border: "rgba(255,178,36,0.22)",
+    color: "#4CC38A",
+    bg: "rgba(76,195,138,0.10)",
+    border: "rgba(76,195,138,0.22)",
   };
   if (score >= 50) return {
     label: "Watch First",
@@ -127,7 +127,7 @@ function CopyButton({ text }: { text: string }) {
       className="opacity-0 group-hover:opacity-60 hover:!opacity-100 shrink-0 transition-opacity p-0.5 rounded"
     >
       {copied
-        ? <Check className="w-3 h-3" style={{ color: "#FFB224" }} />
+        ? <Check className="w-3 h-3" style={{ color: "#4CC38A" }} />
         : <Copy className="w-3 h-3" style={{ color: "var(--muted)" }} />}
     </button>
   );
@@ -336,7 +336,7 @@ function LaunchRow({ p, isLast }: { p: NewestProduct; isLast: boolean }) {
   const deepVars  = (p.variants_count ?? 0) >= 8;
 
   let ageBadgeStyle: React.CSSProperties;
-  if (isVeryNew)   ageBadgeStyle = { background: "rgba(255,178,36,0.15)", color: "#FFB224" };
+  if (isVeryNew)   ageBadgeStyle = { background: "rgba(47,159,201,0.15)", color: "#2F9FC9" };
   else if (isNew)  ageBadgeStyle = { background: "rgba(255,178,36,0.10)", color: "var(--amber)" };
   else             ageBadgeStyle = { background: "transparent", color: "var(--muted)" };
 

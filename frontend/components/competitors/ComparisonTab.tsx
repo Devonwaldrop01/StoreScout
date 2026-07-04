@@ -9,10 +9,10 @@ import UpgradeModal from "@/components/UpgradeModal";
 
 function verdictStyle(v: string): { color: string; bg: string; label: string; Icon: typeof TrendingUp } {
   switch (v) {
-    case "winning": return { color: "#FFB224", bg: "rgba(255,178,36,.12)", label: "Ahead", Icon: TrendingUp };
+    case "winning": return { color: "#4CC38A", bg: "rgba(76,195,138,.12)", label: "Ahead", Icon: TrendingUp };
     case "losing": return { color: "#F2555A", bg: "rgba(242,85,90,.12)", label: "Behind", Icon: TrendingDown };
-    case "matched": return { color: "var(--amber)", bg: "rgba(255,178,36,.12)", label: "Matched", Icon: Minus };
-    default: return { color: "#FFB224", bg: "rgba(255,178,36,.12)", label: "Strategic", Icon: Target };
+    case "matched": return { color: "#A8AC9E", bg: "rgba(236,238,230,.08)", label: "Matched", Icon: Minus };
+    default: return { color: "#A8AC9E", bg: "rgba(236,238,230,.08)", label: "Strategic", Icon: Target };
   }
 }
 
@@ -28,9 +28,9 @@ function DimensionCard({ dim, onUpgrade }: { dim: ComparisonDimension; onUpgrade
       </div>
 
       <div className="flex items-center gap-3 mb-3 text-sm">
-        <div className="flex-1 text-center rounded-lg py-2" style={{ background: "rgba(255,178,36,.06)" }}>
+        <div className="flex-1 text-center rounded py-2" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
           <p className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: "var(--muted)" }}>You</p>
-          <p className="font-mono font-bold" style={{ color: "#FFB224" }}>{dim.your_value}</p>
+          <p className="font-mono font-bold" style={{ color: "var(--text)" }}>{dim.your_value}</p>
         </div>
         <Swords className="w-4 h-4 shrink-0" style={{ color: "var(--muted)" }} />
         <div className="flex-1 text-center rounded-lg py-2" style={{ background: "var(--bg3)" }}>
@@ -46,13 +46,13 @@ function DimensionCard({ dim, onUpgrade }: { dim: ComparisonDimension; onUpgrade
         <button
           onClick={onUpgrade}
           className="w-full flex items-center justify-center gap-2 text-xs font-medium py-2 rounded-lg transition-all hover:brightness-110"
-          style={{ background: "rgba(255,178,36,.08)", color: "#FFB224", border: "1px dashed rgba(255,178,36,.3)" }}
+          style={{ background: "rgba(255,178,36,.08)", color: "var(--accent)", border: "1px dashed rgba(255,178,36,.3)" }}
         >
           <Lock className="w-3 h-3" /> Unlock what to do about this
         </button>
       ) : dim.action ? (
-        <div className="flex items-start gap-2 text-sm rounded-lg p-3" style={{ background: "rgba(255,178,36,.05)" }}>
-          <ArrowRight className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#FFB224" }} />
+        <div className="flex items-start gap-2 text-sm rounded p-3" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+          <ArrowRight className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "var(--text-2)" }} />
           <span style={{ color: "var(--text)" }}>{dim.action}</span>
         </div>
       ) : null}
@@ -82,7 +82,7 @@ function SetStorePrompt({ onSaved }: { onSaved: () => void }) {
 
   return (
     <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-      <Store className="w-8 h-8 mx-auto mb-3" style={{ color: "#FFB224" }} />
+      <Store className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--text-2)" }} />
       <h3 className="font-semibold mb-1" style={{ color: "var(--text)" }}>Add your store to compare</h3>
       <p className="text-sm mb-5 max-w-md mx-auto" style={{ color: "var(--muted)" }}>
         See exactly where you stand against this competitor — price, catalog, discounting, launch pace,
@@ -156,7 +156,7 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
       : "This competitor hasn't finished its first scan yet. Check back in a minute.";
     return (
       <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <Loader2 className="w-6 h-6 mx-auto mb-3 animate-spin" style={{ color: "#FFB224" }} />
+        <Loader2 className="w-6 h-6 mx-auto mb-3 animate-spin" style={{ color: "var(--text-2)" }} />
         <p style={{ color: "var(--muted)" }}>{msg}</p>
         <button onClick={refresh} className="mt-4 text-sm font-medium px-4 py-2 rounded-lg" style={{ background: "var(--bg3)", color: "var(--text)" }}>
           Refresh
@@ -174,14 +174,14 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
   }
 
   const verdict = data.overall.verdict || "";
-  const overallColor = verdict.includes("ahead") ? "#FFB224"
-    : verdict.includes("behind") ? "#F2555A" : "var(--amber)";
+  const overallColor = verdict.includes("ahead") ? "#4CC38A"
+    : verdict.includes("behind") ? "#F2555A" : "#A8AC9E";
 
   return (
     <div className="space-y-5">
       {/* Header */}
       <div className="flex items-start gap-2">
-        <Swords className="w-5 h-5 mt-0.5" style={{ color: "#FFB224" }} />
+        <Swords className="w-5 h-5 mt-0.5" style={{ color: "var(--text-2)" }} />
         <div>
           <h3 className="font-semibold" style={{ color: "var(--text)" }}>
             {data.my_hostname} vs {data.their_hostname}
@@ -197,9 +197,9 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
         <div className="flex items-center justify-between mb-2">
           <span className="font-bold text-lg" style={{ color: overallColor }}>{verdict}</span>
           <div className="flex gap-3 text-xs font-mono">
-            <span style={{ color: "#FFB224" }}>{data.overall.score.winning}W</span>
+            <span style={{ color: "#4CC38A" }}>{data.overall.score.winning}W</span>
             <span style={{ color: "#F2555A" }}>{data.overall.score.losing}L</span>
-            <span style={{ color: "var(--amber)" }}>{data.overall.score.matched}M</span>
+            <span style={{ color: "#A8AC9E" }}>{data.overall.score.matched}M</span>
           </div>
         </div>
         <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{data.overall.summary}</p>
@@ -207,9 +207,9 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
 
       {/* Match strategy */}
       {data.match_strategy && (
-        <div className="rounded-md p-5" style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.2)" }}>
+        <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center gap-2 mb-2">
-            <Target className="w-4 h-4" style={{ color: "#FFB224" }} />
+            <Target className="w-4 h-4" style={{ color: "var(--text-2)" }} />
             <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>
               {data.match_strategy.is_newcomer ? "Your game plan as the challenger" : "Your game plan"}
             </h4>
@@ -233,7 +233,7 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {data.match_strategy.match_these.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--amber)" }}>Match them on</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--text-2)" }}>Match them on</p>
                     <ul className="space-y-1">
                       {data.match_strategy.match_these.map((m) => (
                         <li key={m} className="text-sm capitalize" style={{ color: "var(--muted)" }}>· {m}</li>
@@ -243,7 +243,7 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
                 )}
                 {data.match_strategy.own_these.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "#FFB224" }}>Own your lane in</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "#4CC38A" }}>Own your lane in</p>
                     <ul className="space-y-1">
                       {data.match_strategy.own_these.map((m) => (
                         <li key={m} className="text-sm capitalize" style={{ color: "var(--muted)" }}>· {m}</li>

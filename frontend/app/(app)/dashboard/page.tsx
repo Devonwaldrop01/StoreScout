@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import {
   RefreshCw, ArrowRight, Sparkles,
-  Activity, Zap, Clock, X, Lock, Target, Plus, Check, TrendingUp, ShieldAlert,
+  Zap, X, Lock, Target, Plus, Check,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -17,7 +17,7 @@ import { groupAlertEvents, type SignalGroup, SIGNAL_CONFIG } from "@/lib/signals
 import { SignalFeed } from "@/components/signals/SignalFeed";
 import { ActionPlaybook } from "@/components/competitors/ActionPlaybook";
 import UpgradeModal from "@/components/UpgradeModal";
-import { ScoutBrief, MetricCard } from "@/components/ui";
+import { ScoutBrief } from "@/components/ui";
 import { GettingStarted } from "@/components/dashboard/GettingStarted";
 import { WatchlistPanel } from "@/components/dashboard/WatchlistPanel";
 
@@ -72,37 +72,58 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
     .map((c) => new Date(c.next_scan_at!).getTime())
     .sort((a, b) => a - b)[0];
 
-  const changesColor = thisWeekChanges > 0 ? "var(--accent)" : "var(--muted)";
-  const changesDeltaText = todayChanges > 0 && weeklyDelta === null ? `${todayChanges} today` : undefined;
+  // Compact status strip: one panel of mono readouts — no filler tiles.
+  const maxDaily = Math.max(...dailyCounts, 1);
+
+  const readouts: { label: string; value: string; color?: string; sub?: string }[] = [
+    {
+      label: "Changes · 7d",
+      value: thisWeekChanges.toLocaleString(),
+      color: thisWeekChanges > 0 ? "var(--text)" : "var(--muted)",
+      sub: weeklyDelta !== null
+        ? `${weeklyDelta > 0 ? "↑" : weeklyDelta < 0 ? "↓" : "→"}${Math.abs(weeklyDelta)}% vs prior`
+        : todayChanges > 0 ? `${todayChanges} today` : undefined,
+    },
+    {
+      label: "Opportunities",
+      value: String(opportunities),
+      color: opportunities > 0 ? "var(--emerald)" : "var(--muted)",
+    },
+    {
+      label: "Threats",
+      value: String(threats),
+      color: threats > 0 ? "var(--red)" : "var(--muted)",
+    },
+    ...(nextScanTs ? [{
+      label: "Next scan",
+      value: formatNextScan(new Date(nextScanTs).toISOString()),
+      color: "var(--text-2)",
+    }] : []),
+  ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-      <MetricCard
-        icon={TrendingUp}
-        label="Opportunities"
-        value={opportunities}
-        color={opportunities > 0 ? "var(--emerald)" : "var(--muted)"}
-        deltaText="this week"
-      />
-      <MetricCard
-        icon={Activity}
-        label="Changes this week"
-        value={thisWeekChanges}
-        color={changesColor}
-        delta={weeklyDelta}
-        deltaText={changesDeltaText}
-        sparkline={dailyCounts}
-      />
-      <MetricCard
-        icon={ShieldAlert}
-        label="Threats"
-        value={threats}
-        color={threats > 0 ? "var(--red)" : "var(--muted)"}
-        deltaText="this week"
-      />
-      {nextScanTs && (
-        <MetricCard icon={Clock} label="Next auto-scan" value={formatNextScan(new Date(nextScanTs).toISOString())} color="var(--muted)" />
-      )}
+    <div className="panel flex items-stretch mb-6 overflow-x-auto">
+      {readouts.map((r, i) => (
+        <div
+          key={r.label}
+          className="flex-1 min-w-[110px] px-4 py-3"
+          style={i > 0 ? { borderLeft: "1px solid var(--border)" } : undefined}
+        >
+          <p className="label-caps mb-1">{r.label}</p>
+          <p className="num text-lg font-bold leading-none" style={{ color: r.color }}>{r.value}</p>
+          {r.sub && <p className="num text-[10px] mt-1" style={{ color: "var(--muted)" }}>{r.sub}</p>}
+        </div>
+      ))}
+      {/* 7-day activity — neutral context bars */}
+      <div className="hidden sm:flex items-end gap-1 px-4 py-3 shrink-0" style={{ borderLeft: "1px solid var(--border)" }} title="Changes per day, last 7 days">
+        {dailyCounts.map((v, i) => (
+          <div
+            key={i}
+            className="w-1.5 rounded-sm"
+            style={{ height: `${Math.max(3, (v / maxDaily) * 26)}px`, background: i === dailyCounts.length - 1 ? "var(--text-2)" : "#4A4E44" }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -126,9 +147,9 @@ function SignalBreakdown({ groups }: { groups: SignalGroup[] }) {
     .reduce((s, g) => s + g.count, 0);
 
   const items = [
-    { label: "price changes", count: price, color: "var(--accent)", hex: "#FFB224" },
-    { label: "launches", count: launch, color: "var(--emerald)", hex: "#4CC38A" },
-    { label: "discounts", count: discount, color: "var(--amber)", hex: "var(--amber)" },
+    { label: "price changes", count: price, color: "var(--muted)", hex: "#6C7164" },
+    { label: "launches", count: launch, color: "var(--muted)", hex: "#6C7164" },
+    { label: "discounts", count: discount, color: "var(--muted)", hex: "#6C7164" },
     { label: "stock events", count: stock, color: "var(--muted)", hex: "#6C7164" },
   ].filter((i) => i.count > 0);
 
@@ -314,7 +335,7 @@ function CompetitorMonitor({
           {changeCount > 0 && (
             <span
               className="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
-              style={{ background: hasStrategic ? "rgba(242,85,90,.15)" : "rgba(255,178,36,.1)", color: hasStrategic ? "var(--red)" : "var(--accent)" }}
+              style={{ background: hasStrategic ? "rgba(242,85,90,.15)" : "var(--bg3)", color: hasStrategic ? "var(--red)" : "var(--text-2)" }}
             >
               {changeCount}
             </span>
@@ -358,7 +379,7 @@ function CompetitorMonitor({
           ) : changeCount > 0 ? (
             <span
               className="text-[10px] font-semibold px-2 py-1 rounded-md"
-              style={{ background: "rgba(255,178,36,.08)", color: "var(--accent)" }}
+              style={{ background: "var(--bg3)", color: "var(--text-2)", border: "1px solid var(--border)" }}
             >
               {changeCount} change{changeCount !== 1 ? "s" : ""}
             </span>
@@ -472,8 +493,9 @@ function WatchPanel({ competitorList, signalGroups }: { competitorList: Competit
                 </div>
               </div>
               {c.product_count != null && (
-                <span className="text-[11px] font-mono shrink-0 ml-3" style={{ color: "var(--muted)" }}>
+                <span className="text-[11px] font-mono shrink-0 ml-3 text-right" style={{ color: "var(--muted)" }}>
                   {c.product_count.toLocaleString()}
+                  <span className="block text-[9px] opacity-70">products</span>
                 </span>
               )}
             </Link>
@@ -530,12 +552,12 @@ function DiscoverySuggestions({
         className="flex items-center gap-2 px-4 py-3"
         style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
       >
-        <Sparkles className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
+        <Sparkles className="w-3.5 h-3.5" style={{ color: "var(--text-2)" }} />
         <p className="text-xs font-bold flex-1" style={{ color: "var(--text)" }}>
           {isCurated ? "Popular stores to track" : "Similar to what you're tracking"}
         </p>
         {!isCurated && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(255,178,36,.08)", color: "var(--muted)" }}>
+          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: "var(--bg3)", color: "var(--muted)", border: "1px solid var(--border)" }}>
             Based on your catalog
           </span>
         )}
@@ -879,12 +901,12 @@ function DashboardContent() {
               <Link
                 href="/settings?tab=integrations"
                 className="flex items-start gap-2.5 px-3.5 py-3 rounded-md transition-all block"
-                style={{ background: "rgba(255,178,36,.04)", border: "1px solid rgba(255,178,36,.1)" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,178,36,.07)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,178,36,.04)"; }}
+                style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--bg3)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--bg-card)"; }}
               >
-                <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 mt-0.5" style={{ background: "rgba(255,178,36,.12)" }}>
-                  <Zap className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
+                <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 mt-0.5" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+                  <Zap className="w-3.5 h-3.5" style={{ color: "var(--text-2)" }} />
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-semibold mb-0.5" style={{ color: "var(--text)" }}>Connect your store</p>

@@ -164,10 +164,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {tier && (
             <div className="flex items-center justify-between px-3 py-1">
               <span className="label-caps">Plan</span>
-              <span
-                className="label-caps"
-                style={{ color: isFree ? "var(--muted)" : "var(--accent)" }}
-              >
+              <span className="label-caps" style={{ color: "var(--text-2)" }}>
                 {tier}
               </span>
             </div>

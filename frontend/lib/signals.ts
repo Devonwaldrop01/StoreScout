@@ -322,15 +322,15 @@ export function impactLevel(group: SignalGroup): "High" | "Medium" | "Low" {
 //   slate = informational, no price direction (launches, removals, stock)
 
 export const SIGNAL_CONFIG: Record<SignalType, { color: string; icon: ElementType }> = {
-  launch_burst:       { color: "#7c8aa0", icon: Rocket },        // informational
-  flash_sale:         { color: "#ef4444", icon: Zap },           // price down — aggressive
-  price_wave:         { color: "#ef4444", icon: TrendingDown },  // price down
-  price_increase:     { color: "#10b981", icon: TrendingUp },    // price up
-  discount_wave:      { color: "#ef4444", icon: Tag },           // discounting — price down
-  product_removals:   { color: "#7c8aa0", icon: Trash2 },        // informational
-  availability_shift: { color: "#7c8aa0", icon: Package },       // informational
-  tactical_launches:  { color: "#7c8aa0", icon: Plus },
-  tactical_prices:    { color: "#7c8aa0", icon: ArrowUpDown },   // mixed direction — neutral
-  tactical_discounts: { color: "#ef4444", icon: Percent },       // price down
-  single:             { color: "#5a6a82", icon: Minus },
+  launch_burst:       { color: "#2F9FC9", icon: Rocket },        // market activity (cyan)
+  flash_sale:         { color: "#F2555A", icon: Zap },           // threat
+  price_wave:         { color: "#F2555A", icon: TrendingDown },  // threat
+  price_increase:     { color: "#4CC38A", icon: TrendingUp },    // opportunity
+  discount_wave:      { color: "#F2555A", icon: Tag },           // threat
+  product_removals:   { color: "#6C7164", icon: Trash2 },        // informational
+  availability_shift: { color: "#6C7164", icon: Package },       // informational
+  tactical_launches:  { color: "#6C7164", icon: Plus },
+  tactical_prices:    { color: "#6C7164", icon: ArrowUpDown },   // mixed direction — neutral
+  tactical_discounts: { color: "#F2555A", icon: Percent },       // price down
+  single:             { color: "#6C7164", icon: Minus },
 };

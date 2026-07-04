@@ -58,7 +58,7 @@ export function ActionCard({ type, headline, action_text, context, hostname, com
         <Link
           href={`/dashboard/${competitor_id}?tab=${tab ?? "overview"}`}
           className="flex items-center gap-1 text-[11px] font-semibold transition-opacity hover:opacity-70"
-          style={{ color: "var(--accent)" }}
+          style={{ color: "var(--text-2)" }}
         >
           View <ArrowRight className="w-2.5 h-2.5" />
         </Link>
