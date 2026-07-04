@@ -25,7 +25,7 @@ function FaviconLogo({ hostname, size = 44 }: { hostname: string; size?: number 
   if (imgError) {
     return (
       <div
-        className="rounded-xl flex items-center justify-center font-bold shrink-0"
+        className="rounded-md flex items-center justify-center font-bold shrink-0"
         style={{
           width: size,
           height: size,
@@ -45,7 +45,7 @@ function FaviconLogo({ hostname, size = 44 }: { hostname: string; size?: number 
       src={`https://www.google.com/s2/favicons?domain=${hostname}&sz=64`}
       onError={() => setImgError(true)}
       alt=""
-      className="rounded-xl object-contain shrink-0"
+      className="rounded-md object-contain shrink-0"
       style={{
         width: size,
         height: size,
@@ -93,7 +93,7 @@ function CompetitorCard({
 
   return (
     <div
-      className="rounded-2xl p-5 flex flex-col transition-all hover:border-white/15"
+      className="rounded-md p-5 flex flex-col transition-all hover:border-white/15"
       style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
     >
       {/* Identity header */}
@@ -145,7 +145,7 @@ function CompetitorCard({
 
       {/* Secondary metrics */}
       <div
-        className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl mb-4 text-[11px]"
+        className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-md mb-4 text-[11px]"
         style={{ background: "var(--bg3)" }}
       >
         <span className="flex items-center gap-1.5" style={{ color: "var(--muted)" }}>
@@ -348,7 +348,8 @@ function CompetitorsContent() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "var(--text)" }}>Competitors</h1>
+          <p className="tick-label mb-1.5">Operate · tracked stores</p>
+          <h1 className="text-xl font-bold tracking-tight" style={{ color: "var(--text)" }}>Competitors</h1>
           {subscription && (
             <p className="text-sm mt-0.5" style={{ color: "var(--muted)" }}>
               {myCompetitors.length} / {subscription.limits.max_competitors} tracked
@@ -358,7 +359,7 @@ function CompetitorsContent() {
         {atCompetitorLimit ? (
           <button
             onClick={() => setUpgradeOpen(true)}
-            className="flex items-center gap-2 font-bold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-110"
+            className="flex items-center gap-2 font-bold text-sm px-4 py-2.5 rounded-md transition-all hover:brightness-110"
             style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.2)" }}
           >
             <Zap className="w-4 h-4" />
@@ -367,7 +368,7 @@ function CompetitorsContent() {
         ) : (
           <button
             onClick={() => setAddCompetitorOpen(true)}
-            className="flex items-center gap-2 font-bold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-110"
+            className="flex items-center gap-2 font-bold text-sm px-4 py-2.5 rounded-md transition-all hover:brightness-110"
             style={{ background: "var(--accent)", color: "var(--ink)" }}
           >
             <Plus className="w-4 h-4" />
@@ -398,7 +399,7 @@ function CompetitorsContent() {
           ].map(({ label, value, highlight }) => (
             <div
               key={label}
-              className="rounded-xl px-4 py-3"
+              className="rounded-md px-4 py-3"
               style={{
                 background: highlight ? "rgba(255,178,36,.05)" : "var(--bg3)",
                 border: highlight ? "1px solid rgba(255,178,36,.2)" : "1px solid var(--border)",
@@ -421,12 +422,12 @@ function CompetitorsContent() {
         {loading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-44 rounded-2xl animate-pulse" style={{ background: "var(--bg3)" }} />
+              <div key={i} className="h-44 rounded-md animate-pulse" style={{ background: "var(--bg3)" }} />
             ))}
           </div>
         ) : myCompetitors.length === 0 ? (
           <div
-            className="p-10 text-center rounded-2xl"
+            className="p-10 text-center rounded-md"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
           >
             <Target className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--muted)", opacity: 0.4 }} />
@@ -436,7 +437,7 @@ function CompetitorsContent() {
             </p>
             <button
               onClick={() => setAddCompetitorOpen(true)}
-              className="flex items-center gap-2 font-bold text-sm px-5 py-2.5 rounded-xl mx-auto transition-all hover:brightness-110"
+              className="flex items-center gap-2 font-bold text-sm px-5 py-2.5 rounded-md mx-auto transition-all hover:brightness-110"
               style={{ background: "var(--accent)", color: "var(--ink)" }}
             >
               <Plus className="w-4 h-4" />
@@ -464,7 +465,7 @@ function CompetitorsContent() {
       {/* Find competitors */}
       <section className="mb-8">
         <div
-          className="rounded-2xl overflow-hidden"
+          className="rounded-md overflow-hidden"
           style={{ border: "1px solid var(--border)" }}
         >
           {/* Header */}
@@ -498,7 +499,7 @@ function CompetitorsContent() {
                   ? "Your connected store data is used automatically. Add any extra context — target customer, product focus, price range, brand positioning…"
                   : "Describe your store — what do you sell, who's your customer, what's your price range? e.g. \"Women's activewear, $40-80, targeting fitness enthusiasts\""
               }
-              className="w-full text-sm rounded-xl px-4 py-3 resize-none outline-none transition-all"
+              className="w-full text-sm rounded-md px-4 py-3 resize-none outline-none transition-all"
               style={{
                 background: "var(--bg3)",
                 border: "1px solid var(--border)",
@@ -514,7 +515,7 @@ function CompetitorsContent() {
               <button
                 onClick={handleDiscover}
                 disabled={discovering || !discoverDescription.trim()}
-                className="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-md transition-all hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{ background: "var(--accent)", color: "var(--ink)" }}
               >
                 {discovering ? (
@@ -527,7 +528,7 @@ function CompetitorsContent() {
 
             {discoverError && (
               <div
-                className="mt-4 px-4 py-3 rounded-xl text-sm"
+                className="mt-4 px-4 py-3 rounded-md text-sm"
                 style={{ background: "rgba(242,85,90,.08)", border: "1px solid rgba(242,85,90,.2)", color: "#F7999C" }}
               >
                 {discoverError}
@@ -550,7 +551,7 @@ function CompetitorsContent() {
                   return (
                     <div
                       key={s.domain}
-                      className="flex items-center justify-between gap-4 px-4 py-3 rounded-xl"
+                      className="flex items-center justify-between gap-4 px-4 py-3 rounded-md"
                       style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
                     >
                       <div className="flex items-center gap-3 min-w-0">
@@ -584,7 +585,7 @@ function CompetitorsContent() {
 
       {/* Your store */}
       <section
-        className="rounded-2xl p-6 max-w-3xl"
+        className="rounded-md p-6 max-w-3xl"
         style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
       >
         <div className="flex items-center gap-2 mb-2">
@@ -598,7 +599,7 @@ function CompetitorsContent() {
 
         {shopifyConnectedBanner && (
           <div
-            className="flex items-center gap-2 px-4 py-3 rounded-xl mb-4 text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-3 rounded-md mb-4 text-sm font-medium"
             style={{ background: "rgba(76,195,138,0.08)", border: "1px solid rgba(76,195,138,0.2)", color: "var(--emerald)" }}
           >
             <Check className="w-4 h-4 shrink-0" />
@@ -608,7 +609,7 @@ function CompetitorsContent() {
 
         {shopifyConnection ? (
           <div
-            className="flex items-center justify-between gap-4 px-4 py-3 rounded-xl"
+            className="flex items-center justify-between gap-4 px-4 py-3 rounded-md"
             style={{ background: "rgba(76,195,138,0.05)", border: "1px solid rgba(76,195,138,0.18)" }}
           >
             <div className="flex items-center gap-3 min-w-0">
@@ -630,7 +631,7 @@ function CompetitorsContent() {
             </div>
             <button
               onClick={handleShopifyDisconnect}
-              className="shrink-0 text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:opacity-80"
+              className="shrink-0 text-sm font-semibold px-4 py-2 rounded-md transition-all hover:opacity-80"
               style={{ background: "var(--bg3)", color: "#F2555A", border: "1px solid var(--border)" }}
             >
               Disconnect
@@ -644,13 +645,13 @@ function CompetitorsContent() {
                 onChange={(e) => setShopifyShop(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleShopifyConnect()}
                 placeholder="yourstore.myshopify.com"
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none"
+                className="flex-1 px-4 py-2.5 rounded-md text-sm outline-none"
                 style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
               />
               <button
                 onClick={handleShopifyConnect}
                 disabled={shopifyConnecting}
-                className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-60 flex items-center gap-2"
+                className="font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:brightness-110 disabled:opacity-60 flex items-center gap-2"
                 style={{ background: "#FFB224", color: "var(--ink)" }}
               >
                 {shopifyConnecting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
@@ -660,7 +661,7 @@ function CompetitorsContent() {
 
             {store ? (
               <div
-                className="flex items-center justify-between gap-4 px-4 py-2.5 rounded-xl"
+                className="flex items-center justify-between gap-4 px-4 py-2.5 rounded-md"
                 style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
               >
                 <div>
@@ -684,14 +685,14 @@ function CompetitorsContent() {
                   onChange={(e) => setStoreUrl(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSaveStore()}
                   placeholder="yourstore.com"
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none"
+                  className="flex-1 px-4 py-2.5 rounded-md text-sm outline-none"
                   style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
                   autoFocus
                 />
                 <button
                   onClick={handleSaveStore}
                   disabled={storeSaving}
-                  className="font-semibold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-105 disabled:opacity-60"
+                  className="font-semibold text-sm px-4 py-2.5 rounded-md transition-all hover:brightness-105 disabled:opacity-60"
                   style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
                 >
                   {storeSaving ? "Adding…" : "Add"}

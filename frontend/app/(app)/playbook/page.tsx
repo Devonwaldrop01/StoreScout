@@ -146,7 +146,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
       <div className="space-y-2">
         {asset.subject && (
           <div
-            className="flex items-start gap-2 p-3 rounded-xl"
+            className="flex items-start gap-2 p-3 rounded-md"
             style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
           >
             <div className="flex-1 min-w-0">
@@ -165,7 +165,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
         )}
         {asset.body_opening && (
           <div
-            className="flex items-start gap-2 p-3 rounded-xl"
+            className="flex items-start gap-2 p-3 rounded-md"
             style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
           >
             <div className="flex-1 min-w-0">
@@ -191,7 +191,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
       <div className="space-y-2">
         {asset.headlines && asset.headlines.length > 0 && (
           <div
-            className="p-3 rounded-xl"
+            className="p-3 rounded-md"
             style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
           >
             <div className="flex items-center justify-between mb-2">
@@ -221,7 +221,7 @@ function DraftAssetSection({ asset }: { asset: DraftAsset }) {
         )}
         {asset.ad_body && (
           <div
-            className="flex items-start gap-2 p-3 rounded-xl"
+            className="flex items-start gap-2 p-3 rounded-md"
             style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
           >
             <div className="flex-1 min-w-0">
@@ -274,7 +274,7 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
         onClick={onClose}
       >
         <div
-          className="w-full max-w-xl max-h-[90vh] overflow-y-auto flex flex-col rounded-2xl"
+          className="w-full max-w-xl max-h-[90vh] overflow-y-auto flex flex-col rounded-md"
           style={{ background: "var(--bg2)", border: "1px solid var(--border)" }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -285,7 +285,7 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
           style={{ background: "var(--bg2)", borderBottom: "1px solid var(--border)" }}
         >
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+            className="w-9 h-9 rounded-md flex items-center justify-center shrink-0 mt-0.5"
             style={{ background: `${sectionColor}14` }}
           >
             <Icon className="w-4 h-4" style={{ color: sectionColor }} />
@@ -331,7 +331,7 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
                 </p>
               </div>
               <div
-                className="rounded-xl overflow-hidden"
+                className="rounded-md overflow-hidden"
                 style={{ border: "1px solid var(--border)" }}
               >
                 {detail.competitors.map((c, i) => (
@@ -355,7 +355,7 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
           {/* Why now */}
           {detail?.why && (
             <div
-              className="rounded-xl p-4"
+              className="rounded-md p-4"
               style={{ background: `${sectionColor}08`, border: `1px solid ${sectionColor}20` }}
             >
               <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: sectionColor }}>
@@ -394,7 +394,7 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
           {/* Ready-to-use asset (Evolution 4) */}
           {play.draft_asset && play.draft_asset.type !== "none" && (
             <div
-              className="p-4 rounded-xl"
+              className="p-4 rounded-md"
               style={{ background: "rgba(255,178,36,0.04)", border: "1px solid rgba(255,178,36,0.15)" }}
             >
               <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "#FFB224" }}>
@@ -407,7 +407,7 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
           {/* Expected outcome */}
           {detail?.outcome && (
             <div
-              className="rounded-xl p-4"
+              className="rounded-md p-4"
               style={{ background: "rgba(255,178,36,0.05)", border: "1px solid rgba(255,178,36,0.15)" }}
             >
               <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "#FFB224" }}>
@@ -440,7 +440,7 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
           <div className="flex items-center gap-3">
             <button
               onClick={() => { onDone(); onClose(); }}
-              className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110 flex-1 justify-center"
+              className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-md transition-all hover:brightness-110 flex-1 justify-center"
               style={{
                 background: isDone ? "rgba(255,178,36,0.12)" : "rgba(255,178,36,0.15)",
                 color: "#FFB224",
@@ -455,7 +455,7 @@ function DetailModal({ play, onClose, onDone, isDone, feedback, onFeedback }: {
               <Link
                 href={`/dashboard/${play.competitor_id}?tab=${play.tab}`}
                 onClick={onClose}
-                className="flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-xl transition-all hover:bg-white/[0.06]"
+                className="flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-md transition-all hover:bg-white/[0.06]"
                 style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
               >
                 View in dashboard <ChevronRight className="w-3.5 h-3.5" />
@@ -573,7 +573,7 @@ function PlaySection({ section, plays, done, onDone, onOpen }: {
       <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>{meta.desc}</p>
 
       <div
-        className="rounded-2xl overflow-hidden"
+        className="rounded-md overflow-hidden"
         style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
       >
         {plays.map((p, i) => (
@@ -599,7 +599,7 @@ function Skeleton() {
       {[1, 2].map((s) => (
         <div key={s}>
           <div className="h-3 w-36 rounded-full animate-pulse mb-3" style={{ background: "var(--bg3)" }} />
-          <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <div className="rounded-md overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
             {[1, 2].map((i) => (
               <div key={i} className="p-4 animate-pulse" style={i === 1 ? { borderBottom: "1px solid var(--border)" } : undefined}>
                 <div className="flex gap-3">
@@ -691,8 +691,9 @@ export default function PlaybookPage() {
   if (!data || data.competitor_count === 0) {
     return (
       <div className="space-y-6">
-        <h1 className="text-xl font-bold" style={{ color: "var(--text)" }}>Your Playbook</h1>
-        <div className="rounded-2xl p-10 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <p className="tick-label mb-1.5">Intel · your moves</p>
+        <h1 className="text-xl font-bold tracking-tight" style={{ color: "var(--text)" }}>Playbook</h1>
+        <div className="rounded-md p-10 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <Zap className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--accent)" }} />
           <p className="font-semibold mb-1" style={{ color: "var(--text)" }}>No competitors tracked yet</p>
           <p className="text-sm mb-4" style={{ color: "var(--muted)" }}>
@@ -700,7 +701,7 @@ export default function PlaybookPage() {
           </p>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110"
+            className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-md transition-all hover:brightness-110"
             style={{ background: "var(--accent)", color: "var(--ink)" }}
           >
             Add competitor <ArrowRight className="w-4 h-4" />
@@ -730,7 +731,8 @@ export default function PlaybookPage() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <h1 className="text-xl font-bold" style={{ color: "var(--text)" }}>Your Playbook</h1>
+              <p className="tick-label mb-1.5">Intel · your moves</p>
+        <h1 className="text-xl font-bold tracking-tight" style={{ color: "var(--text)" }}>Playbook</h1>
               {activePlays.length > 0 && (
                 <span
                   className="text-xs font-bold px-2 py-1 rounded-full"
@@ -780,7 +782,7 @@ export default function PlaybookPage() {
         {/* ── AI generating banner ────────────────────────────────────────── */}
         {data.ai_generating && !data.ai_source && (
           <div
-            className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-xs"
+            className="flex items-center gap-2.5 px-4 py-3 rounded-md text-xs"
             style={{
               background: "rgba(255,178,36,0.06)",
               border: "1px solid rgba(255,178,36,0.18)",
@@ -797,7 +799,7 @@ export default function PlaybookPage() {
 
         {/* ── Tabs ───────────────────────────────────────────────────────── */}
         <div
-          className="flex items-center rounded-xl p-0.5 w-fit"
+          className="flex items-center rounded-md p-0.5 w-fit"
           style={{ background: "var(--bg3)" }}
         >
           {(["active", "done"] as const).map((t) => {
@@ -876,7 +878,7 @@ export default function PlaybookPage() {
         {tab === "done" && (
           <div>
             {donePlays.length === 0 ? (
-              <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+              <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
                 <Clock className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--muted)" }} />
                 <p className="font-semibold mb-1" style={{ color: "var(--text)" }}>Nothing done yet</p>
                 <p className="text-sm" style={{ color: "var(--muted)" }}>
@@ -885,7 +887,7 @@ export default function PlaybookPage() {
               </div>
             ) : (
               <div
-                className="rounded-2xl overflow-hidden"
+                className="rounded-md overflow-hidden"
                 style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
               >
                 {donePlays.map((p, i) => (

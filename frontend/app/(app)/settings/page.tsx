@@ -385,37 +385,38 @@ function SettingsContent() {
     ...(tier === "developer" ? ["api"] : []),
   ];
 
-  const sectionClass = "rounded-2xl p-6";
+  const sectionClass = "rounded-md p-6";
   const sectionStyle = { background: "var(--bg-card)", border: "1px solid var(--border)" };
-  const inputClass = "flex-1 px-4 py-2.5 rounded-xl text-sm outline-none";
+  const inputClass = "flex-1 px-4 py-2.5 rounded-md text-sm outline-none";
   const inputStyle = { background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" };
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-xl font-bold mb-6" style={{ color: "var(--text)" }}>Settings</h1>
+      <p className="tick-label mb-1.5">Configuration</p>
+      <h1 className="text-xl font-bold tracking-tight mb-6" style={{ color: "var(--text)" }}>Settings</h1>
 
       {upgraded && (
         <div
-          className="mb-6 px-4 py-3 rounded-xl text-sm font-medium"
+          className="mb-6 px-4 py-3 rounded-md text-sm font-medium"
           style={{ background: "rgba(255,178,36,.12)", border: "1px solid rgba(255,178,36,.25)", color: "#FFB224" }}
         >
           Your plan has been upgraded. Welcome to Pro!
         </div>
       )}
 
-      {/* Tab bar */}
-      <div className="flex items-center gap-1 mb-7 flex-wrap">
+      {/* Tab bar — underline rail */}
+      <div className="flex items-center gap-1 mb-7 flex-wrap border-b" style={{ borderColor: "var(--border)" }}>
         {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className="px-4 py-2 text-sm font-medium capitalize rounded-lg transition-colors"
-            style={activeTab === tab
-              ? { background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }
-              : { color: "var(--muted)" }
-            }
+            className="relative px-4 py-2 text-sm font-medium capitalize transition-colors"
+            style={{ color: activeTab === tab ? "var(--text)" : "var(--muted)" }}
           >
             {tab}
+            {activeTab === tab && (
+              <span className="absolute -bottom-px left-3 right-3 h-0.5" style={{ background: "var(--accent)" }} />
+            )}
           </button>
         ))}
       </div>
@@ -457,7 +458,7 @@ function SettingsContent() {
                 <button
                   onClick={handleResetPassword}
                   disabled={passwordResetSent || !userEmail}
-                  className="shrink-0 text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:opacity-80 disabled:opacity-50"
+                  className="shrink-0 text-sm font-semibold px-4 py-2 rounded-md transition-all hover:opacity-80 disabled:opacity-50"
                   style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
                 >
                   {passwordResetSent ? "Sent ✓" : "Reset password"}
@@ -472,7 +473,7 @@ function SettingsContent() {
               <button
                 onClick={handleDeleteAccount}
                 disabled={deletingAccount}
-                className="text-sm font-semibold px-4 py-2.5 rounded-xl transition-all hover:opacity-80 disabled:opacity-60"
+                className="text-sm font-semibold px-4 py-2.5 rounded-md transition-all hover:opacity-80 disabled:opacity-60"
                 style={{ background: "rgba(242,85,90,.1)", color: "#F2555A", border: "1px solid rgba(242,85,90,.25)" }}
               >
                 {deletingAccount ? "Deleting…" : "Delete account"}
@@ -537,7 +538,7 @@ function SettingsContent() {
                   {subscription.tier === "free" ? (
                     <button
                       onClick={() => setUpgradeOpen(true)}
-                      className="flex items-center gap-2 font-semibold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-110 w-full justify-center"
+                      className="flex items-center gap-2 font-semibold text-sm px-4 py-2.5 rounded-md transition-all hover:brightness-110 w-full justify-center"
                       style={{ background: "var(--accent)", color: "var(--ink)" }}
                     >
                       <Zap className="w-4 h-4" />
@@ -547,7 +548,7 @@ function SettingsContent() {
                     <button
                       onClick={handleManageBilling}
                       disabled={portalLoading}
-                      className="font-semibold text-sm px-4 py-2.5 rounded-xl transition-all hover:opacity-80 disabled:opacity-50 w-full"
+                      className="font-semibold text-sm px-4 py-2.5 rounded-md transition-all hover:opacity-80 disabled:opacity-50 w-full"
                       style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
                     >
                       {portalLoading ? "Loading…" : "Manage billing"}
@@ -568,7 +569,7 @@ function SettingsContent() {
                   Billing email
                 </p>
                 <p
-                  className="text-sm font-mono px-4 py-2.5 rounded-xl"
+                  className="text-sm font-mono px-4 py-2.5 rounded-md"
                   style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
                 >
                   {userEmail || "—"}
@@ -589,7 +590,7 @@ function SettingsContent() {
                 <button
                   onClick={handleManageBilling}
                   disabled={portalLoading}
-                  className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:opacity-80 disabled:opacity-50"
+                  className="text-sm font-semibold px-4 py-2 rounded-md transition-all hover:opacity-80 disabled:opacity-50"
                   style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
                 >
                   {portalLoading
@@ -613,7 +614,7 @@ function SettingsContent() {
                 return (
                   <div
                     key={plan.tier}
-                    className="rounded-2xl p-5 flex flex-col"
+                    className="rounded-md p-5 flex flex-col"
                     style={{
                       background: "var(--bg-card)",
                       border: isCurrent
@@ -655,7 +656,7 @@ function SettingsContent() {
                     {isCurrent ? (
                       <button
                         disabled
-                        className="w-full py-2 rounded-xl text-sm font-medium"
+                        className="w-full py-2 rounded-md text-sm font-medium"
                         style={{ background: "var(--bg3)", color: "var(--muted)" }}
                       >
                         Current Plan
@@ -663,7 +664,7 @@ function SettingsContent() {
                     ) : (
                       <button
                         onClick={() => setUpgradeOpen(true)}
-                        className="w-full py-2 rounded-xl text-sm font-semibold transition-all hover:brightness-110"
+                        className="w-full py-2 rounded-md text-sm font-semibold transition-all hover:brightness-110"
                         style={{
                           background: "rgba(255,178,36,.12)",
                           color: "#FFB224",
@@ -710,7 +711,7 @@ function SettingsContent() {
                 key={key}
                 onClick={() => handleTogglePref(key)}
                 disabled={saving}
-                className="w-full flex items-center justify-between gap-4 px-4 py-3.5 rounded-xl text-left transition-all"
+                className="w-full flex items-center justify-between gap-4 px-4 py-3.5 rounded-md text-left transition-all"
                 style={{
                   background: prefs[key] ? "rgba(255,178,36,.06)" : "var(--bg3)",
                   border: `1px solid ${prefs[key] ? "rgba(255,178,36,.2)" : "var(--border)"}`,
@@ -759,7 +760,7 @@ function SettingsContent() {
             </p>
 
             {googleConnectedBanner && (
-              <div className="flex items-center gap-2 px-4 py-3 rounded-xl mb-3 text-sm font-medium" style={{ background: "rgba(76,195,138,0.08)", border: "1px solid rgba(76,195,138,0.2)", color: "var(--emerald)" }}>
+              <div className="flex items-center gap-2 px-4 py-3 rounded-md mb-3 text-sm font-medium" style={{ background: "rgba(76,195,138,0.08)", border: "1px solid rgba(76,195,138,0.2)", color: "var(--emerald)" }}>
                 <Check className="w-4 h-4 shrink-0" /> Google account connected. Select your property below.
               </div>
             )}
@@ -772,7 +773,7 @@ function SettingsContent() {
                     <select
                       value={googleGA4}
                       onChange={(e) => setGoogleGA4(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
+                      className="w-full px-4 py-2.5 rounded-md text-sm outline-none"
                       style={inputStyle}
                     >
                       <option value="">— Select a property —</option>
@@ -788,7 +789,7 @@ function SettingsContent() {
                     <select
                       value={googleGSC}
                       onChange={(e) => setGoogleGSC(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
+                      className="w-full px-4 py-2.5 rounded-md text-sm outline-none"
                       style={inputStyle}
                     >
                       <option value="">— Select a site —</option>
@@ -802,14 +803,14 @@ function SettingsContent() {
                   <button
                     onClick={handleGoogleSaveProperty}
                     disabled={googleSavingProperty || (!googleGA4 && !googleGSC)}
-                    className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
+                    className="text-sm font-semibold px-4 py-2 rounded-md transition-all hover:brightness-110 disabled:opacity-50"
                     style={{ background: "#FFB224", color: "var(--ink)" }}
                   >
                     {googleSavingProperty ? "Saving…" : "Save"}
                   </button>
                   <button
                     onClick={handleGoogleDisconnect}
-                    className="text-sm font-medium px-4 py-2 rounded-xl transition-all hover:opacity-70"
+                    className="text-sm font-medium px-4 py-2 rounded-md transition-all hover:opacity-70"
                     style={{ color: "#F2555A" }}
                   >
                     Disconnect
@@ -820,7 +821,7 @@ function SettingsContent() {
               <button
                 onClick={handleGoogleConnect}
                 disabled={googleConnecting}
-                className="flex items-center gap-2 font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-60"
+                className="flex items-center gap-2 font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:brightness-110 disabled:opacity-60"
                 style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
               >
                 {googleConnecting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" style={{ color: "#4285f4" }} />}
@@ -847,7 +848,7 @@ function SettingsContent() {
 
             {klaviyoStatus?.connected ? (
               <div
-                className="flex items-center justify-between gap-4 px-4 py-3 rounded-xl"
+                className="flex items-center justify-between gap-4 px-4 py-3 rounded-md"
                 style={{ background: "rgba(255,178,36,0.05)", border: "1px solid rgba(255,178,36,0.18)" }}
               >
                 <div>
@@ -892,7 +893,7 @@ function SettingsContent() {
                 <button
                   onClick={handleSaveKlaviyo}
                   disabled={klaviyoSaving || !klaviyoKey.trim()}
-                  className="font-semibold text-sm px-4 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-50"
+                  className="font-semibold text-sm px-4 py-2.5 rounded-md transition-all hover:brightness-110 disabled:opacity-50"
                   style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
                 >
                   {klaviyoSaving ? "Saving…" : "Save"}
@@ -939,7 +940,7 @@ function SettingsContent() {
               <button
                 onClick={handleTestSlack}
                 disabled={testingSlack || !slackUrl}
-                className="font-semibold text-sm px-4 py-2.5 rounded-xl transition-all hover:opacity-80 disabled:opacity-40 shrink-0"
+                className="font-semibold text-sm px-4 py-2.5 rounded-md transition-all hover:opacity-80 disabled:opacity-40 shrink-0"
                 style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
               >
                 {testingSlack ? "Sending…" : "Test"}
@@ -989,7 +990,7 @@ function SettingsContent() {
               <button
                 onClick={handleTestWebhook}
                 disabled={testingWebhook || !webhookUrl}
-                className="font-semibold text-sm px-4 py-2.5 rounded-xl transition-all hover:opacity-80 disabled:opacity-40 shrink-0"
+                className="font-semibold text-sm px-4 py-2.5 rounded-md transition-all hover:opacity-80 disabled:opacity-40 shrink-0"
                 style={{ background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--border)" }}
               >
                 {testingWebhook ? "Sending…" : "Test"}
@@ -1025,7 +1026,7 @@ function SettingsContent() {
               {teamMembers.map((m) => (
                 <div
                   key={m.id}
-                  className="flex items-center justify-between gap-3 rounded-xl px-4 py-3"
+                  className="flex items-center justify-between gap-3 rounded-md px-4 py-3"
                   style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
                 >
                   <div>
@@ -1064,7 +1065,7 @@ function SettingsContent() {
                 <button
                   onClick={handleInvite}
                   disabled={inviting || !inviteEmail.trim()}
-                  className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-50 flex items-center gap-2 shrink-0"
+                  className="font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:brightness-110 disabled:opacity-50 flex items-center gap-2 shrink-0"
                   style={{ background: "#FFB224", color: "#0B0C0A" }}
                 >
                   {inviting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
@@ -1106,7 +1107,7 @@ function SettingsContent() {
               {keys.map((k) => (
                 <div
                   key={k.id}
-                  className="flex items-center justify-between gap-3 rounded-xl px-4 py-3"
+                  className="flex items-center justify-between gap-3 rounded-md px-4 py-3"
                   style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
                 >
                   <div className="min-w-0">
@@ -1133,7 +1134,7 @@ function SettingsContent() {
 
           {newKeyPlaintext && (
             <div
-              className="mb-5 rounded-xl p-4"
+              className="mb-5 rounded-md p-4"
               style={{ background: "rgba(168,85,247,.08)", border: "1px solid rgba(168,85,247,.25)" }}
             >
               <p className="text-xs font-semibold mb-2" style={{ color: "#7DB8C9" }}>
@@ -1175,7 +1176,7 @@ function SettingsContent() {
               <button
                 onClick={handleCreateKey}
                 disabled={creatingKey}
-                className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-50 flex items-center gap-2 shrink-0"
+                className="font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:brightness-110 disabled:opacity-50 flex items-center gap-2 shrink-0"
                 style={{ background: "#7DB8C9", color: "#0B0C0A" }}
               >
                 {creatingKey ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
