@@ -75,7 +75,7 @@ function GapCard({ gap, index, reviewed, onReviewed }: GapCardProps) {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden transition-all"
+      className="rounded-md overflow-hidden transition-all"
       style={{
         background: "var(--bg-card)",
         border: `1px solid ${isReviewed ? "rgba(255,255,255,0.05)" : "var(--border)"}`,
@@ -131,7 +131,7 @@ function GapCard({ gap, index, reviewed, onReviewed }: GapCardProps) {
           style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
         >
           <div
-            className="rounded-xl p-4 mt-3"
+            className="rounded-md p-4 mt-3"
             style={{
               background: `${color}09`,
               border: `1px solid ${color}28`,
@@ -206,7 +206,7 @@ export default function GapsTab({ competitorId }: { competitorId: string }) {
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-24 rounded-2xl animate-pulse" style={{ background: "var(--bg-card)" }} />
+          <div key={i} className="h-24 rounded-md animate-pulse" style={{ background: "var(--bg-card)" }} />
         ))}
       </div>
     );
@@ -214,7 +214,7 @@ export default function GapsTab({ competitorId }: { competitorId: string }) {
 
   if (!data || data.gaps.length === 0) {
     return (
-      <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <p style={{ color: "var(--muted)" }}>
           No major gaps detected. Their catalog covers price bands evenly, inventory is
           well-stocked, and their launch pace is consistent — no obvious openings from the current snapshot.

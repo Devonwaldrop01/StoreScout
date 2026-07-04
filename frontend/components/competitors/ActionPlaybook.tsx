@@ -79,7 +79,7 @@ export function ActionPlaybook({ competitorCount }: Props) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-36 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />
+            <div key={i} className="h-36 rounded-md animate-pulse" style={{ background: "var(--bg3)" }} />
           ))}
         </div>
       </div>
@@ -89,7 +89,7 @@ export function ActionPlaybook({ competitorCount }: Props) {
   if (!loading && visible.length === 0 && !locked) {
     return (
       <div
-        className="mb-6 rounded-xl px-5 py-3 fade-in flex items-center gap-3"
+        className="mb-6 rounded-md px-5 py-3 fade-in flex items-center gap-3"
         style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
       >
         <Zap className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--muted)" }} />
@@ -104,7 +104,7 @@ export function ActionPlaybook({ competitorCount }: Props) {
   if (locked) {
     return (
       <div
-        className="mb-6 rounded-xl px-5 py-4 fade-in flex items-center justify-between gap-4"
+        className="mb-6 rounded-md px-5 py-4 fade-in flex items-center justify-between gap-4"
         style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
       >
         <div className="flex items-center gap-3">
@@ -137,7 +137,7 @@ export function ActionPlaybook({ competitorCount }: Props) {
   if (!loading && visible.length === 0) {
     return (
       <div
-        className="mb-6 rounded-xl px-5 py-3 fade-in flex items-center justify-between gap-3"
+        className="mb-6 rounded-md px-5 py-3 fade-in flex items-center justify-between gap-3"
         style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
       >
         <div className="flex items-center gap-3 min-w-0">

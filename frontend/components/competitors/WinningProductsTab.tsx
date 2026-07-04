@@ -484,7 +484,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
     return (
       <div className="space-y-3">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-14 rounded-xl animate-pulse" style={{ background: "var(--bg-card)" }} />
+          <div key={i} className="h-14 rounded-md animate-pulse" style={{ background: "var(--bg-card)" }} />
         ))}
       </div>
     );
@@ -493,7 +493,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
   if (!data || data.products.length === 0) {
     return (
       <div
-        className="rounded-2xl p-8 text-center"
+        className="rounded-md p-8 text-center"
         style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
       >
         <p style={{ color: "var(--muted)" }}>
@@ -534,7 +534,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
         </div>
 
         <div
-          className="flex items-center rounded-xl p-0.5 shrink-0"
+          className="flex items-center rounded-md p-0.5 shrink-0"
           style={{ background: "var(--bg3)" }}
         >
           <button
@@ -628,7 +628,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
           )}
 
           <div
-            className="rounded-2xl overflow-hidden"
+            className="rounded-md overflow-hidden"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
           >
             {filteredProducts.length === 0 ? (
@@ -690,7 +690,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
       {view === "launches" && (
         <div className="space-y-3">
           <div
-            className="rounded-xl px-4 py-3 flex items-start gap-3"
+            className="rounded-md px-4 py-3 flex items-start gap-3"
             style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
           >
             <Sparkles className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "var(--muted)" }} />
@@ -702,7 +702,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
           </div>
 
           <div
-            className="rounded-2xl overflow-hidden"
+            className="rounded-md overflow-hidden"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
           >
             {launches.length === 0 ? (

@@ -49,7 +49,7 @@ export function QuickWins({ competitorId }: Props) {
       <div className="space-y-3">
         <div className="h-3 w-20 rounded animate-pulse" style={{ background: "var(--bg3)" }} />
         {[1, 2].map((i) => (
-          <div key={i} className="h-20 rounded-2xl animate-pulse" style={{ background: "var(--bg3)" }} />
+          <div key={i} className="h-20 rounded-md animate-pulse" style={{ background: "var(--bg3)" }} />
         ))}
       </div>
     );
@@ -79,7 +79,7 @@ export function QuickWins({ competitorId }: Props) {
         return (
           <div
             key={win.id}
-            className="rounded-2xl p-4 relative"
+            className="rounded-md p-4 relative"
             style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}
           >
             <div className="flex items-start gap-3 pr-6">
@@ -115,7 +115,7 @@ export function QuickWins({ competitorId }: Props) {
 
       {data.locked && data.locked_count > 0 && (
         <div
-          className="rounded-2xl p-4 flex items-center justify-between"
+          className="rounded-md p-4 flex items-center justify-between"
           style={{ background: "rgba(255,178,36,.06)", border: "1px dashed rgba(255,178,36,.25)" }}
         >
           <div className="flex items-center gap-2">

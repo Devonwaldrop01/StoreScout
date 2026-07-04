@@ -19,7 +19,7 @@ function verdictStyle(v: string): { color: string; bg: string; label: string; Ic
 function DimensionCard({ dim, onUpgrade }: { dim: ComparisonDimension; onUpgrade: () => void }) {
   const { color, bg, label, Icon } = verdictStyle(dim.verdict);
   return (
-    <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+    <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
       <div className="flex items-start justify-between gap-3 mb-3">
         <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>{dim.label}</h4>
         <span className="flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-1 rounded-md shrink-0" style={{ background: bg, color }}>
@@ -81,7 +81,7 @@ function SetStorePrompt({ onSaved }: { onSaved: () => void }) {
   }
 
   return (
-    <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+    <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
       <Store className="w-8 h-8 mx-auto mb-3" style={{ color: "#FFB224" }} />
       <h3 className="font-semibold mb-1" style={{ color: "var(--text)" }}>Add your store to compare</h3>
       <p className="text-sm mb-5 max-w-md mx-auto" style={{ color: "var(--muted)" }}>
@@ -94,13 +94,13 @@ function SetStorePrompt({ onSaved }: { onSaved: () => void }) {
           onChange={(e) => setUrl(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && save()}
           placeholder="yourstore.com"
-          className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none"
+          className="flex-1 px-4 py-2.5 rounded-md text-sm outline-none"
           style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
         />
         <button
           onClick={save}
           disabled={saving}
-          className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110 disabled:opacity-60"
+          className="font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:brightness-110 disabled:opacity-60"
           style={{ background: "#FFB224", color: "#0B0C0A" }}
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Compare"}
@@ -138,8 +138,8 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
   if (loading) {
     return (
       <div className="space-y-3">
-        <div className="h-28 rounded-2xl animate-pulse" style={{ background: "var(--bg-card)" }} />
-        {[1, 2, 3].map((i) => <div key={i} className="h-40 rounded-2xl animate-pulse" style={{ background: "var(--bg-card)" }} />)}
+        <div className="h-28 rounded-md animate-pulse" style={{ background: "var(--bg-card)" }} />
+        {[1, 2, 3].map((i) => <div key={i} className="h-40 rounded-md animate-pulse" style={{ background: "var(--bg-card)" }} />)}
       </div>
     );
   }
@@ -155,7 +155,7 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
       ? "We're scanning your store now — usually 60–90 seconds. Refresh shortly to see the comparison."
       : "This competitor hasn't finished its first scan yet. Check back in a minute.";
     return (
-      <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <Loader2 className="w-6 h-6 mx-auto mb-3 animate-spin" style={{ color: "#FFB224" }} />
         <p style={{ color: "var(--muted)" }}>{msg}</p>
         <button onClick={refresh} className="mt-4 text-sm font-medium px-4 py-2 rounded-lg" style={{ background: "var(--bg3)", color: "var(--text)" }}>
@@ -167,7 +167,7 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
 
   if (!data || !data.overall) {
     return (
-      <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <p style={{ color: "var(--muted)" }}>Comparison not available yet.</p>
       </div>
     );
@@ -193,7 +193,7 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
       </div>
 
       {/* Overall verdict */}
-      <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: `1px solid ${overallColor}40` }}>
+      <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: `1px solid ${overallColor}40` }}>
         <div className="flex items-center justify-between mb-2">
           <span className="font-bold text-lg" style={{ color: overallColor }}>{verdict}</span>
           <div className="flex gap-3 text-xs font-mono">
@@ -207,7 +207,7 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
 
       {/* Match strategy */}
       {data.match_strategy && (
-        <div className="rounded-2xl p-5" style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.2)" }}>
+        <div className="rounded-md p-5" style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.2)" }}>
           <div className="flex items-center gap-2 mb-2">
             <Target className="w-4 h-4" style={{ color: "#FFB224" }} />
             <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>

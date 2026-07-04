@@ -36,7 +36,7 @@ export function WatchlistPanel({ competitorId }: Props) {
   if (loading) return null;
 
   return (
-    <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+    <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
       <div className="flex items-center gap-2 mb-3">
         <Bookmark className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
         <h3 className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--text-2)" }}>Watching</h3>

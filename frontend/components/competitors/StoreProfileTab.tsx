@@ -51,7 +51,7 @@ function FreeTierView({
   return (
     <div className="space-y-4">
       {/* Teasers */}
-      <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2 mb-4">
           <Building2 className="w-4 h-4" style={{ color: "#FFB224" }} />
           <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Catalog structure</h4>
@@ -71,7 +71,7 @@ function FreeTierView({
         </div>
       </div>
 
-      <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2 mb-3">
           <FileText className="w-4 h-4" style={{ color: "#FFB224" }} />
           <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Brand signals</h4>
@@ -87,7 +87,7 @@ function FreeTierView({
 
       {/* Upgrade CTA */}
       <div
-        className="rounded-2xl p-6 text-center"
+        className="rounded-md p-6 text-center"
         style={{ background: "rgba(255,178,36,.06)", border: "1px dashed rgba(255,178,36,.3)" }}
       >
         <Lock className="w-5 h-5 mx-auto mb-2" style={{ color: "#FFB224" }} />
@@ -100,7 +100,7 @@ function FreeTierView({
         </p>
         <button
           onClick={onUpgrade}
-          className="font-semibold text-sm px-5 py-2.5 rounded-xl transition-all hover:brightness-110"
+          className="font-semibold text-sm px-5 py-2.5 rounded-md transition-all hover:brightness-110"
           style={{ background: "#FFB224", color: "#0B0C0A" }}
         >
           Unlock Brand Intelligence
@@ -143,7 +143,7 @@ function ProView({ data }: { data: StoreProfileResponse }) {
     <div className="space-y-5">
       {/* Collections */}
       {col && (
-        <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Building2 className="w-4 h-4" style={{ color: "#FFB224" }} />
@@ -174,7 +174,7 @@ function ProView({ data }: { data: StoreProfileResponse }) {
 
       {/* Brand signals */}
       {brand && (
-        <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center gap-2 mb-3">
             <ChevronRight className="w-4 h-4" style={{ color: "#FFB224" }} />
             <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Brand signals ({brand.page_count} pages)</h4>
@@ -196,7 +196,7 @@ function ProView({ data }: { data: StoreProfileResponse }) {
 
       {/* Content intelligence */}
       {content && (
-        <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center gap-2 mb-4">
             <BookOpen className="w-4 h-4" style={{ color: "#7DB8C9" }} />
             <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Content intelligence</h4>
@@ -225,7 +225,7 @@ function ProView({ data }: { data: StoreProfileResponse }) {
 
       {/* Fallback if all Pro fields are unexpectedly missing */}
       {!col && !brand && !content && (
-        <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <p style={{ color: "var(--muted)" }}>Brand profile data will appear after the next full rescan.</p>
         </div>
       )}
@@ -250,14 +250,14 @@ export default function StoreProfileTab({ competitorId }: { competitorId: string
   if (loading) {
     return (
       <div className="space-y-3">
-        {[1, 2, 3].map((i) => <div key={i} className="h-32 rounded-2xl animate-pulse" style={{ background: "var(--bg-card)" }} />)}
+        {[1, 2, 3].map((i) => <div key={i} className="h-32 rounded-md animate-pulse" style={{ background: "var(--bg-card)" }} />)}
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="rounded-2xl p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <p style={{ color: "var(--muted)" }}>Brand profile not available yet. Trigger a rescan to collect this data.</p>
       </div>
     );

@@ -87,7 +87,7 @@ export function GettingStarted({ firstCompetitorId, competitorAdded, onUpgrade }
 
   return (
     <div
-      className="mb-6 rounded-2xl p-5 fade-up relative"
+      className="mb-6 rounded-md p-5 fade-up relative"
       style={{ background: "var(--bg-card)", border: "1px solid rgba(255,178,36,.18)" }}
     >
       <button
@@ -120,7 +120,7 @@ export function GettingStarted({ firstCompetitorId, competitorAdded, onUpgrade }
           const complete = isDone(s);
           const content = (
             <div
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-md transition-all"
               style={{ background: complete ? "transparent" : "var(--bg3)" }}
             >
               <div
@@ -165,7 +165,7 @@ export function GettingStarted({ firstCompetitorId, competitorAdded, onUpgrade }
         {/* Upsell step — always shown, doesn't count toward completion */}
         <button onClick={onUpgrade} className="w-full text-left">
           <div
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all hover:brightness-110"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-md transition-all hover:brightness-110"
             style={{ background: "rgba(255,178,36,.06)", border: "1px solid rgba(255,178,36,.18)" }}
           >
             <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(255,178,36,.15)" }}>

@@ -171,12 +171,12 @@ function PlaybookWidget() {
   if (!playbookLoading && plays.length === 0 && !locked) return null;
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+    <div className="rounded-md overflow-hidden" style={{ border: "1px solid var(--border)" }}>
       <div
         className="px-4 py-2.5 flex items-center justify-between"
         style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
       >
-        <p className="label-caps">Playbook</p>
+        <p className="tick-label">Playbook</p>
         <Link
           href="/playbook"
           className="text-[11px] font-medium flex items-center gap-1"
@@ -380,7 +380,7 @@ function CompetitorMonitor({
   );
 
   const sharedClass = cn(
-    "flex items-center gap-3 rounded-xl px-4 py-3 transition-colors group",
+    "flex items-center gap-3 rounded-md px-4 py-3 transition-colors group",
     isScanning && !selectMode && "scan-shimmer",
     isSelected && "bg-[rgba(255,178,36,.03)]"
   );
@@ -422,12 +422,12 @@ function WatchPanel({ competitorList, signalGroups }: { competitorList: Competit
   const errorCount = competitorList.filter((c) => c.scan_status === "error").length;
   const scanningCount = competitorList.filter((c) => c.scan_status === "scanning").length;
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+    <div className="rounded-md overflow-hidden" style={{ border: "1px solid var(--border)" }}>
       <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2">
           <span className={cn("w-1.5 h-1.5 rounded-full", scanningCount > 0 && "animate-pulse")}
             style={{ background: errorCount > 0 ? "var(--red)" : scanningCount > 0 ? "var(--accent)" : "var(--emerald)" }} />
-          <p className="label-caps">Tracked stores</p>
+          <p className="tick-label">Watch station</p>
         </div>
         <Link href="/competitors" className="text-[11px] font-medium" style={{ color: "var(--muted)" }}
           onMouseEnter={(e) => { (e.target as HTMLElement).style.color = "var(--text-2)"; }}
@@ -489,7 +489,7 @@ function WatchPanel({ competitorList, signalGroups }: { competitorList: Competit
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[380px] text-center px-6 fade-in">
-      <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(255,255,255,.04)", border: "1px solid var(--border)" }}>
+      <div className="w-12 h-12 rounded-md flex items-center justify-center mb-5" style={{ background: "rgba(255,255,255,.04)", border: "1px solid var(--border)" }}>
         <Target className="w-5 h-5" style={{ color: "var(--muted)" }} />
       </div>
       <h2 className="text-lg font-semibold mb-2" style={{ color: "var(--text)" }}>No competitors tracked yet</h2>
@@ -524,7 +524,7 @@ function DiscoverySuggestions({
   const isCurated = visible.every((s) => s.is_curated);
 
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+    <div className="rounded-md overflow-hidden" style={{ border: "1px solid var(--border)" }}>
       {/* Section header */}
       <div
         className="flex items-center gap-2 px-4 py-3"
@@ -748,17 +748,17 @@ function DashboardContent() {
             <div className="h-7 w-36 rounded-lg animate-pulse" style={{ background: "var(--bg3)" }} />
             <div className="h-4 w-24 rounded-lg animate-pulse" style={{ background: "var(--bg3)" }} />
           </div>
-          <div className="h-9 w-32 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />
+          <div className="h-9 w-32 rounded-md animate-pulse" style={{ background: "var(--bg3)" }} />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          {[1, 2, 3, 4].map((i) => <div key={i} className="h-14 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />)}
+          {[1, 2, 3, 4].map((i) => <div key={i} className="h-14 rounded-md animate-pulse" style={{ background: "var(--bg3)" }} />)}
         </div>
         <div className="flex gap-5">
           <div className="flex-1 space-y-3">
-            {[1, 2, 3].map((i) => <div key={i} className="h-20 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />)}
+            {[1, 2, 3].map((i) => <div key={i} className="h-20 rounded-md animate-pulse" style={{ background: "var(--bg3)" }} />)}
           </div>
           <div className="hidden lg:block w-64 space-y-3">
-            {[1, 2, 3].map((i) => <div key={i} className="h-16 rounded-xl animate-pulse" style={{ background: "var(--bg3)" }} />)}
+            {[1, 2, 3].map((i) => <div key={i} className="h-16 rounded-md animate-pulse" style={{ background: "var(--bg3)" }} />)}
           </div>
         </div>
       </div>
@@ -837,15 +837,13 @@ function DashboardContent() {
               {!alertsLoading && (
                 <>
                   <div className="flex items-center justify-between mb-2.5">
-                    <p className="label-caps">Recent signals</p>
+                    <p className="tick-label">Signal feed</p>
                     <Link
                       href="/alerts"
-                      className="text-[11px] font-medium flex items-center gap-1 transition-colors"
+                      className="num text-[11px] font-medium flex items-center gap-1 transition-colors hover:brightness-150"
                       style={{ color: "var(--muted)" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-2)"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.color = "var(--muted)"; }}
                     >
-                      All alerts <ArrowRight className="w-3 h-3" />
+                      All signals <ArrowRight className="w-3 h-3" />
                     </Link>
                   </div>
                   <SignalBreakdown groups={signalGroups} />
@@ -880,7 +878,7 @@ function DashboardContent() {
               {/* Integration nudge */}
               <Link
                 href="/settings?tab=integrations"
-                className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl transition-all block"
+                className="flex items-start gap-2.5 px-3.5 py-3 rounded-md transition-all block"
                 style={{ background: "rgba(255,178,36,.04)", border: "1px solid rgba(255,178,36,.1)" }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,178,36,.07)"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,178,36,.04)"; }}

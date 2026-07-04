@@ -109,7 +109,7 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
       <div
-        className="relative w-full max-w-md rounded-2xl p-6 shadow-2xl"
+        className="relative w-full max-w-md rounded-md p-6 shadow-2xl"
         style={{ background: "var(--bg2)", border: "1px solid var(--border)" }}
       >
         <div className="flex items-center justify-between mb-6">
@@ -130,7 +130,7 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
                 value={url}
                 onChange={handleUrlChange}
                 placeholder="gymshark.com"
-                className="w-full px-4 py-3 rounded-xl text-sm font-mono pr-10 outline-none transition-all"
+                className="w-full px-4 py-3 rounded-md text-sm font-mono pr-10 outline-none transition-all"
                 style={{
                   background: "var(--bg3)",
                   border: `1px solid ${storeStatus === "ok" ? "#4CC38A" : storeStatus === "error" ? "#F2555A" : storeStatus === "restricted" ? "var(--amber)" : "var(--border)"}`,
@@ -167,7 +167,7 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="e.g. Main competitor"
-              className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+              className="w-full px-4 py-3 rounded-md text-sm outline-none"
               style={{
                 background: "var(--bg3)",
                 border: "1px solid var(--border)",
@@ -178,7 +178,7 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
 
           {error && storeStatus !== "error" && (
             <div
-              className="flex items-start gap-2 p-3 rounded-xl text-sm"
+              className="flex items-start gap-2 p-3 rounded-md text-sm"
               style={{ background: "rgba(242,85,90,.1)", border: "1px solid rgba(242,85,90,.3)", color: "#F7999C" }}
             >
               <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
@@ -190,7 +190,7 @@ export function AddCompetitorModal({ onClose, onAdded, initialUrl }: Props) {
             type="submit"
             disabled={submitting || !url.trim() || storeStatus === "error" || checking}
             className={cn(
-              "w-full flex items-center justify-center gap-2 font-semibold py-3 rounded-xl transition-all",
+              "w-full flex items-center justify-center gap-2 font-semibold py-3 rounded-md transition-all",
               (submitting || !url.trim() || storeStatus === "error" || checking) ? "opacity-50 cursor-not-allowed" : "hover:brightness-110"
             )}
             style={{ background: "var(--green)", color: "#0B0C0A" }}
