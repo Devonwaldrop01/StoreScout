@@ -10,7 +10,7 @@ import { PriceDistributionChart } from "@/components/charts/PriceDistributionCha
 
 function KpiCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl p-4 space-y-1" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+    <div className="rounded-md p-4 space-y-1" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
       <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>{label}</p>
       <p className="text-2xl font-bold font-mono" style={{ color: "var(--text)" }}>{value}</p>
     </div>
@@ -23,7 +23,7 @@ function PositioningBar({ label, pos }: { label: string; pos: Record<string, unk
   const scoreLabel = (pos.label as string) ?? "—";
   const color = score < 34 ? "#7DB8C9" : score < 67 ? "#FFB224" : "#F2555A";
   return (
-    <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+    <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
       <p className="text-xs mb-2" style={{ color: "var(--muted)" }}>{label}</p>
       <div className="flex items-center justify-between mb-2">
         <span className="font-semibold text-sm" style={{ color }}>{scoreLabel}</span>
@@ -94,7 +94,7 @@ function AiBriefSection({ brief }: { brief: NonNullable<PublicReport["ai_brief"]
           return (
             <div
               key={card.type}
-              className="rounded-2xl p-5"
+              className="rounded-md p-5"
               style={{ background: style.bg, border: `1px solid ${style.border}` }}
             >
               <div className="flex items-center gap-2 mb-3">
@@ -160,7 +160,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
         <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>This link may have expired or be invalid.</p>
         <Link
           href="/auth/signup"
-          className="flex items-center gap-2 font-semibold px-6 py-3 rounded-xl transition-all hover:brightness-110"
+          className="flex items-center gap-2 font-semibold px-6 py-3 rounded-md transition-all hover:brightness-110"
           style={{ background: "var(--accent)", color: "#0B0C0A" }}
         >
           Track your own competitors free
@@ -195,7 +195,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
         <div className="flex items-center gap-3">
           <button
             onClick={handleShare}
-            className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-xl transition-colors hover:bg-white/10"
+            className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-md transition-colors hover:bg-white/10"
             style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
           >
             {copied ? <Check className="w-3.5 h-3.5" style={{ color: "var(--emerald)" }} /> : <Share2 className="w-3.5 h-3.5" />}
@@ -204,7 +204,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
           {isLoggedIn ? (
             <Link
               href={dashboardAddUrl}
-              className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110"
+              className="text-sm font-semibold px-4 py-2 rounded-md transition-all hover:brightness-110"
               style={{ background: "var(--accent)", color: "#0B0C0A" }}
             >
               Add to dashboard
@@ -212,7 +212,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
           ) : (
             <Link
               href={signupUrl}
-              className="text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:brightness-110"
+              className="text-sm font-semibold px-4 py-2 rounded-md transition-all hover:brightness-110"
               style={{ background: "var(--accent)", color: "#0B0C0A" }}
             >
               Track competitors free
@@ -281,7 +281,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
         {/* Key takeaways */}
         {takeaways.length > 0 && (
           <div
-            className="rounded-2xl p-5 mb-8"
+            className="rounded-md p-5 mb-8"
             style={{ background: "rgba(255,178,36,.08)", border: "1px solid rgba(255,178,36,.2)" }}
           >
             <h3 className="font-semibold mb-3 text-sm" style={{ color: "#93c5fd" }}>Key insights</h3>
@@ -298,7 +298,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
 
         {/* CTA */}
         <div
-          className="rounded-2xl p-8 text-center"
+          className="rounded-md p-8 text-center"
           style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.2)" }}
         >
           {isLoggedIn ? (
@@ -311,7 +311,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
               </p>
               <Link
                 href={dashboardAddUrl}
-                className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all hover:brightness-110"
+                className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-md transition-all hover:brightness-110"
                 style={{ background: "var(--accent)", color: "#0B0C0A" }}
               >
                 Add to my dashboard
@@ -328,7 +328,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
               </p>
               <Link
                 href={signupUrl}
-                className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all hover:brightness-110"
+                className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-md transition-all hover:brightness-110"
                 style={{ background: "var(--accent)", color: "#0B0C0A" }}
               >
                 Start tracking free

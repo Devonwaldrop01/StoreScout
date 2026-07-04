@@ -129,7 +129,7 @@ export default function LoginPage() {
             type="button"
             onClick={handleGoogleLogin}
             disabled={googleLoading || loading}
-            className="w-full flex items-center justify-center gap-3 py-3 rounded-xl font-medium text-sm mb-4 transition-all disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-3 py-3 rounded-md font-medium text-sm mb-4 transition-all disabled:opacity-50"
             style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
             onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,.15)")}
             onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
@@ -157,7 +157,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoFocus
-                className="w-full px-4 py-3 rounded-xl text-sm"
+                className="w-full px-4 py-3 rounded-md text-sm"
                 style={inputStyle("email")}
                 onFocus={() => setFocusedField("email")}
                 onBlur={() => setFocusedField(null)}
@@ -177,7 +177,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 pr-11 rounded-xl text-sm"
+                  className="w-full px-4 py-3 pr-11 rounded-md text-sm"
                   style={inputStyle("password")}
                   onFocus={() => setFocusedField("password")}
                   onBlur={() => setFocusedField(null)}
@@ -195,7 +195,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm" style={{ background: "rgba(242,85,90,.08)", border: "1px solid rgba(242,85,90,.2)", color: "#F2555A" }}>
+              <div className="flex items-center gap-2 px-4 py-3 rounded-md text-sm" style={{ background: "rgba(242,85,90,.08)", border: "1px solid rgba(242,85,90,.2)", color: "#F2555A" }}>
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </div>
@@ -204,7 +204,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full font-semibold py-3 rounded-xl transition-all disabled:opacity-50"
+              className="w-full font-semibold py-3 rounded-md transition-all disabled:opacity-50"
               style={{ background: "var(--accent)", color: "var(--ink)" }}
               onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
               onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}

@@ -71,7 +71,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
       </div>
 
       <div
-        className="w-full max-w-md rounded-2xl p-8"
+        className="w-full max-w-md rounded-md p-8"
         style={{ background: "#161814", border: "1px solid #1e3a5f" }}
       >
         {inviteError ? (
@@ -93,7 +93,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
           <>
             <div className="flex items-center gap-3 mb-6">
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                className="w-10 h-10 rounded-md flex items-center justify-center shrink-0"
                 style={{ background: "rgba(255,178,36,.1)", border: "1px solid rgba(255,178,36,.2)" }}
               >
                 <Users className="w-5 h-5" style={{ color: "#FFB224" }} />
@@ -118,7 +118,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                   <button
                     onClick={handleAccept}
                     disabled={accepting}
-                    className="w-full flex items-center justify-center gap-2 font-bold py-3 rounded-xl transition-all hover:brightness-110 disabled:opacity-60"
+                    className="w-full flex items-center justify-center gap-2 font-bold py-3 rounded-md transition-all hover:brightness-110 disabled:opacity-60"
                     style={{ background: "#FFB224", color: "#0B0C0A" }}
                   >
                     {accepting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
@@ -129,7 +129,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                   )}
                 </>
               ) : (
-                <div className="rounded-xl p-4 text-sm" style={{ background: "rgba(242,85,90,.08)", border: "1px solid rgba(242,85,90,.2)" }}>
+                <div className="rounded-md p-4 text-sm" style={{ background: "rgba(242,85,90,.08)", border: "1px solid rgba(242,85,90,.2)" }}>
                   <p style={{ color: "#F7999C" }}>
                     You&apos;re signed in as <strong>{session.email}</strong>, but this invite is for{" "}
                     <strong>{invite?.invited_email}</strong>.
@@ -146,14 +146,14 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                 </p>
                 <Link
                   href={`/auth/sign-in?redirect=/invite/${token}`}
-                  className="block w-full text-center font-bold py-3 rounded-xl transition-all hover:brightness-110"
+                  className="block w-full text-center font-bold py-3 rounded-md transition-all hover:brightness-110"
                   style={{ background: "#FFB224", color: "#0B0C0A" }}
                 >
                   Sign in
                 </Link>
                 <Link
                   href={`/auth/sign-up?redirect=/invite/${token}`}
-                  className="block w-full text-center font-semibold py-3 rounded-xl transition-all hover:bg-white/5"
+                  className="block w-full text-center font-semibold py-3 rounded-md transition-all hover:bg-white/5"
                   style={{ border: "1px solid #1e3a5f", color: "#A8AC9E" }}
                 >
                   Create account

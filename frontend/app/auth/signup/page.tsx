@@ -133,7 +133,7 @@ function SignupContent() {
       <div className="min-h-screen flex" style={{ background: "var(--bg)" }}>
         <BrandPanel />
         <div className="flex-1 flex items-center justify-center p-6">
-          <div className="w-full max-w-sm text-center p-10 rounded-2xl"
+          <div className="w-full max-w-sm text-center p-10 rounded-md"
                style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
             <div className="mx-auto mb-5 w-12 h-12 rounded-full flex items-center justify-center"
                  style={{ background: "rgba(255,178,36,.1)" }}>
@@ -178,7 +178,7 @@ function SignupContent() {
             type="button"
             onClick={handleGoogleSignup}
             disabled={googleLoading || loading}
-            className="w-full flex items-center justify-center gap-3 py-3 rounded-xl font-medium text-sm mb-4 transition-all disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-3 py-3 rounded-md font-medium text-sm mb-4 transition-all disabled:opacity-50"
             style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
             onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,.15)")}
             onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
@@ -207,7 +207,7 @@ function SignupContent() {
                 required
                 autoFocus
                 placeholder="you@yourstore.com"
-                className="w-full px-4 py-3 rounded-xl text-sm"
+                className="w-full px-4 py-3 rounded-md text-sm"
                 style={inputStyle("email")}
                 onFocus={() => setFocusedField("email")}
                 onBlur={() => setFocusedField(null)}
@@ -224,7 +224,7 @@ function SignupContent() {
                   required
                   minLength={8}
                   placeholder="Min. 8 characters"
-                  className="w-full px-4 py-3 pr-11 rounded-xl text-sm"
+                  className="w-full px-4 py-3 pr-11 rounded-md text-sm"
                   style={inputStyle("password")}
                   onFocus={() => setFocusedField("password")}
                   onBlur={() => setFocusedField(null)}
@@ -242,7 +242,7 @@ function SignupContent() {
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm" style={{ background: "rgba(242,85,90,.08)", border: "1px solid rgba(242,85,90,.2)", color: "#F2555A" }}>
+              <div className="flex items-center gap-2 px-4 py-3 rounded-md text-sm" style={{ background: "rgba(242,85,90,.08)", border: "1px solid rgba(242,85,90,.2)", color: "#F2555A" }}>
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </div>
@@ -251,7 +251,7 @@ function SignupContent() {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full font-semibold py-3 rounded-xl transition-all disabled:opacity-50"
+              className="w-full font-semibold py-3 rounded-md transition-all disabled:opacity-50"
               style={{ background: "var(--accent)", color: "var(--ink)" }}
               onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
               onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}

@@ -1254,7 +1254,6 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           className="rounded-md p-8 text-center relative overflow-hidden"
                           style={{ background: "var(--bg-card)", border: "1px solid rgba(255,178,36,.2)" }}
                         >
-                          <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(255,178,36,.06)" }} />
                           <div className="relative">
                             <div className="w-12 h-12 rounded-md mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(255,178,36,.1)", border: "1px solid rgba(255,178,36,.2)" }}>
                               <Sparkles className="w-6 h-6" style={{ color: "var(--accent)" }} />
