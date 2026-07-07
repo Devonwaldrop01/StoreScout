@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { FaqAccordion } from "@/components/landing/FaqAccordion";
 import { Testimonials } from "@/components/landing/Testimonials";
+import { HeroScan } from "@/components/landing/HeroScan";
 
 // ── Static data ───────────────────────────────────────────────────────────────
 
@@ -603,6 +604,87 @@ function PricingDiscountMock() {
   );
 }
 
+
+// ── Journey mocks: Discover + Win ─────────────────────────────────────────────
+
+function DiscoveryMock() {
+  const verified = [
+    { domain: "ryderwear.com", conf: 94, reason: "gym apparel, similar $40-70 price point" },
+    { domain: "youngla.com", conf: 91, reason: "same audience, aggressive launch cadence" },
+    { domain: "rawgear.com", conf: 88, reason: "emerging lifter brand, overlapping fits" },
+  ];
+  return (
+    <div className="rounded-md overflow-hidden shadow-2xl" style={{ background: "#0B0C0A", border: "1px solid #262A22" }}>
+      <div className="px-4 py-3 border-b flex items-center gap-2" style={{ background: "#101110", borderColor: "#262A22" }}>
+        <Sparkles className="w-3.5 h-3.5" style={{ color: "#A8AC9E" }} />
+        <span className="text-xs font-semibold" style={{ color: "#ECEEE6" }}>Find competitors</span>
+        <span className="text-[10px] ml-auto" style={{ color: "#6C7164" }}>&ldquo;gym apparel, $40&ndash;80, lifters&rdquo;</span>
+      </div>
+      <div className="p-4 space-y-2">
+        <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#6C7164" }}>
+          Verified Shopify · trackable — 3
+        </p>
+        {verified.map((v) => (
+          <div key={v.domain} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-md" style={{ background: "#161814", border: "1px solid #262A22" }}>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-xs font-mono font-semibold" style={{ color: "#ECEEE6" }}>{v.domain}</p>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: "rgba(76,195,138,.1)", color: "#4CC38A", border: "1px solid rgba(76,195,138,.2)" }}>
+                  {v.conf}% Shopify
+                </span>
+              </div>
+              <p className="text-[10px] truncate mt-0.5" style={{ color: "#6C7164" }}>{v.reason}</p>
+            </div>
+            <span className="text-[10px] font-semibold shrink-0 px-2 py-1 rounded" style={{ background: "rgba(255,178,36,.1)", color: "#FFB224", border: "1px solid rgba(255,178,36,.2)" }}>
+              Track →
+            </span>
+          </div>
+        ))}
+        <p className="text-[10px] font-bold uppercase tracking-widest pt-2" style={{ color: "#6C7164" }}>
+          Direct competitors we can&apos;t monitor yet — 1
+        </p>
+        <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-md" style={{ background: "#101110", border: "1px dashed #262A22", opacity: 0.7 }}>
+          <p className="text-xs font-mono" style={{ color: "#A8AC9E" }}>nike.com</p>
+          <span className="text-[10px]" style={{ color: "#6C7164" }}>Not Shopify</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WinCompareMock() {
+  const rows = [
+    { label: "Median price", you: "$54", them: "$48", verdict: "Premium position", color: "#4CC38A" },
+    { label: "Catalog on sale", you: "6%", them: "31%", verdict: "Ahead — full-price brand", color: "#4CC38A" },
+    { label: "Launches · 30d", you: "2", them: "9", verdict: "Behind — ship faster", color: "#F2555A" },
+  ];
+  return (
+    <div className="rounded-md overflow-hidden shadow-2xl" style={{ background: "#0B0C0A", border: "1px solid #262A22" }}>
+      <div className="px-4 py-3 border-b flex items-center gap-2" style={{ background: "#101110", borderColor: "#262A22" }}>
+        <Target className="w-3.5 h-3.5" style={{ color: "#A8AC9E" }} />
+        <span className="text-xs font-semibold" style={{ color: "#ECEEE6" }}>Your store vs gymshark.com</span>
+      </div>
+      <div className="p-4 space-y-2">
+        {rows.map((r) => (
+          <div key={r.label} className="flex items-center gap-3 px-3 py-2.5 rounded-md" style={{ background: "#161814", border: "1px solid #262A22" }}>
+            <p className="text-[11px] w-28 shrink-0" style={{ color: "#6C7164" }}>{r.label}</p>
+            <p className="text-xs font-mono font-bold" style={{ color: "#ECEEE6" }}>{r.you}</p>
+            <p className="text-[10px]" style={{ color: "#6C7164" }}>vs {r.them}</p>
+            <span className="text-[10px] font-semibold ml-auto shrink-0" style={{ color: r.color }}>{r.verdict}</span>
+          </div>
+        ))}
+        <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-md" style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.2)" }}>
+          <Zap className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: "#FFB224" }} />
+          <p className="text-[11px] leading-relaxed" style={{ color: "#ECEEE6" }}>
+            <span className="font-bold" style={{ color: "#FFB224" }}>YOUR MOVE · </span>
+            You own the premium lane. Close the launch gap with one new product this month.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen" style={{ background: "var(--bg)" }}>
@@ -682,9 +764,12 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        <p className="text-sm" style={{ color: "var(--muted)", opacity: 0.6 }}>
+        <p className="text-sm mb-12" style={{ color: "var(--muted)", opacity: 0.6 }}>
           No credit card required · Free forever · First scan ready in 60 seconds
         </p>
+
+        {/* The transformation, not the interface */}
+        <HeroScan />
       </div>
 
       {/* ── Stats strip ─────────────────────────────────────────────────────── */}
@@ -718,9 +803,97 @@ export default function LandingPage() {
         </div>
       </div>
 
+      {/* ── 01 · Discover ───────────────────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6 pb-28">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>01 · Discover</p>
+            <h2 className="text-3xl font-bold mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
+              Find the competitors you didn&apos;t know you had.
+            </h2>
+            <p className="text-base leading-relaxed mb-6" style={{ color: "var(--muted)" }}>
+              Describe what you sell — StoreScout maps your competitive landscape, verifies which rivals run
+              scannable Shopify storefronts, and tells you honestly which ones it can&apos;t watch yet. No guessing,
+              no dead links.
+            </p>
+            <ul className="space-y-3">
+              {[
+                "AI maps the brands your customers actually compare",
+                "Every result verified as a real, trackable Shopify store",
+                "Peers your size first — not just the giants",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm" style={{ color: "var(--muted)" }}>
+                  <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#FFB224" }} />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <DiscoveryMock />
+        </div>
+      </div>
+
+      {/* ── Real dashboard screenshot ────────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6 pb-28">
+        <div className="text-center mb-10">
+          <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>02 · Analyze</p>
+          <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
+            Full pricing intelligence — not just prices
+          </h2>
+          <p className="text-base max-w-xl mx-auto" style={{ color: "var(--muted)" }}>
+            See how prices are distributed, how deep discounts go, and how the catalog has changed — from a single dashboard.
+          </p>
+        </div>
+        <BrowserChrome url="app.storescout.com/dashboard/gymshark">
+          <PricingDashboardMock />
+        </BrowserChrome>
+        <p className="text-center text-xs mt-3" style={{ color: "var(--muted)", opacity: 0.5 }}>
+          Real Gymshark data from a live scan — price distribution, top discounted products, and launch velocity
+        </p>
+      </div>
+
+      {/* ── Competitive positioning screenshot ─────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6 pb-28">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <div
+              className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
+              style={{ background: "rgba(255,178,36,.1)", color: "#FFB224", border: "1px solid rgba(255,178,36,.2)" }}
+            >
+              <Target className="w-3 h-3" />
+              Strategic positioning analysis
+            </div>
+            <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>02 · Analyze</p>
+            <h2 className="text-3xl font-bold mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
+              Know exactly where they sit in the market.
+            </h2>
+            <p className="text-base leading-relaxed mb-6" style={{ color: "var(--muted)" }}>
+              StoreScout scores every competitor across 4 dimensions: Market Position, Launch Velocity, Promo Intensity, and Catalog Complexity. One glance tells you how aggressive they&apos;re being and where they&apos;re vulnerable.
+            </p>
+            <ul className="space-y-3">
+              {[
+                "Market Position — where they sit on price vs. volume",
+                "Launch Velocity — how fast they're growing their catalog",
+                "Promo Intensity — how heavily they rely on discounts",
+                "Catalog Complexity — breadth and variety of their range",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm" style={{ color: "var(--muted)" }}>
+                  <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#FFB224" }} />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <BrowserChrome url="app.storescout.com/dashboard/gymshark">
+            <PositioningMock />
+          </BrowserChrome>
+        </div>
+      </div>
+
       {/* ── "This is happening right now" — FOMO section ────────────────────── */}
       <div className="max-w-5xl mx-auto px-6 pb-28">
         <div className="text-center mb-10">
+          <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>03 · Monitor</p>
           <div
             className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
             style={{ background: "rgba(242,85,90,.1)", color: "#F2555A", border: "1px solid rgba(242,85,90,.2)" }}
@@ -758,84 +931,6 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* ── Real dashboard screenshot ────────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-6 pb-28">
-        <div className="text-center mb-10">
-          <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>Live dashboard</p>
-          <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
-            Full pricing intelligence — not just prices
-          </h2>
-          <p className="text-base max-w-xl mx-auto" style={{ color: "var(--muted)" }}>
-            See how prices are distributed, how deep discounts go, and how the catalog has changed — from a single dashboard.
-          </p>
-        </div>
-        <BrowserChrome url="app.storescout.com/dashboard/gymshark">
-          <PricingDashboardMock />
-        </BrowserChrome>
-        <p className="text-center text-xs mt-3" style={{ color: "var(--muted)", opacity: 0.5 }}>
-          Real Gymshark data from a live scan — price distribution, top discounted products, and launch velocity
-        </p>
-      </div>
-
-      {/* ── Competitive positioning screenshot ─────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-6 pb-28">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <div
-              className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
-              style={{ background: "rgba(255,178,36,.1)", color: "#FFB224", border: "1px solid rgba(255,178,36,.2)" }}
-            >
-              <Target className="w-3 h-3" />
-              Strategic positioning analysis
-            </div>
-            <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>Positioning</p>
-            <h2 className="text-3xl font-bold mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
-              Know exactly where they sit in the market.
-            </h2>
-            <p className="text-base leading-relaxed mb-6" style={{ color: "var(--muted)" }}>
-              StoreScout scores every competitor across 4 dimensions: Market Position, Launch Velocity, Promo Intensity, and Catalog Complexity. One glance tells you how aggressive they&apos;re being and where they&apos;re vulnerable.
-            </p>
-            <ul className="space-y-3">
-              {[
-                "Market Position — where they sit on price vs. volume",
-                "Launch Velocity — how fast they're growing their catalog",
-                "Promo Intensity — how heavily they rely on discounts",
-                "Catalog Complexity — breadth and variety of their range",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-3 text-sm" style={{ color: "var(--muted)" }}>
-                  <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#FFB224" }} />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <BrowserChrome url="app.storescout.com/dashboard/gymshark">
-            <PositioningMock />
-          </BrowserChrome>
-        </div>
-      </div>
-
-      {/* ── Intelligence Brief section ───────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-6 pb-28">
-        <div className="text-center mb-10">
-          <div
-            className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
-            style={{ background: "rgba(255,178,36,.1)", color: "#FFB224", border: "1px solid rgba(255,178,36,.2)" }}
-          >
-            <Sparkles className="w-3 h-3" />
-            AI-powered weekly brief
-          </div>
-          <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>AI analysis</p>
-          <h2 className="text-3xl font-bold mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
-            Your AI strategist, already looking at the data.
-          </h2>
-          <p className="text-base max-w-xl mx-auto" style={{ color: "var(--muted)" }}>
-            Every week, Claude analyzes 7 days of scan data and writes a 4-card brief: what changed, what it signals, where your opening is, and exactly what to do. Not summaries — actionable moves.
-          </p>
-        </div>
-        <IntelligenceBriefPreview />
-      </div>
-
       {/* ── Alert email section ──────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-6 pb-28">
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -847,7 +942,7 @@ export default function LandingPage() {
               <Bell className="w-3 h-3" />
               In your inbox within 15 minutes
             </div>
-            <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>Alerts</p>
+            <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>03 · Monitor</p>
             <h2 className="text-3xl font-bold mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
               Beat your competitors to their own move.
             </h2>
@@ -870,6 +965,58 @@ export default function LandingPage() {
             </ul>
           </div>
           <AlertEmailPreview />
+        </div>
+      </div>
+
+      {/* ── Intelligence Brief section ───────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6 pb-28">
+        <div className="text-center mb-10">
+          <div
+            className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
+            style={{ background: "rgba(255,178,36,.1)", color: "#FFB224", border: "1px solid rgba(255,178,36,.2)" }}
+          >
+            <Sparkles className="w-3 h-3" />
+            AI-powered weekly brief
+          </div>
+          <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>04 · Act</p>
+          <h2 className="text-3xl font-bold mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
+            Your AI strategist, already looking at the data.
+          </h2>
+          <p className="text-base max-w-xl mx-auto" style={{ color: "var(--muted)" }}>
+            Every week, Claude analyzes 7 days of scan data and writes a 4-card brief: what changed, what it signals, where your opening is, and exactly what to do. Not summaries — actionable moves.
+          </p>
+        </div>
+        <IntelligenceBriefPreview />
+      </div>
+
+      {/* ── 05 · Win ────────────────────────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6 pb-28">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="md:order-2">
+            <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>05 · Win</p>
+            <h2 className="text-3xl font-bold mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
+              Stop guessing where you stand.
+            </h2>
+            <p className="text-base leading-relaxed mb-6" style={{ color: "var(--muted)" }}>
+              Connect your own store and every insight becomes personal: where you&apos;re ahead, where you&apos;re
+              exposed, and the one move that changes the picture. Not another report — a position.
+            </p>
+            <ul className="space-y-3">
+              {[
+                "Side-by-side pricing, catalog, and promo comparison",
+                "Recommendations reference YOUR products and inventory",
+                "Every insight can become a saved Playbook task with evidence",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm" style={{ color: "var(--muted)" }}>
+                  <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#FFB224" }} />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="md:order-1">
+            <WinCompareMock />
+          </div>
         </div>
       </div>
 
@@ -964,7 +1111,7 @@ export default function LandingPage() {
       {/* ── Who it's for ────────────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-6 pb-28">
         <div className="text-center mb-12">
-          <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>Who it's for</p>
+          <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>Who it&apos;s for</p>
           <h2 className="text-3xl font-bold mb-3" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
             Built for two types of operators
           </h2>
@@ -1059,10 +1206,10 @@ export default function LandingPage() {
             </div>
           </div>
           {[
-            { icon: TrendingDown, title: "90-day price history", desc: "See how prices have moved over time. Spot seasonal patterns and predict the next sale before it happens." },
+            { icon: TrendingDown, title: "Know when they raise or lower prices", desc: "90 days of price history per competitor. Spot seasonal patterns and predict the next sale before it happens." },
             { icon: Sparkles, title: "AI weekly digest", desc: "Every Monday, Claude writes a 4-card brief on what changed, what it signals, and exactly what to do about it." },
-            { icon: Rocket, title: "Launch velocity tracking", desc: "How many products are they launching per month? Are they accelerating into a new category or pulling back?" },
-            { icon: Tag, title: "Discount monitoring", desc: "Track what % of their catalog is on sale, the average depth, and when new sale events start and end." },
+            { icon: Rocket, title: "Catch every launch — and what it signals", desc: "How many products are they shipping per month? Are they accelerating into a new category or pulling back?" },
+            { icon: Tag, title: "Never miss a sale event again", desc: "What % of their catalog is on sale, how deep the discounts go, and when each event starts and ends." },
           ].map(({ icon: Icon, title, desc }) => (
             <div key={title} className="rounded-md p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
               <div className="w-10 h-10 rounded-md flex items-center justify-center mb-4" style={{ background: "rgba(255,178,36,.1)" }}>
