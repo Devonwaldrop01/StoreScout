@@ -520,6 +520,48 @@ Rules:
     verified: list = []          # Shopify-verified AND scannable → trackable
     relevant_other: list = []    # real competitors we can't monitor (yet)
 
+    # ── Stage 0: index-first — search our own verified store index before
+    # asking Claude. Every hit here is pre-verified, instant, and free.
+    # Guarded end-to-end so discovery works identically before migration 007.
+    try:
+        import re as _re
+        terms = [t for t in _re.split(r"[^a-z0-9]+", body.description.lower()) if len(t) >= 4][:6]
+        if terms:
+            ors = ",".join(
+                f"{col}.ilike.%{t}%"
+                for t in terms
+                for col in ("category", "subcategory", "description", "brand_name")
+            )
+            idx_res = db.table("shopify_store_index")\
+                .select("domain, brand_name, category, subcategory, description, verification_confidence, verification_signals")\
+                .eq("status", "verified")\
+                .gte("verification_confidence", settings.shopify_index_min_confidence)\
+                .or_(ors)\
+                .order("verification_confidence", desc=True)\
+                .limit(TARGET_VERIFIED * 2)\
+                .execute()
+            # Cap index hits at 5 of the 8 slots — keyword matching is crude,
+            # so Claude always gets room to add description-tailored picks.
+            for row in idx_res.data or []:
+                d = row["domain"]
+                if d in seen or len(verified) >= 5:
+                    continue
+                seen.add(d)
+                reason = row.get("description") or " · ".join(
+                    x for x in [row.get("category"), row.get("subcategory")] if x
+                ) or "verified Shopify store in our index"
+                verified.append({
+                    "domain": d,
+                    "reason": reason[:90],
+                    "confidence": row.get("verification_confidence"),
+                    "signals": row.get("verification_signals") or [],
+                    "source": "index",
+                })
+            if verified:
+                logger.info("discover-ai: %d instant matches from store index", len(verified))
+    except Exception as idx_exc:
+        logger.debug("discover-ai index-first lookup skipped: %s", idx_exc)
+
     loop_error: Exception | None = None
     for batch in range(MAX_BATCHES):
         try:
@@ -539,8 +581,39 @@ Rules:
         if not fresh:
             break
 
-        results = await asyncio.gather(*[_verify(s["domain"]) for s in fresh])
-        for s, v in zip(fresh, results):
+        # ── Verification cache: the index already knows many of these domains —
+        # a verified row skips the network probe, a recent rejection skips the
+        # candidate. Guarded so discovery works before migration 007.
+        cached_rows: dict = {}
+        try:
+            cache_res = db.table("shopify_store_index")\
+                .select("domain, status, verification_confidence, verification_signals, last_verified_at")\
+                .in_("domain", [s["domain"] for s in fresh])\
+                .execute()
+            cached_rows = {r["domain"]: r for r in (cache_res.data or [])}
+        except Exception:
+            pass
+
+        recent_cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+        to_probe = []
+        for s in fresh:
+            row = cached_rows.get(s["domain"])
+            if row and row.get("status") == "verified" and (row.get("verification_confidence") or 0) >= settings.shopify_index_min_confidence:
+                verified.append({
+                    **s,
+                    "confidence": row.get("verification_confidence"),
+                    "signals": row.get("verification_signals") or [],
+                    "source": "index",
+                })
+            elif row and row.get("status") in ("rejected", "failed") and (row.get("last_verified_at") or "") >= recent_cutoff:
+                relevant_other.append({**s, "note": "Not a Shopify store — we can't monitor it yet"})
+            else:
+                to_probe.append(s)
+
+        results = await asyncio.gather(*[_verify(s["domain"]) for s in to_probe])
+        writeback_rows = []
+        probe_now = datetime.now(timezone.utc).isoformat()
+        for s, v in zip(to_probe, results):
             if v["verified"] and v["monitorable"]:
                 verified.append({**s, "confidence": v["confidence"], "signals": v["signals"]})
             elif v["verified"]:
@@ -548,6 +621,25 @@ Rules:
                 relevant_other.append({**s, "note": "Shopify store, but its catalog is private — we can't scan it yet"})
             else:
                 relevant_other.append({**s, "note": "Not a Shopify store — we can't monitor it yet"})
+            # Write every probe back into the index — discovery compounds it for free
+            writeback_rows.append({
+                "domain": s["domain"],
+                "status": "verified" if (v["verified"] and v["monitorable"]) else "rejected",
+                "verification_confidence": v["confidence"],
+                "verification_signals": v["signals"],
+                "failure_reason": None if (v["verified"] and v["monitorable"]) else "discovery probe below threshold or catalog locked",
+                "source": "discovery",
+                "source_query": body.description.strip()[:200],
+                "last_verified_at": probe_now,
+                "updated_at": probe_now,
+            })
+        if writeback_rows:
+            try:
+                # These domains had no fresh verified index row (else they'd have
+                # been served from cache), so a blind upsert can't downgrade one.
+                db.table("shopify_store_index").upsert(writeback_rows, on_conflict="domain").execute()
+            except Exception as wb_exc:
+                logger.debug("discover-ai index write-back skipped: %s", wb_exc)
 
         logger.info(
             "discover-ai batch %d: %d fresh candidates, %d verified total, %d non-monitorable",

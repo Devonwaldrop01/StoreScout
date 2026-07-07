@@ -91,6 +91,7 @@ from app.api.v1.shopify_app import router as shopify_router
 from app.api.v1.integrations import router as integrations_router
 from app.api.v1.favicon import router as favicon_router
 from app.api.v1.watchlist import router as watchlist_router
+from app.api.v1.store_index import router as store_index_router
 
 app.include_router(competitors_router, prefix="/api/v1")
 app.include_router(alerts_router, prefix="/api/v1")
@@ -109,6 +110,7 @@ app.include_router(shopify_router, prefix="/api/v1")
 app.include_router(integrations_router, prefix="/api/v1")
 app.include_router(favicon_router, prefix="/api/v1")
 app.include_router(watchlist_router, prefix="/api/v1")
+app.include_router(store_index_router, prefix="/api/v1")
 
 def extract_store_url_from_session(session: dict) -> str | None:
     fields = session.custom_fields or []

@@ -11,6 +11,9 @@ async function proxy(request: NextRequest, path: string[]) {
   };
   const auth = request.headers.get("authorization");
   if (auth) headers["authorization"] = auth;
+  // Admin console (/admin/store-index) authenticates with this header
+  const adminToken = request.headers.get("x-admin-token");
+  if (adminToken) headers["x-admin-token"] = adminToken;
 
   const body =
     request.method !== "GET" && request.method !== "HEAD"

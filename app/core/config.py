@@ -62,6 +62,15 @@ class Settings(BaseSettings):
     pro_max_competitors: int = 10
     agency_max_competitors: int = 50
 
+    # Shopify store index (background discovery worker) — off unless explicitly enabled
+    shopify_index_enabled: bool = False
+    shopify_index_daily_candidate_limit: int = 75
+    shopify_index_min_confidence: int = 60
+    shopify_index_concurrency: int = 2
+
+    # Admin endpoints (/api/v1/admin/*) — disabled while this is empty
+    admin_token: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:
