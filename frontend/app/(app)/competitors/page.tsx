@@ -37,7 +37,7 @@ function DiscoveryProgress() {
 
   return (
     <div
-      className="mt-4 px-4 py-3 rounded-md space-y-2"
+      className="mt-4 px-4 py-3 rounded-md space-y-2 analyzing-sweep"
       style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
     >
       {DISCOVERY_STAGES.map((s, i) => {

@@ -862,7 +862,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
           </div>
         ) : (
           <div
-            className="rounded-md p-10 text-center space-y-4"
+            className="rounded-md p-10 text-center space-y-4 analyzing-sweep"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
           >
             <div className="flex items-center justify-center gap-2 mx-auto">
@@ -1341,7 +1341,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           </button>
                         </div>
                       ) : (aiStatus === "loading" || aiStatus === "generating") ? (
-                        <div className="rounded-md p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                        <div className="rounded-md p-6 analyzing-sweep" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
                           <div className="flex items-center gap-3 mb-5">
                             <div
                               className="w-9 h-9 rounded-md flex items-center justify-center shrink-0"

@@ -1,30 +1,15 @@
 "use client";
 
-import { Target, TrendingUp, Eye, Zap, Sparkles, ArrowRight, X } from "lucide-react";
-import { type BriefCard } from "@/lib/api";
+/**
+ * Expanded 4-card brief layout. Rendered on the landing page as a marketing
+ * component; uses the shared intelligence language so the marketing motif is
+ * pixel-identical to the in-app one.
+ */
 
-const CARD_CONFIG = {
-  signal: {
-    Icon: Target,
-    color: "#FFB224",
-    label: "Notable Signal",
-  },
-  opportunity: {
-    Icon: TrendingUp,
-    color: "#FFB224",
-    label: "Opportunity",
-  },
-  watch: {
-    Icon: Eye,
-    color: "#FFB224",
-    label: "Watch Closely",
-  },
-  action: {
-    Icon: Zap,
-    color: "#4CC38A",
-    label: "Your Move",
-  },
-} as const;
+import { Sparkles, ArrowRight, X, Zap } from "lucide-react";
+import { type BriefCard } from "@/lib/api";
+import { INSIGHT_LANGUAGE } from "@/lib/insight";
+import { InsightCard } from "@/components/ui/InsightCard";
 
 interface Props {
   hostname: string;
@@ -33,6 +18,9 @@ interface Props {
 }
 
 export function IntelligenceBrief({ hostname, cards, onDismiss }: Props) {
+  const actionCard = cards.find((c) => c.type === "action");
+  const action = INSIGHT_LANGUAGE.action;
+
   return (
     <div
       className="rounded-md overflow-hidden mb-8 fade-in"
@@ -51,7 +39,7 @@ export function IntelligenceBrief({ hostname, cards, onDismiss }: Props) {
             <div>
               <span className="label-caps" style={{ color: "var(--accent)" }}>Scout Brief</span>
               <h3 className="text-sm font-bold mt-0.5" style={{ color: "var(--text)" }}>
-                Scout Brief · <span style={{ color: "var(--text-2)" }}>{hostname}</span>
+                <span style={{ color: "var(--text-2)" }}>{hostname}</span>
               </h3>
             </div>
           </div>
@@ -66,81 +54,48 @@ export function IntelligenceBrief({ hostname, cards, onDismiss }: Props) {
           </button>
         </div>
 
-        {/* 3-card grid — hero layout */}
+        {/* 3-card grid — the shared intelligence-language motif */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-          {cards.filter((c) => c.type !== "action").map((card, i) => {
-            const config = CARD_CONFIG[card.type] ?? CARD_CONFIG.signal;
-            const { Icon } = config;
-            return (
-              <div
-                key={i}
-                className={`rounded-md p-5 fade-up-${i + 1}`}
-                style={{
-                  background: "var(--bg-card)",
-                  border: "1px solid var(--border)",
-                  borderLeft: `3px solid ${config.color}`,
-                }}
-              >
-                {/* Icon + label row */}
-                <div className="flex items-center gap-2 mb-4">
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: `${config.color}14` }}
-                  >
-                    <Icon className="w-4 h-4" style={{ color: config.color }} />
-                  </div>
-                  <span className="label-caps" style={{ color: config.color }}>
-                    {config.label}
-                  </span>
-                </div>
-
-                {/* Content */}
-                <h4 className="font-bold text-sm leading-snug mb-2" style={{ color: "var(--text)" }}>
-                  {card.headline}
-                </h4>
-                <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
-                  {card.body}
-                </p>
-              </div>
-            );
-          })}
+          {cards.filter((c) => c.type !== "action").map((card, i) => (
+            <InsightCard
+              key={i}
+              type={card.type}
+              headline={card.headline}
+              body={card.body}
+              className={`fade-up-${i + 1}`}
+            />
+          ))}
         </div>
 
-        {/* Action card — full-width, prominent */}
-        {cards.find((c) => c.type === "action") && (() => {
-          const actionCard = cards.find((c) => c.type === "action")!;
-          const config = CARD_CONFIG.action;
-          return (
-            <div
-              className="rounded-md p-5 mb-6 fade-up-3"
-              style={{
-                background: "var(--bg-card)",
-                border: "1px solid var(--border)",
-                borderLeft: `3px solid ${config.color}`,
-              }}
-            >
-              <div className="flex items-start gap-4">
-                <div
-                  className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                  style={{ background: `${config.color}14` }}
-                >
-                  <Zap className="w-4 h-4" style={{ color: config.color }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="label-caps" style={{ color: config.color }}>
-                    {config.label}
-                  </span>
-                  <h4 className="font-bold text-sm leading-snug mt-1 mb-1.5" style={{ color: "var(--text)" }}>
-                    {actionCard.headline}
-                  </h4>
-                  <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
-                    {actionCard.body}
-                  </p>
-                </div>
+        {/* Your Move — full-width act-now card */}
+        {actionCard && (
+          <div
+            className="rounded-md p-5 mb-6 fade-up-3"
+            style={{
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
+              borderLeft: `3px solid ${action.color}`,
+            }}
+          >
+            <div className="flex items-start gap-4">
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                style={{ background: `${action.color}14` }}
+              >
+                <Zap className="w-4 h-4" style={{ color: action.color }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="label-caps" style={{ color: action.color }}>{action.label}</span>
+                <h4 className="font-bold text-sm leading-snug mt-1 mb-1.5" style={{ color: "var(--text)" }}>
+                  {actionCard.headline}
+                </h4>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
+                  {actionCard.body}
+                </p>
               </div>
             </div>
-          );
-        })()}
+          </div>
+        )}
 
         {/* CTA */}
         <button
