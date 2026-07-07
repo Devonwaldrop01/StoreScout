@@ -660,6 +660,52 @@ export interface WatchedProduct {
   delta_pct: number | null;
 }
 
+// ── Playbook items (saved moves — the persisted action loop) ──
+export interface PlaybookItem {
+  id: string;
+  source_type: "signal" | "gap" | "winning_product" | "pricing" | "brief" | "pro_analysis" | "manual";
+  source_ref: string | null;
+  competitor_id: string | null;
+  hostname: string | null;
+  title: string;
+  reason: string | null;
+  evidence: string | null;
+  priority: "high" | "medium" | "low";
+  due_at: string | null;
+  status: "pending" | "done" | "dismissed";
+  outcome: "worked" | "too_early" | "not_relevant" | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+}
+
+export interface SavePlaybookItemInput {
+  source_type: PlaybookItem["source_type"];
+  title: string;
+  source_ref?: string;
+  competitor_id?: string;
+  hostname?: string;
+  reason?: string;
+  evidence?: string;
+  priority?: PlaybookItem["priority"];
+}
+
+export const playbookItems = {
+  list: (status?: string) =>
+    apiFetch<{ data: PlaybookItem[] }>(`/playbook-items${status ? `?status=${status}` : ""}`),
+  create: (body: SavePlaybookItemInput) =>
+    apiFetch<{ data: PlaybookItem; created: boolean }>("/playbook-items", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  update: (id: string, body: Partial<Pick<PlaybookItem, "status" | "outcome" | "notes" | "priority" | "due_at">>) =>
+    apiFetch<{ data: PlaybookItem }>(`/playbook-items/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+};
+
 export const watchlist = {
   list: () => apiFetch<{ data: WatchedProduct[]; cap: number }>("/watchlist"),
   add: (body: {

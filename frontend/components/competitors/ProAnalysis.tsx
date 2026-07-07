@@ -11,6 +11,7 @@
  */
 
 import { RefreshCw, Brain, TrendingUp, Shield, Eye, Zap, Activity } from "lucide-react";
+import { SaveToPlaybook } from "@/components/SaveToPlaybook";
 
 export interface ProAnalysisData {
   threat?: { level?: string; score?: number; why?: string };
@@ -56,7 +57,7 @@ function SectionLabel({ icon: Icon, children, color = "var(--text-2)" }: { icon:
 }
 
 export function ProAnalysis({
-  hostname, data, generatedAt, model, refreshing, onRegenerate,
+  hostname, data, generatedAt, model, refreshing, onRegenerate, competitorId,
 }: {
   hostname: string;
   data: ProAnalysisData;
@@ -64,6 +65,7 @@ export function ProAnalysis({
   model: string;
   refreshing?: boolean;
   onRegenerate: () => void;
+  competitorId?: string;
 }) {
   const threatLevel = (data.threat?.level || "medium").toLowerCase();
   const threatColor = THREAT_COLOR[threatLevel] ?? THREAT_COLOR.medium;
@@ -170,7 +172,22 @@ export function ProAnalysis({
               {(data.impact?.opportunities || []).map((o, i) => (
                 <div key={i} className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--emerald)" }} />
-                  <p className="text-sm leading-snug" style={{ color: "var(--text-2)" }}>{o}</p>
+                  <p className="text-sm leading-snug flex-1 min-w-0" style={{ color: "var(--text-2)" }}>{o}</p>
+                  {competitorId && (
+                    <SaveToPlaybook
+                      size="xs"
+                      item={{
+                        source_type: "pro_analysis",
+                        source_ref: `${competitorId}:opp:${i}`,
+                        competitor_id: competitorId,
+                        hostname,
+                        title: o.length > 180 ? `${o.slice(0, 177)}…` : o,
+                        reason: `Intelligence Pro opportunity on ${hostname}`,
+                        evidence: (data.evidence || []).slice(0, 3).join(" · "),
+                        priority: (data.threat?.level || "").toLowerCase() === "high" ? "high" : "medium",
+                      }}
+                    />
+                  )}
                 </div>
               ))}
               {(data.impact?.opportunities || []).length === 0 && (

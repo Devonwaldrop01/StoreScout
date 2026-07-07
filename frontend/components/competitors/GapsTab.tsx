@@ -5,6 +5,7 @@ import { Lock, Target, TrendingUp, ChevronDown, ChevronUp, ArrowRight, Check, Do
 import { LockedValueCard } from "@/components/ui";
 import { competitors as api, type GapsResponse, type Gap } from "@/lib/api";
 import UpgradeModal from "@/components/UpgradeModal";
+import { SaveToPlaybook } from "@/components/SaveToPlaybook";
 
 function opportunityLabel(opp?: number): { label: string; color: string } {
   const o = opp ?? 0;
@@ -66,7 +67,7 @@ interface GapCardProps {
   onReviewed: (i: number) => void;
 }
 
-function GapCard({ gap, index, reviewed, onReviewed }: GapCardProps) {
+function GapCard({ gap, index, competitorId, reviewed, onReviewed }: GapCardProps) {
   const [expanded, setExpanded] = useState(false);
   const { label, color } = opportunityLabel(gap.opportunity);
   const action = getGapAction(gap.type || "");
@@ -153,20 +154,32 @@ function GapCard({ gap, index, reviewed, onReviewed }: GapCardProps) {
             </div>
           </div>
 
-          {/* Mark as reviewed */}
-          <div className="flex items-center justify-between mt-3">
-            <p className="text-[11px]" style={{ color: "var(--muted)" }}>
+          {/* Actions: save as a playbook task, or mark reviewed */}
+          <div className="flex items-center justify-between gap-3 mt-3">
+            <p className="text-[11px] flex-1 min-w-0" style={{ color: "var(--muted)" }}>
               {gap.metric && typeof gap.metric === "string" && (
                 <span>{gap.metric}</span>
               )}
             </p>
+            <SaveToPlaybook
+              size="xs"
+              item={{
+                source_type: "gap",
+                source_ref: `${competitorId}:${index}`,
+                competitor_id: competitorId,
+                title: gap.title,
+                reason: action,
+                evidence: [gap.detail, typeof gap.metric === "string" ? gap.metric : ""].filter(Boolean).join(" — "),
+                priority: (gap.opportunity ?? 0) >= 0.6 ? "high" : "medium",
+              }}
+            />
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onReviewed(index);
                 setExpanded(false);
               }}
-              className="flex items-center gap-1.5 text-[11px] font-medium transition-opacity hover:opacity-70"
+              className="flex items-center gap-1.5 text-[11px] font-medium transition-opacity hover:opacity-70 shrink-0"
               style={{ color: isReviewed ? "#FFB224" : "var(--muted)" }}
             >
               <Check className="w-3.5 h-3.5" />

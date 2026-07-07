@@ -15,6 +15,7 @@ import {
 } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import UpgradeModal from "@/components/UpgradeModal";
+import { SaveToPlaybook } from "@/components/SaveToPlaybook";
 
 // ── verdict ──────────────────────────────────────────────────────────────────
 
@@ -143,9 +144,10 @@ interface WinnerRowProps {
   isLast: boolean;
   pinned: boolean;
   onPin: () => void;
+  competitorId: string;
 }
 
-function WinnerRow({ product, rank, expanded, onToggle, isLast, pinned, onPin }: WinnerRowProps) {
+function WinnerRow({ product, rank, expanded, onToggle, isLast, pinned, onPin, competitorId }: WinnerRowProps) {
   const verdict = product.locked ? null : getVerdict(product.score);
   const reasons = product.locked ? [] : getReasons(product);
 
@@ -302,6 +304,20 @@ function WinnerRow({ product, rank, expanded, onToggle, isLast, pinned, onPin }:
               {product.reason}
             </p>
           )}
+          <div className="flex justify-end pt-3">
+            <SaveToPlaybook
+              size="xs"
+              item={{
+                source_type: "winning_product",
+                source_ref: `${competitorId}:${product.handle ?? product.title ?? ""}`,
+                competitor_id: competitorId,
+                title: `Research "${product.title || "this product"}" as a product opportunity`,
+                reason: product.reason || `Scored ${product.score} in their catalog — ${verdict?.label ?? "notable"}.`,
+                evidence: reasons.slice(0, 3).join(" · "),
+                priority: (product.score ?? 0) >= 75 ? "high" : "medium",
+              }}
+            />
+          </div>
         </div>
       )}
     </div>
@@ -652,6 +668,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
                     }
                     pinned={!!p.handle && !!pinnedMap[p.handle]}
                     onPin={() => togglePin(p)}
+                    competitorId={competitorId}
                   />
                 );
               })

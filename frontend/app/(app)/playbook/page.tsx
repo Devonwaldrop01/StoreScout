@@ -7,7 +7,10 @@ import {
   TrendingUp, Package, Tag, LayoutGrid, AlertTriangle,
   Lock, X, ChevronRight, Users, Flame, Copy,
 } from "lucide-react";
-import { user as userApi, type PlaybookPlay, type PlaybookResponse, type DraftAsset } from "@/lib/api";
+import {
+  user as userApi, playbookItems as itemsApi,
+  type PlaybookPlay, type PlaybookResponse, type DraftAsset, type PlaybookItem,
+} from "@/lib/api";
 import UpgradeModal from "@/components/UpgradeModal";
 import { EmptyStateCard, LockedValueCard } from "@/components/ui";
 
@@ -759,6 +762,116 @@ function PlaySection({ section, plays, done, onDone, onOpen, steps, onToggleStep
   );
 }
 
+// ── saved moves (persisted playbook items — the action loop) ──────────────────
+
+const SAVED_PRIORITY: Record<string, { color: string; label: string }> = {
+  high:   { color: "#F2555A", label: "High" },
+  medium: { color: "#A8AC9E", label: "Medium" },
+  low:    { color: "#6C7164", label: "Low" },
+};
+
+const OUTCOME_OPTIONS = [
+  { key: "worked" as const,       label: "Worked",            emoji: "🔥" },
+  { key: "too_early" as const,    label: "Too early to tell", emoji: "⏳" },
+  { key: "not_relevant" as const, label: "Not relevant",      emoji: "👎" },
+];
+
+const SOURCE_LABEL: Record<string, string> = {
+  signal: "Signal",
+  gap: "Market opening",
+  winning_product: "Winning product",
+  pricing: "Pricing",
+  brief: "Scout Brief",
+  pro_analysis: "Intelligence Pro",
+  manual: "Manual",
+};
+
+function SavedItemRow({ item, onUpdate, isLast }: {
+  item: PlaybookItem;
+  onUpdate: (id: string, patch: { status?: PlaybookItem["status"]; outcome?: PlaybookItem["outcome"] }) => void;
+  isLast: boolean;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [askOutcome, setAskOutcome] = useState(false);
+  const pr = SAVED_PRIORITY[item.priority] ?? SAVED_PRIORITY.medium;
+
+  return (
+    <div style={!isLast ? { borderBottom: "1px solid var(--border)" } : undefined}>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[.02]"
+      >
+        <span className="w-2 h-2 rounded-full shrink-0 mt-1.5" style={{ background: pr.color }} title={`${pr.label} priority`} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text)" }}>{item.title}</p>
+          <div className="flex items-center gap-2 flex-wrap mt-1">
+            <span className="label-caps" style={{ color: "var(--muted)" }}>{SOURCE_LABEL[item.source_type] ?? item.source_type}</span>
+            {item.hostname && <span className="num text-[10px]" style={{ color: "var(--muted)" }}>{item.hostname}</span>}
+          </div>
+        </div>
+        <ChevronRight className={`w-4 h-4 shrink-0 mt-0.5 transition-transform ${expanded ? "rotate-90" : ""}`} style={{ color: "var(--muted)" }} />
+      </button>
+
+      {expanded && (
+        <div className="px-4 pb-4 pl-9 space-y-3">
+          {item.reason && (
+            <p className="text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>
+              <span className="font-semibold" style={{ color: "var(--muted)" }}>Why · </span>{item.reason}
+            </p>
+          )}
+          {item.evidence && (
+            <p className="num text-[11px] leading-relaxed px-3 py-2 rounded" style={{ background: "var(--bg3)", color: "var(--muted)" }}>
+              {item.evidence}
+            </p>
+          )}
+
+          {askOutcome ? (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[11px]" style={{ color: "var(--muted)" }}>Did it work?</span>
+              {OUTCOME_OPTIONS.map((o) => (
+                <button
+                  key={o.key}
+                  onClick={() => { onUpdate(item.id, { outcome: o.key }); setAskOutcome(false); }}
+                  className="text-[11px] font-medium px-2.5 py-1 rounded-full transition-all hover:bg-white/[.06]"
+                  style={{ border: "1px solid var(--border)", color: "var(--text-2)" }}
+                >
+                  {o.emoji} {o.label}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => { onUpdate(item.id, { status: "done" }); setAskOutcome(true); }}
+                className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded transition-all hover:brightness-110"
+                style={{ background: "var(--accent)", color: "var(--ink)" }}
+              >
+                <Check className="w-3.5 h-3.5" /> Mark done
+              </button>
+              <button
+                onClick={() => onUpdate(item.id, { status: "dismissed" })}
+                className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded transition-all hover:bg-white/[.06]"
+                style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+              >
+                <X className="w-3 h-3" /> Dismiss
+              </button>
+              {item.competitor_id && (
+                <Link
+                  href={`/dashboard/${item.competitor_id}`}
+                  className="flex items-center gap-1 text-xs font-medium ml-auto transition-opacity hover:opacity-70"
+                  style={{ color: "var(--muted)" }}
+                >
+                  View source <ArrowRight className="w-3 h-3" />
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── skeleton ──────────────────────────────────────────────────────────────────
 
 function Skeleton() {
@@ -801,6 +914,7 @@ export default function PlaybookPage() {
   const [userTier,    setUserTier]    = useState<string>("free");
   const [steps,       setSteps]       = useState<Record<string, boolean[]>>({});
   const [loadError,   setLoadError]   = useState(false);
+  const [savedItems,  setSavedItems]  = useState<PlaybookItem[]>([]);
 
   function load(isRefresh = false) {
     if (isRefresh) setRefreshing(true); else setLoading(true);
@@ -810,6 +924,15 @@ export default function PlaybookPage() {
       // surface a retry instead of the misleading "no competitors" state.
       .catch(() => setLoadError(true))
       .finally(() => { setLoading(false); setRefreshing(false); });
+    itemsApi.list().then((r) => setSavedItems(r.data)).catch(() => {});
+  }
+
+  function updateSavedItem(id: string, patch: { status?: PlaybookItem["status"]; outcome?: PlaybookItem["outcome"] }) {
+    // Optimistic — the row moves immediately; the server write follows
+    setSavedItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
+    itemsApi.update(id, patch).catch(() => {
+      itemsApi.list().then((r) => setSavedItems(r.data)).catch(() => {});
+    });
   }
 
   useEffect(() => {
@@ -920,6 +1043,8 @@ export default function PlaybookPage() {
   const plays       = data.plays || [];
   const activePlays = plays.filter((p) => !done.has(p.id));
   const donePlays   = plays.filter((p) => done.has(p.id));
+  const pendingSaved = savedItems.filter((s) => s.status === "pending");
+  const doneSaved    = savedItems.filter((s) => s.status === "done");
 
   const bySection = (list: PlaybookPlay[]) => ({
     act_now:   list.filter((p) => p.section === "act_now"),
@@ -941,12 +1066,12 @@ export default function PlaybookPage() {
             <p className="tick-label mb-1.5">Intel · your moves</p>
             <div className="flex items-center gap-2 mb-1 flex-wrap">
               <h1 className="text-xl font-bold tracking-tight" style={{ color: "var(--text)" }}>Playbook</h1>
-              {activePlays.length > 0 && (
+              {activePlays.length + pendingSaved.length > 0 && (
                 <span
                   className="text-xs font-bold px-2 py-1 rounded-full"
                   style={{ background: "var(--bg3)", color: "var(--text-2)", border: "1px solid var(--border)" }}
                 >
-                  {activePlays.length} open
+                  {activePlays.length + pendingSaved.length} open
                 </span>
               )}
               {streak > 0 && (
@@ -1011,7 +1136,7 @@ export default function PlaybookPage() {
           style={{ background: "var(--bg3)" }}
         >
           {(["active", "done"] as const).map((t) => {
-            const count = t === "active" ? activePlays.length : donePlays.length;
+            const count = t === "active" ? activePlays.length + pendingSaved.length : donePlays.length + doneSaved.length;
             return (
               <button
                 key={t}
@@ -1042,7 +1167,7 @@ export default function PlaybookPage() {
         {/* ── Active tab ─────────────────────────────────────────────────── */}
         {tab === "active" && (
           <>
-            {activePlays.length === 0 ? (
+            {activePlays.length === 0 && pendingSaved.length === 0 ? (
               plays.length === 0 && data.ai_generating ? (
                 <EmptyStateCard
                   icon={RefreshCw}
@@ -1053,7 +1178,7 @@ export default function PlaybookPage() {
                 <EmptyStateCard
                   icon={Check}
                   headline="All caught up"
-                  body="Everything's marked done. Your playbook refreshes after each competitor scan."
+                  body="Everything's marked done. Your playbook refreshes after each competitor scan — and anything you save from a competitor page lands here too."
                 />
               )
             ) : (
@@ -1067,6 +1192,21 @@ export default function PlaybookPage() {
                     onToggleStep={(idx) => toggleStep(focusPlay.id, idx)}
                   />
                 )}
+
+                {/* Saved by you — persisted items from anywhere in the app */}
+                {pendingSaved.length > 0 && (
+                  <div>
+                    <p className="tick-label mb-4 pb-2" style={{ borderBottom: "1px solid var(--border)" }}>
+                      Saved by you · {pendingSaved.length}
+                    </p>
+                    <div className="rounded-md overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                      {pendingSaved.map((it, i) => (
+                        <SavedItemRow key={it.id} item={it} onUpdate={updateSavedItem} isLast={i === pendingSaved.length - 1} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {queuePlays.length > 0 && (
                   <div>
                     <p className="tick-label mb-4 pb-2" style={{ borderBottom: "1px solid var(--border)" }}>
@@ -1104,8 +1244,8 @@ export default function PlaybookPage() {
 
         {/* ── Done tab ───────────────────────────────────────────────────── */}
         {tab === "done" && (
-          <div>
-            {donePlays.length === 0 ? (
+          <div className="space-y-4">
+            {donePlays.length === 0 && doneSaved.length === 0 ? (
               <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
                 <Clock className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--muted)" }} />
                 <p className="font-semibold mb-1" style={{ color: "var(--text)" }}>Nothing done yet</p>
@@ -1113,7 +1253,7 @@ export default function PlaybookPage() {
                   Mark plays as done and they&apos;ll appear here so you can track what you&apos;ve acted on.
                 </p>
               </div>
-            ) : (
+            ) : donePlays.length === 0 ? null : (
               <div
                 className="rounded-md overflow-hidden"
                 style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
@@ -1155,6 +1295,53 @@ export default function PlaybookPage() {
                     <FeedbackRow playId={p.id} feedback={feedback} onFeedback={handleFeedback} />
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Completed saved moves — with their tracked outcomes */}
+            {doneSaved.length > 0 && (
+              <div>
+                <p className="tick-label mb-2">Saved moves · done</p>
+                <div className="rounded-md overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                  {doneSaved.map((it, i) => (
+                    <div
+                      key={it.id}
+                      className="px-4 py-3 flex items-center gap-3"
+                      style={i < doneSaved.length - 1 ? { borderBottom: "1px solid var(--border)" } : undefined}
+                    >
+                      <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#4CC38A" }} />
+                      <p className="text-sm flex-1 truncate" style={{ color: "var(--muted)" }}>{it.title}</p>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {it.outcome && (
+                          <span className="text-sm" title={OUTCOME_OPTIONS.find((o) => o.key === it.outcome)?.label}>
+                            {OUTCOME_OPTIONS.find((o) => o.key === it.outcome)?.emoji}
+                          </span>
+                        )}
+                        {!it.outcome && (
+                          <div className="flex items-center gap-1">
+                            {OUTCOME_OPTIONS.map((o) => (
+                              <button
+                                key={o.key}
+                                onClick={() => updateSavedItem(it.id, { outcome: o.key })}
+                                title={o.label}
+                                className="text-sm p-0.5 rounded transition-all opacity-50 hover:opacity-100"
+                              >
+                                {o.emoji}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        <button
+                          onClick={() => updateSavedItem(it.id, { status: "pending" })}
+                          className="text-[11px] font-medium transition-opacity hover:opacity-70"
+                          style={{ color: "var(--accent)" }}
+                        >
+                          Undo
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
