@@ -240,6 +240,104 @@ def fetch_extended_data(store_url: str) -> Dict[str, Any]:
     return result
 
 
+def verify_shopify(domain: str) -> Dict[str, Any]:
+    """Multi-signal Shopify verification with a confidence score.
+
+    A single probe (products.json) misclassifies real Shopify stores that
+    disable that endpoint, and tells the user nothing about WHY we believe a
+    store is Shopify. This combines several independent signals instead:
+
+      products.json returns a catalog .... 55  (also makes the store scannable)
+      products.json bot-protected 403 .... 35  (Shopify-shaped; scanner's TLS
+                                                impersonation usually gets in)
+      Shopify CDN assets on homepage ..... 25
+      Shopify theme/JS globals ........... 25
+      Shop Pay markers ................... 15
+      myshopify.com references ........... 15
+      /cart.js storefront endpoint ....... 20
+
+    Returns {verified, monitorable, confidence (0-100 cap), signals: [str],
+    base_url}. `verified` means we're confident it runs Shopify;
+    `monitorable` means our scanner can actually read its catalog — a
+    verified-but-not-monitorable store should be SHOWN to the user with an
+    honest explanation, never silently dropped.
+    """
+    hostname = urlparse(domain if "//" in domain else f"https://{domain}").netloc
+    if hostname.startswith("www."):
+        hostname = hostname[4:]
+
+    confidence = 0
+    signals: List[str] = []
+    base_url: Optional[str] = None
+    products_ok = False
+    products_restricted = False
+
+    probe = check_store(f"https://{hostname}")
+    if probe.get("ok"):
+        base_url = probe.get("base_url")
+        if probe.get("restricted"):
+            products_restricted = True
+            confidence += 35
+            signals.append("Storefront responds (bot-protected)")
+        else:
+            products_ok = True
+            confidence += 55
+            signals.append("Product catalog accessible")
+
+    if _USE_CURL_CFFI:
+        _make_client = lambda: CurlSession(impersonate=IMPERSONATE, headers=_headers())
+    else:
+        _make_client = lambda: httpx.Client(timeout=10.0, headers=_headers(), follow_redirects=True)
+
+    with _make_client() as client:
+        # Homepage HTML fingerprints
+        try:
+            if _USE_CURL_CFFI:
+                r = client.get(f"https://{hostname}/", timeout=10, allow_redirects=True)
+            else:
+                r = client.get(f"https://{hostname}/")
+            html = (r.text or "")[:400_000] if r.status_code == 200 else ""
+        except Exception:
+            html = ""
+
+        if html:
+            if "cdn.shopify.com" in html or "cdn/shop/" in html:
+                confidence += 25
+                signals.append("Shopify CDN detected")
+            if "Shopify.theme" in html or "window.Shopify" in html or "shopify-features" in html:
+                confidence += 25
+                signals.append("Shopify theme detected")
+            if "shop_pay" in html or "shop-pay" in html or "shopify-payment-button" in html:
+                confidence += 15
+                signals.append("Shop Pay detected")
+            if ".myshopify.com" in html:
+                confidence += 15
+                signals.append("Shopify backend domain detected")
+
+        # Storefront cart endpoint — JSON response is a strong Shopify marker
+        try:
+            if _USE_CURL_CFFI:
+                r = client.get(f"https://{hostname}/cart.js", timeout=8, allow_redirects=True)
+            else:
+                r = client.get(f"https://{hostname}/cart.js")
+            if r.status_code == 200 and "json" in r.headers.get("content-type", ""):
+                data = r.json()
+                if isinstance(data, dict) and "token" in data:
+                    confidence += 20
+                    signals.append("Storefront API detected")
+        except Exception:
+            pass
+
+    confidence = min(100, confidence)
+    return {
+        "verified": confidence >= 50,
+        "monitorable": products_ok or products_restricted,
+        "confidence": confidence,
+        "signals": signals,
+        "base_url": base_url,
+    }
+
+
 def check_store(store_url: str) -> Dict[str, Any]:
     """Probe whether a URL is an accessible Shopify store. Returns {ok, base_url} or {ok: False, error}."""
     candidates = []

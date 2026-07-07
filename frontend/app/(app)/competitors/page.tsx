@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   competitors as competitorsApi, user as userApi, myStore as myStoreApi, shopify as shopifyApi,
+  getCachedCompetitors,
   type Competitor, type UserSubscription, type ShopifyConnection, type AIDiscoverySuggestion,
 } from "@/lib/api";
 import { cn, formatPrice } from "@/lib/utils";
@@ -14,6 +15,54 @@ import {
   Store, X, Loader2, Check, Plus, RefreshCw, Target, Zap, ArrowRight,
   Package, Tag, Search, Sparkles,
 } from "lucide-react";
+
+// ── Discovery pipeline progress ───────────────────────────────────────────
+// Honest stage narration for the discover-ai request: the backend really does
+// these three things in order (business context → Claude ecosystem mapping →
+// per-domain Shopify verification with refill batches).
+
+const DISCOVERY_STAGES = [
+  { label: "Analyzing your business", after: 0 },
+  { label: "Mapping your competitor ecosystem", after: 2500 },
+  { label: "Verifying Shopify storefronts", after: 7000 },
+];
+
+function DiscoveryProgress() {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    const start = Date.now();
+    const t = setInterval(() => setElapsed(Date.now() - start), 500);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <div
+      className="mt-4 px-4 py-3 rounded-md space-y-2"
+      style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+    >
+      {DISCOVERY_STAGES.map((s, i) => {
+        const active = elapsed >= s.after && (i === DISCOVERY_STAGES.length - 1 || elapsed < DISCOVERY_STAGES[i + 1].after);
+        const done = i < DISCOVERY_STAGES.length - 1 && elapsed >= DISCOVERY_STAGES[i + 1].after;
+        const pending = elapsed < s.after;
+        return (
+          <div key={s.label} className="flex items-center gap-2.5 text-xs" style={{ opacity: pending ? 0.4 : 1 }}>
+            {done ? (
+              <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--emerald)" }} />
+            ) : active ? (
+              <Loader2 className="w-3.5 h-3.5 shrink-0 animate-spin" style={{ color: "var(--accent)" }} />
+            ) : (
+              <span className="w-3.5 h-3.5 shrink-0 rounded-full" style={{ border: "1px solid var(--border)" }} />
+            )}
+            <span style={{ color: done ? "var(--muted)" : "var(--text-2)" }}>{s.label}</span>
+            {active && i === 2 && (
+              <span style={{ color: "var(--muted)" }}>— checking each candidate, this can take up to a minute</span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 // ── Favicon logo ──────────────────────────────────────────────────────────
 
@@ -195,7 +244,11 @@ function CompetitorsContent() {
 
   const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
-  const [myCompetitors, setMyCompetitors] = useState<Competitor[]>([]);
+  const [myCompetitors, setMyCompetitors] = useState<Competitor[]>(() => getCachedCompetitors() ?? []);
+  // Success-confirmed flag: the "no competitors yet" empty state must never
+  // render off a failed fetch (loading state ≠ empty state).
+  const [confirmedLoad, setConfirmedLoad] = useState(() => getCachedCompetitors() !== null);
+  const [listError, setListError] = useState(false);
   const [rescanning, setRescanning] = useState<Set<string>>(new Set());
   const [addCompetitorOpen, setAddCompetitorOpen] = useState(false);
   const [addCompetitorInitialUrl, setAddCompetitorInitialUrl] = useState("");
@@ -221,8 +274,8 @@ function CompetitorsContent() {
   useEffect(() => {
     userApi.subscription().then((r) => setSubscription(r.data)).catch(() => {});
     competitorsApi.list()
-      .then((r) => { setMyCompetitors(r.data || []); })
-      .catch(() => {})
+      .then((r) => { setMyCompetitors(r.data || []); setConfirmedLoad(true); setListError(false); })
+      .catch(() => { setListError(true); })
       .finally(() => setLoading(false));
     myStoreApi.get().then((r) => setStore(r.data)).catch(() => {});
     shopifyApi.connection().then((r) => setShopifyConnection(r.data)).catch(() => {});
@@ -419,11 +472,40 @@ function CompetitorsContent() {
           <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Tracked stores</p>
         </div>
 
+        {listError && myCompetitors.length > 0 && (
+          <div
+            className="mb-3 px-3 py-2 rounded-md text-xs flex items-center gap-2"
+            style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text-2)" }}
+          >
+            <RefreshCw className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--muted)" }} />
+            Connection hiccup — showing your latest data.
+          </div>
+        )}
+
         {loading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-44 rounded-md animate-pulse" style={{ background: "var(--bg3)" }} />
             ))}
+          </div>
+        ) : myCompetitors.length === 0 && !confirmedLoad ? (
+          <div
+            className="p-10 text-center rounded-md"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+          >
+            <RefreshCw className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--muted)", opacity: 0.4 }} />
+            <p className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>Couldn&apos;t reach StoreScout</p>
+            <p className="text-xs mb-5" style={{ color: "var(--muted)" }}>
+              Your tracked stores are safe — this is a connection hiccup. Try again in a moment.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="flex items-center gap-2 font-bold text-sm px-5 py-2.5 rounded-md mx-auto transition-all hover:brightness-110"
+              style={{ background: "var(--accent)", color: "var(--ink)" }}
+            >
+              <RefreshCw className="w-4 h-4" />
+              Retry
+            </button>
           </div>
         ) : myCompetitors.length === 0 ? (
           <div
@@ -510,7 +592,7 @@ function CompetitorsContent() {
             />
             <div className="flex items-center justify-between mt-3">
               <p className="text-xs" style={{ color: "var(--muted)" }}>
-                {subscription?.tier === "free" ? "Free plan: 2 searches per month" : "Unlimited searches"}
+                {subscription?.tier === "free" ? "Free plan: 1 search per month" : "Unlimited searches"}
               </p>
               <button
                 onClick={handleDiscover}
@@ -525,6 +607,8 @@ function CompetitorsContent() {
                 )}
               </button>
             </div>
+
+            {discovering && <DiscoveryProgress />}
 
             {discoverError && (
               <div
@@ -544,39 +628,98 @@ function CompetitorsContent() {
               </div>
             )}
 
+            {/* Verified Shopify — trackable now */}
             {discoverResult && discoverResult.suggestions.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {discoverResult.suggestions.map((s) => {
-                  const alreadyTracked = myCompetitors.some((c) => c.hostname === s.domain);
-                  return (
+              <div className="mt-4">
+                <p className="tick-label mb-2">
+                  Verified Shopify · trackable — {discoverResult.suggestions.length}
+                </p>
+                <div className="space-y-2">
+                  {discoverResult.suggestions.map((s) => {
+                    const alreadyTracked = myCompetitors.some((c) => c.hostname === s.domain);
+                    return (
+                      <div
+                        key={s.domain}
+                        className="flex items-center justify-between gap-4 px-4 py-3 rounded-md"
+                        style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <FaviconLogo hostname={s.domain} size={32} />
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-semibold truncate" style={{ color: "var(--text)" }}>{s.domain}</p>
+                              {typeof s.confidence === "number" && (
+                                <span
+                                  className="num text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0"
+                                  style={{ background: "rgba(76,195,138,.1)", color: "var(--emerald)", border: "1px solid rgba(76,195,138,.2)" }}
+                                  title={s.signals?.length ? `Verification signals: ${s.signals.join(" · ")}` : undefined}
+                                >
+                                  {s.confidence}% Shopify
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs truncate" style={{ color: "var(--muted)" }}>{s.reason}</p>
+                          </div>
+                        </div>
+                        {alreadyTracked ? (
+                          <span className="text-xs font-medium shrink-0 flex items-center gap-1" style={{ color: "var(--emerald)" }}>
+                            <Check className="w-3.5 h-3.5" /> Tracking
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => { setAddCompetitorInitialUrl(s.domain); setAddCompetitorOpen(true); }}
+                            className="text-xs font-semibold px-3 py-1.5 rounded-lg shrink-0 transition-all hover:brightness-110"
+                            style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.2)" }}
+                          >
+                            Track →
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Real competitors we can't monitor — shown honestly, never dropped */}
+            {discoverResult && (discoverResult.relevant_non_shopify?.length ?? 0) > 0 && (
+              <div className="mt-5">
+                <p className="tick-label mb-1">
+                  Direct competitors we can&apos;t monitor yet — {discoverResult.relevant_non_shopify!.length}
+                </p>
+                <p className="text-xs mb-2" style={{ color: "var(--muted)" }}>
+                  These brands compete with you but don&apos;t run a scannable Shopify storefront, so StoreScout can&apos;t track them yet. Worth watching manually.
+                </p>
+                <div className="space-y-1.5">
+                  {discoverResult.relevant_non_shopify!.map((s) => (
                     <div
                       key={s.domain}
-                      className="flex items-center justify-between gap-4 px-4 py-3 rounded-md"
-                      style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+                      className="flex items-center justify-between gap-4 px-4 py-2.5 rounded-md"
+                      style={{ background: "var(--bg-card)", border: "1px dashed var(--border)", opacity: 0.85 }}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <FaviconLogo hostname={s.domain} size={32} />
+                        <FaviconLogo hostname={s.domain} size={26} />
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold truncate" style={{ color: "var(--text)" }}>{s.domain}</p>
+                          <p className="text-sm font-medium truncate" style={{ color: "var(--text-2)" }}>{s.domain}</p>
                           <p className="text-xs truncate" style={{ color: "var(--muted)" }}>{s.reason}</p>
                         </div>
                       </div>
-                      {alreadyTracked ? (
-                        <span className="text-xs font-medium shrink-0 flex items-center gap-1" style={{ color: "var(--emerald)" }}>
-                          <Check className="w-3.5 h-3.5" /> Tracking
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() => { setAddCompetitorInitialUrl(s.domain); setAddCompetitorOpen(true); }}
-                          className="text-xs font-semibold px-3 py-1.5 rounded-lg shrink-0 transition-all hover:brightness-110"
-                          style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.2)" }}
-                        >
-                          Track →
-                        </button>
-                      )}
+                      <span className="text-[11px] shrink-0" style={{ color: "var(--muted)" }}>
+                        {s.note?.includes("private") ? "Catalog private" : "Not Shopify"}
+                      </span>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Search ran but nothing verified — say so, never a silent blank */}
+            {discoverResult && discoverResult.suggestions.length === 0 && (discoverResult.relevant_non_shopify?.length ?? 0) === 0 && (
+              <div
+                className="mt-4 px-4 py-3 rounded-md text-sm"
+                style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text-2)" }}
+              >
+                We couldn&apos;t verify any trackable Shopify competitors from that description. Try adding more detail — product type, price range, and target customer help the most.
               </div>
             )}
           </div>

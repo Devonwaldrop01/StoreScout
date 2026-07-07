@@ -8,7 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, Bell, Settings, LogOut, BookOpen, Target, Zap, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-import { alerts, user as userApi } from "@/lib/api";
+import { alerts, user as userApi, clearApiCache } from "@/lib/api";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { requestFeedbackOnce } from "@/lib/feedbackPrompt";
@@ -72,6 +72,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, []);
 
   async function handleSignOut() {
+    clearApiCache();
     await supabase.auth.signOut();
     router.push("/");
   }

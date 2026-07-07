@@ -2,19 +2,43 @@ import { createClient } from "./supabase/client";
 
 const API_BASE = "/api/v1";
 
+// During client-side navigation the Supabase session can be momentarily
+// unavailable (token refresh in flight). If we fire a request without the
+// Authorization header the backend 401s and pages that treat "no data" as
+// "new account" render a false empty state. So: wait briefly for a token,
+// and on a 401 force one session refresh and retry the request.
 async function getAuthHeaders(): Promise<Record<string, string>> {
   const supabase = createClient();
-  const { data } = await supabase.auth.getSession();
-  const token = data.session?.access_token;
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (token) return { Authorization: `Bearer ${token}` };
+    await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
+  }
+  return {};
 }
 
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const headers = await getAuthHeaders();
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: { "Content-Type": "application/json", ...headers, ...(options.headers || {}) },
-  });
+  const doFetch = async (headers: Record<string, string>) =>
+    fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers: { "Content-Type": "application/json", ...headers, ...(options.headers || {}) },
+    });
+
+  let res = await doFetch(await getAuthHeaders());
+
+  if (res.status === 401) {
+    // Stale token — refresh the session once and retry before failing.
+    try {
+      const supabase = createClient();
+      const { data } = await supabase.auth.refreshSession();
+      const token = data.session?.access_token;
+      if (token) res = await doFetch({ Authorization: `Bearer ${token}` });
+    } catch {
+      /* fall through to the error below */
+    }
+  }
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
     throw Object.assign(new Error(err.detail || "API error"), { status: res.status, data: err });
@@ -22,9 +46,27 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
   return res.json();
 }
 
+// ── Last-good cache ───────────────────────────────────────────
+// Session-scoped memory of the last successful competitors.list() response.
+// Pages hydrate from this instantly on mount (no skeleton flash on every
+// navigation) and revalidate in the background. Cleared on sign-out.
+let lastGoodCompetitors: Competitor[] | null = null;
+
+export function getCachedCompetitors(): Competitor[] | null {
+  return lastGoodCompetitors;
+}
+
+export function clearApiCache() {
+  lastGoodCompetitors = null;
+}
+
 // ── Competitors ───────────────────────────────────────────────
 export const competitors = {
-  list: () => apiFetch<{ data: Competitor[] }>("/competitors"),
+  list: async () => {
+    const res = await apiFetch<{ data: Competitor[] }>("/competitors");
+    lastGoodCompetitors = res.data;
+    return res;
+  },
   get: (id: string) => apiFetch<{ data: Competitor }>(`/competitors/${id}`),
   add: (store_url: string, display_name?: string) =>
     apiFetch<{ data: Competitor }>("/competitors", {
@@ -44,7 +86,7 @@ export const competitors = {
       `/competitors/${id}/changes?limit=${limit}${changeType ? `&change_type=${changeType}` : ""}`
     ),
   aiSummary: (id: string) =>
-    apiFetch<{ data: AiSummary | null; status: "ok" | "generating" }>(`/competitors/${id}/ai-summary`),
+    apiFetch<{ data: AiSummary | null; status: "ok" | "refreshing" | "generating" }>(`/competitors/${id}/ai-summary`),
   regenerateSummary: (id: string) =>
     apiFetch<{ status: string }>(`/competitors/${id}/ai-summary/regenerate`, { method: "POST" }),
   winningProducts: (id: string) =>
@@ -547,7 +589,8 @@ export interface InviteDetails {
 }
 
 export interface AIDiscoverySuggestion {
-  suggestions: Array<{ domain: string; reason: string }>;
+  suggestions: Array<{ domain: string; reason: string; confidence?: number; signals?: string[] }>;
+  relevant_non_shopify?: Array<{ domain: string; reason: string; note?: string }>;
   searches_used: number | null;
   searches_limit: number | null;
 }
