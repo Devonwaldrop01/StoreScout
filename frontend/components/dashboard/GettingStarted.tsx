@@ -22,15 +22,19 @@ function readSet(key: string): Set<string> {
 interface Props {
   firstCompetitorId?: string;
   competitorAdded: boolean;
+  firstScanDone?: boolean;
+  isFree?: boolean;
   onUpgrade: () => void;
 }
 
 /**
- * Orientation checklist for new free users so they're never left at a dead end
- * after the first scan. Every step links to a surface that already exists; the
- * last step is the upgrade upsell. Completion + dismissal persist in localStorage.
+ * Orientation checklist for ALL new accounts so day 1 rewards progress
+ * instead of showing empty widgets. Every step links to a surface that
+ * already exists; free users get an upgrade upsell as the final row, paid
+ * users get "track another competitor" instead. Completion + dismissal
+ * persist in localStorage.
  */
-export function GettingStarted({ firstCompetitorId, competitorAdded, onUpgrade }: Props) {
+export function GettingStarted({ firstCompetitorId, competitorAdded, firstScanDone, isFree = true, onUpgrade }: Props) {
   const [done, setDone] = useState<Set<string>>(new Set());
   const [dismissed, setDismissed] = useState(false);
   const [playbookTried, setPlaybookTried] = useState(false);
@@ -63,6 +67,7 @@ export function GettingStarted({ firstCompetitorId, competitorAdded, onUpgrade }
 
   const steps: Step[] = [
     { id: "add", label: "Add your first competitor", auto: competitorAdded },
+    { id: "scan", label: "First scan completed", auto: firstScanDone },
     { id: "brief", label: "Read your competitor's Scout Brief", href: detailHref },
     { id: "pricing", label: "Explore their pricing & winning products", href: `${detailHref}?tab=pricing` },
     { id: "playbook", label: "Try a move from your Playbook", href: "/playbook", auto: playbookTried },
@@ -162,21 +167,38 @@ export function GettingStarted({ firstCompetitorId, competitorAdded, onUpgrade }
           return <div key={s.id}>{content}</div>;
         })}
 
-        {/* Upsell step — always shown, doesn't count toward completion */}
-        <button onClick={onUpgrade} className="w-full text-left">
-          <div
-            className="flex items-center gap-3 px-3 py-2.5 rounded-md transition-all hover:brightness-110"
-            style={{ background: "rgba(255,178,36,.06)", border: "1px solid rgba(255,178,36,.18)" }}
-          >
-            <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(255,178,36,.15)" }}>
-              <Zap className="w-3 h-3" style={{ color: "var(--accent)" }} />
+        {/* Final row — upgrade upsell for free users, next-competitor nudge for paid */}
+        {isFree ? (
+          <button onClick={onUpgrade} className="w-full text-left">
+            <div
+              className="flex items-center gap-3 px-3 py-2.5 rounded-md transition-all hover:brightness-110"
+              style={{ background: "rgba(255,178,36,.06)", border: "1px solid rgba(255,178,36,.18)" }}
+            >
+              <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(255,178,36,.15)" }}>
+                <Zap className="w-3 h-3" style={{ color: "var(--accent)" }} />
+              </div>
+              <span className="text-sm flex-1 font-medium" style={{ color: "var(--text)" }}>
+                Track a 2nd competitor &amp; unlock alerts
+              </span>
+              <span className="text-xs font-bold shrink-0" style={{ color: "var(--accent)" }}>Upgrade</span>
             </div>
-            <span className="text-sm flex-1 font-medium" style={{ color: "var(--text)" }}>
-              Track a 2nd competitor &amp; unlock alerts
-            </span>
-            <span className="text-xs font-bold shrink-0" style={{ color: "var(--accent)" }}>Upgrade</span>
-          </div>
-        </button>
+          </button>
+        ) : (
+          <Link href="/competitors" className="block">
+            <div
+              className="flex items-center gap-3 px-3 py-2.5 rounded-md transition-all hover:brightness-110"
+              style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+            >
+              <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ border: "1.5px solid var(--border)" }}>
+                <Zap className="w-3 h-3" style={{ color: "var(--text-2)" }} />
+              </div>
+              <span className="text-sm flex-1 font-medium" style={{ color: "var(--text)" }}>
+                Track another competitor — coverage compounds
+              </span>
+              <ArrowRight className="w-4 h-4 shrink-0" style={{ color: "var(--muted)" }} />
+            </div>
+          </Link>
+        )}
       </div>
     </div>
   );
