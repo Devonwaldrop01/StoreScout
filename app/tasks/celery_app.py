@@ -24,6 +24,8 @@ celery = Celery(
         "app.tasks.playbook_ai",
         "app.tasks.drip",
         "app.tasks.scheduler",
+        "app.tasks.store_index",
+        "app.tasks.lead_engine",
     ],
 )
 
@@ -68,6 +70,18 @@ celery.conf.update(
         "generate-ai-summaries": {
             "task": "app.tasks.scheduler.generate_ai_summaries_batch",
             "schedule": crontab(hour=2, minute=0),
+        },
+        # Store-index discovery — the task itself no-ops unless
+        # SHOPIFY_INDEX_ENABLED=true, so this entry is safe to ship dormant.
+        "discover-shopify-stores-daily": {
+            "task": "app.tasks.store_index.discover_shopify_stores_daily",
+            "schedule": crontab(hour=4, minute=30),
+        },
+        # Lead discovery runs after the index refresh so it sees the freshest
+        # verified stores. No-ops unless LEAD_ENGINE_ENABLED=true.
+        "discover-leads-daily": {
+            "task": "app.tasks.lead_engine.discover_leads_daily",
+            "schedule": crontab(hour=5, minute=30),
         },
     },
 )

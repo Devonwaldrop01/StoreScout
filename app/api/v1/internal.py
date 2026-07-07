@@ -221,8 +221,66 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
         logger.error("[SCAN %s] competitor update failed: %s\n%s", competitor_id, exc, traceback.format_exc())
         # Snapshot is already written — don't fail the whole request over this
 
+    # ── 8. Feed the store index — every successfully scanned store is a
+    # verified Shopify store we already have fresh data for. Zero extra
+    # requests; failures here never break the scan.
+    try:
+        from app.services.store_index import upsert_index_row, classify_store, normalize_domain, derive_market_context
+        profile = insights.get("store_profile") or {}
+        market = derive_market_context(total_products, pricing.get("median"))
+        classification = classify_store(
+            title=display_name or hostname,
+            description=(profile.get("about") or "")[:300] if isinstance(profile.get("about"), str) else "",
+            product_types=[t.get("tag") if isinstance(t, dict) else str(t) for t in ((insights.get("tag_analysis") or {}).get("top_tags") or [])][:15] or None,
+            collections=(profile.get("collections") or [])[:20] or None,
+        )
+        upsert_index_row(db, normalize_domain(hostname), {
+            "status": "verified",
+            "failure_reason": None,
+            "brand_name": display_name,
+            "homepage_url": f"https://{hostname}",
+            "category": classification["category"],
+            "subcategory": classification["subcategory"],
+            "description": classification["description"],
+            "product_count": total_products,
+            "median_price": pricing.get("median"),
+            "promo_rate": discounts.get("discounted_pct"),
+            "business_stage": market["business_stage"],
+            "pricing_tier": market["pricing_tier"],
+            "verification_confidence": 100,
+            "verification_signals": ["Actively scanned by StoreScout"],
+            "source": "tracked",
+            "last_verified_at": now.isoformat(),
+            "last_light_scanned_at": now.isoformat(),
+        })
+        logger.info("[SCAN %s] store index upsert OK for %s", competitor_id, hostname)
+    except Exception as exc:
+        logger.debug("[SCAN %s] store index upsert failed (non-fatal): %s", competitor_id, exc)
+
     logger.info("[SCAN %s] COMPLETE snapshot_id=%s", competitor_id, snapshot_id)
     return {"status": "ok", "snapshot_id": snapshot_id}
+
+
+@router.post("/store-index/process")
+def internal_store_index_process(body: dict, x_internal_token: str = Header(...)):
+    """
+    Run one domain's index pass (verify + light scan + classify + upsert) on
+    the web service process — worker IPs get blocked, this one doesn't.
+    Called by app/tasks/store_index.py.
+    """
+    _require_internal(x_internal_token)
+    from app.services.store_index import process_domain_into_index
+
+    domain = (body or {}).get("domain") or ""
+    if not domain:
+        raise HTTPException(status_code=422, detail="domain required")
+    source = (body or {}).get("source") or "unknown"
+    source_query = (body or {}).get("source_query")
+
+    db = get_supabase()
+    result = process_domain_into_index(db, domain, source, source_query)
+    logger.info("[INDEX %s] outcome=%s confidence=%s", domain, result["outcome"], result["confidence"])
+    return result
 
 
 @router.post("/debug-fetch")
