@@ -29,7 +29,8 @@ router = APIRouter(tags=["store-index"])
 
 _SEARCH_FIELDS = (
     "domain, brand_name, category, subcategory, description, "
-    "product_count, median_price, promo_rate, verification_confidence"
+    "product_count, median_price, promo_rate, verification_confidence, "
+    "business_stage, pricing_tier"
 )
 
 
@@ -111,7 +112,7 @@ def store_index_stats(
         q = db.table("shopify_store_index")\
             .select("domain, brand_name, category, subcategory, status, verification_confidence, "
                     "product_count, median_price, promo_rate, source, source_query, failure_reason, "
-                    "last_verified_at, created_at")\
+                    "business_stage, pricing_tier, last_verified_at, created_at")\
             .order("updated_at", desc=True)\
             .limit(50)
         if status:
@@ -124,14 +125,68 @@ def store_index_stats(
     except Exception as exc:
         logger.warning("store-index stats rows failed (table missing?): %s", exc)
 
+    # ── Quality aggregates — computed in Python over a slim sample of up to
+    # 5000 rows (plenty for early scale; PostgREST has no group-by).
+    categories: dict = {}
+    sources: dict = {}
+    failures: dict = {}
+    conf_sum = 0
+    conf_n = 0
+    verified_today = 0
+    try:
+        agg = db.table("shopify_store_index")\
+            .select("status, category, source, failure_reason, verification_confidence, last_verified_at")\
+            .order("updated_at", desc=True)\
+            .limit(5000)\
+            .execute()
+        for r in agg.data or []:
+            if r.get("status") == "verified":
+                if r.get("category"):
+                    categories[r["category"]] = categories.get(r["category"], 0) + 1
+                if r.get("verification_confidence") is not None:
+                    conf_sum += r["verification_confidence"]
+                    conf_n += 1
+                if (r.get("last_verified_at") or "") >= today:
+                    verified_today += 1
+            if r.get("source"):
+                sources[r["source"]] = sources.get(r["source"], 0) + 1
+            if r.get("status") in ("rejected", "failed") and r.get("failure_reason"):
+                key = r["failure_reason"][:80]
+                failures[key] = failures.get(key, 0) + 1
+    except Exception as exc:
+        logger.warning("store-index quality aggregates failed: %s", exc)
+
+    verified_n = _count(status="verified")
+    rejected_n = _count(status="rejected")
+    failed_n = _count(status="failed")
+    attempted = verified_n + rejected_n + failed_n
+
+    runs: List[dict] = []
+    try:
+        runs = db.table("store_index_runs")\
+            .select("ran_at, trigger, processed, verified, rejected, failed, duplicates, reverified, source_counts")\
+            .order("ran_at", desc=True)\
+            .limit(14)\
+            .execute().data or []
+    except Exception:
+        pass  # table lands with migration 008
+
+    _top = lambda d, n: sorted(d.items(), key=lambda kv: -kv[1])[:n]
     return {
         "data": {
             "total": _count(),
-            "verified": _count(status="verified"),
+            "verified": verified_n,
             "candidates": _count(status="candidate"),
-            "rejected": _count(status="rejected"),
-            "failed": _count(status="failed"),
+            "rejected": rejected_n,
+            "failed": failed_n,
             "added_today": added_today,
+            "verified_today": verified_today,
+            "success_rate": round(verified_n / attempted * 100, 1) if attempted else None,
+            "avg_confidence": round(conf_sum / conf_n, 1) if conf_n else None,
+            "categories": [{"name": k, "count": v} for k, v in _top(categories, 12)],
+            "sources": [{"name": k, "count": v} for k, v in _top(sources, 8)],
+            "top_failures": [{"reason": k, "count": v} for k, v in _top(failures, 6)],
+            "runs": runs,
             "rows": rows,
         }
     }

@@ -334,6 +334,41 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
     }
 
 
+# ── Market context ─────────────────────────────────────────────────────────
+
+def derive_market_context(product_count: Optional[int], median_price: Optional[float]) -> Dict[str, Optional[str]]:
+    """
+    Honest heuristics from the light sample — estimates, not claims.
+
+    product_count from the light pass caps at 250 (the products.json sample
+    limit), so hitting the cap reads as a very large catalog. Tracked-store
+    upserts pass the TRUE catalog count, which sharpens the estimate.
+    """
+    stage: Optional[str] = None
+    if product_count is not None and product_count > 0:
+        if product_count < 30:
+            stage = "startup"
+        elif product_count < 150:
+            stage = "growing"
+        elif product_count < 800:
+            stage = "established"
+        else:
+            stage = "enterprise"
+
+    tier: Optional[str] = None
+    if median_price:
+        if median_price < 25:
+            tier = "budget"
+        elif median_price < 75:
+            tier = "mid-market"
+        elif median_price < 200:
+            tier = "premium"
+        else:
+            tier = "luxury"
+
+    return {"business_stage": stage, "pricing_tier": tier}
+
+
 # ── Classification ─────────────────────────────────────────────────────────
 
 def classify_store(
@@ -429,14 +464,30 @@ def upsert_index_row(db, domain: str, fields: Dict[str, Any]) -> str:
     except Exception:
         existing = None
 
-    if existing:
-        if existing.get("status") == "verified" and fields.get("status") == "candidate":
-            return "skipped"
-        db.table("shopify_store_index").update(fields).eq("domain", domain).execute()
-        return "updated"
+    # Columns added by later migrations (008: business_stage/pricing_tier/
+    # expanded_at) may not exist yet — retry without them so the index keeps
+    # working during the migration window.
+    _NEWER_COLS = ("business_stage", "pricing_tier", "expanded_at")
 
-    db.table("shopify_store_index").insert(fields).execute()
-    return "inserted"
+    def _write(payload: Dict[str, Any]) -> None:
+        if existing:
+            db.table("shopify_store_index").update(payload).eq("domain", domain).execute()
+        else:
+            db.table("shopify_store_index").insert(payload).execute()
+
+    if existing and existing.get("status") == "verified" and fields.get("status") == "candidate":
+        return "skipped"
+
+    try:
+        _write(fields)
+    except Exception as exc:
+        stripped = {k: v for k, v in fields.items() if k not in _NEWER_COLS}
+        if len(stripped) == len(fields):
+            raise
+        logger.debug("upsert retry without newer columns for %s: %s", domain, exc)
+        _write(stripped)
+
+    return "updated" if existing else "inserted"
 
 
 def process_domain_into_index(db, domain: str, source: str, source_query: Optional[str] = None) -> Dict[str, Any]:
@@ -489,10 +540,13 @@ def process_domain_into_index(db, domain: str, source: str, source_query: Option
         collections=profile.get("collections"),
         vendors=profile.get("vendors"),
     )
+    market = derive_market_context(profile.get("product_count"), profile.get("median_price"))
 
     upsert_index_row(db, domain, {
         "status": "verified",
         "failure_reason": None,
+        "business_stage": market["business_stage"],
+        "pricing_tier": market["pricing_tier"],
         "brand_name": profile.get("brand_name"),
         "homepage_url": profile.get("homepage_url"),
         "category": classification["category"],

@@ -225,8 +225,9 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
     # verified Shopify store we already have fresh data for. Zero extra
     # requests; failures here never break the scan.
     try:
-        from app.services.store_index import upsert_index_row, classify_store, normalize_domain
+        from app.services.store_index import upsert_index_row, classify_store, normalize_domain, derive_market_context
         profile = insights.get("store_profile") or {}
+        market = derive_market_context(total_products, pricing.get("median"))
         classification = classify_store(
             title=display_name or hostname,
             description=(profile.get("about") or "")[:300] if isinstance(profile.get("about"), str) else "",
@@ -244,6 +245,8 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
             "product_count": total_products,
             "median_price": pricing.get("median"),
             "promo_rate": discounts.get("discounted_pct"),
+            "business_stage": market["business_stage"],
+            "pricing_tier": market["pricing_tier"],
             "verification_confidence": 100,
             "verification_signals": ["Actively scanned by StoreScout"],
             "source": "tracked",

@@ -423,6 +423,8 @@ async def discover_ai(
 
     # Pull connected store context for richer suggestions
     store_context = ""
+    user_stage: Optional[str] = None
+    user_price_tier: Optional[str] = None
     try:
         my_store = db.table("competitors").select("id, hostname, product_count").eq(
             "user_id", user_id
@@ -441,6 +443,15 @@ async def discover_ai(
                 if snap.data.get("promo_rate"):
                     parts.append(f"{snap.data['promo_rate']:.0f}% on sale")
             store_context = "\nConnected " + ", ".join(parts) + "."
+            # The user's own stage/tier drives relevance ranking of index hits —
+            # a startup should see growing peers, not enterprise giants.
+            from app.services.store_index import derive_market_context
+            mc = derive_market_context(
+                ms.get("product_count"),
+                (snap.data or {}).get("median_price") if snap else None,
+            )
+            user_stage = mc["business_stage"]
+            user_price_tier = mc["pricing_tier"]
     except Exception as ctx_exc:
         logger.debug("discover-ai store context fetch failed: %s", ctx_exc)
 
@@ -533,16 +544,39 @@ Rules:
                 for col in ("category", "subcategory", "description", "brand_name")
             )
             idx_res = db.table("shopify_store_index")\
-                .select("domain, brand_name, category, subcategory, description, verification_confidence, verification_signals")\
+                .select("domain, brand_name, category, subcategory, description, verification_confidence, verification_signals, business_stage, pricing_tier")\
                 .eq("status", "verified")\
                 .gte("verification_confidence", settings.shopify_index_min_confidence)\
                 .or_(ors)\
                 .order("verification_confidence", desc=True)\
-                .limit(TARGET_VERIFIED * 2)\
+                .limit(TARGET_VERIFIED * 3)\
                 .execute()
+
+            # Relevance ranking: prefer stores the user actually competes
+            # against. A startup fitness brand should see growing peers first —
+            # giants may still appear, but they never dominate the list.
+            def _relevance(row: dict) -> float:
+                score = float(row.get("verification_confidence") or 0)
+                stage = row.get("business_stage")
+                tier = row.get("pricing_tier")
+                if user_stage and stage:
+                    order = ["startup", "growing", "established", "enterprise"]
+                    try:
+                        gap = abs(order.index(stage) - order.index(user_stage))
+                        score += (3 - gap) * 8   # same stage +24, one apart +16…
+                    except ValueError:
+                        pass
+                if user_price_tier and tier:
+                    score += 12 if tier == user_price_tier else 0
+                if stage == "enterprise" and user_stage in (None, "startup", "growing"):
+                    score -= 30  # underdogs first — Nike shouldn't crowd out peers
+                return score
+
+            ranked = sorted(idx_res.data or [], key=_relevance, reverse=True)
+
             # Cap index hits at 5 of the 8 slots — keyword matching is crude,
             # so Claude always gets room to add description-tailored picks.
-            for row in idx_res.data or []:
+            for row in ranked:
                 d = row["domain"]
                 if d in seen or len(verified) >= 5:
                     continue

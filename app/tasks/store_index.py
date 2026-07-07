@@ -68,16 +68,20 @@ def generate_niche_candidates(query: str, target: int = 20) -> dict:
         return {"status": "no_api_key", "inserted": 0}
 
     db = get_supabase()
+    # StoreScout users compete against niche and growing brands, not Nike —
+    # the index must represent the REAL Shopify ecosystem, so the generator
+    # deliberately skews toward underdogs and category specialists.
     prompt = f"""You are mapping the DTC ecommerce landscape.
 
 List {target} direct-to-consumer BRANDS a shopper would realistically buy from in this niche: {query}
 
 Return ONLY valid JSON, no markdown fences:
-{{"stores": [{{"domain": "gymshark.com", "name": "Gymshark"}}, ...]}}
+{{"stores": [{{"domain": "example-brand.com", "name": "Example Brand"}}, ...]}}
 
 Rules:
 - domain must be the brand's own storefront domain (never marketplaces, social pages, or retailers like Amazon/Walmart/Target)
-- Mix well-known and smaller/emerging brands
+- STRONGLY favor niche, emerging, fast-growing, and mid-size independent brands — at most 3 household names in the whole list
+- Include category specialists and underdogs a small store owner actually competes against
 - Ignore what ecommerce platform they use — that is verified separately"""
 
     try:
@@ -132,12 +136,95 @@ Rules:
     return {"status": "ok", "inserted": inserted, "suggested": len(domains)}
 
 
+@celery.task(name="app.tasks.store_index.generate_related_candidates")
+def generate_related_candidates(domain: str, brand_name: str = "", category: str = "", description: str = "", target: int = 12) -> dict:
+    """
+    Graph expansion: every verified store becomes a seed for discovering the
+    brands around it. Ask Haiku for competitors/peers of a known store and
+    insert unseen ones as candidates. The seed store's expanded_at is stamped
+    so each store is expanded exactly once.
+    """
+    import json as _json
+    import anthropic
+
+    settings = get_settings()
+    if not settings.anthropic_api_key:
+        return {"status": "no_api_key", "inserted": 0}
+
+    db = get_supabase()
+    who = brand_name or domain
+    context = " · ".join(x for x in [category, (description or "")[:120]] if x)
+    prompt = f"""You are mapping the competitive neighborhood of a DTC ecommerce brand.
+
+Brand: {who} ({domain}){f" — {context}" if context else ""}
+
+List {target} brands whose customers would ALSO consider {who} — direct competitors and close peers.
+
+Return ONLY valid JSON, no markdown fences:
+{{"stores": [{{"domain": "example-brand.com", "name": "Example Brand"}}, ...]}}
+
+Rules:
+- domain must be each brand's own storefront domain (never marketplaces or retailers)
+- Prefer brands of a SIMILAR size and stage to {who} — peers first, giants last, at most 2 household names
+- Ignore what ecommerce platform they use — that is verified separately"""
+
+    inserted = 0
+    try:
+        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+        msg = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=700,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        text = msg.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+        stores = _json.loads(text).get("stores", [])
+
+        domains = [normalize_domain(s.get("domain", "")) for s in stores]
+        domains = [d for d in dict.fromkeys(domains) if d and "." in d and d != normalize_domain(domain)]
+        if domains:
+            try:
+                existing = db.table("shopify_store_index").select("domain").in_("domain", domains).execute()
+                seen = {r["domain"] for r in (existing.data or [])}
+            except Exception:
+                seen = set()
+            now = datetime.now(timezone.utc).isoformat()
+            rows = [
+                {"domain": d, "status": "candidate", "source": "related_expansion",
+                 "source_query": normalize_domain(domain), "created_at": now, "updated_at": now}
+                for d in domains if d not in seen
+            ]
+            if rows:
+                db.table("shopify_store_index").insert(rows).execute()
+                inserted = len(rows)
+    except Exception as exc:
+        logger.error("generate_related_candidates(%s) failed: %s", domain, exc)
+        return {"status": "error", "inserted": 0}
+    finally:
+        # Stamp even on failure — a store that errors during expansion should
+        # not be retried every single day (guarded: column may not exist yet).
+        try:
+            db.table("shopify_store_index").update(
+                {"expanded_at": datetime.now(timezone.utc).isoformat()}
+            ).eq("domain", normalize_domain(domain)).execute()
+        except Exception:
+            pass
+
+    logger.info("related expansion for %s: %d new candidates", domain, inserted)
+    return {"status": "ok", "inserted": inserted}
+
+
 @celery.task(name="app.tasks.store_index.discover_shopify_stores_daily")
 def discover_shopify_stores_daily(limit_override: Optional[int] = None, force: bool = False) -> dict:
     """
-    Daily indexing run. Pulls candidates → verifies + lightly scans (via the
-    web process) → classifies → upserts. `force=True` is used by the admin
-    test-run endpoint to bypass the enabled flag (caps/cooldowns still apply).
+    Daily indexing run, optimized for NEW VERIFIED stores — not candidates
+    processed. Works in small batches until the verified target is hit or the
+    request budget runs out, topping up candidates graph-first (related-brand
+    expansion of already-verified stores) and then via niche rotation.
+
+    `force=True` is the admin test-run path: it bypasses the enabled flag and
+    treats limit_override as both target and budget (a bounded small run).
     """
     settings = get_settings()
     if not settings.shopify_index_enabled and not force:
@@ -156,102 +243,163 @@ def discover_shopify_stores_daily(limit_override: Optional[int] = None, force: b
         _r = None
 
     db = get_supabase()
-    limit = max(1, min(limit_override or settings.shopify_index_daily_candidate_limit, 500))
+    if limit_override:
+        verified_target = max(1, min(limit_override, 250))
+        budget = verified_target
+    else:
+        verified_target = max(1, min(settings.shopify_index_daily_verified_target, 250))
+        budget = max(verified_target, min(settings.shopify_index_daily_candidate_limit, 500))
     reverify_cutoff = (datetime.now(timezone.utc) - timedelta(days=_REVERIFY_DAYS)).isoformat()
-
-    # ── Gather work: candidates first, oldest first ───────────────────────
-    # Candidates are unprocessed by definition (processing always moves them
-    # to verified/rejected/failed), so no cooldown filter is needed here —
-    # the cooldown protects re-verification, which is capped separately below.
-    work: List[dict] = []
-    try:
-        res = db.table("shopify_store_index")\
-            .select("domain, source, source_query")\
-            .eq("status", "candidate")\
-            .order("created_at")\
-            .limit(limit)\
-            .execute()
-        work = res.data or []
-    except Exception as exc:
-        logger.error("store index: candidate fetch failed (table missing?): %s", exc)
-
-    # Top up from the niche-query generator (rotating through SEED_QUERIES)
-    if len(work) < min(limit, 25):
-        try:
-            idx = 0
-            if _r is not None:
-                idx = int(_r.incr("store_index:niche_rotation")) % len(SEED_QUERIES)
-            query = SEED_QUERIES[idx]
-            gen = generate_niche_candidates(query)  # synchronous — we want the rows now
-            if gen.get("inserted"):
-                res = db.table("shopify_store_index")\
-                    .select("domain, source, source_query")\
-                    .eq("status", "candidate")\
-                    .eq("source_query", query)\
-                    .order("created_at", desc=True)\
-                    .limit(limit - len(work))\
-                    .execute()
-                known = {w["domain"] for w in work}
-                work.extend(r for r in (res.data or []) if r["domain"] not in known)
-        except Exception as exc:
-            logger.warning("store index: niche top-up failed: %s", exc)
-
-    # Re-verification picks — small daily slice of stale verified rows
-    reverify_count = 0
-    try:
-        res = db.table("shopify_store_index")\
-            .select("domain, source, source_query")\
-            .eq("status", "verified")\
-            .lt("last_verified_at", reverify_cutoff)\
-            .order("last_verified_at")\
-            .limit(_REVERIFY_DAILY_CAP)\
-            .execute()
-        known = {w["domain"] for w in work}
-        for r in res.data or []:
-            if r["domain"] not in known:
-                work.append(r)
-                reverify_count += 1
-    except Exception:
-        pass
-
-    # Dedupe, cap
-    seen: set = set()
-    queue: List[dict] = []
-    skipped_duplicates = 0
-    for w in work:
-        d = normalize_domain(w["domain"])
-        if d in seen:
-            skipped_duplicates += 1
-            continue
-        seen.add(d)
-        queue.append({**w, "domain": d})
-    queue = queue[:limit]
-
-    if not queue:
-        logger.info("store index: nothing to process (no candidates, generator dry)")
-        return {"status": "ok", "processed": 0, "verified": 0, "rejected": 0, "failed": 0,
-                "skipped_duplicates": skipped_duplicates, "reverified": 0}
-
-    # ── Process politely: low concurrency, via web process ────────────────
-    counts = {"verified": 0, "rejected": 0, "failed": 0}
     concurrency = max(1, min(settings.shopify_index_concurrency, 4))
-    with ThreadPoolExecutor(max_workers=concurrency) as pool:
-        results = list(pool.map(
-            lambda w: _process_via_web(w["domain"], w.get("source") or "unknown", w.get("source_query")),
-            queue,
-        ))
-    for r in results:
-        counts[r.get("outcome", "failed")] = counts.get(r.get("outcome", "failed"), 0) + 1
+    batch_size = max(concurrency * 5, 10)
+
+    counts = {"verified": 0, "rejected": 0, "failed": 0}
+    source_counts: dict = {}
+    processed = 0
+    skipped_duplicates = 0
+    done_domains: set = set()
+    topups_used = {"expansion": 0, "niche": 0}
+
+    def _fetch_candidates(n: int) -> List[dict]:
+        """Oldest unprocessed candidates, excluding this run's domains.
+        Candidates are unprocessed by definition (processing always moves
+        them to verified/rejected/failed)."""
+        nonlocal skipped_duplicates
+        try:
+            res = db.table("shopify_store_index")\
+                .select("domain, source, source_query")\
+                .eq("status", "candidate")\
+                .order("created_at")\
+                .limit(n + len(done_domains))\
+                .execute()
+        except Exception as exc:
+            logger.error("store index: candidate fetch failed (table missing?): %s", exc)
+            return []
+        out: List[dict] = []
+        for r in res.data or []:
+            d = normalize_domain(r["domain"])
+            if d in done_domains:
+                skipped_duplicates += 1
+                continue
+            out.append({**r, "domain": d})
+            if len(out) >= n:
+                break
+        return out
+
+    def _top_up() -> bool:
+        """Generate more candidates. Graph expansion first (peers of already-
+        verified stores — this is what compounds the ecosystem coverage),
+        then niche-query rotation. Returns True if anything new landed."""
+        # Related-brand expansion: up to 3 unexpanded verified stores per top-up
+        if topups_used["expansion"] < 3:
+            try:
+                res = db.table("shopify_store_index")\
+                    .select("domain, brand_name, category, description")\
+                    .eq("status", "verified")\
+                    .is_("expanded_at", "null")\
+                    .order("last_verified_at", desc=True)\
+                    .limit(3)\
+                    .execute()
+                seeds = res.data or []
+            except Exception:
+                seeds = []  # expanded_at column may not exist yet (migration 008)
+            added = 0
+            for s in seeds:
+                topups_used["expansion"] += 1
+                gen = generate_related_candidates(
+                    s["domain"], s.get("brand_name") or "", s.get("category") or "", s.get("description") or ""
+                )
+                added += gen.get("inserted", 0)
+            if added:
+                return True
+
+        # Niche rotation
+        if topups_used["niche"] < 2:
+            topups_used["niche"] += 1
+            try:
+                idx = 0
+                if _r is not None:
+                    idx = int(_r.incr("store_index:niche_rotation")) % len(SEED_QUERIES)
+                gen = generate_niche_candidates(SEED_QUERIES[idx])
+                return bool(gen.get("inserted"))
+            except Exception as exc:
+                logger.warning("store index: niche top-up failed: %s", exc)
+        return False
+
+    def _process_batch(batch: List[dict]) -> None:
+        nonlocal processed
+        with ThreadPoolExecutor(max_workers=concurrency) as pool:
+            results = list(pool.map(
+                lambda w: _process_via_web(w["domain"], w.get("source") or "unknown", w.get("source_query")),
+                batch,
+            ))
+        for w, r in zip(batch, results):
+            outcome = r.get("outcome", "failed")
+            counts[outcome] = counts.get(outcome, 0) + 1
+            src = w.get("source") or "unknown"
+            source_counts[src] = source_counts.get(src, 0) + 1
+            done_domains.add(w["domain"])
+        processed += len(batch)
+
+    # ── Main loop: batches until verified target hit or budget spent ──────
+    while counts["verified"] < verified_target and processed < budget:
+        batch = _fetch_candidates(min(batch_size, budget - processed))
+        if not batch:
+            if not _top_up():
+                logger.info("store index: candidate sources dry — stopping at %d verified", counts["verified"])
+                break
+            continue
+        _process_batch(batch)
+
+    # ── Re-verification: small daily slice of stale verified rows ─────────
+    new_verified = counts.get("verified", 0)  # snapshot before re-verify so
+    # refreshing old rows doesn't inflate the new-verified number
+    reverify_count = 0
+    if not limit_override:  # skip during small admin test runs
+        try:
+            res = db.table("shopify_store_index")\
+                .select("domain, source, source_query")\
+                .eq("status", "verified")\
+                .lt("last_verified_at", reverify_cutoff)\
+                .order("last_verified_at")\
+                .limit(_REVERIFY_DAILY_CAP)\
+                .execute()
+            stale = [{**r, "domain": normalize_domain(r["domain"])} for r in (res.data or [])
+                     if normalize_domain(r["domain"]) not in done_domains]
+            if stale:
+                reverify_count = len(stale)
+                _process_batch(stale)
+        except Exception:
+            pass
 
     summary = {
         "status": "ok",
-        "processed": len(queue),
-        "verified": counts.get("verified", 0),
+        "processed": processed,
+        "verified": new_verified,
         "rejected": counts.get("rejected", 0),
         "failed": counts.get("failed", 0),
         "skipped_duplicates": skipped_duplicates,
         "reverified": reverify_count,
+        "verified_target": verified_target,
+        "source_counts": source_counts,
     }
+
+    # Run history for the admin quality dashboard (table from migration 008)
+    try:
+        db.table("store_index_runs").insert({
+            "ran_at": datetime.now(timezone.utc).isoformat(),
+            "trigger": "manual" if limit_override else "cron",
+            "processed": summary["processed"],
+            "verified": summary["verified"],
+            "rejected": summary["rejected"],
+            "failed": summary["failed"],
+            "duplicates": summary["skipped_duplicates"],
+            "reverified": summary["reverified"],
+            "source_counts": source_counts,
+            "notes": f"target {verified_target}, budget {budget}",
+        }).execute()
+    except Exception as exc:
+        logger.debug("store index: run-history insert skipped (%s)", exc)
     logger.info(
         "store index run: %(processed)d processed — %(verified)d verified, "
         "%(rejected)d rejected, %(failed)d failed, %(skipped_duplicates)d dup-skipped, "

@@ -64,7 +64,11 @@ class Settings(BaseSettings):
 
     # Shopify store index (background discovery worker) — off unless explicitly enabled
     shopify_index_enabled: bool = False
-    shopify_index_daily_candidate_limit: int = 75
+    # The worker optimizes for NEW VERIFIED stores per day, not candidates
+    # processed. candidate_limit stays as the hard request budget.
+    # Dev 25–50 / early prod 50–100 / scaled 100–250.
+    shopify_index_daily_verified_target: int = 25
+    shopify_index_daily_candidate_limit: int = 150
     shopify_index_min_confidence: int = 60
     shopify_index_concurrency: int = 2
 

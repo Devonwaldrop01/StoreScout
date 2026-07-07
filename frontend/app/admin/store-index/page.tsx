@@ -26,8 +26,22 @@ interface IndexRow {
   source: string | null;
   source_query: string | null;
   failure_reason: string | null;
+  business_stage?: string | null;
+  pricing_tier?: string | null;
   last_verified_at: string | null;
   created_at: string | null;
+}
+
+interface RunRow {
+  ran_at: string;
+  trigger: string | null;
+  processed: number;
+  verified: number;
+  rejected: number;
+  failed: number;
+  duplicates: number;
+  reverified: number;
+  source_counts: Record<string, number> | null;
 }
 
 interface Stats {
@@ -37,6 +51,13 @@ interface Stats {
   rejected: number;
   failed: number;
   added_today: number;
+  verified_today?: number;
+  success_rate?: number | null;
+  avg_confidence?: number | null;
+  categories?: { name: string; count: number }[];
+  sources?: { name: string; count: number }[];
+  top_failures?: { reason: string; count: number }[];
+  runs?: RunRow[];
   rows: IndexRow[];
 }
 
@@ -208,13 +229,17 @@ export default function StoreIndexAdminPage() {
 
   // ── Console ──────────────────────────────────────────────────────────────
   const tiles = stats ? [
-    { label: "Total", value: stats.total, color: "var(--text)" },
-    { label: "Verified", value: stats.verified, color: STATUS_COLOR.verified },
-    { label: "Candidates", value: stats.candidates, color: STATUS_COLOR.candidate },
-    { label: "Rejected", value: stats.rejected, color: STATUS_COLOR.rejected },
-    { label: "Failed", value: stats.failed, color: STATUS_COLOR.failed },
-    { label: "Added today", value: stats.added_today, color: "var(--accent)" },
+    { label: "Total", value: String(stats.total.toLocaleString()), color: "var(--text)" },
+    { label: "Verified", value: String(stats.verified.toLocaleString()), color: STATUS_COLOR.verified },
+    { label: "Verified today", value: String(stats.verified_today ?? 0), color: STATUS_COLOR.verified },
+    { label: "Candidates", value: String(stats.candidates.toLocaleString()), color: STATUS_COLOR.candidate },
+    { label: "Success rate", value: stats.success_rate != null ? `${stats.success_rate}%` : "—", color: "var(--text-2)" },
+    { label: "Avg confidence", value: stats.avg_confidence != null ? `${stats.avg_confidence}%` : "—", color: "var(--text-2)" },
+    { label: "Rejected", value: String(stats.rejected.toLocaleString()), color: STATUS_COLOR.rejected },
+    { label: "Added today", value: String(stats.added_today), color: "var(--accent)" },
   ] : [];
+
+  const maxCat = Math.max(1, ...(stats?.categories ?? []).map((c) => c.count));
 
   return (
     <div className="min-h-screen px-5 sm:px-8 py-8" style={{ background: "var(--bg)" }}>
@@ -250,14 +275,104 @@ export default function StoreIndexAdminPage() {
         </div>
 
         {/* Stat tiles */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {tiles.map((t) => (
             <div key={t.label} className="rounded-md px-4 py-3" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
               <p className="label-caps mb-1">{t.label}</p>
-              <p className="num text-xl font-bold" style={{ color: t.color }}>{t.value.toLocaleString()}</p>
+              <p className="num text-xl font-bold" style={{ color: t.color }}>{t.value}</p>
             </div>
           ))}
         </div>
+
+        {/* Quality panels: category distribution · sources · failures */}
+        {stats && ((stats.categories?.length ?? 0) > 0 || (stats.sources?.length ?? 0) > 0 || (stats.top_failures?.length ?? 0) > 0) && (
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+              <p className="label-caps mb-3">Verified by category</p>
+              {(stats.categories?.length ?? 0) === 0 ? (
+                <p className="text-xs" style={{ color: "var(--muted)" }}>Builds as stores verify.</p>
+              ) : (
+                <div className="space-y-2">
+                  {stats.categories!.map((c) => (
+                    <div key={c.name}>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-xs" style={{ color: "var(--text-2)" }}>{c.name}</span>
+                        <span className="num text-xs" style={{ color: "var(--muted)" }}>{c.count}</span>
+                      </div>
+                      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--bg3)" }}>
+                        <div className="h-full rounded-full" style={{ width: `${(c.count / maxCat) * 100}%`, background: "#4A4E44" }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+              <p className="label-caps mb-3">Discovery sources</p>
+              {(stats.sources?.length ?? 0) === 0 ? (
+                <p className="text-xs" style={{ color: "var(--muted)" }}>No rows yet.</p>
+              ) : (
+                <div className="space-y-1.5">
+                  {stats.sources!.map((s) => (
+                    <div key={s.name} className="flex items-center justify-between">
+                      <span className="num text-xs" style={{ color: "var(--text-2)" }}>{s.name}</span>
+                      <span className="num text-xs font-bold" style={{ color: "var(--text)" }}>{s.count}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+              <p className="label-caps mb-3">Most common failures</p>
+              {(stats.top_failures?.length ?? 0) === 0 ? (
+                <p className="text-xs" style={{ color: "var(--muted)" }}>None recorded — good sign.</p>
+              ) : (
+                <div className="space-y-1.5">
+                  {stats.top_failures!.map((f) => (
+                    <div key={f.reason} className="flex items-start justify-between gap-2">
+                      <span className="text-[11px] leading-snug" style={{ color: "var(--text-2)" }}>{f.reason}</span>
+                      <span className="num text-xs font-bold shrink-0" style={{ color: STATUS_COLOR.rejected }}>{f.count}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Worker run history */}
+        {(stats?.runs?.length ?? 0) > 0 && (
+          <div className="rounded-md overflow-x-auto" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <p className="label-caps px-4 pt-3 pb-1">Worker runs · last {stats!.runs!.length}</p>
+            <table className="w-full text-left">
+              <thead>
+                <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                  {["When", "Trigger", "Processed", "Verified", "Rejected", "Failed", "Re-verified", "Sources"].map((h) => (
+                    <th key={h} className="label-caps px-4 py-2 whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {stats!.runs!.map((r, i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
+                    <td className="px-4 py-2 num text-xs" style={{ color: "var(--text-2)" }}>{new Date(r.ran_at).toLocaleString()}</td>
+                    <td className="px-4 py-2 text-xs" style={{ color: "var(--muted)" }}>{r.trigger ?? "—"}</td>
+                    <td className="px-4 py-2 num text-xs" style={{ color: "var(--text-2)" }}>{r.processed}</td>
+                    <td className="px-4 py-2 num text-xs font-bold" style={{ color: STATUS_COLOR.verified }}>{r.verified}</td>
+                    <td className="px-4 py-2 num text-xs" style={{ color: STATUS_COLOR.rejected }}>{r.rejected}</td>
+                    <td className="px-4 py-2 num text-xs" style={{ color: STATUS_COLOR.failed }}>{r.failed}</td>
+                    <td className="px-4 py-2 num text-xs" style={{ color: "var(--muted)" }}>{r.reverified}</td>
+                    <td className="px-4 py-2 num text-[11px]" style={{ color: "var(--muted)" }}>
+                      {r.source_counts ? Object.entries(r.source_counts).map(([k, v]) => `${k}:${v}`).join(" · ") : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Actions row */}
         <div className="grid md:grid-cols-2 gap-4">
@@ -378,6 +493,11 @@ export default function StoreIndexAdminPage() {
                     </td>
                     <td className="px-3 py-2 text-xs" style={{ color: "var(--text-2)" }}>
                       {r.category ? `${r.category}${r.subcategory ? ` · ${r.subcategory}` : ""}` : "—"}
+                      {(r.business_stage || r.pricing_tier) && (
+                        <p className="text-[11px]" style={{ color: "var(--muted)" }}>
+                          {[r.business_stage, r.pricing_tier].filter(Boolean).join(" · ")}
+                        </p>
+                      )}
                     </td>
                     <td className="px-3 py-2 num text-xs" style={{ color: "var(--text-2)" }}>{r.product_count ?? "—"}</td>
                     <td className="px-3 py-2 num text-xs" style={{ color: "var(--text-2)" }}>{r.median_price != null ? `$${r.median_price}` : "—"}</td>
