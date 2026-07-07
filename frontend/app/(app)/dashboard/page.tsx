@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
-  competitors as api, alerts as alertsApi, user as userApi,
+  competitors as api, alerts as alertsApi, user as userApi, getCachedCompetitors,
   type Competitor, type AlertEvent, type DiscoverySuggestion, type PlaybookPlay,
 } from "@/lib/api";
 import { cn, formatPrice, formatRelativeTime } from "@/lib/utils";
@@ -114,15 +114,29 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
           {r.sub && <p className="num text-[10px] mt-1" style={{ color: "var(--muted)" }}>{r.sub}</p>}
         </div>
       ))}
-      {/* 7-day activity — neutral context bars */}
-      <div className="hidden sm:flex items-end gap-1 px-4 py-3 shrink-0" style={{ borderLeft: "1px solid var(--border)" }} title="Changes per day, last 7 days">
-        {dailyCounts.map((v, i) => (
-          <div
-            key={i}
-            className="w-1.5 rounded-sm"
-            style={{ height: `${Math.max(3, (v / maxDaily) * 26)}px`, background: i === dailyCounts.length - 1 ? "var(--text-2)" : "#4A4E44" }}
-          />
-        ))}
+      {/* 7-day activity — labeled like the other readouts, never a blank cell */}
+      <div className="hidden sm:block px-4 py-3 shrink-0 min-w-[110px]" style={{ borderLeft: "1px solid var(--border)" }}>
+        <p className="label-caps mb-1">Activity · 7d</p>
+        {thisWeekChanges > 0 ? (
+          <div className="flex items-end gap-1 h-[26px]" title="Changes per day, last 7 days (today rightmost)">
+            {dailyCounts.map((v, i) => (
+              <div
+                key={i}
+                className="w-1.5 rounded-sm"
+                title={`${v} change${v === 1 ? "" : "s"}`}
+                // sqrt scale keeps low-volume days visible next to a spike day
+                style={{
+                  height: `${v === 0 ? 3 : Math.max(6, Math.sqrt(v / maxDaily) * 26)}px`,
+                  background: v === 0 ? "#33362F" : i === dailyCounts.length - 1 ? "var(--text-2)" : "#4A4E44",
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-[10px] leading-snug mt-1" style={{ color: "var(--muted)" }}>
+            {alertList.length === 0 ? "History starts today — every scan builds it" : "Quiet week — no changes detected"}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -508,6 +522,27 @@ function WatchPanel({ competitorList, signalGroups }: { competitorList: Competit
 
 // ── Empty state ───────────────────────────────────────────────────────────
 
+function LoadErrorPanel({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[380px] text-center px-6 fade-in">
+      <div className="w-12 h-12 rounded-md flex items-center justify-center mb-5" style={{ background: "rgba(255,255,255,.04)", border: "1px solid var(--border)" }}>
+        <RefreshCw className="w-5 h-5" style={{ color: "var(--muted)" }} />
+      </div>
+      <h2 className="text-lg font-semibold mb-2" style={{ color: "var(--text)" }}>Couldn&apos;t reach StoreScout</h2>
+      <p className="text-sm mb-7 max-w-xs leading-relaxed" style={{ color: "var(--muted)" }}>
+        Your data is safe — this is a connection hiccup, not an empty account. We&apos;ll keep retrying automatically.
+      </p>
+      <button
+        onClick={onRetry}
+        className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-lg transition-all"
+        style={{ background: "var(--accent)", color: "var(--ink)" }}
+      >
+        <RefreshCw className="w-4 h-4" /> Retry now
+      </button>
+    </div>
+  );
+}
+
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[380px] text-center px-6 fade-in">
@@ -639,11 +674,18 @@ function DiscoverySuggestions({
 function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [competitorList, setCompetitorList] = useState<Competitor[]>([]);
+  // Hydrate from the session-scoped last-good cache so navigating back to the
+  // dashboard never flashes a skeleton (or worse, an empty state) while the
+  // fresh fetch is in flight.
+  const [competitorList, setCompetitorList] = useState<Competitor[]>(() => getCachedCompetitors() ?? []);
   const [alertList, setAlertList] = useState<AlertEvent[]>([]);
   const [suggestions, setSuggestions] = useState<DiscoverySuggestion[]>([]);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => getCachedCompetitors() === null);
+  // True only after a request has SUCCEEDED. The empty/onboarding state must
+  // never render off a failed fetch — loading state ≠ empty state.
+  const [confirmedLoad, setConfirmedLoad] = useState(() => getCachedCompetitors() !== null);
+  const [loadError, setLoadError] = useState(false);
   const [alertsLoading, setAlertsLoading] = useState(true);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [trackingHostname, setTrackingHostname] = useState<string | null>(null);
@@ -695,9 +737,18 @@ function DashboardContent() {
   }, [searchParams, router]);
 
   const load = useCallback(async () => {
-    try { const { data } = await api.list(); setCompetitorList(data); }
-    catch {}
-    finally { setLoading(false); }
+    try {
+      const { data } = await api.list();
+      setCompetitorList(data);
+      setConfirmedLoad(true);
+      setLoadError(false);
+    } catch {
+      // Keep whatever data we already have; surface the failure instead of
+      // letting an empty array masquerade as a brand-new account.
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   // Load subscription once to know if user is at competitor limit
@@ -803,6 +854,17 @@ function DashboardContent() {
 
   return (
     <div>
+      {/* Transient fetch failure while showing last-good data */}
+      {loadError && competitorList.length > 0 && (
+        <div
+          className="mb-4 px-3 py-2 rounded-md text-xs flex items-center gap-2"
+          style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text-2)" }}
+        >
+          <RefreshCw className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--muted)" }} />
+          Connection hiccup — showing your latest data while we reconnect.
+        </div>
+      )}
+
       {/* Greeting header */}
       {competitorList.length > 0 && (
         <ScoutBrief
@@ -817,7 +879,11 @@ function DashboardContent() {
         />
       )}
 
-      {competitorList.length === 0 ? (
+      {competitorList.length === 0 && !confirmedLoad ? (
+        /* Fetch failed and we have nothing cached — this is a connection
+           problem, NOT a new account. Never show onboarding here. */
+        <LoadErrorPanel onRetry={() => { setLoading(true); load(); }} />
+      ) : competitorList.length === 0 ? (
         <>
           <EmptyState />
           {suggestions.filter((s) => !dismissed.has(s.hostname)).length > 0 && (

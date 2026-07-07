@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft, RefreshCw, Trash2, Share2, Check, Download,
   Sparkles, Lock, Zap, ChevronDown, ChevronUp, Bell, TrendingUp,
-  Package, Tag, Clock, Brain, Target, Eye,
+  Package, Tag, Clock, Brain,
 } from "lucide-react";
 import Link from "next/link";
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
@@ -27,11 +27,11 @@ import GapsTab from "@/components/competitors/GapsTab";
 import { WatchlistPanel } from "@/components/dashboard/WatchlistPanel";
 import StoreProfileTab from "@/components/competitors/StoreProfileTab";
 import ComparisonTab from "@/components/competitors/ComparisonTab";
-import { IntelligenceBrief } from "@/components/competitors/IntelligenceBrief";
+import { ProAnalysis, type ProAnalysisData } from "@/components/competitors/ProAnalysis";
 import { QuickWins } from "@/components/competitors/QuickWins";
 import UpgradeModal from "@/components/UpgradeModal";
 import { LockedValueCard } from "@/components/ui";
-import { type BriefData, type BriefCard } from "@/lib/api";
+import { type BriefData } from "@/lib/api";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type Tab = "overview" | "catalog" | "pricing" | "changes" | "intelligence";
@@ -318,6 +318,100 @@ function parseSummaryText(text: string): { type: "cards"; cards: BriefCardParsed
   return { type: "text", text };
 }
 
+function parseProAnalysis(text: string): ProAnalysisData | null {
+  try {
+    const parsed = JSON.parse(text) as ProAnalysisData;
+    if (parsed && typeof parsed === "object" && (parsed.threat || parsed.predictions || parsed.impact)) return parsed;
+  } catch {}
+  return null;
+}
+
+// ── Scout Brief digest (free) ─────────────────────────────────────────────────
+// The free brief answers "what happened?" in under 30 seconds: threat level,
+// factual highlights, one move. The deep "what does it mean for MY business?"
+// analysis lives in Intelligence Pro — a different product, not a longer brief.
+
+const DIGEST_THREAT: Record<string, { color: string; label: string }> = {
+  high:   { color: "#F2555A", label: "High threat" },
+  medium: { color: "#FFB224", label: "Medium threat" },
+  low:    { color: "#4CC38A", label: "Low threat" },
+};
+
+function ScoutBriefDigest({
+  hostname, briefText, changes, fallbackHighlights, onOpenPro, isFree,
+}: {
+  hostname: string;
+  briefText: string;
+  changes: ChangeEvent[];
+  fallbackHighlights: string[];
+  onOpenPro: () => void;
+  isFree: boolean;
+}) {
+  let threatLevel: string | undefined;
+  let highlights: string[] = [];
+  let oneMove: string | undefined;
+  try {
+    const parsed = JSON.parse(briefText) as {
+      threat_level?: string; highlights?: string[]; one_move?: string;
+      cards?: BriefCardParsed[];
+    };
+    threatLevel = parsed.threat_level?.toLowerCase();
+    highlights = Array.isArray(parsed.highlights) ? parsed.highlights.slice(0, 4) : [];
+    oneMove = parsed.one_move
+      // Older briefs pre-date the digest fields — fall back to the action card
+      || parsed.cards?.find((c) => c.type === "action")?.headline;
+  } catch { /* fall back below */ }
+
+  if (!threatLevel) {
+    // Heuristic from real signal severity in the last 7 days — truthful, no AI needed
+    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const recent = changes.filter((c) => new Date(c.detected_at).getTime() > weekAgo);
+    threatLevel = recent.some((c) => c.severity === "critical") ? "high"
+      : recent.some((c) => c.severity === "warning") ? "medium" : "low";
+  }
+  if (highlights.length === 0) highlights = fallbackHighlights;
+  const threat = DIGEST_THREAT[threatLevel] ?? DIGEST_THREAT.low;
+
+  return (
+    <div
+      className="mb-6 rounded-md p-4"
+      style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+    >
+      <div className="flex items-center gap-2.5 flex-wrap">
+        <span className="label-caps" style={{ color: "var(--muted)" }}>Scout Brief · {hostname}</span>
+        <span
+          className="text-[11px] font-bold px-2 py-0.5 rounded"
+          style={{ background: `${threat.color}14`, color: threat.color, border: `1px solid ${threat.color}33` }}
+        >
+          {threat.label}
+        </span>
+      </div>
+
+      {/* Factual highlights — scannable in seconds */}
+      <div className="flex items-center gap-x-4 gap-y-1 flex-wrap mt-2.5">
+        {highlights.map((h, i) => (
+          <span key={i} className="num text-xs" style={{ color: "var(--text-2)" }}>{h}</span>
+        ))}
+      </div>
+
+      {oneMove && (
+        <p className="text-sm font-semibold leading-snug mt-3" style={{ color: "var(--text)" }}>
+          <Zap className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" style={{ color: "var(--accent)" }} />
+          {oneMove}
+        </p>
+      )}
+
+      <button
+        onClick={onOpenPro}
+        className="mt-3 text-xs font-semibold flex items-center gap-1 transition-colors hover:brightness-125"
+        style={{ color: "var(--accent)" }}
+      >
+        {isFree ? "What does this mean for your business? Unlock Intelligence Pro →" : "Full strategist analysis → Intelligence Pro"}
+      </button>
+    </div>
+  );
+}
+
 // ── Tab bar ───────────────────────────────────────────────────────────────────
 function TabBar<T extends string>({
   tabs, active, onChange, size = "md",
@@ -401,7 +495,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const [rescanning,     setRescanning]     = useState(false);
   const [scanPending,    setScanPending]    = useState(true);
   const [brief,          setBrief]          = useState<BriefData | null | false>(null);
-  const [briefExpanded, setBriefExpanded] = useState(false);
+  const [aiRefreshing,   setAiRefreshing]   = useState(false);
   const [copied,         setCopied]         = useState(false);
   const [exporting,      setExporting]      = useState(false);
   const [upgradeOpen,    setUpgradeOpen]    = useState(false);
@@ -460,6 +554,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
           setAiStatus("generating");
         } else if (r.data) {
           setAiSummary(r.data);
+          setAiRefreshing(r.status === "refreshing");
           setAiStatus("idle");
         } else {
           // No summary generated yet — not an error, just hasn't been run
@@ -758,44 +853,25 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
       ) : (
         <>
-          {/* ── Scout Brief — collapsed chip by default, expands inline ────── */}
+          {/* ── Scout Brief — 30-second "what happened" digest (free) ──────── */}
           {brief && (
-            briefExpanded ? (
-              <div className="mb-6">
-                <IntelligenceBrief
-                  hostname={hostname}
-                  cards={(() => {
-                    try { return (JSON.parse((brief as BriefData).summary_text) as { cards: BriefCard[] }).cards; }
-                    catch { return []; }
-                  })()}
-                  onDismiss={() => setBriefExpanded(false)}
-                />
-              </div>
-            ) : (
-              <button
-                onClick={() => setBriefExpanded(true)}
-                className="w-full flex items-center gap-2.5 mb-6 px-4 py-3 rounded-md transition-all text-left"
-                style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg3)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "var(--bg-card)"; }}
-              >
-                <div
-                  className="w-7 h-7 rounded flex items-center justify-center shrink-0"
-                  style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
-                >
-                  <Sparkles className="w-4 h-4" style={{ color: "var(--text-2)" }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Scout Brief ready</p>
-                  <p className="text-xs" style={{ color: "var(--muted)" }}>
-                    AI read of {hostname} — the signals that matter and your move
-                  </p>
-                </div>
-                <span className="shrink-0 text-xs font-semibold flex items-center gap-1" style={{ color: "var(--accent)" }}>
-                  View <ChevronDown className="w-3.5 h-3.5" />
-                </span>
-              </button>
-            )
+            <ScoutBriefDigest
+              hostname={hostname}
+              briefText={(brief as BriefData).summary_text}
+              changes={changes}
+              fallbackHighlights={[
+                catalog.total_products != null ? `${(catalog.total_products as number).toLocaleString()} products` : "",
+                pricing.median != null ? `median ${formatPrice(pricing.median as number)}` : "",
+                discounts.discounted_pct != null ? `${formatPct(discounts.discounted_pct as number)} discounted` : "",
+                `${(launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? 0} launches · 30d`,
+              ].filter(Boolean)}
+              isFree={isFree}
+              onOpenPro={() => {
+                if (isFree) { setUpgradeOpen(true); return; }
+                setTab("intelligence");
+                setIntelSub("ai");
+              }}
+            />
           )}
 
           {/* ── Tab navigation ────────────────────────────────────────────── */}
@@ -1181,9 +1257,9 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                             <div className="w-12 h-12 rounded-md mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(255,178,36,.1)", border: "1px solid rgba(255,178,36,.2)" }}>
                               <Sparkles className="w-6 h-6" style={{ color: "var(--accent)" }} />
                             </div>
-                            <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text)" }}>Scout Brief</h3>
+                            <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text)" }}>Intelligence Pro</h3>
                             <p className="text-sm mb-6 max-w-sm mx-auto leading-relaxed" style={{ color: "var(--muted)" }}>
-                              Get Scout AI's weekly analysis of {hostname}: pricing strategy, launch patterns, and competitive positioning.
+                              Your free Scout Brief tells you what happened. Intelligence Pro is a strategist&apos;s read of {hostname}: threat score, momentum, predicted next moves with confidence, and what it all means for your business.
                             </p>
                             <div className="mb-6 text-left rounded-md p-4 space-y-2 select-none pointer-events-none" style={{ background: "var(--bg3)" }}>
                               {[
@@ -1209,7 +1285,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                               style={{ background: "var(--accent)", color: "var(--ink)" }}
                             >
                               <Zap className="w-4 h-4 inline mr-1.5 -mt-0.5" />
-                              Unlock Scout Brief — from $29/mo
+                              Unlock Intelligence Pro — from $29/mo
                             </button>
                           </div>
                         </div>
@@ -1240,10 +1316,10 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                             </div>
                             <div>
                               <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                                {aiStatus === "loading" ? "Loading intelligence brief…" : `Analyzing ${hostname}…`}
+                                {aiStatus === "loading" ? "Loading Intelligence Pro…" : `Building strategist report on ${hostname}…`}
                               </p>
                               <p className="text-xs" style={{ color: "var(--muted)" }}>
-                                {aiStatus === "generating" ? "Claude is reviewing their pricing, launch patterns, and competitive positioning" : "Checking for existing analysis"}
+                                {aiStatus === "generating" ? "Reviewing 30 days of catalog history, pricing moves, and launch cadence — then interpreting what it means for your business" : "Checking for existing analysis"}
                               </p>
                             </div>
                           </div>
@@ -1265,15 +1341,15 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           <div className="w-12 h-12 rounded-md mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(255,178,36,.06)", border: "1px solid rgba(255,178,36,.14)" }}>
                             <Sparkles className="w-6 h-6" style={{ color: "var(--accent)" }} />
                           </div>
-                          <h3 className="text-base font-bold mb-2" style={{ color: "var(--text)" }}>No analysis yet</h3>
+                          <h3 className="text-base font-bold mb-2" style={{ color: "var(--text)" }}>No strategist report yet</h3>
                           <p className="text-sm mb-6 max-w-sm mx-auto leading-relaxed" style={{ color: "var(--muted)" }}>
-                            Generate a strategic read on {hostname}&apos;s pricing, launch patterns, and competitive positioning.
+                            Generate a strategist&apos;s read of {hostname} — not a summary, an interpretation.
                           </p>
                           <div className="mb-6 text-left rounded-md p-4 space-y-2.5" style={{ background: "var(--bg3)" }}>
                             {[
-                              "Pricing strategy and discount aggression",
-                              "Launch velocity and catalog expansion rate",
-                              "One specific action you could take this week",
+                              "Threat score and momentum — is this competitor accelerating?",
+                              "Predicted next moves, each with a confidence score",
+                              "What their behavior means for YOUR business, with evidence",
                             ].map((line, i) => (
                               <div key={i} className="flex items-start gap-2">
                                 <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--muted)" }} />
@@ -1294,127 +1370,44 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
                       ) : (() => {
                         if (!aiSummary) return null;
+                        const pro = parseProAnalysis(aiSummary.summary_text);
+                        if (pro) {
+                          return (
+                            <ProAnalysis
+                              hostname={hostname}
+                              data={pro}
+                              generatedAt={aiSummary.generated_at}
+                              model={aiSummary.model}
+                              refreshing={aiRefreshing}
+                              onRegenerate={handleRegenerate}
+                            />
+                          );
+                        }
+                        // Legacy plain-text summary (pre-Pro rows) — shown once
+                        // while the strategist report generates in the background.
                         const parsed = parseSummaryText(aiSummary.summary_text);
-                        const INSIGHT_CONFIG = {
-                          signal:      { color: "#FFB224", label: "Notable Signal",  Icon: Target },
-                          opportunity: { color: "#FFB224", label: "Opportunity",     Icon: TrendingUp },
-                          watch:       { color: "#FFB224", label: "Watch Closely",   Icon: Eye },
-                          action:      { color: "#4CC38A", label: "Your Move",       Icon: Zap },
-                        } as const;
-                        type InsightKey = keyof typeof INSIGHT_CONFIG;
                         return (
-                          <div className="space-y-5">
-
-                            {/* Scout Brief header */}
-                            <div className="flex items-center gap-3 pb-4" style={{ borderBottom: "1px solid var(--border)" }}>
-                              <div
-                                className="w-9 h-9 rounded-md flex items-center justify-center shrink-0"
-                                style={{ background: "rgba(255,178,36,.10)", border: "1px solid var(--border)" }}
-                              >
-                                <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>Scout Brief</span>
-                                  <span className="label-caps" style={{ color: "var(--accent)" }}>Scout AI</span>
-                                  <span className="text-xs" style={{ color: "var(--muted)" }}>
-                                    {formatRelativeTime(aiSummary.generated_at)}
-                                  </span>
-                                </div>
-                                <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
-                                  Scout Brief · {hostname}
-                                </p>
-                              </div>
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between gap-3 pb-3" style={{ borderBottom: "1px solid var(--border)" }}>
+                              <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                                Intelligence · {hostname}
+                                <span className="label-caps ml-2" style={{ color: "var(--muted)" }}>
+                                  strategist report generating…
+                                </span>
+                              </p>
                               <button
                                 onClick={handleRegenerate}
                                 className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-all hover:bg-white/5 shrink-0"
                                 style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
                               >
-                                <RefreshCw className="w-3 h-3" />
-                                Refresh
+                                <RefreshCw className="w-3 h-3" /> Refresh
                               </button>
                             </div>
-
-                            {/* Insights */}
-                            {parsed.type === "cards" ? (
-                              <div className="space-y-3">
-                                {parsed.cards.filter((c) => c.type !== "action").map((card, i) => {
-                                  const cfg = INSIGHT_CONFIG[(card.type as InsightKey)] ?? INSIGHT_CONFIG.signal;
-                                  const { Icon } = cfg;
-                                  return (
-                                    <div
-                                      key={i}
-                                      className="rounded-md p-4"
-                                      style={{
-                                        background: "var(--bg-card)",
-                                        border: "1px solid var(--border)",
-                                        borderLeft: `3px solid ${cfg.color}`,
-                                      }}
-                                    >
-                                      <div className="flex items-center gap-2 mb-2.5">
-                                        <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: cfg.color }} />
-                                        <span className="label-caps" style={{ color: cfg.color }}>
-                                          {cfg.label}
-                                        </span>
-                                      </div>
-                                      <h4 className="font-semibold text-sm leading-snug mb-1.5" style={{ color: "var(--text)" }}>
-                                        {card.headline}
-                                      </h4>
-                                      <p className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
-                                        {card.body}
-                                      </p>
-                                    </div>
-                                  );
-                                })}
-
-                                {/* Action card — bottom, prominent */}
-                                {parsed.cards.find((c) => c.type === "action") && (() => {
-                                  const ac = parsed.cards.find((c) => c.type === "action")!;
-                                  const actionCfg = INSIGHT_CONFIG.action;
-                                  return (
-                                    <div
-                                      className="rounded-md p-5 mt-1"
-                                      style={{
-                                        background: "var(--bg-card)",
-                                        border: "1px solid var(--border)",
-                                        borderLeft: `3px solid ${actionCfg.color}`,
-                                      }}
-                                    >
-                                      <div className="flex items-start gap-3">
-                                        <div
-                                          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                                          style={{ background: `${actionCfg.color}14` }}
-                                        >
-                                          <Zap className="w-4 h-4" style={{ color: actionCfg.color }} />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <span className="label-caps" style={{ color: actionCfg.color }}>
-                                            Your Move
-                                          </span>
-                                          <h4 className="font-semibold text-sm mt-1 mb-1.5 leading-snug" style={{ color: "var(--text)" }}>
-                                            {ac.headline}
-                                          </h4>
-                                          <p className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
-                                            {ac.body}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  );
-                                })()}
-                              </div>
-                            ) : (
-                              <div className="space-y-3">
-                                {parsed.text.split(/\n\n+/).filter(Boolean).map((para, i) => (
-                                  <p key={i} className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>{para}</p>
-                                ))}
-                              </div>
-                            )}
-
-                            {/* Footer */}
-                            <p className="text-[11px]" style={{ color: "var(--muted)", opacity: 0.5 }}>
-                              {aiSummary.model} · Updates weekly
-                            </p>
+                            <div className="space-y-3">
+                              {(parsed.type === "text" ? parsed.text.split(/\n\n+/).filter(Boolean) : []).map((para, i) => (
+                                <p key={i} className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>{para}</p>
+                              ))}
+                            </div>
                           </div>
                         );
                       })()}

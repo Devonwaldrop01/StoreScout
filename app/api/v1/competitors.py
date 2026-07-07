@@ -444,13 +444,25 @@ async def discover_ai(
     except Exception as ctx_exc:
         logger.debug("discover-ai store context fetch failed: %s", ctx_exc)
 
-    prompt = f"""You are helping a Shopify store owner identify their direct competitors.
+    # ── Staged pipeline ──────────────────────────────────────────────────
+    # Claude answers ONE question — "who does this business compete with?" —
+    # ranked by market similarity, platform ignored. StoreScout then answers
+    # the second question itself (multi-signal Shopify verification), refills
+    # with additional Claude batches until enough verified stores exist, and
+    # returns non-Shopify competitors separately instead of dropping them.
+    TARGET_VERIFIED = 8
+    MAX_BATCHES = 3
 
-Owner's description: {body.description.strip()}{store_context}
+    def _discovery_prompt(exclude: list) -> str:
+        exclusions = ", ".join(exclude) if exclude else "none"
+        n = 25 if not exclude else 15
+        return f"""You are a DTC ecommerce market analyst helping a store owner map their competitive landscape.
 
-Return exactly 15 Shopify stores that are DIRECT competitors to this specific business. These must be independent or mid-size DTC (direct-to-consumer) brands with their own Shopify store — not major publishers, retailers, marketplaces, or subscription box services unless their primary business is selling products directly through a Shopify store.
+Business: {body.description.strip()}{store_context}
 
-Return ONLY valid JSON with no markdown, no code fences, no explanation — raw JSON only:
+Identify {n} brands this business's customers would realistically compare before making a purchase, ranked most-similar first. Judge purely on market overlap — product category, price point, target customer, positioning. IGNORE what ecommerce platform each brand uses; that is verified separately.
+
+Return ONLY valid JSON with no markdown, no code fences, no explanation:
 {{
   "suggestions": [
     {{"domain": "gymshark.com", "reason": "premium activewear, similar $60-80 price point"}},
@@ -458,72 +470,104 @@ Return ONLY valid JSON with no markdown, no code fences, no explanation — raw 
   ]
 }}
 
-Strict rules:
-- Each reason must be under 12 words and explain specifically WHY it competes (price, audience, product type)
-- DTC Shopify brands ONLY — exclude: Amazon, Walmart, Target, major publishers (Penguin, HarperCollins, Simon & Schuster, Macmillan), large bookstore chains (Barnes & Noble, Books-a-Million), or any non-Shopify retailer
-- The store must sell directly from their own website (not primarily through distributors or third-party retail)
-- Vary the mix: include 2-3 smaller/niche or emerging brands alongside better-known ones
-- Do not include any store already mentioned by the owner
-- If you are not confident a store uses Shopify, exclude it"""
+Rules:
+- domain must be the brand's own storefront domain (never a marketplace or social page)
+- Brands that sell primarily through their own website — exclude pure marketplaces and department stores (Amazon, Walmart, Target, Etsy)
+- Each reason under 12 words, specific about WHY it competes (price, audience, product type)
+- Mix well-known brands with smaller/emerging ones
+- Do NOT include any of these: {exclusions}"""
 
-    try:
+    def _call_claude(prompt: str) -> list:
         client = _anthropic.Anthropic(api_key=settings.anthropic_api_key)
         message = client.messages.create(
             model="claude-haiku-4-5-20251001",
-            max_tokens=800,
+            max_tokens=1500,
             messages=[{"role": "user", "content": prompt}],
         )
         raw_text = message.content[0].text
         logger.info("discover-ai raw response: %s", raw_text[:500])
-        # Strip markdown code fences — Haiku sometimes wraps JSON in ```json ... ```
         text = raw_text.strip()
         if text.startswith("```"):
             text = text.split("\n", 1)[1] if "\n" in text else text[3:]
             text = text.rsplit("```", 1)[0].strip()
-        result = _json.loads(text)
-        suggestions = result.get("suggestions", [])[:10]
-    except _anthropic.AuthenticationError as ae:
-        logger.error("discover-ai: Anthropic auth error — check ANTHROPIC_API_KEY: %s", ae)
-        raise HTTPException(status_code=500, detail="AI service authentication failed — contact support.")
-    except _anthropic.RateLimitError as rle:
-        logger.error("discover-ai: Anthropic rate limit: %s", rle)
-        raise HTTPException(status_code=429, detail="AI service is busy — please try again in a moment.")
-    except _json.JSONDecodeError as jde:
-        logger.error("discover-ai: Failed to parse Claude response as JSON: %s", jde)
-        raise HTTPException(status_code=500, detail="Failed to generate suggestions — please try again.")
-    except Exception as ai_exc:
-        logger.error("discover-ai Claude call failed (%s): %s", type(ai_exc).__name__, ai_exc)
-        raise HTTPException(status_code=500, detail="Failed to generate suggestions — please try again.")
+        return _json.loads(text).get("suggestions", [])
 
-    # Validate each suggested domain is actually a Shopify store — run checks in parallel.
-    # Accept both 200 (open) and 403 (bot-protected) responses — both are real Shopify stores
-    # and the scanner's curl_cffi TLS fingerprinting handles 403 stores successfully in practice.
-    # Only reject stores where ok=False: DNS failures, HTML responses, confirmed non-Shopify.
-    async def _is_shopify(domain: str) -> bool:
+    async def _verify(domain: str) -> dict:
         try:
-            from app.services.fetch import check_store as _check_store
+            from app.services.fetch import verify_shopify as _verify_shopify
             loop = asyncio.get_event_loop()
-            result = await asyncio.wait_for(
-                loop.run_in_executor(None, _check_store, f"https://{domain}"),
-                timeout=8.0,
+            return await asyncio.wait_for(
+                loop.run_in_executor(None, _verify_shopify, domain),
+                timeout=15.0,
             )
-            return bool(result.get("ok"))
         except Exception:
-            return False
+            return {"verified": False, "monitorable": False, "confidence": 0, "signals": []}
 
-    checks = await asyncio.gather(*[_is_shopify(s["domain"]) for s in suggestions])
-    validated = [s for s, ok in zip(suggestions, checks) if ok]
-    # Cap at 8 results; never fall back to unvalidated stores — a shorter list
-    # is better UX than showing stores that will fail to scan.
-    final_suggestions = validated[:8]
-    logger.info(
-        "discover-ai: %d/%d suggestions passed Shopify validation (returning %d)",
-        len(validated), len(suggestions), len(final_suggestions),
-    )
+    def _norm(domain: str) -> str:
+        d = (domain or "").strip().lower()
+        d = d.replace("https://", "").replace("http://", "").split("/")[0]
+        return d[4:] if d.startswith("www.") else d
+
+    # Exclude stores the user already tracks from every batch
+    already_tracked: set = set()
+    try:
+        tracked = db.table("competitors").select("hostname").eq("user_id", user_id).execute()
+        already_tracked = {_norm(t["hostname"]) for t in (tracked.data or [])}
+    except Exception:
+        pass
+
+    seen: set = set(already_tracked)
+    verified: list = []          # Shopify-verified AND scannable → trackable
+    relevant_other: list = []    # real competitors we can't monitor (yet)
+
+    loop_error: Exception | None = None
+    for batch in range(MAX_BATCHES):
+        try:
+            suggestions = await asyncio.get_event_loop().run_in_executor(
+                None, _call_claude, _discovery_prompt(sorted(seen))
+            )
+        except Exception as ai_exc:
+            loop_error = ai_exc
+            break
+
+        fresh = []
+        for s in suggestions:
+            d = _norm(s.get("domain", ""))
+            if d and "." in d and d not in seen:
+                seen.add(d)
+                fresh.append({"domain": d, "reason": (s.get("reason") or "").strip()})
+        if not fresh:
+            break
+
+        results = await asyncio.gather(*[_verify(s["domain"]) for s in fresh])
+        for s, v in zip(fresh, results):
+            if v["verified"] and v["monitorable"]:
+                verified.append({**s, "confidence": v["confidence"], "signals": v["signals"]})
+            elif v["verified"]:
+                # Real Shopify store with a locked catalog — show it honestly
+                relevant_other.append({**s, "note": "Shopify store, but its catalog is private — we can't scan it yet"})
+            else:
+                relevant_other.append({**s, "note": "Not a Shopify store — we can't monitor it yet"})
+
+        logger.info(
+            "discover-ai batch %d: %d fresh candidates, %d verified total, %d non-monitorable",
+            batch + 1, len(fresh), len(verified), len(relevant_other),
+        )
+        if len(verified) >= TARGET_VERIFIED:
+            break
+
+    if not verified and not relevant_other:
+        # Nothing at all came back — surface the real failure instead of an empty list
+        if isinstance(loop_error, _anthropic.AuthenticationError):
+            raise HTTPException(status_code=500, detail="AI service authentication failed — contact support.")
+        if isinstance(loop_error, _anthropic.RateLimitError):
+            raise HTTPException(status_code=429, detail="AI service is busy — please try again in a moment.")
+        raise HTTPException(status_code=500, detail="Failed to generate suggestions — please try again.")
 
     return {
         "data": {
-            "suggestions": final_suggestions,
+            "suggestions": verified[:10],
+            "relevant_non_shopify": relevant_other[:8],
             "searches_used": searches_used if is_free else None,
             "searches_limit": FREE_LIMIT if is_free else None,
         }
@@ -682,25 +726,41 @@ def get_ai_summary(competitor_id: str, user_id: str = Depends(get_effective_user
             detail={"code": "ai_summary_locked"},
         )
 
+    # The paid experience is the strategist report (summary_type="pro") — a
+    # different product from the free Scout Brief, not a longer rewrite of it.
+    _PRO_FRESHNESS_HOURS = 23
     result = db.table("ai_summaries")\
         .select("*")\
         .eq("competitor_id", competitor_id)\
+        .eq("summary_type", "pro")\
         .order("generated_at", desc=True)\
         .limit(1)\
         .execute()
-    if not result.data:
+    row = result.data[0] if result.data else None
+
+    fresh = False
+    if row:
         try:
-            from app.tasks.ai_summaries import generate_weekly_summary
-            generate_weekly_summary.delay(competitor_id, "weekly")
+            generated = datetime.fromisoformat(row["generated_at"].replace("Z", "+00:00"))
+            fresh = (datetime.now(timezone.utc) - generated) < timedelta(hours=_PRO_FRESHNESS_HOURS)
+        except Exception:
+            fresh = False
+
+    if not fresh:
+        try:
+            from app.tasks.ai_summaries import generate_pro_analysis
+            generate_pro_analysis.delay(competitor_id)
         except Exception as exc:
-            logger.warning("Could not enqueue ai_summary for %s: %s", competitor_id, exc)
-        return {"data": None, "status": "generating"}
-    return {"data": result.data[0], "status": "ok"}
+            logger.warning("Could not enqueue pro analysis for %s: %s", competitor_id, exc)
+
+    if row:
+        return {"data": row, "status": "ok" if fresh else "refreshing"}
+    return {"data": None, "status": "generating"}
 
 
 @router.post("/{competitor_id}/ai-summary/regenerate")
 def regenerate_ai_summary(competitor_id: str, user_id: str = Depends(get_current_user_id)):
-    """Trigger a fresh AI summary generation on demand (Pro/Agency only)."""
+    """Trigger a fresh Pro analysis on demand (Pro/Agency only)."""
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
 
@@ -709,8 +769,8 @@ def regenerate_ai_summary(competitor_id: str, user_id: str = Depends(get_current
     if tier == "free":
         raise HTTPException(status_code=402, detail={"code": "ai_summary_locked"})
 
-    from app.tasks.ai_summaries import generate_weekly_summary
-    generate_weekly_summary.delay(competitor_id, "weekly")
+    from app.tasks.ai_summaries import generate_pro_analysis
+    generate_pro_analysis.delay(competitor_id)
     return {"status": "triggered"}
 
 

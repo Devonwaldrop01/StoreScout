@@ -800,12 +800,15 @@ export default function PlaybookPage() {
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [userTier,    setUserTier]    = useState<string>("free");
   const [steps,       setSteps]       = useState<Record<string, boolean[]>>({});
+  const [loadError,   setLoadError]   = useState(false);
 
   function load(isRefresh = false) {
     if (isRefresh) setRefreshing(true); else setLoading(true);
     userApi.playbook()
-      .then(setData)
-      .catch(() => setData(null))
+      .then((d) => { setData(d); setLoadError(false); })
+      // A failed fetch is NOT an empty playbook — keep whatever we have and
+      // surface a retry instead of the misleading "no competitors" state.
+      .catch(() => setLoadError(true))
       .finally(() => { setLoading(false); setRefreshing(false); });
   }
 
@@ -868,6 +871,29 @@ export default function PlaybookPage() {
     );
   }
 
+  if (!data && loadError) {
+    return (
+      <div className="space-y-6">
+        <p className="tick-label mb-1.5">Intel · your moves</p>
+        <h1 className="text-xl font-bold tracking-tight" style={{ color: "var(--text)" }}>Playbook</h1>
+        <div className="rounded-md p-10 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <RefreshCw className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--muted)" }} />
+          <p className="font-semibold mb-1" style={{ color: "var(--text)" }}>Couldn&apos;t load your playbook</p>
+          <p className="text-sm mb-4" style={{ color: "var(--muted)" }}>
+            Connection hiccup — your plays are safe. Try again in a moment.
+          </p>
+          <button
+            onClick={() => load()}
+            className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-md transition-all hover:brightness-110"
+            style={{ background: "var(--accent)", color: "var(--ink)" }}
+          >
+            <RefreshCw className="w-4 h-4" /> Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!data || data.competitor_count === 0) {
     return (
       <div className="space-y-6">
@@ -912,9 +938,9 @@ export default function PlaybookPage() {
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="flex items-start justify-between gap-4">
           <div>
+            <p className="tick-label mb-1.5">Intel · your moves</p>
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <p className="tick-label mb-1.5">Intel · your moves</p>
-        <h1 className="text-xl font-bold tracking-tight" style={{ color: "var(--text)" }}>Playbook</h1>
+              <h1 className="text-xl font-bold tracking-tight" style={{ color: "var(--text)" }}>Playbook</h1>
               {activePlays.length > 0 && (
                 <span
                   className="text-xs font-bold px-2 py-1 rounded-full"
@@ -1041,19 +1067,27 @@ export default function PlaybookPage() {
                     onToggleStep={(idx) => toggleStep(focusPlay.id, idx)}
                   />
                 )}
-                {queuePlays.length > 0 && <p className="tick-label -mb-4">Queue · {queuePlays.length}</p>}
-                {SECTION_ORDER.map((section) => (
-                  <PlaySection
-                    key={section}
-                    section={section}
-                    plays={activeSections[section]}
-                    done={done}
-                    onDone={markDone}
-                    onOpen={setDetailPlay}
-                    steps={steps}
-                    onToggleStep={toggleStep}
-                  />
-                ))}
+                {queuePlays.length > 0 && (
+                  <div>
+                    <p className="tick-label mb-4 pb-2" style={{ borderBottom: "1px solid var(--border)" }}>
+                      Queue · {queuePlays.length}
+                    </p>
+                    <div className="space-y-8">
+                      {SECTION_ORDER.map((section) => (
+                        <PlaySection
+                          key={section}
+                          section={section}
+                          plays={activeSections[section]}
+                          done={done}
+                          onDone={markDone}
+                          onOpen={setDetailPlay}
+                          steps={steps}
+                          onToggleStep={toggleStep}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
