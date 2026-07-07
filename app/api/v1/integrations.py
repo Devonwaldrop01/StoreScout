@@ -53,6 +53,15 @@ def get_integrations(user_id: str = Depends(get_current_user_id)):
     }
 
 
+@router.get("/intelligence-sources")
+def get_intelligence_sources(user_id: str = Depends(get_current_user_id)):
+    """What does StoreScout currently know about this business? Per-source
+    knowledge, capabilities unlocked, and the Business Understanding score
+    (how well StoreScout understands the business — NOT a health score)."""
+    from app.services.knowledge import build_business_knowledge
+    return {"data": build_business_knowledge(user_id)}
+
+
 # ── Klaviyo ────────────────────────────────────────────────────────────────────
 
 class KlaviyoKeyRequest(BaseModel):

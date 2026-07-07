@@ -348,6 +348,17 @@ function CompetitorsContent() {
     setStore(null);
   }
 
+  function handleDiscoveryFeedback(domain: string, correct: boolean) {
+    // Fire-and-forget graph training; a rejection also removes the row now
+    competitorsApi.discoveryFeedback(domain, correct).catch(() => {});
+    if (!correct) {
+      setDiscoverResult((prev) => prev && ({
+        ...prev,
+        suggestions: prev.suggestions.filter((s) => s.domain !== domain),
+      }));
+    }
+  }
+
   async function handleDiscover() {
     if (!discoverDescription.trim() || discovering) return;
     setDiscovering(true);
@@ -661,19 +672,36 @@ function CompetitorsContent() {
                             <p className="text-xs truncate" style={{ color: "var(--muted)" }}>{s.reason}</p>
                           </div>
                         </div>
-                        {alreadyTracked ? (
-                          <span className="text-xs font-medium shrink-0 flex items-center gap-1" style={{ color: "var(--emerald)" }}>
-                            <Check className="w-3.5 h-3.5" /> Tracking
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => { setAddCompetitorInitialUrl(s.domain); setAddCompetitorOpen(true); }}
-                            className="text-xs font-semibold px-3 py-1.5 rounded-lg shrink-0 transition-all hover:brightness-110"
-                            style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.2)" }}
-                          >
-                            Track →
-                          </button>
-                        )}
+                        <div className="flex items-center gap-2 shrink-0">
+                          {/* Feedback trains the competitor graph — ✕ never shows this domain again */}
+                          {!alreadyTracked && (
+                            <button
+                              onClick={() => handleDiscoveryFeedback(s.domain, false)}
+                              title="Not actually a competitor — don't suggest again"
+                              className="p-1.5 rounded transition-all opacity-40 hover:opacity-100 hover:bg-white/[.06]"
+                              style={{ color: "var(--muted)" }}
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          {alreadyTracked ? (
+                            <span className="text-xs font-medium flex items-center gap-1" style={{ color: "var(--emerald)" }}>
+                              <Check className="w-3.5 h-3.5" /> Tracking
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                handleDiscoveryFeedback(s.domain, true);
+                                setAddCompetitorInitialUrl(s.domain);
+                                setAddCompetitorOpen(true);
+                              }}
+                              className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all hover:brightness-110"
+                              style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.2)" }}
+                            >
+                              Track →
+                            </button>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
@@ -742,11 +770,25 @@ function CompetitorsContent() {
 
         {shopifyConnectedBanner && (
           <div
-            className="flex items-center gap-2 px-4 py-3 rounded-md mb-4 text-sm font-medium"
-            style={{ background: "rgba(76,195,138,0.08)", border: "1px solid rgba(76,195,138,0.2)", color: "var(--emerald)" }}
+            className="px-4 py-3 rounded-md mb-4"
+            style={{ background: "rgba(76,195,138,0.08)", border: "1px solid rgba(76,195,138,0.2)" }}
           >
-            <Check className="w-4 h-4 shrink-0" />
-            Shopify store connected successfully.
+            <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: "var(--emerald)" }}>
+              <Check className="w-4 h-4 shrink-0" />
+              Shopify connected — StoreScout is learning your business.
+            </div>
+            {/* Celebrate with what was actually learned, not "success" */}
+            {store && (store.product_count != null || store.median_price != null) && (
+              <p className="num text-xs mt-1.5 pl-6" style={{ color: "var(--text-2)" }}>
+                Learned so far:{" "}
+                {[
+                  store.product_count != null && `${store.product_count.toLocaleString()} products`,
+                  store.median_price != null && `median ${formatPrice(store.median_price)}`,
+                  store.promo_rate != null && `${store.promo_rate.toFixed(0)}% on promotion`,
+                ].filter(Boolean).join(" · ")}
+                {" "}— personalized recommendations are generating.
+              </p>
+            )}
           </div>
         )}
 

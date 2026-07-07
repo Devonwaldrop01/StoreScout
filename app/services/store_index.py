@@ -438,6 +438,53 @@ def classify_store(
     return {"category": "Other", "subcategory": "General", "description": _clean(description, 200) or None, "method": "fallback"}
 
 
+# ── Competitor knowledge graph ─────────────────────────────────────────────
+
+def record_competitor_edge(db, source_key: str, target_domain: str, edge_source: str, delta: int = 1, set_weight: Optional[int] = None) -> None:
+    """Strengthen (or, with set_weight, pin) a who-competes-with-whom edge.
+    Guarded end-to-end — graph writes must never break the caller."""
+    try:
+        source_key = source_key if source_key.startswith("user:") else normalize_domain(source_key)
+        target_domain = normalize_domain(target_domain)
+        if not source_key or not target_domain or source_key == target_domain:
+            return
+        now = datetime.now(timezone.utc).isoformat()
+        existing = db.table("competitor_edges").select("id, weight")\
+            .eq("source_key", source_key).eq("target_domain", target_domain).maybe_single().execute()
+        if existing and existing.data:
+            weight = set_weight if set_weight is not None else (existing.data.get("weight") or 0) + delta
+            db.table("competitor_edges").update({
+                "weight": weight, "edge_source": edge_source, "updated_at": now,
+            }).eq("id", existing.data["id"]).execute()
+        else:
+            db.table("competitor_edges").insert({
+                "source_key": source_key, "target_domain": target_domain,
+                "weight": set_weight if set_weight is not None else delta,
+                "edge_source": edge_source, "created_at": now, "updated_at": now,
+            }).execute()
+    except Exception as exc:
+        logger.debug("competitor edge write skipped (%s→%s): %s", source_key, target_domain, exc)
+
+
+def graph_neighbors(db, source_keys: List[str], limit: int = 12) -> Dict[str, int]:
+    """Positive-weight neighbors of any of the source keys → {domain: weight}.
+    Negative-weight edges are returned too (weight < 0) so callers can
+    EXCLUDE confirmed non-competitors."""
+    out: Dict[str, int] = {}
+    try:
+        keys = [k if k.startswith("user:") else normalize_domain(k) for k in source_keys if k]
+        if not keys:
+            return out
+        res = db.table("competitor_edges").select("target_domain, weight")\
+            .in_("source_key", keys).order("weight", desc=True).limit(limit * 4).execute()
+        for r in res.data or []:
+            d = r["target_domain"]
+            out[d] = max(out.get(d, -999), r.get("weight") or 0) if d in out else (r.get("weight") or 0)
+    except Exception as exc:
+        logger.debug("graph neighbors lookup skipped: %s", exc)
+    return out
+
+
 # ── Upsert ─────────────────────────────────────────────────────────────────
 
 def upsert_index_row(db, domain: str, fields: Dict[str, Any]) -> str:

@@ -106,6 +106,11 @@ export const competitors = {
   exportCsvUrl: (id: string) => `${API_BASE}/competitors/${id}/export/products.csv`,
   discover: () =>
     apiFetch<{ data: { suggestions: DiscoverySuggestion[] } }>("/competitors/discover"),
+  discoveryFeedback: (domain: string, correct: boolean) =>
+    apiFetch<{ status: string }>("/competitors/discovery-feedback", {
+      method: "POST",
+      body: JSON.stringify({ domain, correct }),
+    }),
   discoverAI: (description: string) =>
     apiFetch<{ data: AIDiscoverySuggestion }>("/competitors/discover-ai", {
       method: "POST",
@@ -718,8 +723,30 @@ export const watchlist = {
   remove: (id: string) => apiFetch<void>(`/watchlist/${id}`, { method: "DELETE" }),
 };
 
+export interface IntelligenceSource {
+  key: string;
+  name: string;
+  category: string;
+  connected: boolean;
+  detail: string | null;
+  understands: string[];
+  unlocks: string[];
+}
+
+export interface BusinessKnowledge {
+  understanding_score: number;
+  depth_tier: "strategic" | "operational" | "customer" | "full";
+  sources: IntelligenceSource[];
+  understood: string[];
+  missing: { name: string; unlock: string }[];
+  competitors_tracked: number;
+  scan_history: number;
+}
+
 export const integrations = {
   get: () => apiFetch<{ data: { klaviyo: KlaviyoStatus } }>("/integrations"),
+  intelligenceSources: () =>
+    apiFetch<{ data: BusinessKnowledge }>("/integrations/intelligence-sources"),
   klaviyo: {
     save: (api_key: string) =>
       apiFetch<{ data: KlaviyoStatus }>("/integrations/klaviyo", {
