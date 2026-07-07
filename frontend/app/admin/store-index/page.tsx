@@ -7,8 +7,9 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import {
-  Database, RefreshCw, Check, X, AlertTriangle, Plus, Play, LogOut, Search,
+  Database, RefreshCw, Check, X, AlertTriangle, Plus, Play, LogOut, Search, Crosshair,
 } from "lucide-react";
 
 const TOKEN_KEY = "ss_admin_token";
@@ -257,6 +258,13 @@ export default function StoreIndexAdminPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Link
+              href="/admin/leads"
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-md transition-all hover:bg-white/[0.06]"
+              style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+            >
+              <Crosshair className="w-3.5 h-3.5" /> Leads
+            </Link>
             <button
               onClick={() => loadStats(token, filterStatus, filterDomain)}
               className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-md transition-all hover:bg-white/[0.06]"

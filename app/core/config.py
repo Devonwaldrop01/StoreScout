@@ -75,6 +75,12 @@ class Settings(BaseSettings):
     # Admin endpoints (/api/v1/admin/*) — disabled while this is empty
     admin_token: str = ""
 
+    # Internal lead discovery engine — growth tooling, never customer-facing
+    lead_engine_enabled: bool = False
+    lead_engine_daily_target: int = 20        # HIGH-QUALITY prospects/day, not volume
+    lead_engine_min_qualification: int = 55   # below this a store never becomes a prospect
+    lead_outreach_sender_name: str = "Devon"
+
 
 @lru_cache
 def get_settings() -> Settings:
