@@ -106,7 +106,7 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
       return (
         <div className="rounded-md px-5 py-8 text-center" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Price history builds over time — check back after a few more daily scans.
+            History starts today — every scan adds a point to this competitor&apos;s price timeline.
           </p>
         </div>
       );
@@ -125,7 +125,7 @@ export function PriceHistoryChart({ competitorId, isFree = true, onUpgrade }: Pr
       return (
         <div className="rounded-md px-5 py-8 text-center" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Price history builds over time — check back after a few more scans.
+            History starts today — every scan adds a point to this competitor&apos;s price timeline.
           </p>
         </div>
       );

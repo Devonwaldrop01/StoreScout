@@ -378,6 +378,16 @@ function OnboardingContent() {
   }
 
   function finish() {
+    // First scan done → walk through what we discovered before the dashboard.
+    // The reveal page carries the plan through to the upgrade modal.
+    if (newCompetitorId && scanDone) {
+      router.push(
+        selectedPlan !== "free"
+          ? `/onboarding/reveal/${newCompetitorId}?plan=${selectedPlan}`
+          : `/onboarding/reveal/${newCompetitorId}`
+      );
+      return;
+    }
     const dest = newCompetitorId ? `/dashboard/${newCompetitorId}` : "/dashboard";
     if (selectedPlan !== "free") {
       router.push(`${dest}?upgrade=${selectedPlan}`);

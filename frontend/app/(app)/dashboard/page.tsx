@@ -900,14 +900,14 @@ function DashboardContent() {
         </>
       ) : (
         <>
-          {/* Getting Started checklist — free users only, until completed/dismissed */}
-          {userTier === "free" && (
-            <GettingStarted
-              firstCompetitorId={competitorList[0]?.id}
-              competitorAdded={competitorList.length > 0}
-              onUpgrade={() => setUpgradeOpen(true)}
-            />
-          )}
+          {/* Getting Started checklist — every new account, until completed/dismissed */}
+          <GettingStarted
+            firstCompetitorId={competitorList[0]?.id}
+            competitorAdded={competitorList.length > 0}
+            firstScanDone={competitorList.some((c) => !!c.last_scanned_at)}
+            isFree={userTier === "free"}
+            onUpgrade={() => setUpgradeOpen(true)}
+          />
 
           {/* Stats bar */}
           {!alertsLoading && <StatsBar competitorList={competitorList} signalGroups={signalGroups} alertList={alertList} />}
@@ -936,14 +936,44 @@ function DashboardContent() {
                   </div>
                   <SignalBreakdown groups={signalGroups} />
                   {signalGroups.length === 0 ? (
-                    <div
-                      className="rounded-lg px-4 py-5 text-center"
-                      style={{ border: "1px solid var(--border)" }}
-                    >
-                      <p className="text-sm" style={{ color: "var(--muted)" }}>
-                        No activity detected recently — we&apos;ll show signals here as competitors make changes.
-                      </p>
-                    </div>
+                    alertList.length === 0 ? (
+                      /* Brand-new account: explain what monitoring means — the
+                         feed isn't broken, it's a baseline that fills itself. */
+                      <div
+                        className="rounded-lg px-5 py-6"
+                        style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="signal-dot" />
+                          <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                            Monitoring has started
+                          </p>
+                        </div>
+                        <p className="text-sm leading-relaxed mb-3" style={{ color: "var(--text-2)" }}>
+                          Today&apos;s scan is the baseline. From now on, every scan is compared against
+                          it — the moment {competitorList[0]?.display_name || competitorList[0]?.hostname || "your competitor"}{" "}
+                          launches a product, moves a price, starts a discount, or pulls inventory, it shows up here.
+                        </p>
+                        <p className="text-xs" style={{ color: "var(--muted)" }}>
+                          In the meantime, the full first-scan analysis is already in the{" "}
+                          {competitorList[0]?.id ? (
+                            <Link href={`/dashboard/${competitorList[0].id}`} className="underline" style={{ color: "var(--text-2)" }}>
+                              competitor dossier
+                            </Link>
+                          ) : "competitor dossier"}
+                          {" "}— catalog, pricing, and market openings.
+                        </p>
+                      </div>
+                    ) : (
+                      <div
+                        className="rounded-lg px-4 py-5 text-center"
+                        style={{ border: "1px solid var(--border)" }}
+                      >
+                        <p className="text-sm" style={{ color: "var(--muted)" }}>
+                          No activity detected recently — we&apos;ll show signals here as competitors make changes.
+                        </p>
+                      </div>
+                    )
                   ) : (
                     <SignalFeed groups={signalGroups} />
                   )}
