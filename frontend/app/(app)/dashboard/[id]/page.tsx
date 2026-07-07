@@ -32,6 +32,7 @@ import { QuickWins } from "@/components/competitors/QuickWins";
 import UpgradeModal from "@/components/UpgradeModal";
 import { LockedValueCard } from "@/components/ui";
 import { type BriefData } from "@/lib/api";
+import { SaveToPlaybook } from "@/components/SaveToPlaybook";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type Tab = "overview" | "catalog" | "pricing" | "changes" | "intelligence";
@@ -222,7 +223,7 @@ function PositioningBar({ label, score, scoreLabel }: { label: string; score: nu
 
 // ── Top alert banner ──────────────────────────────────────────────────────────
 // ── Change row ────────────────────────────────────────────────────────────────
-function ChangeRow({ change, hostname }: { change: ChangeEvent; hostname?: string }) {
+function ChangeRow({ change, hostname, competitorId }: { change: ChangeEvent; hostname?: string; competitorId?: string }) {
   const Icon    = changeTypeIcon(change.change_type);
   const color   = changeTypeColor(change.change_type);
   const label   = changeTypeLabel(change.change_type);
@@ -273,9 +274,26 @@ function ChangeRow({ change, hostname }: { change: ChangeEvent; hostname?: strin
           <p className="text-[11px] mt-0.5" style={{ color: "var(--muted)" }}>{detail}</p>
         )}
       </div>
-      <p className="text-xs shrink-0" style={{ color: "var(--muted)" }}>
-        {formatRelativeTime(change.detected_at)}
-      </p>
+      <div className="flex items-center gap-2 shrink-0">
+        {action && competitorId && (
+          <SaveToPlaybook
+            size="xs"
+            item={{
+              source_type: "signal",
+              source_ref: change.id,
+              competitor_id: competitorId,
+              hostname,
+              title: action,
+              reason: `${label}${change.product_title ? ` — ${change.product_title}` : ""} on ${hostname}`,
+              evidence: detail || label,
+              priority: change.severity === "critical" ? "high" : change.severity === "warning" ? "medium" : "low",
+            }}
+          />
+        )}
+        <p className="text-xs" style={{ color: "var(--muted)" }}>
+          {formatRelativeTime(change.detected_at)}
+        </p>
+      </div>
     </div>
   );
 }
@@ -338,7 +356,7 @@ const DIGEST_THREAT: Record<string, { color: string; label: string }> = {
 };
 
 function ScoutBriefDigest({
-  hostname, briefText, changes, fallbackHighlights, onOpenPro, isFree,
+  hostname, briefText, changes, fallbackHighlights, onOpenPro, isFree, competitorId,
 }: {
   hostname: string;
   briefText: string;
@@ -346,6 +364,7 @@ function ScoutBriefDigest({
   fallbackHighlights: string[];
   onOpenPro: () => void;
   isFree: boolean;
+  competitorId: string;
 }) {
   let threatLevel: string | undefined;
   let highlights: string[] = [];
@@ -395,10 +414,25 @@ function ScoutBriefDigest({
       </div>
 
       {oneMove && (
-        <p className="text-sm font-semibold leading-snug mt-3" style={{ color: "var(--text)" }}>
-          <Zap className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" style={{ color: "var(--accent)" }} />
-          {oneMove}
-        </p>
+        <div className="flex items-start justify-between gap-3 mt-3">
+          <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text)" }}>
+            <Zap className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" style={{ color: "var(--accent)" }} />
+            {oneMove}
+          </p>
+          <SaveToPlaybook
+            size="xs"
+            item={{
+              source_type: "brief",
+              source_ref: competitorId,
+              competitor_id: competitorId,
+              hostname,
+              title: oneMove,
+              reason: `Scout Brief recommended move for ${hostname}`,
+              evidence: highlights.slice(0, 4).join(" · "),
+              priority: threatLevel === "high" ? "high" : "medium",
+            }}
+          />
+        </div>
       )}
 
       <button
@@ -866,6 +900,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                 `${(launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count ?? 0} launches · 30d`,
               ].filter(Boolean)}
               isFree={isFree}
+              competitorId={id}
               onOpenPro={() => {
                 if (isFree) { setUpgradeOpen(true); return; }
                 setTab("intelligence");
@@ -953,7 +988,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                       ) : null;
                     })()}
                     <div className="px-5" style={{ background: "var(--bg-card)" }}>
-                      {changes.slice(0, 4).map((c) => <ChangeRow key={c.id} change={c} hostname={hostname} />)}
+                      {changes.slice(0, 4).map((c) => <ChangeRow key={c.id} change={c} hostname={hostname} competitorId={id} />)}
                     </div>
                   </div>
                 )}
@@ -1218,7 +1253,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                   ) : (
                     <div>
                       <div className="px-5" style={{ background: "var(--bg-card)" }}>
-                        {visibleChanges.map((c) => <ChangeRow key={c.id} change={c} hostname={hostname} />)}
+                        {visibleChanges.map((c) => <ChangeRow key={c.id} change={c} hostname={hostname} competitorId={id} />)}
                       </div>
 
                       {/* Free tier gate */}
@@ -1375,6 +1410,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           return (
                             <ProAnalysis
                               hostname={hostname}
+                              competitorId={id}
                               data={pro}
                               generatedAt={aiSummary.generated_at}
                               model={aiSummary.model}
