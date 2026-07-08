@@ -227,8 +227,9 @@ def discover_shopify_stores_daily(limit_override: Optional[int] = None, force: b
     treats limit_override as both target and budget (a bounded small run).
     """
     settings = get_settings()
-    if not settings.shopify_index_enabled and not force:
-        logger.info("store index disabled (SHOPIFY_INDEX_ENABLED=false) — skipping run")
+    from app.services.runtime_config import get_config
+    if not get_config("shopify_index_enabled", settings.shopify_index_enabled) and not force:
+        logger.info("store index disabled (toggle off) — skipping run")
         return {"status": "disabled"}
 
     # Distributed lock — same pattern as enqueue_due_scans
@@ -247,8 +248,8 @@ def discover_shopify_stores_daily(limit_override: Optional[int] = None, force: b
         verified_target = max(1, min(limit_override, 250))
         budget = verified_target
     else:
-        verified_target = max(1, min(settings.shopify_index_daily_verified_target, 250))
-        budget = max(verified_target, min(settings.shopify_index_daily_candidate_limit, 500))
+        verified_target = max(1, min(get_config("shopify_index_daily_verified_target", settings.shopify_index_daily_verified_target), 250))
+        budget = max(verified_target, min(get_config("shopify_index_daily_candidate_limit", settings.shopify_index_daily_candidate_limit), 500))
     reverify_cutoff = (datetime.now(timezone.utc) - timedelta(days=_REVERIFY_DAYS)).isoformat()
     concurrency = max(1, min(settings.shopify_index_concurrency, 4))
     batch_size = max(concurrency * 5, 10)
