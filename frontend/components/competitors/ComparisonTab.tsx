@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Swords, TrendingUp, TrendingDown, Minus, Lock, Store, ArrowRight, Loader2, Target } from "lucide-react";
 import { competitors as api, myStore as myStoreApi, type ComparisonResponse, type ComparisonDimension } from "@/lib/api";
 import UpgradeModal from "@/components/UpgradeModal";
+import { SaveToPlaybook } from "@/components/SaveToPlaybook";
 
 // ── verdict styling ──────────────────────────────────────────────────────────
 
@@ -261,6 +262,43 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
       {data.dimensions?.map((d) => (
         <DimensionCard key={d.key} dim={d} onUpgrade={() => setUpgradeOpen(true)} />
       ))}
+
+      {/* ── The scorecard's closing argument: protect / attack ───────────── */}
+      {(() => {
+        const dims = data.dimensions ?? [];
+        const protect = dims.find((d) => d.verdict === "winning");
+        const attack = dims.find((d) => d.verdict === "losing");
+        if (!protect && !attack) return null;
+        const interpretation = [
+          protect && `Your clearest edge is ${protect.label.toLowerCase()} (${protect.your_value} vs ${protect.their_value}) — that's the position to defend before chasing anything new.`,
+          attack && `The fight worth picking is ${attack.label.toLowerCase()} (${attack.your_value} vs ${attack.their_value}) — it's the gap they'd least expect you to close.`,
+        ].filter(Boolean).join(" ");
+        const move = attack?.action || protect?.action || null;
+        return (
+          <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: "3px solid var(--accent)" }}>
+            <p className="label-caps mb-1.5" style={{ color: "var(--accent)" }}>StoreScout interpretation</p>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>{interpretation}</p>
+            {move && (
+              <div className="flex items-start justify-between gap-3 mt-2.5">
+                <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text)" }}>→ {move}</p>
+                <SaveToPlaybook
+                  size="xs"
+                  item={{
+                    source_type: "pricing",
+                    source_ref: `${competitorId}:compare`,
+                    competitor_id: competitorId,
+                    hostname: data.their_hostname,
+                    title: move,
+                    reason: interpretation,
+                    evidence: `Scorecard: ${data.overall.score.winning}W · ${data.overall.score.losing}L · ${data.overall.score.matched}M vs ${data.their_hostname}`,
+                    priority: "medium",
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="general" />
     </div>

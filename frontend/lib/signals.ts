@@ -315,6 +315,33 @@ export function impactLevel(group: SignalGroup): "High" | "Medium" | "Low" {
   return "Low";
 }
 
+// ── Detection explanation ─────────────────────────────────────────────────
+// Every alert is an investigation, and investigations show their working:
+// this states, deterministically, why the detector fired — never AI copy.
+
+export function detectionExplanation(group: SignalGroup): string {
+  const n = group.count;
+  const delta = group.avg_delta_pct != null ? `${Math.abs(Math.round(group.avg_delta_pct))}%` : null;
+  switch (group.type) {
+    case "flash_sale":
+      return `${n} price drops landed within a single 4-hour window${delta ? ` averaging −${delta}` : ""} — coordinated timing like this is a sale event, not routine repricing.`;
+    case "price_wave":
+      return `${n} prices moved down together inside a 4-hour window — clustered drops signal a deliberate repricing decision.`;
+    case "discount_wave":
+      return `${n} products entered discount together — a campaign start, not item-level markdowns.`;
+    case "price_increase":
+      return `${n} prices moved up inside one window${delta ? ` averaging +${delta}` : ""} — margin-taking or input costs; either way, room opened above them.`;
+    case "launch_burst":
+      return `${n} products appeared in one scan window — a drop or collection launch, not catalog housekeeping.`;
+    case "product_removals":
+      return `${n} products left the catalog together — clearing a line, or a supplier change.`;
+    case "availability_shift":
+      return `${n} stock states flipped in one window — sell-through or an inventory event.`;
+    default:
+      return `${n} related change${n === 1 ? "" : "s"} detected inside one scan window.`;
+  }
+}
+
 // ── Signal type → visual config ──────────────────────────────────────────
 // Semantic color only — color carries meaning, nothing decorative:
 //   red   = competitor cutting prices / discounting (downward, aggressive)

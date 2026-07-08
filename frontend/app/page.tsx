@@ -551,8 +551,8 @@ function LaunchVelocityMock() {
 // "Winning Products" — scored product list
 function WinningProductsMock() {
   const rows = [
-    { t: "Vital Seamless Leggings", p: "$60", v: "Worth Testing", c: "#FFB224" },
-    { t: "Power Hoodie", p: "$75", v: "Worth Testing", c: "#FFB224" },
+    { t: "Vital Seamless Leggings", p: "$60", v: "Hero Product", c: "#FFB224" },
+    { t: "Power Hoodie", p: "$75", v: "Strong Performer", c: "#4CC38A" },
     { t: "Apex Sports Bra", p: "$45", v: "Watch First", c: "#FFB224" },
     { t: "Studio Joggers", p: "$68", v: "Watch First", c: "#FFB224" },
   ];

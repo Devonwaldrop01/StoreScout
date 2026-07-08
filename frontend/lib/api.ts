@@ -305,6 +305,13 @@ export interface WinningProduct {
   reason?: string | null;
   signal_tags?: string[];
   locked?: boolean;
+  // Product Intelligence tiers (scans after the tier system shipped)
+  tier?: "hero" | "strong" | "emerging" | "monitor" | "ignore";
+  premium_position?: boolean;
+  cross_sell?: boolean;
+  why?: string[];
+  reveals?: string;
+  respond?: string | null;
 }
 
 export interface NewestProduct {
