@@ -106,3 +106,38 @@ def generate_ai_summaries_batch() -> dict:
         count += 1
 
     return {"generated": count}
+
+
+@celery.task(name="app.tasks.scheduler.send_daily_briefs_batch")
+def send_daily_briefs_batch() -> dict:
+    """Runs hourly. Sends the Daily Intelligence Brief to every Pro/Agency
+    user whose configured digest_hour matches the current UTC hour (default
+    8). The brief task itself skips quiet days and non-daily levels."""
+    from app.tasks.alerts import send_daily_brief_email
+    db = get_supabase()
+    hour = datetime.now(timezone.utc).hour
+
+    users = db.table("user_profiles")\
+        .select("id")\
+        .in_("tier", ["pro", "agency"])\
+        .eq("subscription_status", "active")\
+        .execute()
+    user_ids = [u["id"] for u in (users.data or [])]
+    if not user_ids:
+        return {"queued": 0}
+
+    # digest_hour lives in notification_prefs; users without a row get 8 UTC
+    hours: dict = {}
+    try:
+        prefs = db.table("notification_prefs").select("user_id, digest_hour")\
+            .in_("user_id", user_ids).execute()
+        hours = {p["user_id"]: p.get("digest_hour", 8) for p in (prefs.data or [])}
+    except Exception as exc:
+        logger.debug("digest_hour fetch failed (migration 013 pending?): %s", exc)
+
+    queued = 0
+    for uid in user_ids:
+        if (hours.get(uid, 8)) == hour:
+            send_daily_brief_email.delay(uid)
+            queued += 1
+    return {"queued": queued, "hour": hour}

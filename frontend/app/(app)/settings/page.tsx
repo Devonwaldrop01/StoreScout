@@ -164,6 +164,15 @@ function SettingsContent() {
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
+  async function savePrefs(patch: Partial<NotificationPrefs>) {
+    setPrefs((prev) => (prev ? { ...prev, ...patch } : prev));
+    try {
+      await userApi.updatePrefs(patch);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch { /* optimistic value stays; next load corrects */ }
+  }
+
   async function handleTogglePref(key: keyof NotificationPrefs) {
     if (!prefs) return;
     const newValue = !prefs[key];
@@ -699,8 +708,53 @@ function SettingsContent() {
             </span>
           </div>
           <p className="text-sm mb-4" style={{ color: "var(--muted)" }}>
-            Choose which events trigger an email. Changes save automatically.
+            Choose your cadence first, then which events matter. Changes save automatically.
           </p>
+
+          {/* Cadence — the three-level notification system */}
+          <div className="mb-5">
+            <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-2)" }}>How often should StoreScout email you?</p>
+            <div className="grid sm:grid-cols-2 gap-2">
+              {[
+                { v: "critical_only" as const, label: "Critical only", desc: "Rare. Only major strategic events — flash sales, big price cuts." },
+                { v: "daily" as const, label: "Daily Intelligence Brief", desc: "One email a day, ordered by impact — plus instant criticals. Recommended." },
+                { v: "weekly" as const, label: "Weekly report only", desc: "The Monday market summary. Nothing in between." },
+                { v: "quiet" as const, label: "Quiet", desc: "In-app only. No email at all." },
+              ].map(({ v, label, desc }) => {
+                const active = (prefs?.notification_level ?? "daily") === v;
+                return (
+                  <button
+                    key={v}
+                    onClick={() => savePrefs({ notification_level: v })}
+                    className="text-left px-3 py-2.5 rounded-md transition-all"
+                    style={{
+                      background: active ? "var(--bg3)" : "transparent",
+                      border: active ? "1px solid rgba(255,178,36,.35)" : "1px solid var(--border)",
+                    }}
+                  >
+                    <p className="text-xs font-semibold" style={{ color: active ? "var(--text)" : "var(--text-2)" }}>{label}</p>
+                    <p className="text-[11px] mt-0.5 leading-snug" style={{ color: "var(--muted)" }}>{desc}</p>
+                  </button>
+                );
+              })}
+            </div>
+            {(prefs?.notification_level ?? "daily") === "daily" && (
+              <div className="flex items-center gap-2 mt-2.5">
+                <span className="text-xs" style={{ color: "var(--muted)" }}>Deliver the brief at</span>
+                <select
+                  value={String(prefs?.digest_hour ?? 8)}
+                  onChange={(e) => savePrefs({ digest_hour: Number(e.target.value) })}
+                  className="text-xs rounded px-2 py-1.5 outline-none"
+                  style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                >
+                  {Array.from({ length: 24 }, (_, h) => (
+                    <option key={h} value={h}>{String(h).padStart(2, "0")}:00 UTC</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
           <div className="space-y-2">
             {[
               { key: "email_price_changes" as const, label: "Price changes", desc: "When a competitor changes prices by 10% or more" },

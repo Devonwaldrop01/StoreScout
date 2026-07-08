@@ -1263,6 +1263,51 @@ def get_price_history(competitor_id: str, user_id: str = Depends(get_effective_u
     }}
 
 
+@router.get("/{competitor_id}/market-context")
+def get_market_context(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
+    """Market research context for Product Intelligence: this competitor's
+    category, its verified peers from StoreScout's own store index, and
+    saturation. Every number here is VERIFIED index data — the frontend
+    layers clearly-labeled estimates (wholesale ranges) on top."""
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+
+    comp = db.table("competitors").select("hostname").eq("id", competitor_id).maybe_single().execute()
+    hostname = ((comp and comp.data) or {}).get("hostname") or ""
+    from app.services.store_index import normalize_domain
+    domain = normalize_domain(hostname)
+
+    empty = {"category": None, "saturation": 0, "peers": []}
+    try:
+        row = db.table("shopify_store_index")\
+            .select("category, subcategory, median_price, pricing_tier")\
+            .eq("domain", domain).maybe_single().execute()
+        me = (row and row.data) or {}
+        category = me.get("category")
+        if not category or category == "Other":
+            return {"data": empty}
+
+        saturation = db.table("shopify_store_index").select("id", count="exact")\
+            .eq("status", "verified").eq("category", category).execute().count or 0
+
+        peers_res = db.table("shopify_store_index")\
+            .select("domain, brand_name, median_price, business_stage, pricing_tier")\
+            .eq("status", "verified").eq("category", category)\
+            .neq("domain", domain)\
+            .order("verification_confidence", desc=True)\
+            .limit(8).execute()
+
+        return {"data": {
+            "category": category,
+            "subcategory": me.get("subcategory"),
+            "saturation": saturation,
+            "peers": peers_res.data or [],
+        }}
+    except Exception as exc:
+        logger.debug("market-context skipped for %s: %s", domain, exc)
+        return {"data": empty}
+
+
 @router.get("/{competitor_id}/brief")
 def get_brief(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """Latest Intelligence Brief for this competitor (available to all tiers)."""

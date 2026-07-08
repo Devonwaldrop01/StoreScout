@@ -94,6 +94,7 @@ from app.api.v1.watchlist import router as watchlist_router
 from app.api.v1.store_index import router as store_index_router
 from app.api.v1.leads import router as leads_router
 from app.api.v1.playbook_items import router as playbook_items_router
+from app.api.v1.admin_brief import router as admin_brief_router
 
 app.include_router(competitors_router, prefix="/api/v1")
 app.include_router(alerts_router, prefix="/api/v1")
@@ -115,6 +116,7 @@ app.include_router(watchlist_router, prefix="/api/v1")
 app.include_router(store_index_router, prefix="/api/v1")
 app.include_router(leads_router, prefix="/api/v1")
 app.include_router(playbook_items_router, prefix="/api/v1")
+app.include_router(admin_brief_router, prefix="/api/v1")
 
 def extract_store_url_from_session(session: dict) -> str | None:
     fields = session.custom_fields or []

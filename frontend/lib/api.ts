@@ -103,6 +103,8 @@ export const competitors = {
     apiFetch<{ data: PriceHistoryResponse }>(`/competitors/${id}/price-history`),
   brief: (id: string) =>
     apiFetch<{ data: BriefData }>(`/competitors/${id}/brief`),
+  marketContext: (id: string) =>
+    apiFetch<{ data: MarketContext }>(`/competitors/${id}/market-context`),
   exportCsvUrl: (id: string) => `${API_BASE}/competitors/${id}/export/products.csv`,
   discover: () =>
     apiFetch<{ data: { suggestions: DiscoverySuggestion[] } }>("/competitors/discover"),
@@ -312,6 +314,13 @@ export interface WinningProduct {
   why?: string[];
   reveals?: string;
   respond?: string | null;
+}
+
+export interface MarketContext {
+  category: string | null;
+  subcategory?: string | null;
+  saturation: number;
+  peers: { domain: string; brand_name: string | null; median_price: number | null; business_stage: string | null; pricing_tier: string | null }[];
 }
 
 export interface NewestProduct {
@@ -546,6 +555,8 @@ export interface NotificationPrefs {
   email_discount_changes: boolean;
   email_weekly_digest: boolean;
   digest_day: string;
+  notification_level?: "critical_only" | "daily" | "weekly" | "quiet";
+  digest_hour?: number;
   slack_webhook_url?: string;
   slack_enabled?: boolean;
   webhook_url?: string;

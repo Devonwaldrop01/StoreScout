@@ -83,5 +83,11 @@ celery.conf.update(
             "task": "app.tasks.lead_engine.discover_leads_daily",
             "schedule": crontab(hour=5, minute=30),
         },
+        # Daily Intelligence Brief dispatcher — hourly; each user's brief
+        # fires at their configured digest hour (default 08:00 UTC).
+        "send-daily-briefs": {
+            "task": "app.tasks.scheduler.send_daily_briefs_batch",
+            "schedule": crontab(minute=5),
+        },
     },
 )

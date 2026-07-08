@@ -22,6 +22,7 @@ import {
   watchlist as watchlistApi,
   type WinningProductsResponse,
   type WinningProduct,
+  type MarketContext,
 } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import UpgradeModal from "@/components/UpgradeModal";
@@ -96,7 +97,7 @@ function CopyButton({ text }: { text: string }) {
 // ── Product row (all tiers share it; heroes get the rich treatment) ─────────
 
 function ProductRow({
-  product, tier, competitorId, expanded, onToggle, isLast, pinned, onPin,
+  product, tier, competitorId, expanded, onToggle, isLast, pinned, onPin, market,
 }: {
   product: WinningProduct;
   tier: Tier;
@@ -106,6 +107,7 @@ function ProductRow({
   isLast: boolean;
   pinned: boolean;
   onPin: () => void;
+  market?: MarketContext | null;
 }) {
   const meta = TIER_META[tier];
   const why = product.why?.length ? product.why : (product.reason ? [product.reason] : []);
@@ -194,6 +196,32 @@ function ProductRow({
             </div>
           )}
 
+          {/* Market research — verified index facts + clearly-labeled estimates */}
+          {(tier === "hero" || tier === "strong" || tier === "emerging") && market?.category && (
+            <div className="rounded-md px-3 py-2.5" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+              <p className="label-caps mb-1.5">Market research · {market.category}</p>
+              <div className="space-y-1">
+                <p className="text-xs leading-snug" style={{ color: "var(--text-2)" }}>
+                  <span className="text-[10px] font-bold px-1 py-px rounded mr-1.5" style={{ background: "rgba(76,195,138,.12)", color: "#4CC38A" }}>VERIFIED</span>
+                  {market.saturation} verified {market.category.toLowerCase()} store{market.saturation === 1 ? "" : "s"} in StoreScout&apos;s index
+                  {market.peers.length > 0 && <> — closest peers: {market.peers.slice(0, 3).map((pr) => pr.brand_name || pr.domain).join(", ")}</>}
+                </p>
+                {product.price_min != null && (
+                  <p className="text-xs leading-snug" style={{ color: "var(--text-2)" }}>
+                    <span className="text-[10px] font-bold px-1 py-px rounded mr-1.5" style={{ background: "rgba(255,178,36,.12)", color: "var(--accent)" }}>ESTIMATED</span>
+                    Typical wholesale for a {formatPrice(product.price_min)} retail product runs {formatPrice(product.price_min * 0.25)}–{formatPrice(product.price_min * 0.5)} (industry-standard 2–4× markup — verify with suppliers)
+                  </p>
+                )}
+                <p className="text-xs leading-snug" style={{ color: "var(--muted)" }}>
+                  <span className="text-[10px] font-bold px-1 py-px rounded mr-1.5" style={{ background: "rgba(125,184,201,.12)", color: "#7DB8C9" }}>GUIDANCE</span>
+                  {market.saturation >= 15
+                    ? "Crowded category — a me-too version won't cut through. Differentiate on audience, bundle, or service."
+                    : "Sparse category in our index so far — early positioning is still winnable here."}
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="flex justify-end">
             <SaveToPlaybook
               size="xs"
@@ -219,7 +247,7 @@ function ProductRow({
 // ── Tier section ─────────────────────────────────────────────────────────────
 
 function TierSection({
-  tier, products, competitorId, expandedHandle, onToggle, pinnedMap, onPin, collapsible,
+  tier, products, competitorId, expandedHandle, onToggle, pinnedMap, onPin, collapsible, market,
 }: {
   tier: Tier;
   products: WinningProduct[];
@@ -229,6 +257,7 @@ function TierSection({
   pinnedMap: Record<string, string>;
   onPin: (p: WinningProduct) => void;
   collapsible?: boolean;
+  market?: MarketContext | null;
 }) {
   const [open, setOpen] = useState(!collapsible);
   const meta = TIER_META[tier];
@@ -272,6 +301,7 @@ function TierSection({
               isLast={i === products.length - 1}
               pinned={!!p.handle && !!pinnedMap[p.handle]}
               onPin={() => onPin(p)}
+              market={market}
             />
           ))}
         </div>
@@ -288,12 +318,16 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [expandedHandle, setExpandedHandle] = useState<string | null>(null);
   const [pinnedMap, setPinnedMap] = useState<Record<string, string>>({});
+  const [market, setMarket] = useState<MarketContext | null>(null);
 
   useEffect(() => {
     api.winningProducts(competitorId)
       .then((r) => setData(r.data))
       .catch(() => {})
       .finally(() => setLoading(false));
+    api.marketContext(competitorId)
+      .then((r) => setMarket(r.data))
+      .catch(() => {});
   }, [competitorId]);
 
   const loadPins = useCallback(() => {
@@ -405,6 +439,7 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
             pinnedMap={pinnedMap}
             onPin={togglePin}
             collapsible={tier === "monitor" || tier === "ignore"}
+            market={market}
           />
         ))}
       </div>
