@@ -246,3 +246,35 @@ def run_store_index(body: RunBody, x_admin_token: Optional[str] = Header(default
         logger.warning("store-index run: Celery unavailable (%s) — running inline", exc)
         result = discover_shopify_stores_daily(limit_override=limit, force=True)
         return {"status": "completed_inline", "result": result, "limit": limit}
+
+
+# ── Runtime engine controls — flip toggles/limits without a redeploy ────────
+
+@router.get("/admin/config")
+def get_admin_config(x_admin_token: Optional[str] = Header(default=None)):
+    """Effective values of the runtime-configurable engine knobs."""
+    _require_admin(x_admin_token)
+    from app.services.runtime_config import get_all
+    return {"data": get_all()}
+
+
+class ConfigBody(BaseModel):
+    # All optional — only sent keys are updated; unknown keys are ignored.
+    shopify_index_enabled: Optional[bool] = None
+    shopify_index_daily_verified_target: Optional[int] = None
+    shopify_index_daily_candidate_limit: Optional[int] = None
+    lead_engine_enabled: Optional[bool] = None
+    lead_engine_daily_target: Optional[int] = None
+    lead_engine_min_qualification: Optional[int] = None
+
+
+@router.put("/admin/config")
+def update_admin_config(body: ConfigBody, x_admin_token: Optional[str] = Header(default=None)):
+    """Override engine knobs. Takes effect within ~15s (worker cache window);
+    no redeploy or restart. Env vars remain the defaults for a fresh deploy."""
+    _require_admin(x_admin_token)
+    from app.services.runtime_config import set_config
+    updates = {k: v for k, v in body.model_dump().items() if v is not None}
+    if not updates:
+        raise HTTPException(status_code=422, detail="nothing to update")
+    return {"data": set_config(updates)}

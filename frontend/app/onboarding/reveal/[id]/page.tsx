@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { competitors as api, type Snapshot, type BriefCard } from "@/lib/api";
 import { track } from "@/lib/analytics";
+import { InsightCard } from "@/components/ui/InsightCard";
 
 // ── Parsed brief (digest fields shipped in Phase 1) ────────────────────────
 interface ParsedBrief {
@@ -24,12 +25,6 @@ interface ParsedBrief {
   one_move?: string;
   cards?: BriefCard[];
 }
-
-const FINDING_LABEL: Record<string, { label: string; color: string }> = {
-  signal:      { label: "Notable signal", color: "#FFB224" },
-  opportunity: { label: "Opportunity",    color: "#4CC38A" },
-  watch:       { label: "Watch closely",  color: "#7DB8C9" },
-};
 
 const MONITORS = [
   { icon: Tag,      title: "Price changes",     desc: "Every price move on every product, with the % delta" },
@@ -204,7 +199,7 @@ export default function RevealPage({ params }: { params: Promise<{ id: string }>
   if (!snapshot) {
     return (
       <Shell>
-        <div className="text-center">
+        <div className="text-center rounded-md px-10 py-8 analyzing-sweep" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center justify-center gap-1.5 mb-4">
             {[0, 1, 2].map((i) => (
               <div key={i} className="w-2 h-2 rounded-full animate-bounce" style={{ background: "var(--accent)", animationDelay: `${i * 0.15}s` }} />
@@ -252,22 +247,15 @@ export default function RevealPage({ params }: { params: Promise<{ id: string }>
         Not every metric — just the ones that matter, and why.
       </p>
       <div className="space-y-3">
-        {findings.map((f, i) => {
-          const meta = FINDING_LABEL[f.type] ?? FINDING_LABEL.signal;
-          return (
-            <div
-              key={i}
-              className="rounded-md p-4 fade-up"
-              style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: `3px solid ${meta.color}`, animationDelay: `${i * 120}ms` }}
-            >
-              <p className="label-caps mb-1.5" style={{ color: meta.color }}>{meta.label}</p>
-              <p className="text-sm font-semibold leading-snug mb-1" style={{ color: "var(--text)" }}>{f.headline}</p>
+        {findings.map((f, i) => (
+          <div key={i} className="fade-up" style={{ animationDelay: `${i * 120}ms` }}>
+            <InsightCard type={f.type} headline={f.headline}>
               <p className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
                 <span className="font-semibold" style={{ color: "var(--muted)" }}>Why it matters · </span>{f.why}
               </p>
-            </div>
-          );
-        })}
+            </InsightCard>
+          </div>
+        ))}
       </div>
     </div>,
 
@@ -295,7 +283,7 @@ export default function RevealPage({ params }: { params: Promise<{ id: string }>
         <div className="rounded-md p-4 mb-4 flex items-start gap-3" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
           <Zap className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "var(--accent)" }} />
           <div>
-            <p className="label-caps mb-1" style={{ color: "var(--accent)" }}>One move to consider</p>
+            <p className="label-caps mb-1" style={{ color: "var(--accent)" }}>Your move</p>
             <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text)" }}>{oneMove}</p>
           </div>
         </div>

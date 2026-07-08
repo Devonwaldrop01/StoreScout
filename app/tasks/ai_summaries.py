@@ -410,12 +410,14 @@ def generate_pro_analysis(competitor_id: str) -> dict:
     except Exception as exc:
         logger.debug("pro-analysis my-store context failed: %s", exc)
     try:
-        from app.api.v1.integrations import get_shopify_context
-        admin_ctx = get_shopify_context(user_id)
-        if admin_ctx:
-            my_store_text = (my_store_text + "\n" + admin_ctx).strip()
+        # Full adaptive knowledge context — admin inventory, email, traffic,
+        # search when connected, with explicit depth-tier guidance.
+        from app.services.knowledge import build_ai_context
+        knowledge_ctx = build_ai_context(user_id)
+        if knowledge_ctx:
+            my_store_text = (my_store_text + "\n" + knowledge_ctx).strip()
     except Exception as exc:
-        logger.debug("pro-analysis shopify admin context failed: %s", exc)
+        logger.debug("pro-analysis knowledge context failed: %s", exc)
 
     prompt = f"""Competitor under review: {hostname}
 

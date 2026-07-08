@@ -152,6 +152,50 @@ def score_winning_products(products: List[Dict[str, Any]], limit: int = 25) -> D
 
     scored.sort(key=lambda x: x["score"], reverse=True)
 
+    # ── Tier assignment — scarcity IS the intelligence ─────────────────────
+    # A verdict system that marks half the catalog "worth testing" destroys
+    # trust. Tiers are catalog-relative with hard caps AND strict absolute
+    # gates: very few products can be Heroes, and every assignment explains
+    # itself. Order: hero → strong → emerging → monitor → ignore.
+    import math as _math
+    prices = [s["price_min"] for s in scored if s["price_min"]]
+    catalog_median = sorted(prices)[len(prices) // 2] if prices else None
+
+    hero_cap   = max(2, min(5,  _math.ceil(total * 0.02)))
+    strong_cap = max(4, min(12, _math.ceil(total * 0.06)))
+    emerging_cap = 8
+    heroes = strongs = emergings = 0
+
+    for s in scored:
+        sig = s["signals"]
+        proven   = sig["longevity"] >= 0.40          # ≥ ~5 months in catalog
+        fullpx   = sig["full_price_confidence"] >= 0.80
+        invested = sig["variant_depth"] >= 0.35 or sig["image_investment"] >= 0.9
+        is_new   = s["age_days"] is not None and s["age_days"] <= 60
+        premium  = bool(catalog_median and s["price_min"] and s["price_min"] >= catalog_median * 1.15)
+        crosssell = bool(s["title"] and any(w in s["title"].lower() for w in ("bundle", " kit", " set", " pack", "duo ", " duo")))
+
+        if heroes < hero_cap and s["score"] >= 82 and proven and fullpx and s["available"] and invested:
+            tier = "hero"
+            heroes += 1
+        elif strongs < strong_cap and s["score"] >= 72 and proven and s["available"]:
+            tier = "strong"
+            strongs += 1
+        elif emergings < emerging_cap and is_new and s["available"] and fullpx and s["variants_count"] >= 4:
+            tier = "emerging"   # launch-invested, too new to have proven survival
+            emergings += 1
+        elif s["score"] >= 55:
+            tier = "monitor"
+        else:
+            tier = "ignore"
+
+        s["tier"] = tier
+        s["premium_position"] = premium
+        s["cross_sell"] = crosssell
+        s["why"] = _tier_why(s, sig, premium, crosssell)
+        s["reveals"] = _tier_reveals(tier, s, premium, crosssell)
+        s["respond"] = _tier_respond(tier, s, premium)
+
     # Newest products: launched recently, regardless of winning score.
     dated = [(p, _age_days(p, now)) for p in products]
     dated = [(p, a) for p, a in dated if a is not None]
@@ -170,7 +214,78 @@ def score_winning_products(products: List[Dict[str, Any]], limit: int = 25) -> D
         "products": scored[:limit],
         "newest": newest,
         "scored_total": total,
+        "tier_counts": {
+            t: sum(1 for s in scored if s.get("tier") == t)
+            for t in ("hero", "strong", "emerging", "monitor", "ignore")
+        },
     }
+
+
+def _tier_why(s: Dict[str, Any], sig: Dict[str, float], premium: bool, crosssell: bool) -> List[str]:
+    """Every tier assignment must explain itself — specific, evidence-first."""
+    why: List[str] = []
+    age = s.get("age_days")
+    if age is not None and age >= 365:
+        why.append(f"Survived {_months_label(age)} in the catalog — duds get culled long before this")
+    elif age is not None and age >= 150:
+        why.append(f"Held its place for {_months_label(age)} — past the typical cull window")
+    elif age is not None and age <= 60:
+        why.append(f"Launched {_months_label(age)} ago with real backing, not a quiet test")
+    if s.get("variants_count", 0) >= 10:
+        why.append(f"{s['variants_count']} variants — nobody builds this depth for a product that doesn't sell")
+    elif s.get("variants_count", 0) >= 4:
+        why.append(f"{s['variants_count']} variants — meaningful inventory commitment")
+    if sig.get("full_price_confidence", 0) >= 0.99:
+        why.append("Never discounted — it moves at full price")
+    elif s.get("discounted"):
+        why.append(f"Currently {s.get('discount_pct')}% off — needs markdown help to move")
+    if premium:
+        why.append("Priced above their catalog median — a margin product, not a traffic product")
+    if crosssell:
+        why.append("Sold as a bundle/kit — built to raise order value")
+    if not s.get("available"):
+        why.append("Out of stock right now — either demand outran supply or it's being retired")
+    return why[:4]
+
+
+def _tier_reveals(tier: str, s: Dict[str, Any], premium: bool, crosssell: bool) -> str:
+    """What this product's standing reveals about the competitor's business."""
+    if tier == "hero":
+        return (
+            "This is load-bearing revenue. Products with this longevity, variant depth, and "
+            "full-price discipline are what the rest of the catalog is built around — expect "
+            "them to defend it hard." + (" Its premium pricing says it also carries their margin." if premium else "")
+        )
+    if tier == "strong":
+        return "A dependable seller in their lineup — proven, stocked, and stable. Not their identity, but real revenue."
+    if tier == "emerging":
+        return "They're betting on this: launch-depth variants at full price means conviction, not a test. Watch whether it survives its first 90 days."
+    if tier == "monitor":
+        return "Nothing decisive yet — solid catalog filler until the signals separate it from the pack."
+    return "Structurally weak signals — discounted, shallow, or unstocked. Safe to ignore."
+
+
+def _tier_respond(tier: str, s: Dict[str, Any], premium: bool) -> Optional[str]:
+    """Should you respond, and how — only tiers worth acting on get guidance."""
+    price = s.get("price_min")
+    price_txt = f" around the ${price:.0f} mark" if price else ""
+    if tier == "hero":
+        return (
+            "Yes — but don't clone it. Study what job it does for their customers and position a "
+            f"differentiated alternative{price_txt}: different angle, audience, or bundle. Competing "
+            "head-on with their proven hero at the same price is a losing fight."
+        )
+    if tier == "strong":
+        return (
+            "Selectively. If this category overlaps yours, a sharper offer here is winnable — "
+            "they'll defend heroes before they defend this."
+        )
+    if tier == "emerging":
+        return (
+            "Not yet — let them pay for the market test. Set a mental check-in for 60–90 days: "
+            "if it's still stocked and undiscounted, they found demand you can also serve."
+        )
+    return None
 
 
 def _winning_reason(age, variants, discount, available) -> str:

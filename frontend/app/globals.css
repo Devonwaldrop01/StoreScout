@@ -91,6 +91,27 @@ html, body {
 .fade-up-5 { animation: fadeUp  0.4s ease-out 0.25s both; }
 .fade-in   { animation: fadeIn  0.3s ease-out both; }
 
+/* "StoreScout is working" — a slow amber sweep across any analyzing/scanning
+   panel. One motion vocabulary for every in-progress intelligence moment. */
+.analyzing-sweep { position: relative; overflow: hidden; }
+.analyzing-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 42%, rgba(255,178,36,.055) 50%, transparent 58%);
+  animation: scanLine 2.4s ease-in-out infinite;
+}
+
+/* Accessibility: motion communicates state, but never at the cost of comfort */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* ── Panel — the core surface. Hairline, flat, tight radius ─────────────── */
 .panel {
   background: var(--bg-card);

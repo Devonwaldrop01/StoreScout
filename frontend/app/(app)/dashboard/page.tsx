@@ -142,6 +142,38 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
   );
 }
 
+// ── Investigate next ──────────────────────────────────────────────────────
+// Mission control points somewhere: the competitor with the most strategic
+// activity this week is the best use of the next five minutes.
+
+function InvestigateNext({ competitorList, signalGroups }: { competitorList: Competitor[]; signalGroups: SignalGroup[] }) {
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const counts: Record<string, number> = {};
+  signalGroups
+    .filter((g) => g.tier === "strategic" && new Date(g.detected_at).getTime() > weekAgo)
+    .forEach((g) => { counts[g.competitor_id] = (counts[g.competitor_id] || 0) + 1; });
+  const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+  if (!top) return null;
+  const comp = competitorList.find((c) => c.id === top[0]);
+  if (!comp) return null;
+  return (
+    <Link
+      href={`/dashboard/${comp.id}`}
+      className="flex items-center gap-3 mb-6 px-4 py-2.5 rounded-md transition-colors"
+      style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--bg3)"; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--bg-card)"; }}
+    >
+      <span className="signal-dot signal-dot--amber shrink-0" />
+      <p className="text-xs flex-1 min-w-0 truncate" style={{ color: "var(--text-2)" }}>
+        <span className="font-semibold" style={{ color: "var(--text)" }}>Investigate next · </span>
+        {comp.display_name || comp.hostname} made {top[1]} strategic move{top[1] === 1 ? "" : "s"} this week — the most in your watchlist
+      </p>
+      <ArrowRight className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--muted)" }} />
+    </Link>
+  );
+}
+
 // ── Signal type breakdown ─────────────────────────────────────────────────
 
 function SignalBreakdown({ groups }: { groups: SignalGroup[] }) {
@@ -909,11 +941,14 @@ function DashboardContent() {
             onUpgrade={() => setUpgradeOpen(true)}
           />
 
-          {/* Stats bar */}
+          {/* Mission control: attention first — what needs a decision today */}
+          <ActionPlaybook competitorCount={competitorList.length} />
+
+          {/* Status strip — the room's instruments */}
           {!alertsLoading && <StatsBar competitorList={competitorList} signalGroups={signalGroups} alertList={alertList} />}
 
-          {/* Your Move action panel */}
-          <ActionPlaybook competitorCount={competitorList.length} />
+          {/* Investigate next — the single most active competitor this week */}
+          {!alertsLoading && <InvestigateNext competitorList={competitorList} signalGroups={signalGroups} />}
 
           {/* ── 2-column layout ── */}
           <div className="flex gap-5 items-start">
@@ -925,7 +960,7 @@ function DashboardContent() {
               {!alertsLoading && (
                 <>
                   <div className="flex items-center justify-between mb-2.5">
-                    <p className="tick-label">Signal feed</p>
+                    <p className="tick-label">Explore · signal timeline</p>
                     <Link
                       href="/alerts"
                       className="num text-[11px] font-medium flex items-center gap-1 transition-colors hover:brightness-150"

@@ -11,6 +11,7 @@ import Link from "next/link";
 import {
   Database, RefreshCw, Check, X, AlertTriangle, Plus, Play, LogOut, Search, Crosshair,
 } from "lucide-react";
+import { EngineControls } from "@/components/admin/EngineControls";
 
 const TOKEN_KEY = "ss_admin_token";
 
@@ -381,6 +382,17 @@ export default function StoreIndexAdminPage() {
             </table>
           </div>
         )}
+
+        {/* Runtime engine controls */}
+        <EngineControls
+          token={token}
+          title="Daily discovery worker"
+          knobs={[
+            { key: "shopify_index_enabled", label: "Automatic daily discovery", type: "toggle", help: "Runs at 04:30 UTC. Manual test runs below always work regardless." },
+            { key: "shopify_index_daily_verified_target", label: "New verified stores / day", type: "number", min: 1, max: 250, help: "Dev 25–50 · early prod 50–100 · scaled 100–250" },
+            { key: "shopify_index_daily_candidate_limit", label: "Request budget / day", type: "number", min: 1, max: 500, help: "Hard cap on domains processed" },
+          ]}
+        />
 
         {/* Actions row */}
         <div className="grid md:grid-cols-2 gap-4">

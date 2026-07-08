@@ -178,27 +178,48 @@ export function SignalFeed({ groups, loading = false, maxRaw = 12 }: Props) {
   const visibleRaw = showAllRaw ? raw : raw.slice(0, maxRaw);
   const hiddenRawCount = raw.length - visibleRaw.length;
 
-  // Split strategic signals into "Today" vs "Earlier" so the most recent
-  // competitor moves read as fresh, not as one undifferentiated stream.
-  const dayAgo = mountedAt - 24 * 60 * 60 * 1000;
-  const strategicToday   = strategic.filter((g) => new Date(g.detected_at).getTime() > dayAgo);
-  const strategicEarlier = strategic.filter((g) => new Date(g.detected_at).getTime() <= dayAgo);
-  // Only show dividers when both buckets have content — otherwise they're noise.
-  const showStrategicDividers = strategicToday.length > 0 && strategicEarlier.length > 0;
+  // ── Living intelligence timeline: Today / Yesterday / This week / This
+  // month / Earlier. Only buckets with content render — never empty headers.
+  const DAY = 24 * 60 * 60 * 1000;
+  const buckets: { label: string; test: (t: number) => boolean }[] = [
+    { label: "Today",        test: (t) => t > mountedAt - DAY },
+    { label: "Yesterday",    test: (t) => t > mountedAt - 2 * DAY },
+    { label: "This week",    test: (t) => t > mountedAt - 7 * DAY },
+    { label: "This month",   test: (t) => t > mountedAt - 30 * DAY },
+    { label: "Earlier",      test: () => true },
+  ];
+  const bucketed: { label: string; items: SignalGroup[] }[] = [];
+  const placed = new Set<string>();
+  for (const b of buckets) {
+    const items = strategic.filter(
+      (g) => !placed.has(g.id) && b.test(new Date(g.detected_at).getTime())
+    );
+    items.forEach((g) => placed.add(g.id));
+    if (items.length) bucketed.push({ label: b.label, items });
+  }
+
+  // Historical context per group: "2nd flash sale from this store this month"
+  const ordinal = (n: number) => (n === 2 ? "2nd" : n === 3 ? "3rd" : `${n}th`);
+  const historyNote = (g: SignalGroup): string | undefined => {
+    const prior = groups.filter(
+      (o) => o.competitor_id === g.competitor_id && o.type === g.type &&
+        new Date(o.detected_at).getTime() < new Date(g.detected_at).getTime() &&
+        new Date(o.detected_at).getTime() > mountedAt - 30 * DAY
+    ).length;
+    return prior >= 1 ? `${ordinal(prior + 1)} ${g.headline.toLowerCase()} this month` : undefined;
+  };
 
   return (
     <div>
-      {/* Strategic signals */}
-      {showStrategicDividers ? (
-        <>
-          <div className="tick-label mb-2 px-1">Today</div>
-          {strategicToday.map((g) => <SignalCard key={g.id} group={g} />)}
-          <div className="tick-label mt-4 mb-2 px-1">Earlier this week</div>
-          {strategicEarlier.map((g) => <SignalCard key={g.id} group={g} />)}
-        </>
-      ) : (
-        strategic.map((g) => <SignalCard key={g.id} group={g} />)
-      )}
+      {/* Strategic signals — the timeline */}
+      {bucketed.map(({ label, items }, bi) => (
+        <div key={label}>
+          {(bucketed.length > 1 || bi > 0) && (
+            <div className={`tick-label mb-2 px-1 ${bi > 0 ? "mt-4" : ""}`}>{label}</div>
+          )}
+          {items.map((g) => <SignalCard key={g.id} group={g} historyNote={historyNote(g)} />)}
+        </div>
+      ))}
 
       {/* Tactical groups */}
       {tactical.length > 0 && (

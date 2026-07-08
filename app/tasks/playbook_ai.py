@@ -294,20 +294,18 @@ def generate_ai_playbook(user_id: str) -> dict:
                 + "\n"
             )
 
-    # Enrich with Klaviyo + Google + Shopify Admin data if connected
+    # Adaptive knowledge context — depth follows what StoreScout knows about
+    # this business (strategic → operational → customer → full).
     try:
-        from app.api.v1.integrations import get_klaviyo_context, get_google_context, get_shopify_context
-        klaviyo_ctx = get_klaviyo_context(user_id)
-        google_ctx  = get_google_context(user_id)
-        shopify_ctx = get_shopify_context(user_id)
-        extra_lines = [l for l in [shopify_ctx, klaviyo_ctx, google_ctx] if l]
-        if extra_lines:
+        from app.services.knowledge import build_ai_context
+        knowledge_ctx = build_ai_context(user_id)
+        if knowledge_ctx:
             if my_store_section:
-                my_store_section = my_store_section.rstrip() + "\n  " + "\n  ".join(extra_lines) + "\n"
+                my_store_section = my_store_section.rstrip() + "\n  " + knowledge_ctx.replace("\n", "\n  ") + "\n"
             else:
-                my_store_section = "YOUR MARKETING DATA:\n  " + "\n  ".join(extra_lines) + "\n"
+                my_store_section = "YOUR BUSINESS (what StoreScout knows):\n  " + knowledge_ctx.replace("\n", "\n  ") + "\n"
     except Exception as _e:
-        logger.debug("Integration enrichment skipped: %s", _e)
+        logger.debug("Knowledge enrichment skipped: %s", _e)
 
     # Optional public competitor ad-intelligence (inert unless a token is set)
     try:

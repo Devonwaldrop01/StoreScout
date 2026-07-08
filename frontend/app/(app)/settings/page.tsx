@@ -10,6 +10,7 @@ import {
   type GoogleProperties,
 } from "@/lib/api";
 import UpgradeModal from "@/components/UpgradeModal";
+import { IntelligenceSources } from "@/components/settings/IntelligenceSources";
 import { track } from "@/lib/analytics";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -739,10 +740,12 @@ function SettingsContent() {
       {/* ── Integrations tab ── */}
       {activeTab === "integrations" && (
         <section className={sectionClass} style={sectionStyle}>
-          <h2 className="font-semibold mb-1" style={{ color: "var(--text)" }}>Integrations</h2>
+          <h2 className="font-semibold mb-1" style={{ color: "var(--text)" }}>Intelligence sources</h2>
           <p className="text-sm mb-5" style={{ color: "var(--muted)" }}>
-            Receive alerts in Slack or any tool that accepts a webhook. Pro and Agency plans only.
+            Every source teaches StoreScout more about your business — and every recommendation gets more personal.
           </p>
+
+          <IntelligenceSources />
 
           {/* Google Analytics + Search Console */}
           <div className="mb-6 pb-6" style={{ borderBottom: "1px solid var(--border)" }}>

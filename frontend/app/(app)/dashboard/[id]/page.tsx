@@ -355,8 +355,11 @@ const DIGEST_THREAT: Record<string, { color: string; label: string }> = {
   low:    { color: "#4CC38A", label: "Low threat" },
 };
 
-function ScoutBriefDigest({
-  hostname, briefText, changes, fallbackHighlights, onOpenPro, isFree, competitorId,
+// The dossier's lead: an executive briefing, not a summary. One panel that
+// answers "what is this business doing right now?" — threat verdict, the
+// facts behind it, the biggest opening, the biggest risk, and your move.
+function ExecutiveBriefing({
+  hostname, briefText, changes, fallbackHighlights, onOpenPro, isFree, competitorId, gapsTotal,
 }: {
   hostname: string;
   briefText: string;
@@ -365,10 +368,12 @@ function ScoutBriefDigest({
   onOpenPro: () => void;
   isFree: boolean;
   competitorId: string;
+  gapsTotal?: number;
 }) {
   let threatLevel: string | undefined;
   let highlights: string[] = [];
   let oneMove: string | undefined;
+  let opportunity: { headline: string } | undefined;
   try {
     const parsed = JSON.parse(briefText) as {
       threat_level?: string; highlights?: string[]; one_move?: string;
@@ -379,12 +384,22 @@ function ScoutBriefDigest({
     oneMove = parsed.one_move
       // Older briefs pre-date the digest fields — fall back to the action card
       || parsed.cards?.find((c) => c.type === "action")?.headline;
+    const opp = parsed.cards?.find((c) => c.type === "opportunity");
+    if (opp) opportunity = { headline: opp.headline };
   } catch { /* fall back below */ }
 
+  // Biggest risk: the most severe strategic change of the last 7 days — real
+  // detection output, never invented.
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const recent = changes.filter((c) => new Date(c.detected_at).getTime() > weekAgo);
+  const riskEvent =
+    recent.find((c) => c.severity === "critical") ?? recent.find((c) => c.severity === "warning");
+  const risk = riskEvent
+    ? `${changeTypeLabel(riskEvent.change_type)}${riskEvent.product_title ? ` — ${riskEvent.product_title}` : ""}`
+    : null;
+
   if (!threatLevel) {
-    // Heuristic from real signal severity in the last 7 days — truthful, no AI needed
-    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    const recent = changes.filter((c) => new Date(c.detected_at).getTime() > weekAgo);
+    // Heuristic from real signal severity — truthful, no AI needed
     threatLevel = recent.some((c) => c.severity === "critical") ? "high"
       : recent.some((c) => c.severity === "warning") ? "medium" : "low";
   }
@@ -394,15 +409,18 @@ function ScoutBriefDigest({
   return (
     <div
       className="mb-6 rounded-md p-4"
-      style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+      style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: `3px solid ${threat.color}` }}
     >
       <div className="flex items-center gap-2.5 flex-wrap">
-        <span className="label-caps" style={{ color: "var(--muted)" }}>Scout Brief · {hostname}</span>
+        <span className="label-caps" style={{ color: "var(--muted)" }}>Executive briefing · {hostname}</span>
         <span
           className="text-[11px] font-bold px-2 py-0.5 rounded"
           style={{ background: `${threat.color}14`, color: threat.color, border: `1px solid ${threat.color}33` }}
         >
           {threat.label}
+        </span>
+        <span className="num text-[10px] ml-auto shrink-0" style={{ color: "var(--muted)" }}>
+          {recent.length} change{recent.length === 1 ? "" : "s"} · 7d
         </span>
       </div>
 
@@ -411,6 +429,23 @@ function ScoutBriefDigest({
         {highlights.map((h, i) => (
           <span key={i} className="num text-xs" style={{ color: "var(--text-2)" }}>{h}</span>
         ))}
+      </div>
+
+      {/* Opening · Risk — the two things an executive asks about first */}
+      <div className="grid sm:grid-cols-2 gap-2.5 mt-3">
+        <div className="rounded px-3 py-2" style={{ background: "var(--bg3)", borderLeft: "2px solid #4CC38A" }}>
+          <p className="label-caps mb-0.5" style={{ color: "#4CC38A" }}>Biggest opening</p>
+          <p className="text-xs leading-snug" style={{ color: "var(--text-2)" }}>
+            {opportunity?.headline
+              ?? (gapsTotal ? `${gapsTotal} market opening${gapsTotal === 1 ? "" : "s"} detected — see Catalog · Openings` : "No clear opening yet — this sharpens with scan history")}
+          </p>
+        </div>
+        <div className="rounded px-3 py-2" style={{ background: "var(--bg3)", borderLeft: `2px solid ${risk ? "#F2555A" : "var(--border)"}` }}>
+          <p className="label-caps mb-0.5" style={{ color: risk ? "#F2555A" : "var(--muted)" }}>Biggest risk</p>
+          <p className="text-xs leading-snug" style={{ color: "var(--text-2)" }}>
+            {risk ?? "No active threats this week — steady state"}
+          </p>
+        </div>
       </div>
 
       {oneMove && (
@@ -427,7 +462,7 @@ function ScoutBriefDigest({
               competitor_id: competitorId,
               hostname,
               title: oneMove,
-              reason: `Scout Brief recommended move for ${hostname}`,
+              reason: `Executive briefing move for ${hostname}`,
               evidence: highlights.slice(0, 4).join(" · "),
               priority: threatLevel === "high" ? "high" : "medium",
             }}
@@ -740,7 +775,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   ];
 
   const CATALOG_TABS: { id: CatalogSub; label: string }[] = [
-    { id: "winning", label: "Products Worth Testing" },
+    { id: "winning", label: "Product Intelligence" },
     { id: "gaps",    label: "Market Openings" },
   ];
 
@@ -862,7 +897,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
           </div>
         ) : (
           <div
-            className="rounded-md p-10 text-center space-y-4"
+            className="rounded-md p-10 text-center space-y-4 analyzing-sweep"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
           >
             <div className="flex items-center justify-center gap-2 mx-auto">
@@ -889,8 +924,9 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
         <>
           {/* ── Scout Brief — 30-second "what happened" digest (free) ──────── */}
           {brief && (
-            <ScoutBriefDigest
+            <ExecutiveBriefing
               hostname={hostname}
+              gapsTotal={((data?.gap_analysis as Record<string, unknown> | undefined)?.total as number | undefined)}
               briefText={(brief as BriefData).summary_text}
               changes={changes}
               fallbackHighlights={[
@@ -1199,6 +1235,52 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     onUpgrade={() => setUpgradeOpen(true)}
                   />
                 </div>
+
+                {/* ── What their pricing tells us — the tab's closing argument ── */}
+                {(() => {
+                  const promo = discounts.discounted_pct as number | undefined;
+                  const med = pricing.median as number | undefined;
+                  const depth = discounts.median_discount_pct as number | undefined;
+                  if (promo == null && med == null) return null;
+                  const strategy =
+                    promo != null && promo >= 30
+                      ? `They discount ${formatPct(promo)} of the catalog${depth ? ` at a median ${formatPct(depth)} off` : ""} — a promotion-led model. Their customers are being trained to wait for markdowns, which quietly erodes full-price demand.`
+                      : promo != null && promo >= 10
+                      ? `Selective discounting (${formatPct(promo)} of catalog) — they protect most of the range and use markdowns as a lever, not an identity.`
+                      : `Almost no discounting${promo != null ? ` (${formatPct(promo)})` : ""} — a full-price brand that competes on desirability, not deals.`;
+                  const move =
+                    promo != null && promo >= 30
+                      ? "Own the full-price lane: hold pricing, lead with quality and guarantees, and let them squeeze their own margin."
+                      : promo != null && promo >= 10
+                      ? "Watch which collections they mark down — those are the categories where their conviction is weakest and your entry is cheapest."
+                      : `Don't start the discount fight — differentiate on range and service, or position deliberately against their ${med != null ? formatPrice(med) : ""} median.`;
+                  return (
+                    <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: "3px solid var(--accent)" }}>
+                      <p className="label-caps mb-1.5" style={{ color: "var(--accent)" }}>What this tells us</p>
+                      <p className="text-sm leading-relaxed mb-2.5" style={{ color: "var(--text-2)" }}>{strategy}</p>
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text)" }}>→ {move}</p>
+                        <SaveToPlaybook
+                          size="xs"
+                          item={{
+                            source_type: "pricing",
+                            source_ref: `${id}:pricing-strategy`,
+                            competitor_id: id,
+                            hostname,
+                            title: move,
+                            reason: strategy,
+                            evidence: [
+                              promo != null && `${formatPct(promo)} of catalog discounted`,
+                              depth != null && `median depth ${formatPct(depth)}`,
+                              med != null && `median price ${formatPrice(med)}`,
+                            ].filter(Boolean).join(" · "),
+                            priority: promo != null && promo >= 30 ? "high" : "medium",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
@@ -1341,7 +1423,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                           </button>
                         </div>
                       ) : (aiStatus === "loading" || aiStatus === "generating") ? (
-                        <div className="rounded-md p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                        <div className="rounded-md p-6 analyzing-sweep" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
                           <div className="flex items-center gap-3 mb-5">
                             <div
                               className="w-9 h-9 rounded-md flex items-center justify-center shrink-0"

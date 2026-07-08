@@ -10,8 +10,9 @@
  * confidence meters — not a card stack.
  */
 
-import { RefreshCw, Brain, TrendingUp, Shield, Eye, Zap, Activity } from "lucide-react";
+import { RefreshCw, Brain, Shield, Eye, Zap, Activity } from "lucide-react";
 import { SaveToPlaybook } from "@/components/SaveToPlaybook";
+import { INSIGHT_LANGUAGE } from "@/lib/insight";
 
 export interface ProAnalysisData {
   threat?: { level?: string; score?: number; why?: string };
@@ -144,10 +145,10 @@ export function ProAnalysis({
         </div>
       </div>
 
-      {/* ── Predicted next moves ── */}
+      {/* ── Predicted next moves — the shared "Prediction" category ── */}
       {(data.predictions?.length ?? 0) > 0 && (
-        <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-          <SectionLabel icon={TrendingUp} color="#7DB8C9">Predicted next moves</SectionLabel>
+        <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: `3px solid ${INSIGHT_LANGUAGE.prediction.color}` }}>
+          <SectionLabel icon={INSIGHT_LANGUAGE.prediction.Icon} color={INSIGHT_LANGUAGE.prediction.color}>Predicted next moves</SectionLabel>
           <div className="space-y-3">
             {data.predictions!.map((p, i) => (
               <div key={i} className="flex items-start justify-between gap-4 pb-3" style={{ borderBottom: i < data.predictions!.length - 1 ? "1px solid var(--border)" : "none" }}>

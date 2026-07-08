@@ -178,6 +178,16 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_effect
     except Exception as exc:
         logger.warning("Could not enqueue initial scan for %s: %s", competitor_id, exc)
 
+    # Feed the competitor graph — tracking is the strongest relationship signal
+    try:
+        from app.services.store_index import record_competitor_edge, normalize_domain
+        ms = db.table("competitors").select("hostname").eq("user_id", user_id)\
+            .eq("is_my_store", True).maybe_single().execute()
+        source_key = (ms.data or {}).get("hostname") if ms else None
+        record_competitor_edge(db, source_key or f"user:{user_id}", normalize_domain(hostname), "tracked", delta=2)
+    except Exception as exc:
+        logger.debug("tracked-edge write skipped: %s", exc)
+
     return {"data": row.data[0]}
 
 
@@ -425,6 +435,7 @@ async def discover_ai(
     store_context = ""
     user_stage: Optional[str] = None
     user_price_tier: Optional[str] = None
+    my_store_hostname: Optional[str] = None
     try:
         my_store = db.table("competitors").select("id, hostname, product_count").eq(
             "user_id", user_id
@@ -443,6 +454,7 @@ async def discover_ai(
                 if snap.data.get("promo_rate"):
                     parts.append(f"{snap.data['promo_rate']:.0f}% on sale")
             store_context = "\nConnected " + ", ".join(parts) + "."
+            my_store_hostname = ms.get("hostname")
             # The user's own stage/tier drives relevance ranking of index hits —
             # a startup should see growing peers, not enterprise giants.
             from app.services.store_index import derive_market_context
@@ -530,8 +542,44 @@ Rules:
     seen: set = set(already_tracked)
     verified: list = []          # Shopify-verified AND scannable → trackable
     relevant_other: list = []    # real competitors we can't monitor (yet)
+    blocked: set = set()         # user-confirmed "not a competitor" domains
 
-    # ── Stage 0: index-first — search our own verified store index before
+    # ── Stage 0a: the competitor knowledge graph — StoreScout's own
+    # accumulated who-competes-with-whom map. Queried BEFORE any AI call;
+    # confirmed non-competitors (negative weight) are excluded everywhere.
+    graph_keys = [k for k in [my_store_hostname, f"user:{user_id}"] if k]
+    try:
+        from app.services.store_index import graph_neighbors
+        neighbors = graph_neighbors(db, graph_keys, limit=12)
+        blocked = {d for d, w in neighbors.items() if w < 0}
+        positive = [d for d, w in sorted(neighbors.items(), key=lambda kv: -kv[1])
+                    if w > 0 and d not in seen]
+        if positive:
+            g_res = db.table("shopify_store_index")\
+                .select("domain, brand_name, category, subcategory, description, verification_confidence, verification_signals")\
+                .eq("status", "verified")\
+                .gte("verification_confidence", settings.shopify_index_min_confidence)\
+                .in_("domain", positive[:12])\
+                .execute()
+            g_rows = {r["domain"]: r for r in (g_res.data or [])}
+            for d in positive:
+                row = g_rows.get(d)
+                if not row or d in seen or len(verified) >= 4:
+                    continue
+                seen.add(d)
+                verified.append({
+                    "domain": d,
+                    "reason": (row.get("description") or "in your competitive neighborhood")[:90],
+                    "confidence": row.get("verification_confidence"),
+                    "signals": row.get("verification_signals") or [],
+                    "source": "graph",
+                })
+            if verified:
+                logger.info("discover-ai: %d matches from the competitor graph", len(verified))
+    except Exception as g_exc:
+        logger.debug("discover-ai graph lookup skipped: %s", g_exc)
+
+    # ── Stage 0b: index-first — search our own verified store index before
     # asking Claude. Every hit here is pre-verified, instant, and free.
     # Guarded end-to-end so discovery works identically before migration 007.
     try:
@@ -578,7 +626,7 @@ Rules:
             # so Claude always gets room to add description-tailored picks.
             for row in ranked:
                 d = row["domain"]
-                if d in seen or len(verified) >= 5:
+                if d in seen or d in blocked or len(verified) >= 5:
                     continue
                 seen.add(d)
                 reason = row.get("description") or " · ".join(
@@ -609,7 +657,7 @@ Rules:
         fresh = []
         for s in suggestions:
             d = _norm(s.get("domain", ""))
-            if d and "." in d and d not in seen:
+            if d and "." in d and d not in seen and d not in blocked:
                 seen.add(d)
                 fresh.append({"domain": d, "reason": (s.get("reason") or "").strip()})
         if not fresh:
@@ -690,6 +738,16 @@ Rules:
             raise HTTPException(status_code=429, detail="AI service is busy — please try again in a moment.")
         raise HTTPException(status_code=500, detail="Failed to generate suggestions — please try again.")
 
+    # ── Feed the graph: every verified suggestion strengthens the map, so
+    # the next search (by this user or a similar store) needs less AI.
+    try:
+        from app.services.store_index import record_competitor_edge
+        primary_key = my_store_hostname or f"user:{user_id}"
+        for v in verified[:10]:
+            record_competitor_edge(db, primary_key, v["domain"], "discovery")
+    except Exception as edge_exc:
+        logger.debug("discover-ai edge write-back skipped: %s", edge_exc)
+
     return {
         "data": {
             "suggestions": verified[:10],
@@ -698,6 +756,39 @@ Rules:
             "searches_limit": FREE_LIMIT if is_free else None,
         }
     }
+
+
+class DiscoveryFeedbackRequest(BaseModel):
+    domain: str
+    correct: bool
+
+
+@router.post("/discovery-feedback")
+def discovery_feedback(body: DiscoveryFeedbackRequest, user_id: str = Depends(get_current_user_id)):
+    """✓ correct competitor / ✕ not a competitor — writes straight into the
+    knowledge graph. A confirmation strengthens the edge; a rejection pins it
+    negative so that domain never surfaces for this user (or store) again."""
+    db = get_supabase()
+    from app.services.store_index import record_competitor_edge, normalize_domain
+
+    domain = normalize_domain(body.domain)
+    if not domain or "." not in domain:
+        raise HTTPException(status_code=422, detail="valid domain required")
+
+    source_key = f"user:{user_id}"
+    try:
+        ms = db.table("competitors").select("hostname").eq("user_id", user_id)\
+            .eq("is_my_store", True).maybe_single().execute()
+        if ms and ms.data and ms.data.get("hostname"):
+            source_key = ms.data["hostname"]
+    except Exception:
+        pass
+
+    if body.correct:
+        record_competitor_edge(db, source_key, domain, "feedback", delta=3)
+    else:
+        record_competitor_edge(db, source_key, domain, "feedback", set_weight=-5)
+    return {"status": "ok", "domain": domain, "correct": body.correct}
 
 
 @router.get("/{competitor_id}")

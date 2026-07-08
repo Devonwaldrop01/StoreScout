@@ -3,14 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
-import { type SignalGroup, SIGNAL_CONFIG, impactLevel } from "@/lib/signals";
+import { type SignalGroup, SIGNAL_CONFIG, impactLevel, detectionExplanation } from "@/lib/signals";
 import { formatRelativeTime, formatPrice, formatDelta } from "@/lib/utils";
+import { SaveToPlaybook } from "@/components/SaveToPlaybook";
 
 interface Props {
   group: SignalGroup;
+  /** Historical context computed by the feed, e.g. "3rd discount event from this store this month" */
+  historyNote?: string;
 }
 
-export function SignalCard({ group }: Props) {
+export function SignalCard({ group, historyNote }: Props) {
   const [expanded, setExpanded] = useState(false);
   const cfg = SIGNAL_CONFIG[group.type];
   const Icon = cfg.icon;
@@ -62,14 +65,29 @@ export function SignalCard({ group }: Props) {
         </div>
       </div>
 
-      {/* Your move — always visible, action-first */}
+      {/* Your move — always visible, action-first, savable */}
       {group.your_move && (
         <div
-          className="mx-4 mb-2.5 px-3 py-2.5 rounded text-xs leading-relaxed"
+          className="mx-4 mb-2.5 px-3 py-2.5 rounded text-xs leading-relaxed flex items-start justify-between gap-3"
           style={{ background: "rgba(255,178,36,.06)", border: "1px solid rgba(255,178,36,.16)" }}
         >
-          <span className="font-bold" style={{ color: "var(--accent)" }}>▶ Your move · </span>
-          <span style={{ color: "var(--text-2)" }}>{group.your_move}</span>
+          <p className="min-w-0">
+            <span className="font-bold" style={{ color: "var(--accent)" }}>▶ Your move · </span>
+            <span style={{ color: "var(--text-2)" }}>{group.your_move}</span>
+          </p>
+          <SaveToPlaybook
+            size="xs"
+            item={{
+              source_type: "signal",
+              source_ref: group.id,
+              competitor_id: group.competitor_id,
+              hostname: group.hostname,
+              title: group.your_move,
+              reason: `${group.headline} on ${group.hostname} — ${group.label}`,
+              evidence: detectionExplanation(group),
+              priority: impactLevel(group) === "High" ? "high" : "medium",
+            }}
+          />
         </div>
       )}
 
@@ -92,13 +110,18 @@ export function SignalCard({ group }: Props) {
           level === "Medium" ? ["rgba(255,178,36,.12)",  "var(--amber)"] :
                                ["rgba(100,112,137,.12)", "var(--muted)"];
         return (
-          <div className="flex items-center gap-1.5 px-4 pb-2">
+          <div className="flex items-center gap-1.5 px-4 pb-2 flex-wrap">
             <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{ background: impactBg, color: impactColor }}>
               Impact: {level}
             </span>
             {group.category_hint && (
               <span className="text-[10px] font-medium px-2 py-0.5 rounded" style={{ background: "var(--bg3)", color: "var(--muted)", border: "1px solid var(--border)" }}>
                 {group.category_hint}
+              </span>
+            )}
+            {historyNote && (
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded" style={{ background: "var(--bg3)", color: "var(--text-2)", border: "1px solid var(--border)" }}>
+                {historyNote}
               </span>
             )}
           </div>
@@ -135,12 +158,19 @@ export function SignalCard({ group }: Props) {
           color: "var(--muted)",
         }}
       >
-        <span>{expanded ? "Hide" : `Show all ${group.count} products`}</span>
+        <span>{expanded ? "Close investigation" : `Investigate · ${group.count} product${group.count === 1 ? "" : "s"} affected`}</span>
         {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
       </button>
 
       {expanded && (
         <div style={{ borderTop: "1px solid var(--border)" }}>
+          {/* Why StoreScout flagged this — the detector shows its working */}
+          <div className="px-4 py-2.5" style={{ background: "var(--bg3)" }}>
+            <p className="text-[11px] leading-relaxed" style={{ color: "var(--muted)" }}>
+              <span className="font-bold" style={{ color: "var(--text-2)" }}>Why StoreScout flagged this · </span>
+              {detectionExplanation(group)}
+            </p>
+          </div>
           {group.events.flatMap((event) => {
             const nv = (event.new_value || {}) as Record<string, unknown>;
             const ov = (event.old_value || {}) as Record<string, unknown>;
@@ -204,6 +234,16 @@ export function SignalCard({ group }: Props) {
               </div>
             )];
           })}
+
+          {/* Deeper: the full dossier — every click reveals more intelligence */}
+          <Link
+            href={`/dashboard/${group.competitor_id}`}
+            className="flex items-center justify-between px-4 py-2.5 text-xs font-semibold transition-colors hover:bg-white/[0.03]"
+            style={{ borderTop: "1px solid var(--border)", color: "var(--text-2)" }}
+          >
+            <span>Full investigation — {group.hostname}&apos;s pricing, catalog &amp; intelligence</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       )}
     </div>

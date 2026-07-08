@@ -15,6 +15,7 @@ import {
   Crosshair, RefreshCw, Check, Copy, Search, LogOut, Play, Database,
   ChevronDown, ChevronUp, X,
 } from "lucide-react";
+import { EngineControls } from "@/components/admin/EngineControls";
 
 const TOKEN_KEY = "ss_admin_token";
 
@@ -412,6 +413,17 @@ export default function LeadsAdminPage() {
             {runResult}
           </p>
         )}
+
+        {/* Runtime engine controls */}
+        <EngineControls
+          token={token}
+          title="Daily lead discovery"
+          knobs={[
+            { key: "lead_engine_enabled", label: "Automatic daily discovery", type: "toggle", help: "Runs at 05:30 UTC after the index refresh. \"Discover 5 now\" always works regardless." },
+            { key: "lead_engine_daily_target", label: "Prospects / day", type: "number", min: 1, max: 50, help: "High-quality target — dev 20" },
+            { key: "lead_engine_min_qualification", label: "Min qualification score", type: "number", min: 0, max: 100, help: "Below this a store never becomes a prospect" },
+          ]}
+        />
 
         {/* Tiles */}
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">

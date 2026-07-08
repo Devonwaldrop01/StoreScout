@@ -35,8 +35,9 @@ _POOL_MULTIPLIER = 5  # examine up to target×5 stores to find target keepers
 @celery.task(name="app.tasks.lead_engine.discover_leads_daily")
 def discover_leads_daily(limit_override: Optional[int] = None, force: bool = False) -> dict:
     settings = get_settings()
-    if not settings.lead_engine_enabled and not force:
-        logger.info("lead engine disabled (LEAD_ENGINE_ENABLED=false) — skipping run")
+    from app.services.runtime_config import get_config
+    if not get_config("lead_engine_enabled", settings.lead_engine_enabled) and not force:
+        logger.info("lead engine disabled (toggle off) — skipping run")
         return {"status": "disabled"}
 
     # Distributed lock — same pattern as the index worker
@@ -50,8 +51,8 @@ def discover_leads_daily(limit_override: Optional[int] = None, force: bool = Fal
         logger.warning("lead engine: Redis unavailable (%s) — running without lock", exc)
 
     db = get_supabase()
-    target = max(1, min(limit_override or settings.lead_engine_daily_target, 50))
-    min_qual = settings.lead_engine_min_qualification
+    target = max(1, min(limit_override or get_config("lead_engine_daily_target", settings.lead_engine_daily_target), 50))
+    min_qual = get_config("lead_engine_min_qualification", settings.lead_engine_min_qualification)
 
     # Domains already in the pipeline (any stage) are never re-prospected
     try:
