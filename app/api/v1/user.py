@@ -16,6 +16,8 @@ class UpdatePrefsRequest(BaseModel):
     email_discount_changes: Optional[bool] = None
     email_weekly_digest: Optional[bool] = None
     digest_day: Optional[str] = None
+    notification_level: Optional[str] = None   # critical_only | daily | weekly | quiet
+    digest_hour: Optional[int] = None          # 0-23 UTC
     slack_webhook_url: Optional[str] = None
     slack_enabled: Optional[bool] = None
     webhook_url: Optional[str] = None

@@ -379,6 +379,12 @@ def send_change_alert(self, user_id: str, competitor_id: str, change_ids: List[s
     prefs = db.table("notification_prefs").select("*").eq("user_id", user_id).maybe_single().execute()
     prefs_data = (prefs and prefs.data) or {}
 
+    # Notification levels (migration 013): quiet → nothing; weekly → digest
+    # only; critical_only / daily → instant email only for critical events.
+    level = prefs_data.get("notification_level") or "daily"
+    if level == "quiet" or level == "weekly":
+        return {"status": f"level_{level}"}
+
     competitor = db.table("competitors").select("hostname, store_url").eq("id", competitor_id).maybe_single().execute()
     if not (competitor and competitor.data):
         return {"status": "competitor_not_found"}
@@ -401,6 +407,12 @@ def send_change_alert(self, user_id: str, competitor_id: str, change_ids: List[s
     ]
     if not change_list:
         return {"status": "all_change_types_disabled"}
+
+    # Instant email is reserved for genuinely critical events — routine
+    # changes arrive once a day in the Daily Intelligence Brief instead.
+    # Immediate alerts stay rare, so they stay meaningful.
+    if not any(c.get("severity") == "critical" for c in change_list):
+        return {"status": "held_for_daily_brief"}
 
     # Build subject using effective counts (bulk rows represent many products)
     n = len(change_list)
@@ -1351,3 +1363,140 @@ def send_first_scan_email(self, competitor_id: str) -> dict:
     except Exception as exc:
         logger.error("First-scan email failed (attempt %d): %s", self.request.retries + 1, exc)
         raise self.retry(exc=exc, countdown=30 * (2 ** self.request.retries))
+
+
+# ── Daily Intelligence Brief ──────────────────────────────────────────────
+# The primary notification experience: ONE email per day summarizing every
+# monitored competitor, ordered by business impact — threats first, then
+# opportunities, then launches. Every item deep-links into its dossier
+# investigation, never a generic "View Dashboard". Sent only when there is
+# something real to say — an empty day sends nothing.
+
+@celery.task(name="app.tasks.alerts.send_daily_brief_email")
+def send_daily_brief_email(user_id: str) -> dict:
+    settings = get_settings()
+    db = get_supabase()
+
+    user = db.table("user_profiles").select("email, tier").eq("id", user_id).maybe_single().execute()
+    tier = ((user and user.data) or {}).get("tier", "free")
+    if tier == "free":
+        return {"status": "free_tier"}
+    email = _resolve_email(db, user_id)
+    if not email:
+        return {"status": "no_email"}
+
+    prefs = db.table("notification_prefs").select("*").eq("user_id", user_id).maybe_single().execute()
+    level = ((prefs and prefs.data) or {}).get("notification_level") or "daily"
+    if level != "daily":
+        return {"status": f"level_{level}"}
+
+    comps = db.table("competitors").select("id, hostname, display_name")\
+        .eq("user_id", user_id).eq("is_active", True).eq("is_my_store", False).execute()
+    competitors = comps.data or []
+    if not competitors:
+        return {"status": "no_competitors"}
+    comp_map = {c["id"]: c for c in competitors}
+
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+    evs = db.table("change_events").select("*")\
+        .in_("competitor_id", list(comp_map.keys()))\
+        .gte("detected_at", cutoff)\
+        .order("severity", desc=True)\
+        .limit(120).execute()
+    events = evs.data or []
+    if not events:
+        return {"status": "quiet_day"}  # never send an empty brief
+
+    # ── Prioritize by business impact, not chronology ────────────────────
+    def _bucket(c: dict) -> str:
+        ct = c.get("change_type", "")
+        if ct in ("discount_start", "bulk_price_change") or (ct == "price_change" and (c.get("delta_pct") or 0) < 0):
+            return "threats"
+        if ct == "price_change" and (c.get("delta_pct") or 0) > 0:
+            return "opportunities"
+        if ct in ("product_removed", "bulk_removal", "availability_change"):
+            return "opportunities"
+        if ct in ("new_product", "bulk_new_products"):
+            return "launches"
+        return "other"
+
+    sections: dict = {"threats": {}, "opportunities": {}, "launches": {}}
+    for c in events:
+        b = _bucket(c)
+        if b == "other":
+            continue
+        sections[b].setdefault(c["competitor_id"], []).append(c)
+
+    total_items = sum(len(v) for s in sections.values() for v in s.values())
+    if total_items == 0:
+        return {"status": "quiet_day"}
+
+    # ── Render — premium, evidence-first, investigation links ────────────
+    base = settings.public_base_url.rstrip("/")
+    section_meta = [
+        ("threats", "Threats", "#F2555A", "Moves against your position — respond or consciously pass."),
+        ("opportunities", "Opportunities", "#4CC38A", "Openings they just created — price room and inventory gaps."),
+        ("launches", "Launches", "#7DB8C9", "What they shipped — each one is a market test you get to watch for free."),
+    ]
+    blocks = []
+    for key, label, color, sub in section_meta:
+        per_comp = sections[key]
+        if not per_comp:
+            continue
+        rows = []
+        for comp_id, clist in list(per_comp.items())[:5]:
+            host = comp_map[comp_id]["hostname"]
+            top = clist[0]
+            n_eff = sum(_effective_count(c) for c in clist)
+            headline = f"{n_eff} change{'s' if n_eff != 1 else ''}"
+            if top.get("product_title"):
+                headline += f" — incl. {top['product_title']}"
+            action = _action_for_email(clist, host)
+            rows.append(
+                f"<tr><td style='padding:10px 0;border-bottom:1px solid #262A22;'>"
+                f"<div style='font-family:monospace;font-size:12px;color:#6C7164;'>{host}</div>"
+                f"<div style='font-size:14px;color:#ECEEE6;font-weight:600;margin:2px 0;'>{headline}</div>"
+                + (f"<div style='font-size:12px;color:#A8AC9E;'>▶ {action}</div>" if action else "")
+                + f"<a href='{base}/dashboard/{comp_id}' style='font-size:12px;color:#FFB224;text-decoration:none;'>Open the investigation →</a>"
+                f"</td></tr>"
+            )
+        blocks.append(
+            f"<div style='margin:22px 0 6px;'><span style='font-size:11px;font-weight:700;letter-spacing:1px;"
+            f"text-transform:uppercase;color:{color};'>{label}</span>"
+            f"<div style='font-size:12px;color:#6C7164;'>{sub}</div></div>"
+            f"<table width='100%' cellpadding='0' cellspacing='0'>{''.join(rows)}</table>"
+        )
+
+    n_threats = sum(len(v) for v in sections["threats"].values())
+    subject = (
+        f"Daily brief: {n_threats} threat{'s' if n_threats != 1 else ''} across your watchlist"
+        if n_threats else
+        f"Daily brief: {total_items} competitor move{'s' if total_items != 1 else ''} worth knowing"
+    )
+
+    html = (
+        f"<div style='background:#0B0C0A;padding:28px;font-family:-apple-system,Segoe UI,sans-serif;'>"
+        f"<div style='max-width:560px;margin:0 auto;'>"
+        f"<div style='font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#FFB224;'>StoreScout · Daily Intelligence Brief</div>"
+        f"<div style='font-size:18px;font-weight:700;color:#ECEEE6;margin:6px 0 2px;'>While you were away, your market moved.</div>"
+        f"<div style='font-size:13px;color:#6C7164;'>{len(competitors)} competitor{'s' if len(competitors) != 1 else ''} monitored · last 24 hours · ordered by impact, not time</div>"
+        + "".join(blocks) +
+        f"<div style='margin-top:26px;padding-top:14px;border-top:1px solid #262A22;font-size:11px;color:#6C7164;'>"
+        f"You get one brief a day, and only on days something happened. "
+        f"<a href='{base}/settings' style='color:#6C7164;'>Change cadence</a></div>"
+        f"</div></div>"
+    )
+
+    try:
+        resend.api_key = settings.resend_api_key
+        resend.Emails.send({
+            "from": settings.resend_from,
+            "to": email,
+            "subject": subject,
+            "html": html,
+        })
+    except Exception as exc:
+        logger.error("daily brief send failed for %s: %s", user_id, exc)
+        return {"status": "error", "reason": str(exc)}
+
+    return {"status": "ok", "items": total_items}
