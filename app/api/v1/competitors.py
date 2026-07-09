@@ -593,14 +593,31 @@ Rules:
                 for t in terms
                 for col in ("category", "subcategory", "description", "brand_name")
             )
-            idx_res = db.table("shopify_store_index")\
-                .select("domain, brand_name, category, subcategory, description, verification_confidence, verification_signals, business_stage, pricing_tier")\
-                .eq("status", "verified")\
-                .gte("verification_confidence", settings.shopify_index_min_confidence)\
-                .or_(ors)\
-                .order("verification_confidence", desc=True)\
-                .limit(TARGET_VERIFIED * 3)\
-                .execute()
+            def _idx_query(with_cat_conf: bool):
+                cols = ("domain, brand_name, category, subcategory, description, "
+                        "verification_confidence, verification_signals, business_stage, pricing_tier")
+                if with_cat_conf:
+                    cols += ", category_confidence, category_evidence"
+                return db.table("shopify_store_index")\
+                    .select(cols)\
+                    .eq("status", "verified")\
+                    .gte("verification_confidence", settings.shopify_index_min_confidence)\
+                    .or_(ors)\
+                    .order("verification_confidence", desc=True)\
+                    .limit(TARGET_VERIFIED * 3)\
+                    .execute()
+            # Prefer the category-confidence columns (migration 015); fall back
+            # cleanly to the pre-015 shape so discovery never breaks.
+            try:
+                idx_res = _idx_query(True)
+            except Exception:
+                idx_res = _idx_query(False)
+
+            # Category-confidence floor — the guard against weak guesses
+            # ("Everlane for pet accessories"). A store is only recommended when
+            # its category is confident enough; rows without a score yet (not
+            # knowledge-processed) are allowed through on verification confidence.
+            cat_floor = settings.shopify_index_category_min_confidence
 
             # Relevance ranking: prefer stores the user actually competes
             # against. A startup fitness brand should see growing peers first —
@@ -629,6 +646,10 @@ Rules:
             for row in ranked:
                 d = row["domain"]
                 if d in seen or d in blocked or len(verified) >= 5:
+                    continue
+                # Withhold low-confidence classifications — quality over padding.
+                cc = row.get("category_confidence")
+                if cc is not None and cc < cat_floor:
                     continue
                 seen.add(d)
                 reason = row.get("description") or " · ".join(
