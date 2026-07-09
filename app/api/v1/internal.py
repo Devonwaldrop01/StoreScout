@@ -402,13 +402,22 @@ def _shop_app_raw_fetch(url: str, timeout: int = 20, follow_done: bool = False) 
             with CurlSession() as client:
                 r = client.get(url, headers=_headers(), impersonate=IMPERSONATE, timeout=timeout)
                 status = r.status_code
-                text = r.text or ""
+                raw = r.content
         else:
             import httpx
             with httpx.Client(follow_redirects=True) as client:
                 r = client.get(url, headers=_headers(), timeout=timeout)
                 status = r.status_code
-                text = r.text or ""
+                raw = r.content
+        # Shop App's child sitemaps are gzip FILES (.xml.gz) — decompress when
+        # the URL says .gz or the bytes carry the gzip magic number.
+        if raw and (url.endswith(".gz") or raw[:2] == b"\x1f\x8b"):
+            import gzip as _gzip
+            try:
+                raw = _gzip.decompress(raw)
+            except Exception:
+                pass
+        text = raw.decode("utf-8", "replace") if raw else ""
     except Exception as exc:
         err = f"{exc}"[:200]
     domains = _shop_app_extract(text, 15) if (status == 200 and text) else []
