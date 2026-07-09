@@ -71,12 +71,28 @@ celery.conf.update(
             "task": "app.tasks.scheduler.generate_ai_summaries_batch",
             "schedule": crontab(hour=2, minute=0),
         },
-        # Store-index discovery — the task itself no-ops unless
-        # SHOPIFY_INDEX_ENABLED=true, so this entry is safe to ship dormant.
-        "discover-shopify-stores-daily": {
-            "task": "app.tasks.store_index.discover_shopify_stores_daily",
-            "schedule": crontab(hour=4, minute=30),
+        # ── Three-stage Competitive Intelligence Index ──────────────────────
+        # DISCOVERY → VERIFICATION → KNOWLEDGE, staggered on the SAME worker so
+        # no new Render process is needed. Each task no-ops unless
+        # SHOPIFY_INDEX_ENABLED=true and is chunked + resumable, so these are
+        # safe to ship dormant. Discovery surfaces candidates a few times a day;
+        # verification (the only stage that fetches storefronts) drains the
+        # queue every 30 min; knowledge classifies from stored data (no network)
+        # on the off-half-hour.
+        "index-stage-discovery": {
+            "task": "app.tasks.store_index.stage_discovery",
+            "schedule": crontab(minute=10, hour="*/4"),
         },
+        "index-stage-verification": {
+            "task": "app.tasks.store_index.stage_verification",
+            "schedule": crontab(minute="0,30"),
+        },
+        "index-stage-knowledge": {
+            "task": "app.tasks.store_index.stage_knowledge",
+            "schedule": crontab(minute="20,50"),
+        },
+        # Legacy combined discovery pass — kept for admin manual test runs but
+        # no longer scheduled (superseded by the three staged tasks above).
         # Lead discovery runs after the index refresh so it sees the freshest
         # verified stores. No-ops unless LEAD_ENGINE_ENABLED=true.
         "discover-leads-daily": {

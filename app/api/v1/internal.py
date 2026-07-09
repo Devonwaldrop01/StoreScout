@@ -293,6 +293,108 @@ def internal_store_index_process(body: dict, x_internal_token: str = Header(...)
     return result
 
 
+@router.post("/store-index/verify")
+def internal_store_index_verify(body: dict, x_internal_token: str = Header(...)):
+    """
+    Stage 2 of the index pipeline: fetch one domain's storefront ONCE and store
+    a VERIFIED row (raw signals only, no classification) or a REJECTED row with
+    a strict reason. Runs on the web process (worker IPs get blocked). Called by
+    app.tasks.store_index.stage_verification.
+    """
+    _require_internal(x_internal_token)
+    from app.services.store_index import verify_and_store
+
+    domain = (body or {}).get("domain") or ""
+    if not domain:
+        raise HTTPException(status_code=422, detail="domain required")
+    source = (body or {}).get("source") or "unknown"
+    source_query = (body or {}).get("source_query")
+
+    db = get_supabase()
+    result = verify_and_store(db, domain, source, source_query)
+    logger.info("[VERIFY %s] outcome=%s reason=%s", domain, result["outcome"], result.get("reason"))
+    return result
+
+
+@router.post("/shop-app-page")
+def internal_shop_app_page(body: dict, x_internal_token: str = Header(...)):
+    """
+    Discovery Source #1 fetcher: return a page of candidate Shopify merchant
+    domains from the Shop App. This runs on the web process because the worker's
+    IP is blocked from outbound fetches. shop.app has no stable public discovery
+    API, so this degrades gracefully — on any failure it returns an empty list
+    and the source holds its cursor (never fabricates domains).
+
+    Body: {"page": int, "limit": int}. Returns {"domains": [str]}.
+    """
+    _require_internal(x_internal_token)
+    page = int((body or {}).get("page") or 1)
+    limit = max(1, min(int((body or {}).get("limit") or 60), 200))
+
+    domains: list = []
+    try:
+        domains = _fetch_shop_app_domains(page, limit)
+    except Exception as exc:
+        logger.info("[SHOP_APP] page=%d fetch failed: %s", page, exc)
+        return {"domains": []}
+
+    logger.info("[SHOP_APP] page=%d returned %d candidate domains", page, len(domains))
+    return {"domains": domains}
+
+
+def _fetch_shop_app_domains(page: int, limit: int) -> list:
+    """
+    Best-effort Shop App merchant discovery. Shop App surfaces merchants through
+    its category/browse endpoints; we pull merchant storefront domains from the
+    JSON those endpoints return. Any shape we don't recognize yields nothing —
+    the caller degrades cleanly rather than inventing domains.
+    """
+    import re as _re
+    from app.services.fetch import IMPERSONATE, _USE_CURL_CFFI, _headers
+
+    # shop.app category feeds are paginated; walk them by page. Category rotates
+    # so the crawl spreads across the ecosystem over successive runs.
+    categories = [
+        "apparel", "beauty", "home", "electronics", "food-and-drink",
+        "health", "jewelry-and-accessories", "pet", "sports", "toys",
+    ]
+    cat = categories[(page - 1) % len(categories)]
+    feed_page = ((page - 1) // len(categories)) + 1
+    url = f"https://shop.app/categories/{cat}?page={feed_page}"
+
+    if _USE_CURL_CFFI:
+        from curl_cffi.requests import Session as CurlSession
+        with CurlSession() as client:
+            r = client.get(url, headers=_headers(), impersonate=IMPERSONATE, timeout=20)
+            html = r.text if r.status_code == 200 else ""
+    else:
+        import httpx
+        with httpx.Client(follow_redirects=True) as client:
+            r = client.get(url, headers=_headers(), timeout=20)
+            html = r.text if r.status_code == 200 else ""
+
+    if not html:
+        return []
+
+    # Pull merchant storefront hosts referenced in the page payload. Shop App
+    # embeds merchant data with their real storefront URLs; extract those hosts.
+    hosts = set()
+    for m in _re.finditer(r'https?://([a-z0-9][a-z0-9\-.]+\.[a-z]{2,})', html, _re.I):
+        h = m.group(1).lower()
+        # Skip Shopify/Shop infrastructure and common non-merchant hosts.
+        if any(bad in h for bad in (
+            "shop.app", "shopify.com", "cdn.shopify", "shopifycdn", "myshopify.com",
+            "google", "facebook", "instagram", "tiktok", "youtube", "twitter",
+            "apple.com", "gstatic", "cloudflare", "fbcdn", "gravatar", "w3.org",
+        )):
+            continue
+        hosts.add(h)
+        if len(hosts) >= limit:
+            break
+
+    return list(hosts)[:limit]
+
+
 @router.post("/debug-fetch")
 def debug_fetch(body: dict, x_internal_token: str = Header(...)):
     """
