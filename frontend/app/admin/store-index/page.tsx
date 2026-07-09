@@ -128,6 +128,11 @@ export default function StoreIndexAdminPage() {
   const [running, setRunning] = useState(false);
   const [runResult, setRunResult] = useState("");
 
+  const [stageBusy, setStageBusy] = useState("");
+  const [stageResult, setStageResult] = useState("");
+  const [probe, setProbe] = useState<{ domains: string[]; http_status: number | null; bytes: number | null; note: string | null } | null>(null);
+  const [probing, setProbing] = useState(false);
+
   const loadStats = useCallback(async (tok: string, status = "", domain = "") => {
     setLoading(true);
     try {
@@ -212,6 +217,42 @@ export default function StoreIndexAdminPage() {
       setRunResult((e as Error).message || "Run failed.");
     } finally {
       setRunning(false);
+    }
+  }
+
+  async function runStage(stage: "discovery" | "verification" | "knowledge") {
+    if (stageBusy) return;
+    setStageBusy(stage);
+    setStageResult("");
+    try {
+      const r = await adminFetch<{ status: string; result?: Record<string, unknown> }>(
+        "/admin/store-index/run-stage", token,
+        { method: "POST", body: JSON.stringify({ stage }) },
+      );
+      if (r.status === "queued") {
+        setStageResult(`${stage} queued — refresh in ~a minute to see the effect.`);
+      } else {
+        setStageResult(`${stage}: ${JSON.stringify(r.result ?? {})}`);
+        loadStats(token, filterStatus, filterDomain);
+      }
+    } catch (e: unknown) {
+      setStageResult((e as Error).message || `${stage} failed.`);
+    } finally {
+      setStageBusy("");
+    }
+  }
+
+  async function runProbe() {
+    if (probing) return;
+    setProbing(true);
+    setProbe(null);
+    try {
+      const r = await adminFetch<{ data: typeof probe }>("/admin/store-index/shop-app-probe?page=1", token);
+      setProbe(r.data);
+    } catch (e: unknown) {
+      setProbe({ domains: [], http_status: null, bytes: null, note: (e as Error).message || "probe failed" });
+    } finally {
+      setProbing(false);
     }
   }
 
@@ -393,6 +434,51 @@ export default function StoreIndexAdminPage() {
           </div>
         )}
 
+        {/* ── Pipeline controls — run the REAL three-stage flow on demand ──── */}
+        <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <p className="label-caps mb-1">Run the pipeline manually</p>
+          <p className="text-xs mb-3 leading-relaxed" style={{ color: "var(--muted)" }}>
+            Test each stage in isolation. Start with <span style={{ color: "var(--text-2)" }}>Probe Shop App</span> to confirm
+            Discovery Source #1 actually returns domains, then Discovery → Verification → Knowledge. This is the real pipeline —
+            unlike the legacy “Run 10 domains” below, which drains AI-guessed candidates and is why your success rate looks like 23%.
+          </p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button onClick={runProbe} disabled={probing}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40"
+              style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text-2)" }}>
+              {probing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />} Probe Shop App
+            </button>
+            <span style={{ color: "var(--muted)" }}>·</span>
+            <button onClick={() => runStage("discovery")} disabled={!!stageBusy}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40"
+              style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "#7DB8C9" }}>
+              {stageBusy === "discovery" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Radar className="w-3.5 h-3.5" />} 1 · Discovery
+            </button>
+            <button onClick={() => runStage("verification")} disabled={!!stageBusy}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40"
+              style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "#4CC38A" }}>
+              {stageBusy === "verification" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />} 2 · Verification
+            </button>
+            <button onClick={() => runStage("knowledge")} disabled={!!stageBusy}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40"
+              style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--accent)" }}>
+              {stageBusy === "knowledge" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Brain className="w-3.5 h-3.5" />} 3 · Knowledge
+            </button>
+          </div>
+          {stageResult && <p className="num text-[11px] mt-2 break-all" style={{ color: "var(--text-2)" }}>{stageResult}</p>}
+          {probe && (
+            <div className="mt-3 rounded-md p-3 num text-[11px]" style={{ background: "var(--bg3)" }}>
+              <p style={{ color: probe.domains.length ? "#4CC38A" : "#F2555A" }}>
+                Shop App probe — HTTP {probe.http_status ?? "—"} · {probe.bytes ?? 0} bytes · {probe.domains.length} domains
+              </p>
+              {probe.note && <p className="mt-1" style={{ color: "var(--muted)" }}>{probe.note}</p>}
+              {probe.domains.length > 0 && (
+                <p className="mt-1" style={{ color: "var(--text-2)" }}>{probe.domains.slice(0, 12).join(" · ")}</p>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Stat tiles */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {tiles.map((t) => (
@@ -538,11 +624,12 @@ export default function StoreIndexAdminPage() {
           <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
             <div className="flex items-center gap-2 mb-2">
               <Play className="w-3.5 h-3.5" style={{ color: "var(--text-2)" }} />
-              <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Test indexing run</p>
+              <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Legacy candidate run</p>
             </div>
             <p className="text-xs mb-3 leading-relaxed" style={{ color: "var(--muted)" }}>
-              Processes up to 10 candidates now (verify → light scan → classify → upsert). Bypasses the
-              SHOPIFY_INDEX_ENABLED flag; caps and politeness still apply.
+              Processes 10 AI-guessed candidates (related_expansion / ai_niche_query). Expect a LOW
+              success rate — these are unverified guesses, not Shopify-confirmed. Use the three-stage
+              controls above for the real pipeline.
             </p>
             <button
               onClick={handleRun}

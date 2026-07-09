@@ -331,29 +331,74 @@ def internal_shop_app_page(body: dict, x_internal_token: str = Header(...)):
     page = int((body or {}).get("page") or 1)
     limit = max(1, min(int((body or {}).get("limit") or 60), 200))
 
-    domains: list = []
-    try:
-        domains = _fetch_shop_app_domains(page, limit)
-    except Exception as exc:
-        logger.info("[SHOP_APP] page=%d fetch failed: %s", page, exc)
-        return {"domains": []}
+    result = _fetch_shop_app_domains(page, limit)
+    logger.info("[SHOP_APP] page=%d strategy=%s status=%s bytes=%s → %d domains",
+                page, result.get("strategy"), result.get("http_status"),
+                result.get("bytes"), len(result.get("domains", [])))
+    # Return diagnostics alongside domains so the operator can see WHY a run was
+    # empty (JS-only page, blocked, wrong shape) instead of guessing.
+    return {
+        "domains": result.get("domains", []),
+        "strategy": result.get("strategy"),
+        "http_status": result.get("http_status"),
+        "bytes": result.get("bytes"),
+        "note": result.get("note"),
+    }
 
-    logger.info("[SHOP_APP] page=%d returned %d candidate domains", page, len(domains))
-    return {"domains": domains}
+
+_SHOP_APP_SKIP = (
+    "shop.app", "shopify.com", "cdn.shopify", "shopifycdn", "myshopify.com",
+    "google", "facebook", "instagram", "tiktok", "youtube", "twitter", "x.com",
+    "apple.com", "gstatic", "cloudflare", "fbcdn", "gravatar", "w3.org",
+    "schema.org", "sentry", "cookielaw", "onetrust", "klaviyo", "pinterest",
+    "linkedin", "vimeo", "googletagmanager", "doubleclick", "cdnjs",
+)
 
 
-def _fetch_shop_app_domains(page: int, limit: int) -> list:
-    """
-    Best-effort Shop App merchant discovery. Shop App surfaces merchants through
-    its category/browse endpoints; we pull merchant storefront domains from the
-    JSON those endpoints return. Any shape we don't recognize yields nothing —
-    the caller degrades cleanly rather than inventing domains.
-    """
+def _shop_app_extract(html: str, limit: int) -> list:
+    """Pull candidate merchant storefront hosts from a Shop App HTML payload.
+    Shop App is a JS app, but its server response embeds initial state as JSON
+    inside <script> tags — this scans the whole payload (anchors + embedded
+    JSON) for external hosts, prioritizing explicit merchant-URL keys."""
     import re as _re
+    hosts: list = []
+    seen = set()
+
+    def _add(h: str):
+        h = (h or "").lower().strip().strip("/")
+        h = h.split("/")[0]
+        if not h or "." not in h or h in seen:
+            return
+        if any(bad in h for bad in _SHOP_APP_SKIP):
+            return
+        seen.add(h)
+        hosts.append(h)
+
+    # 1. Explicit merchant-URL keys in embedded JSON (highest confidence).
+    for m in _re.finditer(r'"(?:url|storeUrl|website|onlineStoreUrl|primaryDomain|domain)"\s*:\s*"https?://([^"/]+)', html, _re.I):
+        _add(m.group(1))
+        if len(hosts) >= limit:
+            return hosts[:limit]
+
+    # 2. Any external host anywhere in the payload (lower confidence).
+    for m in _re.finditer(r'https?://([a-z0-9][a-z0-9\-.]+\.[a-z]{2,})', html, _re.I):
+        _add(m.group(1))
+        if len(hosts) >= limit:
+            break
+    return hosts[:limit]
+
+
+def _fetch_shop_app_domains(page: int, limit: int) -> dict:
+    """
+    Best-effort Shop App merchant discovery, returning domains + diagnostics.
+
+    Shop App has no public discovery API and renders client-side, so extraction
+    is inherently fragile. We try the category browse page and report exactly
+    what came back (status, size, which strategy hit) so an empty result is
+    debuggable rather than silent. Never fabricates domains.
+    """
     from app.services.fetch import IMPERSONATE, _USE_CURL_CFFI, _headers
 
-    # shop.app category feeds are paginated; walk them by page. Category rotates
-    # so the crawl spreads across the ecosystem over successive runs.
     categories = [
         "apparel", "beauty", "home", "electronics", "food-and-drink",
         "health", "jewelry-and-accessories", "pet", "sports", "toys",
@@ -362,37 +407,36 @@ def _fetch_shop_app_domains(page: int, limit: int) -> list:
     feed_page = ((page - 1) // len(categories)) + 1
     url = f"https://shop.app/categories/{cat}?page={feed_page}"
 
-    if _USE_CURL_CFFI:
-        from curl_cffi.requests import Session as CurlSession
-        with CurlSession() as client:
-            r = client.get(url, headers=_headers(), impersonate=IMPERSONATE, timeout=20)
-            html = r.text if r.status_code == 200 else ""
-    else:
-        import httpx
-        with httpx.Client(follow_redirects=True) as client:
-            r = client.get(url, headers=_headers(), timeout=20)
-            html = r.text if r.status_code == 200 else ""
+    status = None
+    html = ""
+    try:
+        if _USE_CURL_CFFI:
+            from curl_cffi.requests import Session as CurlSession
+            with CurlSession() as client:
+                r = client.get(url, headers=_headers(), impersonate=IMPERSONATE, timeout=20)
+                status = r.status_code
+                html = r.text if r.status_code == 200 else ""
+        else:
+            import httpx
+            with httpx.Client(follow_redirects=True) as client:
+                r = client.get(url, headers=_headers(), timeout=20)
+                status = r.status_code
+                html = r.text if r.status_code == 200 else ""
+    except Exception as exc:
+        return {"domains": [], "strategy": "category_html", "http_status": None,
+                "bytes": 0, "note": f"fetch error: {exc}"[:200]}
 
     if not html:
-        return []
+        return {"domains": [], "strategy": "category_html", "http_status": status,
+                "bytes": 0, "note": "non-200 or empty body"}
 
-    # Pull merchant storefront hosts referenced in the page payload. Shop App
-    # embeds merchant data with their real storefront URLs; extract those hosts.
-    hosts = set()
-    for m in _re.finditer(r'https?://([a-z0-9][a-z0-9\-.]+\.[a-z]{2,})', html, _re.I):
-        h = m.group(1).lower()
-        # Skip Shopify/Shop infrastructure and common non-merchant hosts.
-        if any(bad in h for bad in (
-            "shop.app", "shopify.com", "cdn.shopify", "shopifycdn", "myshopify.com",
-            "google", "facebook", "instagram", "tiktok", "youtube", "twitter",
-            "apple.com", "gstatic", "cloudflare", "fbcdn", "gravatar", "w3.org",
-        )):
-            continue
-        hosts.add(h)
-        if len(hosts) >= limit:
-            break
-
-    return list(hosts)[:limit]
+    domains = _shop_app_extract(html, limit)
+    note = None
+    if not domains:
+        note = ("page fetched but no merchant domains found in payload — likely "
+                "client-rendered; extraction technique needs the live HTML shape")
+    return {"domains": domains, "strategy": "category_html", "http_status": status,
+            "bytes": len(html), "note": note}
 
 
 @router.post("/debug-fetch")

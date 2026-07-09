@@ -467,6 +467,64 @@ def run_store_index(body: RunBody, x_admin_token: Optional[str] = Header(default
         return {"status": "completed_inline", "result": result, "limit": limit}
 
 
+@router.get("/admin/store-index/shop-app-probe")
+def shop_app_probe(page: int = 1, x_admin_token: Optional[str] = Header(default=None)):
+    """
+    Live diagnostic for Discovery Source #1. Fetches one Shop App page on the
+    web process (which, unlike the worker, can reach shop.app) and reports what
+    came back — HTTP status, payload size, extracted merchant domains, and a
+    note when nothing was found. Use this to confirm Shop App actually yields
+    domains before trusting the discovery numbers.
+    """
+    _require_admin(x_admin_token)
+    from app.api.v1.internal import _fetch_shop_app_domains
+    try:
+        result = _fetch_shop_app_domains(max(1, page), 30)
+    except Exception as exc:
+        return {"data": {"domains": [], "note": f"probe error: {exc}"[:200]}}
+    return {"data": result}
+
+
+class StageBody(BaseModel):
+    stage: str          # "discovery" | "verification" | "knowledge"
+    limit: Optional[int] = None
+
+
+@router.post("/admin/store-index/run-stage")
+def run_stage(body: StageBody, x_admin_token: Optional[str] = Header(default=None)):
+    """
+    Manually run ONE stage of the three-stage pipeline (force=True bypasses the
+    enabled flag). This is how you test Shop App discovery in isolation and see
+    its TRUE success rate — unlike /run, which drains legacy AI-guessed
+    candidates and will always look bad.
+
+    discovery    → Shop App (+ any enabled source) surfaces candidate domains
+    verification → discovered domains become verified/rejected (fetches once)
+    knowledge    → verified stores get classified from stored data
+    """
+    _require_admin(x_admin_token)
+    stage = (body.stage or "").strip().lower()
+    task_map = {
+        "discovery": "stage_discovery",
+        "verification": "stage_verification",
+        "knowledge": "stage_knowledge",
+    }
+    if stage not in task_map:
+        raise HTTPException(status_code=422, detail="stage must be discovery|verification|knowledge")
+
+    from app.tasks import store_index as tasks
+    task = getattr(tasks, task_map[stage])
+    limit = body.limit if body.limit is None else max(1, min(body.limit, 200))
+
+    try:
+        t = task.delay(limit_override=limit, force=True)
+        return {"status": "queued", "stage": stage, "task_id": str(t.id)}
+    except Exception as exc:
+        logger.warning("run-stage %s: Celery unavailable (%s) — running inline", stage, exc)
+        result = task(limit_override=limit, force=True)
+        return {"status": "completed_inline", "stage": stage, "result": result}
+
+
 # ── Runtime engine controls — flip toggles/limits without a redeploy ────────
 
 @router.get("/admin/config")
