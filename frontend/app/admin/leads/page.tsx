@@ -10,9 +10,8 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import {
-  Crosshair, RefreshCw, Check, Copy, Search, LogOut, Play, Database,
+  Crosshair, RefreshCw, Check, Copy, Search, Play,
   ChevronDown, ChevronUp, X,
 } from "lucide-react";
 import { EngineControls } from "@/components/admin/EngineControls";
@@ -274,6 +273,7 @@ export default function LeadsAdminPage() {
       setData(r.data);
       setAuthed(true);
       setAuthError("");
+      try { window.dispatchEvent(new Event("ss-admin-auth")); } catch { /* ignore */ }
     } catch (e: unknown) {
       const s403 = (e as { status?: number })?.status === 403;
       setAuthed(false);
@@ -375,13 +375,6 @@ export default function LeadsAdminPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href="/admin/store-index"
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-md transition-all hover:bg-white/[0.06]"
-              style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
-            >
-              <Database className="w-3.5 h-3.5" /> Store index
-            </Link>
             <button
               onClick={handleRun}
               disabled={running}
@@ -396,14 +389,7 @@ export default function LeadsAdminPage() {
               className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-md transition-all hover:bg-white/[0.06]"
               style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-            </button>
-            <button
-              onClick={() => { try { localStorage.removeItem(TOKEN_KEY); } catch {} setAuthed(false); setToken(""); }}
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-md transition-all hover:bg-white/[0.06]"
-              style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
-            >
-              <LogOut className="w-3.5 h-3.5" />
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
             </button>
           </div>
         </div>

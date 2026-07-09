@@ -8,9 +8,8 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import {
-  Sunrise, Database, Crosshair, RefreshCw, LogOut, Zap, TrendingDown, Lightbulb,
+  Sunrise, RefreshCw, Zap, TrendingDown, Lightbulb,
 } from "lucide-react";
 
 const TOKEN_KEY = "ss_admin_token";
@@ -51,6 +50,7 @@ export default function AdminHomePage() {
       setBrief(r.data);
       setAuthed(true);
       setAuthError("");
+      try { window.dispatchEvent(new Event("ss-admin-auth")); } catch { /* ignore */ }
     } catch (e: unknown) {
       setAuthed(false);
       setAuthError((e as { status?: number })?.status === 403
@@ -120,17 +120,8 @@ export default function AdminHomePage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link href="/admin/store-index" className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-md transition-all hover:bg-white/[0.06]" style={{ color: "var(--muted)", border: "1px solid var(--border)" }}>
-              <Database className="w-3.5 h-3.5" /> Index
-            </Link>
-            <Link href="/admin/leads" className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-md transition-all hover:bg-white/[0.06]" style={{ color: "var(--muted)", border: "1px solid var(--border)" }}>
-              <Crosshair className="w-3.5 h-3.5" /> Leads
-            </Link>
             <button onClick={() => load(token)} className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-md transition-all hover:bg-white/[0.06]" style={{ color: "var(--muted)", border: "1px solid var(--border)" }}>
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-            </button>
-            <button onClick={() => { try { localStorage.removeItem(TOKEN_KEY); } catch {} setAuthed(false); }} className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-md transition-all hover:bg-white/[0.06]" style={{ color: "var(--muted)", border: "1px solid var(--border)" }}>
-              <LogOut className="w-3.5 h-3.5" />
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
             </button>
           </div>
         </div>
