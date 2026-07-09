@@ -388,7 +388,7 @@ def _shop_app_extract(html: str, limit: int) -> list:
     return hosts[:limit]
 
 
-def _shop_app_raw_fetch(url: str, timeout: int = 20) -> dict:
+def _shop_app_raw_fetch(url: str, timeout: int = 20, follow_done: bool = False) -> dict:
     """Fetch one URL and report status, size, a short text sample, and any
     external hosts found. Pure diagnostic — used to discover which shop.app
     endpoints actually return usable content."""
@@ -419,14 +419,31 @@ def _shop_app_raw_fetch(url: str, timeout: int = 20) -> dict:
     # Also surface every shop.app/child-sitemap <loc> URL — the map we actually
     # want to follow (the domain extractor deliberately skips shop.app hosts).
     import re as _re
-    locs = _re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", text or "", _re.I)[:50]
+    all_locs = _re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", text or "", _re.I)
+    locs = all_locs[:50]
     sitemaps = _re.findall(r"Sitemap:\s*(\S+)", text or "", _re.I)[:20]
+
+    # If this is a sitemap INDEX (its locs point to more .xml sitemaps), follow
+    # the first child one level so a single probe reveals the whole chain down
+    # to real page URLs. Bounded to one extra fetch.
+    child_url = None
+    child_locs: list = []
+    if all_locs and all_locs[0].endswith(".xml") and not follow_done:
+        child_url = all_locs[0]
+        try:
+            child = _shop_app_raw_fetch(child_url, timeout=timeout, follow_done=True)
+            child_locs = (child.get("locs") or [])[:30]
+        except Exception:
+            pass
+
     return {
         "url": url,
         "http_status": status,
         "bytes": len(text),
         "domains": domains,
         "locs": locs,
+        "child_url": child_url,
+        "child_locs": child_locs,
         "sitemaps": sitemaps,
         "sample": (text[:sample_cap] if text else None),
         "error": err,
@@ -439,13 +456,9 @@ def _shop_app_probe_battery() -> list:
     robots.txt/sitemaps are the reliable way to enumerate valid pages."""
     candidates = [
         "https://shop.app/robots.txt",
-        "https://shop.app/sitemap.xml",
-        "https://shop.app/",
-        "https://shop.app/discover",
-        "https://shop.app/browse",
-        "https://shop.app/stores",
-        "https://shop.app/brands",
-        "https://shop.app/categories",
+        # The real prize: Shopify's published sitemap of Shop App storefronts.
+        "https://shop.app/cdn/shopifycloud/shop-web/sitemaps/storefronts/sitemap_storefronts.xml",
+        "https://shop.app/cdn/shopifycloud/shop-web/sitemaps/products/sitemap_products.xml",
     ]
     return [_shop_app_raw_fetch(u) for u in candidates]
 
