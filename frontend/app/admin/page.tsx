@@ -21,7 +21,7 @@ interface Brief {
   business: { users_total: number; users_24h: number; users_7d: number; pro: number; agency: number; mrr_estimate: number };
   funnel: { stage: string; count: number }[];
   biggest_drop: { from: string; to: string; lost: number; rate: number } | null;
-  health: { competitors_active: number; scans_24h: number; scan_errors: number; changes_24h: number };
+  health: { competitors_active: number; scans_24h: number; scan_errors: number; scans_stuck?: number; changes_24h: number; failed_jobs?: { hostname: string | null; error: string; at: string }[] };
   engines: {
     index_verified: number; index_verified_24h: number;
     last_index_run: { ran_at: string; verified: number; processed: number; failed: number } | null;
@@ -227,6 +227,31 @@ export default function AdminHomePage() {
             )}
           </div>
         </div>
+
+        {/* Worker health — recent failed scans */}
+        {(h.failed_jobs?.length ?? 0) > 0 && (
+          <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <div className="flex items-center gap-2 mb-3">
+              <p className="label-caps">Recent failed scans</p>
+              {(h.scans_stuck ?? 0) > 0 && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: "rgba(255,178,36,.12)", color: "var(--accent)" }}>
+                  {h.scans_stuck} stuck scanning
+                </span>
+              )}
+            </div>
+            <div className="space-y-1.5">
+              {h.failed_jobs!.map((j, i) => (
+                <div key={i} className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="num text-xs font-semibold" style={{ color: "var(--text-2)" }}>{j.hostname}</p>
+                    <p className="text-[11px] leading-snug" style={{ color: "var(--muted)" }}>{j.error || "—"}</p>
+                  </div>
+                  <span className="text-[10px] shrink-0" style={{ color: "var(--muted)" }}>{new Date(j.at).toLocaleDateString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Content opportunities — from real detected changes */}
         <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>

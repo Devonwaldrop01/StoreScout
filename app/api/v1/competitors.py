@@ -17,6 +17,7 @@ from pydantic import BaseModel, field_validator
 from app.core.auth import get_current_user_id, get_effective_user_id
 from app.core.config import get_settings
 from app.core.database import get_supabase
+from app.core.obs import safe_read
 
 router = APIRouter(prefix="/competitors", tags=["competitors"])
 
@@ -53,6 +54,7 @@ def _tier_limits(tier: str) -> dict:
 
 
 @router.get("")
+@safe_read("GET /competitors", {"data": []})
 def list_competitors(user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
     result = db.table("competitors").select("*").eq("user_id", user_id).eq("is_my_store", False).order("created_at", desc=True).execute()
@@ -992,6 +994,7 @@ def regenerate_ai_summary(competitor_id: str, user_id: str = Depends(get_current
 
 
 @router.get("/{competitor_id}/winning-products")
+@safe_read("GET /winning-products", {"data": {"products": [], "newest": [], "locked": False, "locked_count": 0}})
 def get_winning_products(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """
     Winning-product analysis. Free tier sees the #1 product (score visible, the
@@ -1047,6 +1050,7 @@ def get_winning_products(competitor_id: str, user_id: str = Depends(get_effectiv
 
 
 @router.get("/{competitor_id}/gaps")
+@safe_read("GET /gaps", {"data": {"gaps": [], "locked": False, "locked_count": 0}})
 def get_gaps(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """
     Gap analysis. Free tier sees the top 2 gap titles (detail locked) plus a
@@ -1084,6 +1088,7 @@ def get_gaps(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
 
 
 @router.get("/{competitor_id}/store-profile")
+@safe_read("GET /store-profile", {"data": None})
 def get_store_profile(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """
     Brand intelligence from extended scraping (collections, pages, blogs).
@@ -1129,6 +1134,7 @@ def get_store_profile(competitor_id: str, user_id: str = Depends(get_effective_u
 
 
 @router.get("/{competitor_id}/comparison")
+@safe_read("GET /comparison", {"data": {"has_store": False}})
 def get_comparison(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """
     Head-to-head: the user's own store vs this competitor. Requires the user to
@@ -1216,6 +1222,7 @@ def get_quick_wins(competitor_id: str, user_id: str = Depends(get_effective_user
 
 
 @router.get("/{competitor_id}/price-history")
+@safe_read("GET /price-history", {"data": {"points": [], "locked": False}})
 def get_price_history(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """
     Time-series of median_price and promo_rate across scans.
@@ -1264,6 +1271,7 @@ def get_price_history(competitor_id: str, user_id: str = Depends(get_effective_u
 
 
 @router.get("/{competitor_id}/market-context")
+@safe_read("GET /market-context", {"data": {"category": None, "saturation": 0, "peers": []}})
 def get_market_context(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """Market research context for Product Intelligence: this competitor's
     category, its verified peers from StoreScout's own store index, and

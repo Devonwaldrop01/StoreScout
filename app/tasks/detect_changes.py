@@ -232,6 +232,10 @@ def detect_changes(competitor_id: str, snapshot_id: str) -> dict:
     changes = _detect(old_snap_data, new_snap_data)
     logger.info("[DETECT %s] found %d change(s)", competitor_id, len(changes))
 
+    # Release the two large snapshot blobs as soon as the diff is done — on a
+    # concurrency-1 worker this is the peak memory point.
+    del new_snap_data, old_snap_data, snaps
+
     if not changes:
         return {"status": "no_changes"}
 
@@ -244,8 +248,11 @@ def detect_changes(competitor_id: str, snapshot_id: str) -> dict:
     now = datetime.now(timezone.utc).isoformat()
     rows = [{**c, "competitor_id": competitor_id, "detected_at": now} for c in changes]
 
-    insert_result = db.table("change_events").insert(rows).execute()
-    inserted_ids = [r["id"] for r in (insert_result.data or []) if r.get("id")]
+    # Chunk the insert so a spike day never sends one oversized request.
+    inserted_ids: List[str] = []
+    for i in range(0, len(rows), 200):
+        res = db.table("change_events").insert(rows[i:i + 200]).execute()
+        inserted_ids.extend(r["id"] for r in (res.data or []) if r.get("id"))
     logger.info("[DETECT %s] inserted %d change_events", competitor_id, len(inserted_ids))
 
     if inserted_ids:

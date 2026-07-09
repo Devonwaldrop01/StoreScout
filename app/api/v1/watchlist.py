@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from app.core.auth import get_effective_user_id
 from app.core.database import get_supabase
+from app.core.obs import safe_read
 from app.tasks.detect_changes import _product_index
 
 logger = logging.getLogger(__name__)
@@ -48,6 +49,7 @@ class AddWatchRequest(BaseModel):
 
 
 @router.get("")
+@safe_read("GET /watchlist", {"data": [], "cap": 0})
 def list_watches(user_id: str = Depends(get_effective_user_id)):
     """Return the user's pinned products enriched with current price + delta."""
     db = get_supabase()

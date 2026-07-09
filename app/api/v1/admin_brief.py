@@ -99,8 +99,25 @@ def morning_brief(x_admin_token: Optional[str] = Header(default=None)):
     # ── Platform health ───────────────────────────────────────────────────
     scans_24h = _count(db, "scan_snapshots", scanned_at__gte=day_ago)
     scan_errors = _count(db, "competitors", scan_status="error")
+    scans_stuck = _count(db, "competitors", scan_status="scanning")
     changes_24h = _count(db, "change_events", detected_at__gte=day_ago)
     competitors_active = _count(db, "competitors", is_active=True, is_my_store=False)
+
+    # Recent failed jobs — worker health at a glance
+    failed_jobs: List[dict] = []
+    try:
+        fj = db.table("competitors")\
+            .select("hostname, error_message, updated_at")\
+            .eq("scan_status", "error")\
+            .order("updated_at", desc=True)\
+            .limit(8).execute().data or []
+        failed_jobs = [{
+            "hostname": f.get("hostname"),
+            "error": (f.get("error_message") or "")[:140],
+            "at": f.get("updated_at"),
+        } for f in fj]
+    except Exception:
+        pass
 
     # ── Engines ───────────────────────────────────────────────────────────
     index_verified = _count(db, "shopify_store_index", status="verified")
@@ -189,7 +206,9 @@ def morning_brief(x_admin_token: Optional[str] = Header(default=None)):
                 "competitors_active": competitors_active,
                 "scans_24h": scans_24h,
                 "scan_errors": scan_errors,
+                "scans_stuck": scans_stuck,
                 "changes_24h": changes_24h,
+                "failed_jobs": failed_jobs,
             },
             "engines": {
                 "index_verified": index_verified,

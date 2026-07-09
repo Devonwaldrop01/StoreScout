@@ -10,6 +10,7 @@ from pydantic import BaseModel, field_validator
 from app.core.auth import get_current_user_id
 from app.core.config import get_settings
 from app.core.database import get_supabase
+from app.core.obs import safe_read
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,7 @@ class SetMyStoreRequest(BaseModel):
 
 
 @router.get("")
+@safe_read("GET /my-store", {"data": None})
 def get_my_store(user_id: str = Depends(get_current_user_id)):
     db = get_supabase()
     result = db.table("competitors")\
