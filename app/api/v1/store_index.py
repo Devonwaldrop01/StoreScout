@@ -468,21 +468,25 @@ def run_store_index(body: RunBody, x_admin_token: Optional[str] = Header(default
 
 
 @router.get("/admin/store-index/shop-app-probe")
-def shop_app_probe(page: int = 1, x_admin_token: Optional[str] = Header(default=None)):
+def shop_app_probe(url: str = "", x_admin_token: Optional[str] = Header(default=None)):
     """
-    Live diagnostic for Discovery Source #1. Fetches one Shop App page on the
-    web process (which, unlike the worker, can reach shop.app) and reports what
-    came back — HTTP status, payload size, extracted merchant domains, and a
-    note when nothing was found. Use this to confirm Shop App actually yields
-    domains before trusting the discovery numbers.
+    Live diagnostic for Discovery Source #1, run on the web process (which,
+    unlike the worker, can reach shop.app). With no args it tries a BATTERY of
+    candidate shop.app entry points (robots.txt, sitemap, discover, browse, …)
+    and reports each one's HTTP status, size, a text sample, and any merchant
+    domains found — so we can see which routes actually work. Pass ?url= to
+    probe one specific URL.
     """
     _require_admin(x_admin_token)
-    from app.api.v1.internal import _fetch_shop_app_domains
+    from app.api.v1.internal import _shop_app_raw_fetch, _shop_app_probe_battery
     try:
-        result = _fetch_shop_app_domains(max(1, page), 30)
+        if url:
+            if not url.startswith("http"):
+                url = "https://" + url
+            return {"data": {"results": [_shop_app_raw_fetch(url)]}}
+        return {"data": {"results": _shop_app_probe_battery()}}
     except Exception as exc:
-        return {"data": {"domains": [], "note": f"probe error: {exc}"[:200]}}
-    return {"data": result}
+        return {"data": {"results": [], "note": f"probe error: {exc}"[:200]}}
 
 
 class StageBody(BaseModel):
