@@ -867,10 +867,17 @@ def upsert_index_row(db, domain: str, fields: Dict[str, Any]) -> str:
     except Exception:
         existing = None
 
-    # Columns added by later migrations (008: business_stage/pricing_tier/
-    # expanded_at) may not exist yet — retry without them so the index keeps
-    # working during the migration window.
-    _NEWER_COLS = ("business_stage", "pricing_tier", "expanded_at")
+    # Columns added by later migrations may not exist yet — retry without them
+    # so the index keeps working during the migration window (008:
+    # business_stage/pricing_tier/expanded_at; 015: the three-stage pipeline
+    # fields; 016: product_titles).
+    _NEWER_COLS = (
+        "business_stage", "pricing_tier", "expanded_at",
+        "discovery_source", "discovered_at", "verified_at", "knowledge_at",
+        "rejection_reason", "category_confidence", "category_evidence",
+        "price_bands", "target_customer", "brand_keywords", "homepage_message",
+        "collection_count", "related_ready", "product_titles",
+    )
 
     def _write(payload: Dict[str, Any]) -> None:
         if existing:
@@ -881,16 +888,46 @@ def upsert_index_row(db, domain: str, fields: Dict[str, Any]) -> str:
     if existing and existing.get("status") == "verified" and fields.get("status") == "candidate":
         return "skipped"
 
-    try:
-        _write(fields)
-    except Exception as exc:
-        stripped = {k: v for k, v in fields.items() if k not in _NEWER_COLS}
-        if len(stripped) == len(fields):
+    # Write, and if the schema is missing a column (partial migration), drop
+    # exactly the offending column named in the error and retry — so applying
+    # 015 but not 016 (or vice-versa) still persists everything that DOES exist.
+    payload = dict(fields)
+    for _ in range(len(_NEWER_COLS) + 1):
+        try:
+            _write(payload)
+            return "updated" if existing else "inserted"
+        except Exception as exc:
+            missing = _missing_column(str(exc))
+            if missing and missing in payload and missing != "domain":
+                payload.pop(missing, None)
+                logger.debug("upsert dropping missing column %r for %s", missing, domain)
+                continue
+            # Fall back to stripping all known-newer columns at once.
+            stripped = {k: v for k, v in payload.items() if k not in _NEWER_COLS}
+            if len(stripped) < len(payload):
+                logger.debug("upsert retry without newer columns for %s: %s", domain, exc)
+                try:
+                    _write(stripped)
+                    return "updated" if existing else "inserted"
+                except Exception:
+                    raise
             raise
-        logger.debug("upsert retry without newer columns for %s: %s", domain, exc)
-        _write(stripped)
-
     return "updated" if existing else "inserted"
+
+
+_MISSING_COL_RES = (
+    re.compile(r"column\s+(?:[\w.]+\.)?[\"']?([\w]+)[\"']?\s+does not exist", re.I),
+    re.compile(r"Could not find the '([\w]+)' column", re.I),
+    re.compile(r"['\"]([\w]+)['\"] column of", re.I),
+)
+
+
+def _missing_column(msg: str) -> Optional[str]:
+    for rx in _MISSING_COL_RES:
+        m = rx.search(msg or "")
+        if m:
+            return m.group(1)
+    return None
 
 
 def process_domain_into_index(db, domain: str, source: str, source_query: Optional[str] = None) -> Dict[str, Any]:
