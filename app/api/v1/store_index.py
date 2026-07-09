@@ -489,6 +489,18 @@ def shop_app_probe(url: str = "", x_admin_token: Optional[str] = Header(default=
         return {"data": {"results": [], "note": f"probe error: {exc}"[:200]}}
 
 
+@router.get("/admin/store-index/shop-app-count")
+def shop_app_count(x_admin_token: Optional[str] = Header(default=None)):
+    """How many storefronts Shop App exposes in its sitemap — the discovery
+    ceiling. Runs on the web process (can reach shop.app)."""
+    _require_admin(x_admin_token)
+    from app.api.v1.internal import _shop_app_count
+    try:
+        return {"data": _shop_app_count()}
+    except Exception as exc:
+        return {"data": {"total_handles": 0, "note": f"count error: {exc}"[:200]}}
+
+
 class StageBody(BaseModel):
     stage: str          # "discovery" | "verification" | "knowledge"
     limit: Optional[int] = None
