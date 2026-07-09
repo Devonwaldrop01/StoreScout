@@ -236,19 +236,31 @@ def stage_knowledge(limit_override: Optional[int] = None, force: bool = False) -
     batch = max(1, min(limit_override or get_config(
         "shopify_index_knowledge_batch", settings.shopify_index_knowledge_batch), 300))
 
-    try:
-        res = db.table("shopify_store_index")\
-            .select("domain, brand_name, homepage_message, description, product_types, "
-                    "product_titles, tags, collections, pricing_tier, product_count, "
-                    "median_price, min_price, max_price, price_bands")\
-            .eq("status", "verified")\
-            .is_("knowledge_at", "null")\
-            .order("verified_at")\
-            .limit(batch).execute()
-        rows = res.data or []
-    except Exception as exc:
-        logger.error("stage_knowledge: verified fetch failed: %s", exc)
-        return {"status": "error", "classified": 0}
+    _full_cols = ("domain, brand_name, homepage_message, description, product_types, "
+                  "product_titles, tags, collections, pricing_tier, product_count, "
+                  "median_price, min_price, max_price, price_bands")
+    # product_titles (016) may lag behind 015 — fall back to a select without it
+    # so knowledge still runs (it just loses the product-title signal).
+    _fallback_cols = ("domain, brand_name, homepage_message, description, product_types, "
+                      "tags, collections, pricing_tier, product_count, "
+                      "median_price, min_price, max_price, price_bands")
+    rows = []
+    for cols in (_full_cols, _fallback_cols):
+        try:
+            res = db.table("shopify_store_index")\
+                .select(cols)\
+                .eq("status", "verified")\
+                .is_("knowledge_at", "null")\
+                .order("verified_at")\
+                .limit(batch).execute()
+            rows = res.data or []
+            break
+        except Exception as exc:
+            if cols is _full_cols:
+                logger.warning("stage_knowledge: full select failed (%s) — retrying without product_titles", exc)
+                continue
+            logger.error("stage_knowledge: verified fetch failed (apply migration 015): %s", exc)
+            return {"status": "error", "classified": 0}
 
     if not rows:
         return {"status": "ok", "classified": 0, "note": "queue_empty"}

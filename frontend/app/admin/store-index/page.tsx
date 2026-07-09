@@ -136,8 +136,8 @@ export default function StoreIndexAdminPage() {
   const [probeUrl, setProbeUrl] = useState("");
   const [probing, setProbing] = useState(false);
 
-  const loadStats = useCallback(async (tok: string, status = "", domain = "") => {
-    setLoading(true);
+  const loadStats = useCallback(async (tok: string, status = "", domain = "", silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const params = new URLSearchParams();
       if (status) params.set("status", status);
@@ -154,10 +154,17 @@ export default function StoreIndexAdminPage() {
       } catch { /* pre-migration or transient — pipeline panel just hides */ }
     } catch (e: unknown) {
       const status403 = (e as { status?: number })?.status === 403;
-      setAuthed(false);
-      setAuthError(status403 ? "Invalid token (or ADMIN_TOKEN not set on the backend)." : "Couldn't reach the backend.");
+      // Only bounce to the login gate on an auth failure. A transient network
+      // blip during a silent poll must NOT wipe the console.
+      if (status403) {
+        setAuthed(false);
+        setAuthError("Invalid token (or ADMIN_TOKEN not set on the backend).");
+      } else if (!silent) {
+        setAuthed(false);
+        setAuthError("Couldn't reach the backend.");
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
@@ -171,6 +178,18 @@ export default function StoreIndexAdminPage() {
       }
     } catch { /* ignore */ }
   }, [loadStats]);
+
+  // Live auto-refresh — poll the pipeline every 10s while the console is open
+  // and the tab is visible, so numbers move on their own as the worker runs
+  // (no manual reload). Filters are preserved; polling is silent (no spinner).
+  useEffect(() => {
+    if (!authed || !token) return;
+    const id = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      loadStats(token, filterStatus, filterDomain, true);
+    }, 10000);
+    return () => clearInterval(id);
+  }, [authed, token, filterStatus, filterDomain, loadStats]);
 
   function handleLogin() {
     const t = tokenInput.trim();
