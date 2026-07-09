@@ -136,6 +136,16 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
     return () => { cancelled = true; };
   }, [competitorId, refreshKey]);
 
+  // Auto-poll while a scan is still producing the comparison — no manual
+  // refresh. Stops as soon as it's ready (or the store isn't set).
+  useEffect(() => {
+    if (!data || !data.has_store || data.ready !== false) return;
+    const t = setInterval(() => {
+      api.comparison(competitorId).then((r) => setData(r.data)).catch(() => {});
+    }, 5000);
+    return () => clearInterval(t);
+  }, [competitorId, data]);
+
   if (loading) {
     return (
       <div className="space-y-3">
@@ -150,18 +160,16 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
     return <SetStorePrompt onSaved={refresh} />;
   }
 
-  // Store set but a snapshot isn't ready yet
+  // Store set but a snapshot isn't ready yet — live progress, auto-updates
   if (data && data.has_store && data.ready === false) {
     const msg = data.reason === "my_store_scanning"
-      ? "We're scanning your store now — usually 60–90 seconds. Refresh shortly to see the comparison."
-      : "This competitor hasn't finished its first scan yet. Check back in a minute.";
+      ? "Scanning your store to build the head-to-head — usually 60–90 seconds."
+      : "This competitor is finishing its first scan — the scorecard builds automatically.";
     return (
-      <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <Loader2 className="w-6 h-6 mx-auto mb-3 animate-spin" style={{ color: "var(--text-2)" }} />
-        <p style={{ color: "var(--muted)" }}>{msg}</p>
-        <button onClick={refresh} className="mt-4 text-sm font-medium px-4 py-2 rounded-lg" style={{ background: "var(--bg3)", color: "var(--text)" }}>
-          Refresh
-        </button>
+      <div className="rounded-md p-8 text-center analyzing-sweep" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <Loader2 className="w-6 h-6 mx-auto mb-3 animate-spin" style={{ color: "var(--accent)" }} />
+        <p style={{ color: "var(--text-2)" }}>{msg}</p>
+        <p className="text-xs mt-1.5" style={{ color: "var(--muted)" }}>This updates on its own — no need to refresh.</p>
       </div>
     );
   }

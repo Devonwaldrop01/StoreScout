@@ -405,7 +405,7 @@ function ComparisonTable() {
   const rows = [
     { feature: "Real-time change detection", ext: false, report: false, us: true },
     { feature: "Price history over time",    ext: false, report: false, us: true },
-    { feature: "Email alerts within 15 min", ext: false, report: false, us: true },
+    { feature: "Instant alerts on critical moves", ext: false, report: false, us: true },
     { feature: "Works without a Chrome tab", ext: false, report: true,  us: true },
     { feature: "AI weekly digest",           ext: false, report: false, us: true },
     { feature: "Multi-competitor dashboard", ext: false, report: false, us: true },
@@ -742,7 +742,7 @@ export default function LandingPage() {
         </h1>
 
         <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed" style={{ color: "var(--muted)" }}>
-          StoreScout monitors any Shopify store 24/7 and emails you within 15 minutes when they change prices, launch products, or run a flash sale — automatically, every day.
+          StoreScout scans your competitors every day, detects the moves that matter — price cuts, launches, flash sales — and delivers them in one Daily Intelligence Brief, with an instant alert the moment a critical move is detected.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
@@ -776,7 +776,7 @@ export default function LandingPage() {
       <div className="border-y" style={{ borderColor: "var(--border)" }}>
         <div className="max-w-5xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {[
-            { value: "< 15 min", label: "Avg. alert delivery" },
+            { value: "Daily", label: "Auto-scans on Pro" },
             { value: "1M+", label: "Shopify stores supported" },
             { value: "100%", label: "Public data — no ToS issues" },
             { value: "$0", label: "To get started" },
@@ -940,7 +940,7 @@ export default function LandingPage() {
               style={{ background: "rgba(242,85,90,.1)", color: "#F2555A", border: "1px solid rgba(242,85,90,.2)" }}
             >
               <Bell className="w-3 h-3" />
-              In your inbox within 15 minutes
+              Critical moves alert you instantly
             </div>
             <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>03 · Monitor</p>
             <h2 className="text-3xl font-bold mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
@@ -1088,7 +1088,7 @@ export default function LandingPage() {
             },
             {
               step: "03", icon: Bell, title: "Get alerted when they move",
-              desc: "Price drops, new launches, sale events — you're notified by email within 15 minutes. The dashboard updates automatically every day.",
+              desc: "Critical moves — flash sales, steep price cuts — alert you the moment they're detected. Everything else lands in your Daily Intelligence Brief. Scans run every day.",
             },
           ].map(({ step, icon: Icon, title, desc }) => (
             <div key={step} className="text-center relative">
@@ -1191,7 +1191,7 @@ export default function LandingPage() {
                 Flash sale detection in minutes
               </h3>
               <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--muted)" }}>
-                When a competitor drops 20+ prices in one session, StoreScout detects it as a &ldquo;Flash Sale&rdquo; event and emails you within 15 minutes — before it shows up on social.
+                When a competitor drops 20+ prices in one session, StoreScout flags it as a critical &ldquo;Flash Sale&rdquo; event and alerts you immediately — before it shows up on social.
               </p>
             </div>
             <div className="rounded-md p-4" style={{ background: "rgba(0,0,0,.3)", border: "1px solid rgba(242,85,90,.2)" }}>
@@ -1228,7 +1228,7 @@ export default function LandingPage() {
       {/* ── Comparison ──────────────────────────────────────────────────────── */}
       <div className="max-w-4xl mx-auto px-6 pb-28">
         <div className="text-center mb-12">
-          <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>Social proof</p>
+          <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>Why StoreScout</p>
           <h2 className="text-3xl font-bold mb-3" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
             Why not a Chrome extension?
           </h2>
@@ -1247,7 +1247,7 @@ export default function LandingPage() {
           {[
             { icon: Shield, label: "Public data only", desc: "Reads Shopify's public product endpoints — no login required, no private data touched, no ToS issues." },
             { icon: Clock, label: "Daily auto-scans", desc: "Pro and Agency plans scan automatically every 24 hours. Set it and never manually check again." },
-            { icon: Zap, label: "Alerts within 15 minutes", desc: "Change detection runs immediately after each scan — you hear about it before it hits social media." },
+            { icon: Zap, label: "Instant critical alerts", desc: "Critical moves alert you the moment a scan detects them — daily scans, immediate alerts on what matters." },
           ].map(({ icon: Icon, label, desc }) => (
             <div key={label} className="flex items-start gap-4 rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
               <div className="rounded-md p-2 shrink-0" style={{ background: "rgba(255,178,36,.1)" }}>

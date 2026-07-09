@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Building2, FileText, BookOpen, Lock, CheckCircle, XCircle, ChevronRight } from "lucide-react";
 import { competitors as api, type StoreProfileResponse } from "@/lib/api";
 import UpgradeModal from "@/components/UpgradeModal";
+import { SaveToPlaybook } from "@/components/SaveToPlaybook";
 
 // ── shared signal badge ──────────────────────────────────────────────────────
 
@@ -134,13 +135,73 @@ function CollectionTag({ name }: { name: string }) {
   );
 }
 
-function ProView({ data }: { data: StoreProfileResponse }) {
+// Turn the raw brand signals into a strategy read + one move — Brand Intel
+// should tell you what their posture MEANS, not just list flags.
+function brandInterpretation(data: StoreProfileResponse): { read: string; move: string } | null {
   const col = data.collection_intel;
   const brand = data.brand_signals;
   const content = data.content_intel;
+  if (!col && !brand && !content) return null;
+
+  const recurring = !!(col?.has_subscription);
+  const bundling = !!(col?.has_bundles);
+  const community = !!(brand?.has_affiliate);
+  const contentHeavy = (content?.content_investment_score ?? 0) >= 50;
+  const discountLed = !!(col?.has_sale);
+
+  let read: string;
+  let move: string;
+  if (recurring && community) {
+    read = "They're building a retention-and-advocacy moat — subscription plus an affiliate/ambassador program means they're engineering repeat revenue and word-of-mouth, not chasing one-off sales.";
+    move = "Compete on the relationship, not the transaction: stand up your own loyalty or referral loop before they lock in your shared audience.";
+  } else if (contentHeavy) {
+    read = "Content is a core channel for them — heavy blog/editorial investment signals they're playing the SEO and authority long game.";
+    move = "Either out-invest them on content in a niche they under-serve, or skip the fight and win on paid/product where they're slower.";
+  } else if (bundling) {
+    read = "They lean on bundles/kits to raise order value — a margin-and-AOV strategy rather than pure volume.";
+    move = "Counter with a sharper single-product hero or a better-value bundle at the same price point.";
+  } else if (discountLed) {
+    read = "Their merchandising is discount-forward — a permanent sale collection trains customers to wait for markdowns.";
+    move = "Own the full-price lane: lead with quality signals and guarantees while they erode their own margin.";
+  } else {
+    read = "A straightforward catalog-led brand — no strong retention, bundling, or content plays visible yet.";
+    move = "The lanes they're NOT playing (subscription, content, community) are open — pick one to differentiate on.";
+  }
+  return { read, move };
+}
+
+function ProView({ data, competitorId }: { data: StoreProfileResponse; competitorId?: string }) {
+  const col = data.collection_intel;
+  const brand = data.brand_signals;
+  const content = data.content_intel;
+  const interp = brandInterpretation(data);
 
   return (
     <div className="space-y-5">
+      {/* What their brand posture means — the actionable read, up top */}
+      {interp && (
+        <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: "3px solid var(--accent)" }}>
+          <p className="label-caps mb-1.5" style={{ color: "var(--accent)" }}>What their brand strategy tells you</p>
+          <p className="text-sm leading-relaxed mb-2" style={{ color: "var(--text-2)" }}>{interp.read}</p>
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text)" }}>→ {interp.move}</p>
+            {competitorId && (
+              <SaveToPlaybook
+                size="xs"
+                item={{
+                  source_type: "pro_analysis",
+                  source_ref: `${competitorId}:brand`,
+                  competitor_id: competitorId,
+                  title: interp.move,
+                  reason: interp.read,
+                  evidence: "Brand signals: " + [col?.has_subscription && "subscription", col?.has_bundles && "bundles", brand?.has_affiliate && "affiliate", (content?.content_investment_score ?? 0) >= 50 && "content-heavy"].filter(Boolean).join(", "),
+                  priority: "medium",
+                }}
+              />
+            )}
+          </div>
+        </div>
+      )}
       {/* Collections */}
       {col && (
         <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
@@ -278,7 +339,7 @@ export default function StoreProfileTab({ competitorId }: { competitorId: string
 
       {data.locked
         ? <FreeTierView data={data} onUpgrade={() => setUpgradeOpen(true)} />
-        : <ProView data={data} />
+        : <ProView data={data} competitorId={competitorId} />
       }
 
       <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="general" />
