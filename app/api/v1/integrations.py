@@ -41,14 +41,19 @@ def _get_integration_row(user_id: str) -> dict:
 @router.get("")
 def get_integrations(user_id: str = Depends(get_current_user_id)):
     """Return integration status for the current user (keys masked)."""
+    settings = get_settings()
     row = _get_integration_row(user_id)
     klaviyo_key = row.get("klaviyo_api_key") or ""
+    # Google is only offered when explicitly enabled AND credentials exist —
+    # keeps the broken-redirect flow out of users' hands until Console is fixed.
+    google_enabled = bool(settings.google_integration_enabled and settings.google_client_id)
     return {
         "data": {
             "klaviyo": {
                 "connected": bool(klaviyo_key),
                 "key_preview": _mask_key(klaviyo_key) if klaviyo_key else None,
-            }
+            },
+            "google_enabled": google_enabled,
         }
     }
 
@@ -288,6 +293,8 @@ def google_connect_url(user_id: str = Depends(get_current_user_id)):
     settings = _get_google_settings()
     if not settings.google_client_id:
         raise HTTPException(503, "Google integration not configured")
+    if not settings.google_integration_enabled:
+        raise HTTPException(503, "Google integration is temporarily unavailable")
 
     state = secrets.token_hex(16)
     try:

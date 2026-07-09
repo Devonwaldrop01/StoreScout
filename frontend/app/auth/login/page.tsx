@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Zap, Eye, EyeOff, AlertCircle, Check } from "lucide-react";
@@ -71,6 +71,16 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  // Already signed in? Route to the app once auth has RESOLVED — never on a
+  // null-session first paint, and via client navigation (no reload).
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!cancelled && data.session) router.replace("/dashboard");
+    });
+    return () => { cancelled = true; };
+  }, [router, supabase]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

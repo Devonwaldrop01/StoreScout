@@ -213,6 +213,12 @@ export const user = {
       method: "PUT",
       body: JSON.stringify(prefs),
     }),
+  businessProfile: () => apiFetch<{ data: BusinessProfile | null }>("/user/business-profile"),
+  saveBusinessProfile: (profile: Partial<BusinessProfile>) =>
+    apiFetch<{ status: string }>("/user/business-profile", {
+      method: "PUT",
+      body: JSON.stringify(profile),
+    }),
   testWebhook: (type: "slack" | "generic") =>
     apiFetch<{ status: string; http_status?: number; detail?: string }>("/user/test-webhook", {
       method: "POST",
@@ -548,6 +554,15 @@ export interface UserSubscription {
   };
 }
 
+export interface BusinessProfile {
+  category?: string;
+  price_range?: "budget" | "mid" | "premium" | "luxury";
+  target_customer?: string;
+  primary_goal?: string;
+  sells?: string;
+  own_store_url?: string;
+}
+
 export interface NotificationPrefs {
   user_id: string;
   email_price_changes: boolean;
@@ -762,7 +777,7 @@ export interface BusinessKnowledge {
 }
 
 export const integrations = {
-  get: () => apiFetch<{ data: { klaviyo: KlaviyoStatus } }>("/integrations"),
+  get: () => apiFetch<{ data: { klaviyo: KlaviyoStatus; google_enabled?: boolean } }>("/integrations"),
   intelligenceSources: () =>
     apiFetch<{ data: BusinessKnowledge }>("/integrations/intelligence-sources"),
   klaviyo: {

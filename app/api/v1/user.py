@@ -6,8 +6,45 @@ from pydantic import BaseModel
 from app.core.auth import get_current_user_id
 from app.core.config import get_settings
 from app.core.database import get_supabase
+from app.core.obs import safe_read
 
 router = APIRouter(prefix="/user", tags=["user"])
+
+
+class BusinessProfileRequest(BaseModel):
+    category: Optional[str] = None
+    price_range: Optional[str] = None
+    target_customer: Optional[str] = None
+    primary_goal: Optional[str] = None
+    sells: Optional[str] = None
+    own_store_url: Optional[str] = None
+
+
+@router.get("/business-profile")
+@safe_read("GET /business-profile", {"data": None})
+def get_business_profile(user_id: str = Depends(get_current_user_id)):
+    db = get_supabase()
+    res = db.table("business_profiles").select("*").eq("user_id", user_id).maybe_single().execute()
+    return {"data": (res.data if res else None)}
+
+
+@router.put("/business-profile")
+def update_business_profile(body: BusinessProfileRequest, user_id: str = Depends(get_current_user_id)):
+    from datetime import datetime, timezone
+    db = get_supabase()
+    fields = {k: v for k, v in body.model_dump().items() if v is not None}
+    if not fields:
+        return {"status": "noop"}
+    fields["user_id"] = user_id
+    fields["updated_at"] = datetime.now(timezone.utc).isoformat()
+    try:
+        db.table("business_profiles").upsert(fields, on_conflict="user_id").execute()
+    except Exception as exc:
+        # Table missing (pre-migration) — don't block onboarding
+        import logging
+        logging.getLogger(__name__).warning("business profile upsert failed for %s: %s", user_id, exc)
+        return {"status": "unavailable"}
+    return {"status": "ok"}
 
 
 class UpdatePrefsRequest(BaseModel):

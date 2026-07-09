@@ -61,7 +61,7 @@ services:
     runtime: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    dockerCommand: celery -A app.tasks.celery_app.celery worker --loglevel=info -Q default,priority --concurrency=2
+    dockerCommand: celery -A app.tasks.celery_app.celery worker --loglevel=info -Q default,priority --concurrency=1 --max-tasks-per-child=8 --max-memory-per-child=380000
     plan: starter
     envVars:
       - key: PYTHONUNBUFFERED

@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     # Google OAuth
     google_client_id: str = ""
     google_client_secret: str = ""
+    # Hide the Google (GA4/Search Console) integration until the production
+    # OAuth redirect URI is registered in Google Cloud Console. Ship OFF for
+    # launch; flip on once the Console + prod domain are verified.
+    google_integration_enabled: bool = False
 
     # Meta Ad Library (public competitor ad intelligence — not the user's ad account)
     meta_ad_library_token: str = ""
@@ -51,6 +55,12 @@ class Settings(BaseSettings):
 
     # Anthropic
     anthropic_api_key: str = ""
+
+    # Launch-time memory guard: hard cap on products a single scan processes.
+    # Bounds peak memory of fetch → normalize → analyze → detect for huge
+    # catalogs so the 512MB worker/web dynos don't OOM. Raise once on bigger
+    # plans. 0 = uncapped.
+    scan_max_products: int = 1500
 
     # Tier scan intervals (hours)
     free_scan_interval_hours: int = 168

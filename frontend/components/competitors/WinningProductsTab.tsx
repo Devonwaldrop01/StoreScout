@@ -424,6 +424,11 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
             Conservative provisional tiers — the full multi-signal tier analysis lands with the next scan.
           </p>
         )}
+        {data.locked && (
+          <p className="text-[11px] mt-1.5 px-2.5 py-1.5 rounded inline-block" style={{ background: "rgba(255,178,36,.08)", color: "var(--text-2)", border: "1px solid rgba(255,178,36,.2)" }}>
+            Free preview — the top few products with live scores. Full Hero/Strong/Emerging tiering, the &ldquo;why&rdquo; behind each, and how to respond come with Pro (and sharpen as scan history builds).
+          </p>
+        )}
       </div>
 
       {/* ── Tiers, scarcest first ──────────────────────────────────────────── */}

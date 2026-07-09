@@ -476,6 +476,28 @@ function CompetitorsContent() {
         </div>
       )}
 
+      {/* Under-tracked prompt — discovery near the top until they have a few */}
+      {!loading && myCompetitors.length < 3 && (
+        <button
+          onClick={() => document.getElementById("find-competitors")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+          className="w-full flex items-center gap-3 mb-6 px-4 py-3 rounded-md text-left transition-all"
+          style={{ background: "var(--bg-card)", border: "1px solid rgba(255,178,36,.28)" }}
+        >
+          <div className="w-8 h-8 rounded-md flex items-center justify-center shrink-0" style={{ background: "rgba(255,178,36,.1)" }}>
+            <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+              {myCompetitors.length === 0 ? "Find your competitors" : `Tracking ${myCompetitors.length} — add a few more for a fuller picture`}
+            </p>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>
+              Describe what you sell and we&apos;ll find verified Shopify competitors you can track in one click.
+            </p>
+          </div>
+          <span className="text-xs font-semibold shrink-0" style={{ color: "var(--accent)" }}>Find →</span>
+        </button>
+      )}
+
       {/* Competitor cards */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
@@ -556,7 +578,7 @@ function CompetitorsContent() {
       </div>
 
       {/* Find competitors */}
-      <section className="mb-8">
+      <section id="find-competitors" className="mb-8">
         <div
           className="rounded-md overflow-hidden"
           style={{ border: "1px solid var(--border)" }}

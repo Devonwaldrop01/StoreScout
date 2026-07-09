@@ -87,10 +87,14 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
         logger.warning("[SCAN %s] skip-if-unchanged probe failed (non-fatal): %s\n%s",
                        competitor_id, exc, traceback.format_exc())
 
-    # ── 3. Full fetch ────────────────────────────────────────────────────────
-    logger.info("[SCAN %s] starting full fetch for %r", competitor_id, store_url)
+    # ── 3. Full fetch (memory-capped) ────────────────────────────────────────
+    # Bound the catalog size so peak memory across fetch/normalize/analyze/
+    # detect stays under the dyno limit. Huge stores are staged: we take the
+    # cap and record that the catalog was truncated for transparency.
+    cap = settings.scan_max_products or None
+    logger.info("[SCAN %s] starting full fetch for %r (cap=%s)", competitor_id, store_url, cap)
     try:
-        raw = fetch_products_shopify(store_url)
+        raw = fetch_products_shopify(store_url, max_products=cap)
     except Exception as exc:
         logger.error("[SCAN %s] fetch_products_shopify raised exception: %s\n%s",
                      competitor_id, exc, traceback.format_exc())
@@ -128,6 +132,12 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
         logger.error("[SCAN %s] analyze failed: %s\n%s", competitor_id, exc, traceback.format_exc())
         _mark_error(db, competitor_id, f"analyze exception: {exc}")
         return {"status": "error", "reason": f"analyze exception: {exc}"}
+
+    # Transparency: note when a huge catalog was capped for memory safety.
+    if cap and len(raw) >= cap:
+        insights["catalog_truncated"] = True
+        insights["catalog_scanned"] = len(raw)
+        logger.info("[SCAN %s] catalog capped at %d products (memory guard)", competitor_id, cap)
 
     # Compact per-product index so detect_changes can diff the full catalog.
     # Keyed by handle; stores only the fields needed for change detection.
