@@ -7,7 +7,7 @@ import {
   Search, TrendingDown, Bell, Package, Sparkles,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { competitors as competitorsApi, user as userApi } from "@/lib/api";
+import { competitors as competitorsApi, user as userApi, type AIDiscoverySuggestion } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 
@@ -157,8 +157,8 @@ const SCAN_PHASES: [number, string][] = [
 ];
 
 const STEP_LABELS: Record<Step, string> = {
-  1: "Add competitor",
-  2: "About you",
+  1: "About you",
+  2: "Find competitors",
   3: "Choose plan",
   4: "First scan",
 };
@@ -189,8 +189,56 @@ function OnboardingContent() {
   const [customer, setCustomer] = useState("");
   const [quickAdding, setQuickAdding] = useState<string | null>(null); // url being quick-added
 
-  // Whether they skipped step 1 without adding a competitor
+  // Whether they skipped the competitor step without adding one
   const [skipped, setSkipped] = useState(false);
+
+  // Personalized discovery — kicked off from the business answers so the
+  // competitor step is already populated with verified, relevant Shopify stores.
+  const [discovering, setDiscovering] = useState(false);
+  const [discovery, setDiscovery] = useState<AIDiscoverySuggestion | null>(null);
+  const [discoveryError, setDiscoveryError] = useState("");
+
+  function buildDescription(): string {
+    return [
+      category && `Sells ${category}`,
+      priceRange && `${priceRange} pricing`,
+      customer.trim() && `Customer: ${customer.trim()}`,
+    ].filter(Boolean).join(". ");
+  }
+
+  async function runDiscovery() {
+    const desc = buildDescription();
+    if (!desc || discovering) return;
+    setDiscovering(true);
+    setDiscoveryError("");
+    setDiscovery(null);
+    try {
+      const r = await competitorsApi.discoverAI(desc);
+      setDiscovery(r.data);
+    } catch {
+      // Non-fatal — the curated category picks and manual URL still work.
+      setDiscoveryError("Couldn't auto-find competitors — pick from the suggestions below or paste a URL.");
+    } finally {
+      setDiscovering(false);
+    }
+  }
+
+  async function handleTrackDiscovered(domain: string) {
+    setQuickAdding(domain);
+    try {
+      const { data } = await competitorsApi.add(normalizeUrl(domain));
+      setNewCompetitorId(data.id);
+      setTrackedHostname(data.hostname || domain);
+      setSkipped(false);
+      setStep(3);
+    } catch (err: unknown) {
+      const apiErr = err as { data?: { detail?: string | { code?: string } } };
+      const detail = apiErr?.data?.detail;
+      setAddError(typeof detail === "string" ? detail : "Couldn't track that store — try another.");
+    } finally {
+      setQuickAdding(null);
+    }
+  }
 
   // Step 3 — plan
   const [selectedPlan, setSelectedPlan] = useState<"free" | "pro" | "agency">("pro");
@@ -339,7 +387,7 @@ function OnboardingContent() {
       setNewCompetitorId(data.id);
       setTrackedHostname(data.hostname || normalizeUrl(url).replace(/^https?:\/\//, "").replace(/\/$/, ""));
       setSkipped(false);
-      setStep(2);
+      setStep(3);
     } catch (err: unknown) {
       const apiErr = err as { data?: { detail?: string | { code?: string } } };
       const detail = apiErr?.data?.detail;
@@ -363,9 +411,8 @@ function OnboardingContent() {
     } catch (err: unknown) {
       const apiErr = err as { data?: { detail?: string | { code?: string } } };
       const detail = apiErr?.data?.detail;
-      // If limit reached or error, just pre-fill the URL field and go back to step 1
+      // On error, pre-fill the URL field so they can retry from the same step
       setUrl(storeUrl);
-      setStep(1);
       if (typeof detail === "string") setAddError(detail);
     } finally {
       setQuickAdding(null);
@@ -376,7 +423,7 @@ function OnboardingContent() {
     setSkipped(true);
     setNewCompetitorId("");
     setTrackedHostname("");
-    setStep(2);
+    setStep(3);
   }
 
   function finish() {
@@ -446,154 +493,15 @@ function OnboardingContent() {
           style={{ background: "var(--bg2)", border: "1px solid var(--border)" }}
         >
 
-          {/* ─── Step 1: Add competitor ─── */}
+          {/* ─── Step 1: About your business (personalizes discovery) ─── */}
           {step === 1 && (
             <div>
               <p className="tick-label mb-2">Step 01 / 04</p>
               <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text)" }}>
-                Who are you watching?
+                Tell us about your business
               </h1>
               <p className="text-sm mb-7" style={{ color: "var(--muted)" }}>
-                Paste any Shopify store URL. We'll scan their full catalog and have
-                pricing intelligence ready in about 60 seconds.
-              </p>
-
-              <form onSubmit={handleAddCompetitor} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--muted)" }}>
-                    Shopify store URL
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={url}
-                      onChange={handleUrlChange}
-                      placeholder="gymshark.com"
-                      autoFocus
-                      className="w-full px-4 py-3 rounded-md text-sm font-mono pr-10 outline-none transition-all"
-                      style={{
-                        background: "var(--bg3)",
-                        border: `1px solid ${urlBorderColor}`,
-                        color: "var(--text)",
-                      }}
-                    />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      {checking && (
-                        <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--green)" }} />
-                      )}
-                      {!checking && storeStatus === "ok" && <CheckCircle2 className="w-4 h-4 text-green-400" />}
-                      {!checking && storeStatus === "restricted" && <AlertTriangle className="w-4 h-4 text-yellow-400" />}
-                      {!checking && storeStatus === "error" && <AlertCircle className="w-4 h-4 text-red-400" />}
-                    </div>
-                  </div>
-                  {storeStatus === "ok" && (
-                    <p className="text-xs mt-1.5 text-green-400">✓ Shopify store detected — ready to scan</p>
-                  )}
-                  {storeStatus === "restricted" && (
-                    <p className="text-xs mt-1.5 text-yellow-400">Restricts public access — we'll still attempt to scan</p>
-                  )}
-                  {storeStatus === "error" && (
-                    <p className="text-xs mt-1.5 text-red-400">{storeError}</p>
-                  )}
-                </div>
-
-                {addError && (
-                  <div className="flex items-start gap-2 p-3 rounded-md text-sm" style={{ background: "rgba(242,85,90,.1)", border: "1px solid rgba(242,85,90,.3)", color: "#F7999C" }}>
-                    <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                    {addError}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={submitting || !url.trim() || storeStatus === "error" || checking}
-                  className={cn(
-                    "w-full flex items-center justify-center gap-2 font-semibold py-3.5 rounded-md transition-all",
-                    submitting || !url.trim() || storeStatus === "error" || checking
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:brightness-110"
-                  )}
-                  style={{ background: "var(--accent)", color: "var(--ink)" }}
-                >
-                  {submitting ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin border-white/40" />
-                      Starting scan…
-                    </>
-                  ) : (
-                    <>
-                      <Search className="w-4 h-4" />
-                      Start tracking
-                    </>
-                  )}
-                </button>
-              </form>
-
-              {/* Don't know your competitors? */}
-              <div
-                className="mt-6 rounded-md p-4"
-                style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
-              >
-                <div className="flex items-start gap-3">
-                  <Sparkles className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "var(--green)" }} />
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--text)" }}>
-                      Don't know your competitors yet?
-                    </p>
-                    <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
-                      No problem — tell us your category next and we'll suggest popular Shopify stores
-                      in your niche to track. You can also skip this step and add competitors later.
-                    </p>
-                    <button
-                      onClick={handleSkip}
-                      className="mt-3 text-xs font-semibold flex items-center gap-1 hover:opacity-80 transition-opacity"
-                      style={{ color: "var(--green)" }}
-                    >
-                      Skip for now — show me suggestions <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ─── Step 2: Survey + category-based suggestions ─── */}
-          {step === 2 && (
-            <div>
-              {/* Scan running pill (only if a competitor was added) */}
-              {newCompetitorId && (
-                <div
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg mb-6"
-                  style={{ background: "rgba(255,178,36,.07)", border: "1px solid rgba(255,178,36,.15)" }}
-                >
-                  <div className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ background: "var(--green)" }} />
-                  <p className="text-xs font-medium" style={{ color: "var(--green)" }}>
-                    Scan running — {trackedHostname}
-                  </p>
-                  <span className="text-xs ml-auto" style={{ color: "var(--muted)" }}>
-                    {scanProgress}%
-                  </span>
-                </div>
-              )}
-
-              {skipped && (
-                <div
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg mb-6"
-                  style={{ background: "rgba(125,184,201,.07)", border: "1px solid rgba(125,184,201,.2)" }}
-                >
-                  <Sparkles className="w-3.5 h-3.5 shrink-0" style={{ color: "#7DB8C9" }} />
-                  <p className="text-xs font-medium" style={{ color: "#7DB8C9" }}>
-                    Pick your category below and we'll suggest competitors to track
-                  </p>
-                </div>
-              )}
-
-              <p className="tick-label mb-2">Step 02 / 04</p>
-              <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text)" }}>
-                Tell us about your store
-              </h1>
-              <p className="text-sm mb-7" style={{ color: "var(--muted)" }}>
-                A few quick questions — helps us surface the right signals for your market.
+                Four quick answers — StoreScout uses them to find your direct competitors and personalize everything you see next.
               </p>
 
               <div className="space-y-7">
@@ -607,14 +515,14 @@ function OnboardingContent() {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Your first name"
                     autoComplete="given-name"
-                    className="w-full px-4 py-3 rounded-md text-sm transition-all outline-none focus:border-blue-500/50"
+                    className="w-full px-4 py-3 rounded-md text-sm transition-all outline-none"
                     style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
                   />
                 </div>
 
                 <div>
                   <p className="text-sm font-semibold mb-3" style={{ color: "var(--text)" }}>
-                    What do you sell?
+                    What do you sell? <span className="font-normal" style={{ color: "var(--muted)" }}>(required)</span>
                   </p>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     {CATEGORIES.map((c) => (
@@ -635,58 +543,6 @@ function OnboardingContent() {
                   </div>
                 </div>
 
-                {/* Category suggestions — only shown after category selected + no competitor yet */}
-                {category && categorySuggestions.length > 0 && !newCompetitorId && (
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Sparkles className="w-3.5 h-3.5" style={{ color: "var(--green)" }} />
-                      <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                        Popular {category} stores to track
-                      </p>
-                    </div>
-                    <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
-                      Click any store to start tracking it — we'll scan their full catalog right now.
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {categorySuggestions.map((store) => (
-                        <button
-                          key={store.url}
-                          type="button"
-                          onClick={() => handleQuickAdd(store.url, store.name)}
-                          disabled={quickAdding !== null}
-                          className="flex items-center justify-between px-3 py-2.5 rounded-md text-left transition-all hover:border-green-500/40 hover:bg-green-500/5 disabled:opacity-50"
-                          style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
-                        >
-                          <div className="min-w-0">
-                            <p className="text-xs font-semibold truncate" style={{ color: "var(--text)" }}>
-                              {store.name}
-                            </p>
-                            <p className="text-xs truncate" style={{ color: "var(--muted)" }}>
-                              {store.tag}
-                            </p>
-                          </div>
-                          {quickAdding === store.url ? (
-                            <div className="w-3.5 h-3.5 border-2 border-t-transparent rounded-full animate-spin ml-2 shrink-0" style={{ borderColor: "var(--green)" }} />
-                          ) : (
-                            <ArrowRight className="w-3.5 h-3.5 ml-2 shrink-0 opacity-40" style={{ color: "var(--green)" }} />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                    <p className="text-xs mt-2 text-center" style={{ color: "var(--muted)" }}>
-                      Or{" "}
-                      <button
-                        onClick={() => setStep(1)}
-                        className="underline hover:opacity-80 transition-opacity"
-                        style={{ color: "var(--green)" }}
-                      >
-                        go back and enter any URL manually
-                      </button>
-                    </p>
-                  </div>
-                )}
-
-                {/* Price range — powers positioning + peer relevance */}
                 <div>
                   <p className="text-sm font-semibold mb-3" style={{ color: "var(--text)" }}>
                     Where do you price?
@@ -715,10 +571,9 @@ function OnboardingContent() {
                   </div>
                 </div>
 
-                {/* Who buys — one line, sharpens every recommendation */}
                 <div>
                   <p className="text-sm font-semibold mb-2" style={{ color: "var(--text)" }}>
-                    Who&apos;s your customer? <span className="font-normal" style={{ color: "var(--muted)" }}>(optional)</span>
+                    Who&apos;s your customer? <span className="font-normal" style={{ color: "var(--muted)" }}>(optional, sharpens matches)</span>
                   </p>
                   <input
                     value={customer}
@@ -731,7 +586,7 @@ function OnboardingContent() {
 
                 <div>
                   <p className="text-sm font-semibold mb-3" style={{ color: "var(--text)" }}>
-                    What's your primary intel goal?
+                    What&apos;s your primary intel goal? <span className="font-normal" style={{ color: "var(--muted)" }}>(required)</span>
                   </p>
                   <div className="space-y-2">
                     {GOALS.map((g) => {
@@ -775,18 +630,18 @@ function OnboardingContent() {
                 onClick={() => {
                   const trimmed = name.trim();
                   if (trimmed) {
-                    // Persist to user_metadata so the onboarding name wins over OAuth defaults
                     supabase.auth.updateUser({ data: { display_name: trimmed } }).catch(() => {});
                   }
-                  // Persist the business profile — this is what personalizes the
-                  // dashboard, Playbook, vs-You, and every AI recommendation.
+                  // Persist the profile — personalizes dashboard, Playbook, vs-You, and AI.
                   userApi.saveBusinessProfile({
                     category: category || undefined,
                     price_range: priceRange || undefined,
                     target_customer: customer.trim() || undefined,
                     primary_goal: goalId || undefined,
                   }).catch(() => {});
-                  setStep(3);
+                  // Kick discovery now so the competitor step is already personalized.
+                  runDiscovery();
+                  setStep(2);
                 }}
                 disabled={!category || !goalId}
                 className={cn(
@@ -795,18 +650,139 @@ function OnboardingContent() {
                 )}
                 style={{ background: "var(--accent)", color: "var(--ink)" }}
               >
-                Next <ArrowRight className="w-4 h-4" />
+                Find my competitors <ArrowRight className="w-4 h-4" />
               </button>
+            </div>
+          )}
 
-              {!skipped && (
+          {/* ─── Step 2: Personalized competitor discovery + track ─── */}
+          {step === 2 && (
+            <div>
+              <p className="tick-label mb-2">Step 02 / 04</p>
+              <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text)" }}>
+                Your competitors{category ? ` in ${category}` : ""}
+              </h1>
+              <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>
+                Verified Shopify stores matched to what you sell. Track one to start — you can add more anytime.
+              </p>
+
+              {/* Discovery running — personalized to their answers */}
+              {discovering && (
+                <div className="mb-5 px-4 py-4 rounded-md analyzing-sweep flex items-center gap-3" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                  <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin shrink-0" style={{ borderColor: "var(--accent)" }} />
+                  <div>
+                    <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Finding verified {category || "Shopify"} competitors…</p>
+                    <p className="text-xs" style={{ color: "var(--muted)" }}>Mapping your market and verifying each store — about a minute. Pick a suggestion below in the meantime.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Personalized verified results */}
+              {discovery && discovery.suggestions.length > 0 && (
+                <div className="mb-5">
+                  <p className="tick-label mb-2">Matched to your business — {discovery.suggestions.length}</p>
+                  <div className="space-y-2">
+                    {discovery.suggestions.map((sug) => (
+                      <button
+                        key={sug.domain}
+                        type="button"
+                        onClick={() => handleTrackDiscovered(sug.domain)}
+                        disabled={quickAdding !== null}
+                        className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-md text-left transition-all hover:border-white/20 disabled:opacity-50"
+                        style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-mono font-semibold truncate" style={{ color: "var(--text)" }}>{sug.domain}</p>
+                            {typeof sug.confidence === "number" && (
+                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0" style={{ background: "rgba(76,195,138,.1)", color: "#4CC38A", border: "1px solid rgba(76,195,138,.2)" }}>
+                                {sug.confidence}% Shopify
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs truncate mt-0.5" style={{ color: "var(--muted)" }}>{sug.reason}</p>
+                        </div>
+                        {quickAdding === sug.domain
+                          ? <div className="w-3.5 h-3.5 border-2 border-t-transparent rounded-full animate-spin shrink-0" style={{ borderColor: "var(--accent)" }} />
+                          : <span className="text-xs font-semibold shrink-0" style={{ color: "var(--accent)" }}>Track →</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Curated picks — instant + fallback when AI is still running or empty */}
+              {(discovering || (discovery && discovery.suggestions.length === 0) || discoveryError) && categorySuggestions.length > 0 && (
+                <div className="mb-5">
+                  <p className="tick-label mb-2">Popular {category} stores</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {categorySuggestions.map((store) => (
+                      <button
+                        key={store.url}
+                        type="button"
+                        onClick={() => handleQuickAdd(store.url, store.name)}
+                        disabled={quickAdding !== null}
+                        className="flex items-center justify-between px-3 py-2.5 rounded-md text-left transition-all hover:border-white/20 disabled:opacity-50"
+                        style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
+                      >
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold truncate" style={{ color: "var(--text)" }}>{store.name}</p>
+                          <p className="text-xs truncate" style={{ color: "var(--muted)" }}>{store.tag}</p>
+                        </div>
+                        {quickAdding === store.url
+                          ? <div className="w-3.5 h-3.5 border-2 border-t-transparent rounded-full animate-spin ml-2 shrink-0" style={{ borderColor: "var(--green)" }} />
+                          : <ArrowRight className="w-3.5 h-3.5 ml-2 shrink-0 opacity-40" style={{ color: "var(--green)" }} />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {discoveryError && (
+                <p className="text-xs mb-4" style={{ color: "var(--muted)" }}>{discoveryError}</p>
+              )}
+
+              {/* Know exactly who to track? Paste any Shopify URL */}
+              <div className="rounded-md p-4 mb-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                <p className="text-sm font-semibold mb-2" style={{ color: "var(--text)" }}>Know exactly who to track?</p>
+                <form onSubmit={handleAddCompetitor} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={url}
+                    onChange={handleUrlChange}
+                    placeholder="paste any Shopify store URL"
+                    className="flex-1 px-3 py-2.5 rounded-md text-sm font-mono outline-none"
+                    style={{ background: "var(--bg3)", border: `1px solid ${urlBorderColor}`, color: "var(--text)" }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={submitting || !url.trim() || storeStatus === "error" || checking}
+                    className="font-semibold text-sm px-4 py-2.5 rounded-md transition-all hover:brightness-110 disabled:opacity-50 shrink-0"
+                    style={{ background: "var(--accent)", color: "var(--ink)" }}
+                  >
+                    {submitting ? "…" : "Track"}
+                  </button>
+                </form>
+                {storeStatus === "error" && <p className="text-xs mt-1.5" style={{ color: "#F2555A" }}>{storeError}</p>}
+                {addError && <p className="text-xs mt-1.5" style={{ color: "#F2555A" }}>{addError}</p>}
+              </div>
+
+              <div className="flex items-center justify-between">
                 <button
                   onClick={() => setStep(1)}
-                  className="mt-2 w-full text-sm py-2 rounded-md hover:bg-white/5 transition-colors"
+                  className="text-sm py-2 hover:opacity-80 transition-opacity"
                   style={{ color: "var(--muted)" }}
                 >
                   ← Back
                 </button>
-              )}
+                <button
+                  onClick={handleSkip}
+                  className="text-sm py-2 hover:opacity-80 transition-opacity"
+                  style={{ color: "var(--muted)" }}
+                >
+                  Skip for now →
+                </button>
+              </div>
             </div>
           )}
 
