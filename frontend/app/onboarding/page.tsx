@@ -185,6 +185,8 @@ function OnboardingContent() {
   const [name, setName] = useState("");
   const [category, setCategory] = useState<Category>("");
   const [goalId, setGoalId] = useState<GoalId>("");
+  const [priceRange, setPriceRange] = useState<"" | "budget" | "mid" | "premium" | "luxury">("");
+  const [customer, setCustomer] = useState("");
   const [quickAdding, setQuickAdding] = useState<string | null>(null); // url being quick-added
 
   // Whether they skipped step 1 without adding a competitor
@@ -684,6 +686,49 @@ function OnboardingContent() {
                   </div>
                 )}
 
+                {/* Price range — powers positioning + peer relevance */}
+                <div>
+                  <p className="text-sm font-semibold mb-3" style={{ color: "var(--text)" }}>
+                    Where do you price?
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {([
+                      { v: "budget", l: "Budget" },
+                      { v: "mid", l: "Mid-market" },
+                      { v: "premium", l: "Premium" },
+                      { v: "luxury", l: "Luxury" },
+                    ] as const).map((pr) => (
+                      <button
+                        key={pr.v}
+                        type="button"
+                        onClick={() => setPriceRange(pr.v)}
+                        className="px-3 py-2 rounded-md text-sm font-medium transition-all"
+                        style={{
+                          background: priceRange === pr.v ? "rgba(255,178,36,.1)" : "var(--bg3)",
+                          border: `1px solid ${priceRange === pr.v ? "rgba(255,178,36,.5)" : "var(--border)"}`,
+                          color: priceRange === pr.v ? "var(--accent)" : "var(--muted)",
+                        }}
+                      >
+                        {pr.l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Who buys — one line, sharpens every recommendation */}
+                <div>
+                  <p className="text-sm font-semibold mb-2" style={{ color: "var(--text)" }}>
+                    Who&apos;s your customer? <span className="font-normal" style={{ color: "var(--muted)" }}>(optional)</span>
+                  </p>
+                  <input
+                    value={customer}
+                    onChange={(e) => setCustomer(e.target.value)}
+                    placeholder="e.g. women 25–40 into fitness, budget-conscious"
+                    className="w-full px-4 py-2.5 rounded-md text-sm outline-none"
+                    style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                  />
+                </div>
+
                 <div>
                   <p className="text-sm font-semibold mb-3" style={{ color: "var(--text)" }}>
                     What's your primary intel goal?
@@ -733,6 +778,14 @@ function OnboardingContent() {
                     // Persist to user_metadata so the onboarding name wins over OAuth defaults
                     supabase.auth.updateUser({ data: { display_name: trimmed } }).catch(() => {});
                   }
+                  // Persist the business profile — this is what personalizes the
+                  // dashboard, Playbook, vs-You, and every AI recommendation.
+                  userApi.saveBusinessProfile({
+                    category: category || undefined,
+                    price_range: priceRange || undefined,
+                    target_customer: customer.trim() || undefined,
+                    primary_goal: goalId || undefined,
+                  }).catch(() => {});
                   setStep(3);
                 }}
                 disabled={!category || !goalId}

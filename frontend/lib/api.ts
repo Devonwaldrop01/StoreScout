@@ -213,6 +213,12 @@ export const user = {
       method: "PUT",
       body: JSON.stringify(prefs),
     }),
+  businessProfile: () => apiFetch<{ data: BusinessProfile | null }>("/user/business-profile"),
+  saveBusinessProfile: (profile: Partial<BusinessProfile>) =>
+    apiFetch<{ status: string }>("/user/business-profile", {
+      method: "PUT",
+      body: JSON.stringify(profile),
+    }),
   testWebhook: (type: "slack" | "generic") =>
     apiFetch<{ status: string; http_status?: number; detail?: string }>("/user/test-webhook", {
       method: "POST",
@@ -546,6 +552,15 @@ export interface UserSubscription {
     history_days: number;
     ai_digest: boolean;
   };
+}
+
+export interface BusinessProfile {
+  category?: string;
+  price_range?: "budget" | "mid" | "premium" | "luxury";
+  target_customer?: string;
+  primary_goal?: string;
+  sells?: string;
+  own_store_url?: string;
 }
 
 export interface NotificationPrefs {

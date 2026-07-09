@@ -254,5 +254,37 @@ def build_ai_context(user_id: str) -> str:
         "full": "Client store, email, and web analytics are connected — recommendations may reference traffic impact, landing pages, SEO opportunities, and segments.",
     }[tier]
 
+    # The onboarding business profile — what they told us they sell, who
+    # they serve, and what they came here to do. Makes recommendations speak
+    # to their actual business even before any integration is connected.
+    try:
+        from app.core.database import get_supabase
+        prof = get_supabase().table("business_profiles").select(
+            "category, price_range, target_customer, primary_goal, sells"
+        ).eq("user_id", user_id).maybe_single().execute()
+        p = (prof and prof.data) or {}
+        bits = []
+        if p.get("category"):
+            bits.append(f"sells {p['category']}")
+        if p.get("price_range"):
+            bits.append(f"{p['price_range']} pricing")
+        if p.get("target_customer"):
+            bits.append(f"targets {p['target_customer']}")
+        if p.get("sells"):
+            bits.append(p["sells"][:160])
+        goal_map = {
+            "pricing": "Their priority is PRICE MONITORING — lead with pricing moves and margin plays.",
+            "gaps": "Their priority is PRODUCT GAPS — lead with catalog openings and what to add.",
+            "launches": "Their priority is LAUNCHES — lead with new-product signals and timing.",
+            "plays": "Their priority is ADS/EMAIL PLAYS — lead with campaign and messaging angles.",
+            "monitoring": "Their priority is general monitoring — keep it broad.",
+        }
+        if bits:
+            parts.insert(0, "CLIENT BUSINESS: " + ", ".join(bits) + ".")
+        if p.get("primary_goal") in goal_map:
+            parts.insert(0, goal_map[p["primary_goal"]])
+    except Exception as exc:
+        logger.debug("business profile context skipped: %s", exc)
+
     header = f"KNOWLEDGE DEPTH: {tier}. {guidance}"
     return "\n".join([header] + parts) if parts else header
