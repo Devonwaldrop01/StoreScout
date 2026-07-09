@@ -325,33 +325,32 @@ def internal_shop_app_page(body: dict, x_internal_token: str = Header(...)):
     API, so this degrades gracefully — on any failure it returns an empty list
     and the source holds its cursor (never fabricates domains).
 
-    Body: {"page": int, "limit": int}. Returns {"domains": [str]}.
+    Body: {"cursor": {child, offset}, "limit": int}.
+    Returns {"domains": [str], "cursor": {...}, "note": str}.
     """
     _require_internal(x_internal_token)
-    page = int((body or {}).get("page") or 1)
-    limit = max(1, min(int((body or {}).get("limit") or 60), 200))
+    cursor = (body or {}).get("cursor") or {}
+    limit = max(1, min(int((body or {}).get("limit") or 10), 25))
 
-    result = _fetch_shop_app_domains(page, limit)
-    logger.info("[SHOP_APP] page=%d strategy=%s status=%s bytes=%s → %d domains",
-                page, result.get("strategy"), result.get("http_status"),
-                result.get("bytes"), len(result.get("domains", [])))
-    # Return diagnostics alongside domains so the operator can see WHY a run was
-    # empty (JS-only page, blocked, wrong shape) instead of guessing.
+    result = _shop_app_discover(cursor, limit)
+    logger.info("[SHOP_APP] cursor=%s → %d domains (%s)",
+                cursor, len(result.get("domains", [])), result.get("note") or "ok")
     return {
         "domains": result.get("domains", []),
-        "strategy": result.get("strategy"),
-        "http_status": result.get("http_status"),
-        "bytes": result.get("bytes"),
+        "cursor": result.get("cursor", cursor),
         "note": result.get("note"),
+        "processed": result.get("processed"),
     }
 
 
 _SHOP_APP_SKIP = (
     "shop.app", "shopify.com", "cdn.shopify", "shopifycdn", "myshopify.com",
+    "shopifyinc.com", "shopifycloud", "shopifysvc", "shopifyapps.com",
     "google", "facebook", "instagram", "tiktok", "youtube", "twitter", "x.com",
     "apple.com", "gstatic", "cloudflare", "fbcdn", "gravatar", "w3.org",
     "schema.org", "sentry", "cookielaw", "onetrust", "klaviyo", "pinterest",
-    "linkedin", "vimeo", "googletagmanager", "doubleclick", "cdnjs",
+    "linkedin", "vimeo", "googletagmanager", "doubleclick", "cdnjs", "cloudfront",
+    "jsdelivr", "unpkg", "recaptcha", "paypal", "amazonaws", "akamai",
 )
 
 
@@ -514,55 +513,119 @@ def _shop_app_probe_battery() -> list:
     return [_shop_app_raw_fetch(u) for u in candidates]
 
 
-def _fetch_shop_app_domains(page: int, limit: int) -> dict:
-    """
-    Best-effort Shop App merchant discovery, returning domains + diagnostics.
+_STOREFRONTS_INDEX = "https://shop.app/cdn/shopifycloud/shop-web/sitemaps/storefronts/sitemap_storefronts.xml"
 
-    Shop App has no public discovery API and renders client-side, so extraction
-    is inherently fragile. We try the category browse page and report exactly
-    what came back (status, size, which strategy hit) so an empty result is
-    debuggable rather than silent. Never fabricates domains.
-    """
+
+def _shop_app_get(url: str, timeout: int = 20):
+    """Fetch a URL, decompress .gz, return (status, text). ('' on any error.)"""
     from app.services.fetch import IMPERSONATE, _USE_CURL_CFFI, _headers
-
-    categories = [
-        "apparel", "beauty", "home", "electronics", "food-and-drink",
-        "health", "jewelry-and-accessories", "pet", "sports", "toys",
-    ]
-    cat = categories[(page - 1) % len(categories)]
-    feed_page = ((page - 1) // len(categories)) + 1
-    url = f"https://shop.app/categories/{cat}?page={feed_page}"
-
-    status = None
-    html = ""
     try:
         if _USE_CURL_CFFI:
             from curl_cffi.requests import Session as CurlSession
             with CurlSession() as client:
-                r = client.get(url, headers=_headers(), impersonate=IMPERSONATE, timeout=20)
-                status = r.status_code
-                html = r.text if r.status_code == 200 else ""
+                r = client.get(url, headers=_headers(), impersonate=IMPERSONATE, timeout=timeout)
+                status, raw = r.status_code, r.content
         else:
             import httpx
             with httpx.Client(follow_redirects=True) as client:
-                r = client.get(url, headers=_headers(), timeout=20)
-                status = r.status_code
-                html = r.text if r.status_code == 200 else ""
-    except Exception as exc:
-        return {"domains": [], "strategy": "category_html", "http_status": None,
-                "bytes": 0, "note": f"fetch error: {exc}"[:200]}
+                r = client.get(url, headers=_headers(), timeout=timeout)
+                status, raw = r.status_code, r.content
+        if raw and (url.endswith(".gz") or raw[:2] == b"\x1f\x8b"):
+            import gzip as _gzip
+            try:
+                raw = _gzip.decompress(raw)
+            except Exception:
+                pass
+        return status, (raw.decode("utf-8", "replace") if raw else "")
+    except Exception:
+        return None, ""
 
-    if not html:
-        return {"domains": [], "strategy": "category_html", "http_status": status,
-                "bytes": 0, "note": "non-200 or empty body"}
 
-    domains = _shop_app_extract(html, limit)
-    note = None
-    if not domains:
-        note = ("page fetched but no merchant domains found in payload — likely "
-                "client-rendered; extraction technique needs the live HTML shape")
-    return {"domains": domains, "strategy": "category_html", "http_status": status,
-            "bytes": len(html), "note": note}
+def _shop_app_resolve_one(handle_url: str, timeout: int = 20):
+    """Resolve one shop.app/m/{handle} store page to the merchant's real domain.
+    Prefers the vanity domain (most-frequent external host on the page); falls
+    back to the {shop}.myshopify.com domain, which is always a live Shopify
+    storefront. Returns (domain|None, http_status)."""
+    import re as _re
+    status, text = _shop_app_get(handle_url, timeout)
+    if status != 200 or not text:
+        return None, status
+
+    # Vanity domain: the merchant's own site appears many times (canonical, og,
+    # links, JSON). Tally external hosts and take the most frequent non-infra one.
+    counts: dict = {}
+    for m in _re.finditer(r'https?://([a-z0-9][a-z0-9\-.]+\.[a-z]{2,})', text, _re.I):
+        h = m.group(1).lower().strip(".")
+        if "." not in h or h.startswith("checkout.") or h.startswith("cdn."):
+            continue
+        if any(bad in h for bad in _SHOP_APP_SKIP):
+            continue
+        counts[h] = counts.get(h, 0) + 1
+    vanity = max(counts, key=counts.get) if counts else None
+
+    myshopify = None
+    mm = _re.search(r'([a-z0-9][a-z0-9\-]*\.myshopify\.com)', text, _re.I)
+    if mm:
+        myshopify = mm.group(1).lower()
+
+    return (vanity or myshopify), status
+
+
+def _shop_app_discover(cursor: dict, limit: int) -> dict:
+    """
+    Resumable Shop App discovery. Walks the storefronts sitemap:
+      index → child .xml.gz → shop.app/m/{handle} pages → resolve real domain.
+    The cursor {child, offset} remembers exactly where it stopped, so each run
+    continues over time and never rediscovers. Deliberately SMALL + polite
+    (one page per store, paced) to stay under Shop App's 429 rate limit.
+    """
+    import re as _re
+    import time as _time
+
+    cursor = cursor or {}
+    child_i = int(cursor.get("child", 0))
+    offset = int(cursor.get("offset", 0))
+    # Hard cap per run — page fetches are ~0.5MB each and rate-limited.
+    batch = max(1, min(limit, 10))
+
+    idx_status, idx_text = _shop_app_get(_STOREFRONTS_INDEX)
+    children = [l for l in _re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", idx_text or "", _re.I)
+                if l.endswith(".xml") or l.endswith(".gz")]
+    if not children:
+        return {"domains": [], "cursor": cursor,
+                "note": f"storefronts index unreadable (HTTP {idx_status})"}
+
+    child_i %= len(children)
+    ch_status, ch_text = _shop_app_get(children[child_i])
+    handles = _re.findall(r"<loc>\s*([^<\s]+/m/[^<\s]+)\s*</loc>", ch_text or "", _re.I)
+    if not handles:
+        # Empty/unreadable child — advance so we don't get stuck on it.
+        return {"domains": [], "cursor": {"child": (child_i + 1) % len(children), "offset": 0},
+                "note": f"child {child_i} empty (HTTP {ch_status})"}
+
+    slice_ = handles[offset: offset + batch]
+    domains: list = []
+    resolved_429 = 0
+    for h in slice_:
+        d, st = _shop_app_resolve_one(h)
+        if d:
+            domains.append(d)
+        elif st == 429:
+            resolved_429 += 1
+        _time.sleep(1.0)  # polite pacing between store pages
+        if resolved_429 >= 3:
+            break  # being throttled — stop early, keep our place
+
+    new_offset = offset + len(slice_)
+    if new_offset >= len(handles):
+        new_cursor = {"child": (child_i + 1) % len(children), "offset": 0}
+    else:
+        new_cursor = {"child": child_i, "offset": new_offset}
+
+    domains = list(dict.fromkeys(domains))
+    return {"domains": domains, "cursor": new_cursor,
+            "processed": len(slice_), "child": child_i,
+            "note": ("rate-limited (429) — backing off" if resolved_429 else None)}
 
 
 @router.post("/debug-fetch")

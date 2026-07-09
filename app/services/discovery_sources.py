@@ -41,22 +41,27 @@ class ShopAppSource:
         from app.services.store_index import normalize_domain
         settings = get_settings()
 
-        page = int((cursor or {}).get("page", 0)) + 1
+        # The live crawl is delegated to the web process (worker IP is blocked).
+        # It walks the Shop App storefronts sitemap, resolves each store page to
+        # the merchant's real domain, and returns them plus an advanced cursor.
+        # The web side is polite (paced, small batches) to respect shop.app's
+        # rate limit, so allow it plenty of time.
         try:
-            # The live fetch is delegated to the web process, which is allowed
-            # to reach shop.app. It returns a page of merchant domains. If that
-            # endpoint isn't wired yet or returns nothing, we degrade cleanly.
             import httpx
             resp = httpx.post(
                 f"{settings.api_internal_url}/api/v1/internal/shop-app-page",
                 headers={"x-internal-token": settings.internal_secret},
-                json={"page": page, "limit": limit},
-                timeout=30.0,
+                json={"cursor": cursor or {}, "limit": limit},
+                timeout=120.0,
             )
             if resp.status_code != 200:
                 logger.info("shop_app: fetcher returned %s — holding cursor", resp.status_code)
                 return [], cursor
-            raw = resp.json().get("domains", []) or []
+            body = resp.json()
+            raw = body.get("domains", []) or []
+            # The web side owns cursor advancement (child sitemap + offset); trust
+            # the returned cursor so the crawl resumes exactly where it stopped.
+            next_cursor = body.get("cursor") or cursor
         except Exception as exc:
             logger.info("shop_app: fetch unavailable (%s) — holding cursor", exc)
             return [], cursor
@@ -69,9 +74,6 @@ class ShopAppSource:
                 seen.add(nd)
                 domains.append(nd)
 
-        # Only advance the cursor when the feed actually returned something —
-        # otherwise we'd skip a page on a transient failure.
-        next_cursor = {"page": page} if domains else cursor
         return domains, next_cursor
 
 
