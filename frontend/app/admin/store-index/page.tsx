@@ -130,7 +130,7 @@ export default function StoreIndexAdminPage() {
 
   const [stageBusy, setStageBusy] = useState("");
   const [stageResult, setStageResult] = useState("");
-  type ProbeResult = { url: string; http_status: number | null; bytes: number | null; domains: string[]; sample: string | null; error: string | null };
+  type ProbeResult = { url: string; http_status: number | null; bytes: number | null; domains: string[]; locs?: string[]; sitemaps?: string[]; sample: string | null; error: string | null };
   const [probe, setProbe] = useState<ProbeResult[] | null>(null);
   const [probeUrl, setProbeUrl] = useState("");
   const [probing, setProbing] = useState(false);
@@ -488,8 +488,19 @@ export default function StoreIndexAdminPage() {
                     </p>
                     {r.error && <p className="mt-0.5" style={{ color: "#F2555A" }}>{r.error}</p>}
                     {r.domains.length > 0 && <p className="mt-0.5" style={{ color: "var(--text-2)" }}>{r.domains.slice(0, 10).join(" · ")}</p>}
-                    {ok && r.domains.length === 0 && r.sample && (
-                      <p className="mt-0.5 opacity-70" style={{ color: "var(--muted)" }}>sample: {r.sample.slice(0, 160)}</p>
+                    {(r.sitemaps?.length ?? 0) > 0 && (
+                      <div className="mt-1">
+                        <span style={{ color: "var(--accent)" }}>sitemaps: </span>
+                        <span style={{ color: "var(--text-2)" }}>{r.sitemaps!.join("  ·  ")}</span>
+                      </div>
+                    )}
+                    {(r.locs?.length ?? 0) > 0 && (
+                      <div className="mt-1 max-h-40 overflow-y-auto" style={{ color: "var(--text-2)" }}>
+                        {r.locs!.map((l, j) => <p key={j} className="break-all">{l}</p>)}
+                      </div>
+                    )}
+                    {ok && r.domains.length === 0 && (r.locs?.length ?? 0) === 0 && r.sample && (
+                      <pre className="mt-0.5 opacity-70 whitespace-pre-wrap break-all max-h-40 overflow-y-auto" style={{ color: "var(--muted)" }}>{r.sample}</pre>
                     )}
                   </div>
                 );

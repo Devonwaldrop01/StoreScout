@@ -412,12 +412,23 @@ def _shop_app_raw_fetch(url: str, timeout: int = 20) -> dict:
     except Exception as exc:
         err = f"{exc}"[:200]
     domains = _shop_app_extract(text, 15) if (status == 200 and text) else []
+    # For small text files (robots.txt, sitemap XML) return the FULL body so we
+    # can read the sitemap structure; otherwise a short sample of the shell.
+    is_textmap = url.endswith(".txt") or url.endswith(".xml") or "sitemap" in url
+    sample_cap = 8000 if is_textmap else 400
+    # Also surface every shop.app/child-sitemap <loc> URL — the map we actually
+    # want to follow (the domain extractor deliberately skips shop.app hosts).
+    import re as _re
+    locs = _re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", text or "", _re.I)[:50]
+    sitemaps = _re.findall(r"Sitemap:\s*(\S+)", text or "", _re.I)[:20]
     return {
         "url": url,
         "http_status": status,
         "bytes": len(text),
         "domains": domains,
-        "sample": (text[:280] if text else None),
+        "locs": locs,
+        "sitemaps": sitemaps,
+        "sample": (text[:sample_cap] if text else None),
         "error": err,
     }
 
