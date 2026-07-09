@@ -130,7 +130,9 @@ export default function StoreIndexAdminPage() {
 
   const [stageBusy, setStageBusy] = useState("");
   const [stageResult, setStageResult] = useState("");
-  const [probe, setProbe] = useState<{ domains: string[]; http_status: number | null; bytes: number | null; note: string | null } | null>(null);
+  type ProbeResult = { url: string; http_status: number | null; bytes: number | null; domains: string[]; sample: string | null; error: string | null };
+  const [probe, setProbe] = useState<ProbeResult[] | null>(null);
+  const [probeUrl, setProbeUrl] = useState("");
   const [probing, setProbing] = useState(false);
 
   const loadStats = useCallback(async (tok: string, status = "", domain = "") => {
@@ -247,10 +249,11 @@ export default function StoreIndexAdminPage() {
     setProbing(true);
     setProbe(null);
     try {
-      const r = await adminFetch<{ data: typeof probe }>("/admin/store-index/shop-app-probe?page=1", token);
-      setProbe(r.data);
+      const qs = probeUrl.trim() ? `?url=${encodeURIComponent(probeUrl.trim())}` : "";
+      const r = await adminFetch<{ data: { results: ProbeResult[] } }>(`/admin/store-index/shop-app-probe${qs}`, token);
+      setProbe(r.data.results || []);
     } catch (e: unknown) {
-      setProbe({ domains: [], http_status: null, bytes: null, note: (e as Error).message || "probe failed" });
+      setProbe([{ url: probeUrl || "battery", http_status: null, bytes: null, domains: [], sample: null, error: (e as Error).message || "probe failed" }]);
     } finally {
       setProbing(false);
     }
@@ -448,6 +451,14 @@ export default function StoreIndexAdminPage() {
               style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text-2)" }}>
               {probing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />} Probe Shop App
             </button>
+            <input
+              value={probeUrl}
+              onChange={(e) => setProbeUrl(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") runProbe(); }}
+              placeholder="optional: shop.app/… URL to test"
+              className="text-[11px] num rounded-md px-2.5 py-1.5 outline-none w-56"
+              style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+            />
             <span style={{ color: "var(--muted)" }}>·</span>
             <button onClick={() => runStage("discovery")} disabled={!!stageBusy}
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40"
@@ -467,14 +478,22 @@ export default function StoreIndexAdminPage() {
           </div>
           {stageResult && <p className="num text-[11px] mt-2 break-all" style={{ color: "var(--text-2)" }}>{stageResult}</p>}
           {probe && (
-            <div className="mt-3 rounded-md p-3 num text-[11px]" style={{ background: "var(--bg3)" }}>
-              <p style={{ color: probe.domains.length ? "#4CC38A" : "#F2555A" }}>
-                Shop App probe — HTTP {probe.http_status ?? "—"} · {probe.bytes ?? 0} bytes · {probe.domains.length} domains
-              </p>
-              {probe.note && <p className="mt-1" style={{ color: "var(--muted)" }}>{probe.note}</p>}
-              {probe.domains.length > 0 && (
-                <p className="mt-1" style={{ color: "var(--text-2)" }}>{probe.domains.slice(0, 12).join(" · ")}</p>
-              )}
+            <div className="mt-3 rounded-md p-3 num text-[11px] space-y-2" style={{ background: "var(--bg3)" }}>
+              {probe.map((r, i) => {
+                const ok = r.http_status === 200;
+                return (
+                  <div key={i} style={{ borderTop: i ? "1px solid var(--border)" : undefined, paddingTop: i ? 8 : 0 }}>
+                    <p style={{ color: r.domains.length ? "#4CC38A" : ok ? "var(--accent)" : "#F2555A" }}>
+                      {r.url.replace("https://", "")} — HTTP {r.http_status ?? (r.error ? "ERR" : "—")} · {r.bytes ?? 0} bytes · {r.domains.length} domains
+                    </p>
+                    {r.error && <p className="mt-0.5" style={{ color: "#F2555A" }}>{r.error}</p>}
+                    {r.domains.length > 0 && <p className="mt-0.5" style={{ color: "var(--text-2)" }}>{r.domains.slice(0, 10).join(" · ")}</p>}
+                    {ok && r.domains.length === 0 && r.sample && (
+                      <p className="mt-0.5 opacity-70" style={{ color: "var(--muted)" }}>sample: {r.sample.slice(0, 160)}</p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

@@ -388,6 +388,57 @@ def _shop_app_extract(html: str, limit: int) -> list:
     return hosts[:limit]
 
 
+def _shop_app_raw_fetch(url: str, timeout: int = 20) -> dict:
+    """Fetch one URL and report status, size, a short text sample, and any
+    external hosts found. Pure diagnostic — used to discover which shop.app
+    endpoints actually return usable content."""
+    from app.services.fetch import IMPERSONATE, _USE_CURL_CFFI, _headers
+    status = None
+    text = ""
+    err = None
+    try:
+        if _USE_CURL_CFFI:
+            from curl_cffi.requests import Session as CurlSession
+            with CurlSession() as client:
+                r = client.get(url, headers=_headers(), impersonate=IMPERSONATE, timeout=timeout)
+                status = r.status_code
+                text = r.text or ""
+        else:
+            import httpx
+            with httpx.Client(follow_redirects=True) as client:
+                r = client.get(url, headers=_headers(), timeout=timeout)
+                status = r.status_code
+                text = r.text or ""
+    except Exception as exc:
+        err = f"{exc}"[:200]
+    domains = _shop_app_extract(text, 15) if (status == 200 and text) else []
+    return {
+        "url": url,
+        "http_status": status,
+        "bytes": len(text),
+        "domains": domains,
+        "sample": (text[:280] if text else None),
+        "error": err,
+    }
+
+
+def _shop_app_probe_battery() -> list:
+    """Try a battery of plausible shop.app entry points so the operator can see
+    — in one click — which routes return 200 and which yield merchant domains.
+    robots.txt/sitemaps are the reliable way to enumerate valid pages."""
+    candidates = [
+        "https://shop.app/robots.txt",
+        "https://shop.app/sitemap.xml",
+        "https://shop.app/",
+        "https://shop.app/discover",
+        "https://shop.app/browse",
+        "https://shop.app/stores",
+        "https://shop.app/brands",
+        "https://shop.app/categories",
+    ]
+    return [_shop_app_raw_fetch(u) for u in candidates]
+
+
 def _fetch_shop_app_domains(page: int, limit: int) -> dict:
     """
     Best-effort Shop App merchant discovery, returning domains + diagnostics.
