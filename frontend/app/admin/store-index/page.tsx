@@ -130,7 +130,7 @@ export default function StoreIndexAdminPage() {
 
   const [stageBusy, setStageBusy] = useState("");
   const [stageResult, setStageResult] = useState("");
-  type ProbeResult = { url: string; http_status: number | null; bytes: number | null; domains: string[]; locs?: string[]; sitemaps?: string[]; sample: string | null; error: string | null };
+  type ProbeResult = { url: string; http_status: number | null; bytes: number | null; domains: string[]; locs?: string[]; child_url?: string | null; child_locs?: string[]; sitemaps?: string[]; sample: string | null; error: string | null };
   const [probe, setProbe] = useState<ProbeResult[] | null>(null);
   const [probeUrl, setProbeUrl] = useState("");
   const [probing, setProbing] = useState(false);
@@ -497,6 +497,14 @@ export default function StoreIndexAdminPage() {
                     {(r.locs?.length ?? 0) > 0 && (
                       <div className="mt-1 max-h-40 overflow-y-auto" style={{ color: "var(--text-2)" }}>
                         {r.locs!.map((l, j) => <p key={j} className="break-all">{l}</p>)}
+                      </div>
+                    )}
+                    {r.child_url && (
+                      <div className="mt-1">
+                        <p style={{ color: "var(--accent)" }}>↳ followed index → {r.child_url.replace("https://", "")}</p>
+                        <div className="mt-0.5 max-h-40 overflow-y-auto" style={{ color: "var(--text-2)" }}>
+                          {(r.child_locs ?? []).map((l, j) => <p key={j} className="break-all">{l}</p>)}
+                        </div>
                       </div>
                     )}
                     {ok && r.domains.length === 0 && (r.locs?.length ?? 0) === 0 && r.sample && (
