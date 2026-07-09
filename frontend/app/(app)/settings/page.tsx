@@ -58,6 +58,7 @@ function SettingsContent() {
 
   // Google
   const [googleConnected, setGoogleConnected] = useState(false);
+  const [googleEnabled, setGoogleEnabled] = useState(false);
   const [googleGA4, setGoogleGA4] = useState("");
   const [googleGSC, setGoogleGSC] = useState("");
   const [googleProperties, setGoogleProperties] = useState<GoogleProperties | null>(null);
@@ -120,7 +121,7 @@ function SettingsContent() {
       setWebhookUrl(r.data.webhook_url || "");
     }).catch(() => {});
 
-    integrationsApi.get().then((r) => setKlaviyoStatus(r.data.klaviyo)).catch(() => {});
+    integrationsApi.get().then((r) => { setKlaviyoStatus(r.data.klaviyo); setGoogleEnabled(!!r.data.google_enabled); }).catch(() => {});
     integrationsApi.google.properties()
       .then((r) => { setGoogleConnected(true); setGoogleProperties(r); })
       .catch(() => {});
@@ -801,7 +802,8 @@ function SettingsContent() {
 
           <IntelligenceSources />
 
-          {/* Google Analytics + Search Console */}
+          {/* Google Analytics + Search Console — hidden until prod OAuth is verified */}
+          {googleEnabled && (
           <div className="mb-6 pb-6" style={{ borderBottom: "1px solid var(--border)" }}>
             <div className="flex items-center gap-2 mb-2">
               <Globe className="w-4 h-4" style={{ color: "#4285f4" }} />
@@ -886,6 +888,7 @@ function SettingsContent() {
               </button>
             )}
           </div>
+          )}
 
           {/* Klaviyo */}
           <div className="mb-6 pb-6" style={{ borderBottom: "1px solid var(--border)" }}>

@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     # Google OAuth
     google_client_id: str = ""
     google_client_secret: str = ""
+    # Hide the Google (GA4/Search Console) integration until the production
+    # OAuth redirect URI is registered in Google Cloud Console. Ship OFF for
+    # launch; flip on once the Console + prod domain are verified.
+    google_integration_enabled: bool = False
 
     # Meta Ad Library (public competitor ad intelligence — not the user's ad account)
     meta_ad_library_token: str = ""

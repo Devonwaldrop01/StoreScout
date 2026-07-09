@@ -762,7 +762,7 @@ export interface BusinessKnowledge {
 }
 
 export const integrations = {
-  get: () => apiFetch<{ data: { klaviyo: KlaviyoStatus } }>("/integrations"),
+  get: () => apiFetch<{ data: { klaviyo: KlaviyoStatus; google_enabled?: boolean } }>("/integrations"),
   intelligenceSources: () =>
     apiFetch<{ data: BusinessKnowledge }>("/integrations/intelligence-sources"),
   klaviyo: {

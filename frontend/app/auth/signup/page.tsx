@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Zap, Eye, EyeOff, CheckCircle2, AlertCircle, Check } from "lucide-react";
@@ -75,6 +75,16 @@ function SignupContent() {
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  // Already signed in? Send them straight into onboarding/app — resolved
+  // session only, client navigation, no reload.
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!cancelled && data.session) router.replace("/onboarding");
+    });
+    return () => { cancelled = true; };
+  }, [router, supabase]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
