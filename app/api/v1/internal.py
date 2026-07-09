@@ -388,6 +388,43 @@ def _shop_app_extract(html: str, limit: int) -> list:
     return hosts[:limit]
 
 
+def _shop_app_analyze(html: str) -> dict:
+    """Dig a Shop App store-page payload for the merchant's real identity and
+    the internal data endpoints. Shop App is Remix-based and inlines loader
+    state as JSON, so the merchant's domain / myshopify domain is usually in
+    the HTML even though the page 'looks' client-rendered."""
+    import re as _re
+    txt = html or ""
+
+    myshopify = list(dict.fromkeys(_re.findall(r"([a-z0-9][a-z0-9\-]*\.myshopify\.com)", txt, _re.I)))[:20]
+
+    # JSON keys that carry a store's domain/url, with their values.
+    domain_keys = []
+    for m in _re.finditer(
+        r'"(primaryDomain|myshopifyDomain|shopDomain|storeDomain|domain|url|website|host|onlineStoreUrl|canonicalUrl|shopUrl)"\s*:\s*(?:\{[^}]*"host"\s*:\s*)?"([^"]{3,120})"',
+        txt, _re.I,
+    ):
+        val = m.group(2)
+        if "shop.app" in val or val.startswith("/") or " " in val:
+            continue
+        domain_keys.append(f"{m.group(1)}={val}")
+        if len(domain_keys) >= 30:
+            break
+
+    # Internal API / Remix data-endpoint hints — how the page loads its data.
+    api_hints = list(dict.fromkeys(
+        _re.findall(r'(https?://[a-z0-9.\-]*shop\.app/[^"\'\\ ]*(?:api|graphql|storefront|_data)[^"\'\\ ]*)', txt, _re.I)
+        + _re.findall(r'(https?://server\.shop\.app[^"\'\\ ]*)', txt, _re.I)
+        + _re.findall(r'(_data=[^"\'&\\ ]+)', txt)
+        + _re.findall(r'(https?://[a-z0-9.\-]+\.shopify\.com/[^"\'\\ ]*(?:api|graphql)[^"\'\\ ]*)', txt, _re.I)
+    ))[:20]
+
+    remix = "__remixContext" in txt or "window.__remix" in txt or "routeModules" in txt
+
+    return {"myshopify": myshopify, "domain_keys": domain_keys[:30],
+            "api_hints": api_hints, "remix": remix}
+
+
 def _shop_app_raw_fetch(url: str, timeout: int = 20, follow_done: bool = False) -> dict:
     """Fetch one URL and report status, size, a short text sample, and any
     external hosts found. Pure diagnostic — used to discover which shop.app
@@ -445,6 +482,10 @@ def _shop_app_raw_fetch(url: str, timeout: int = 20, follow_done: bool = False) 
         except Exception:
             pass
 
+    # For a store page (/m/{handle}) run the deep analyzer for the merchant's
+    # real domain + the internal data endpoints.
+    analysis = _shop_app_analyze(text) if ("/m/" in url and status == 200 and text) else None
+
     return {
         "url": url,
         "http_status": status,
@@ -454,6 +495,7 @@ def _shop_app_raw_fetch(url: str, timeout: int = 20, follow_done: bool = False) 
         "child_url": child_url,
         "child_locs": child_locs,
         "sitemaps": sitemaps,
+        "analysis": analysis,
         "sample": (text[:sample_cap] if text else None),
         "error": err,
     }

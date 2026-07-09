@@ -130,7 +130,8 @@ export default function StoreIndexAdminPage() {
 
   const [stageBusy, setStageBusy] = useState("");
   const [stageResult, setStageResult] = useState("");
-  type ProbeResult = { url: string; http_status: number | null; bytes: number | null; domains: string[]; locs?: string[]; child_url?: string | null; child_locs?: string[]; sitemaps?: string[]; sample: string | null; error: string | null };
+  type ProbeAnalysis = { myshopify: string[]; domain_keys: string[]; api_hints: string[]; remix: boolean };
+  type ProbeResult = { url: string; http_status: number | null; bytes: number | null; domains: string[]; locs?: string[]; child_url?: string | null; child_locs?: string[]; sitemaps?: string[]; analysis?: ProbeAnalysis | null; sample: string | null; error: string | null };
   const [probe, setProbe] = useState<ProbeResult[] | null>(null);
   const [probeUrl, setProbeUrl] = useState("");
   const [probing, setProbing] = useState(false);
@@ -507,7 +508,23 @@ export default function StoreIndexAdminPage() {
                         </div>
                       </div>
                     )}
-                    {ok && r.domains.length === 0 && (r.locs?.length ?? 0) === 0 && r.sample && (
+                    {r.analysis && (
+                      <div className="mt-1.5 space-y-1">
+                        {r.analysis.myshopify.length > 0 && (
+                          <p style={{ color: "#4CC38A" }}>myshopify: {r.analysis.myshopify.join(" · ")}</p>
+                        )}
+                        {r.analysis.domain_keys.length > 0 && (
+                          <p style={{ color: "#4CC38A" }}>domain keys: {r.analysis.domain_keys.slice(0, 12).join("  ·  ")}</p>
+                        )}
+                        {r.analysis.api_hints.length > 0 && (
+                          <div style={{ color: "var(--accent)" }}>api/data endpoints:{r.analysis.api_hints.map((a, k) => <p key={k} className="break-all pl-2">{a}</p>)}</div>
+                        )}
+                        <p style={{ color: "var(--muted)" }}>
+                          remix state: {r.analysis.remix ? "yes" : "no"} · myshopify {r.analysis.myshopify.length} · keys {r.analysis.domain_keys.length} · api {r.analysis.api_hints.length}
+                        </p>
+                      </div>
+                    )}
+                    {ok && r.domains.length === 0 && (r.locs?.length ?? 0) === 0 && !r.analysis && r.sample && (
                       <pre className="mt-0.5 opacity-70 whitespace-pre-wrap break-all max-h-40 overflow-y-auto" style={{ color: "var(--muted)" }}>{r.sample}</pre>
                     )}
                   </div>
