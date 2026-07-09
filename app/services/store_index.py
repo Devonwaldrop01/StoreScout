@@ -267,7 +267,11 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
             types: Dict[str, int] = {}
             tags: Dict[str, int] = {}
             vendors: Dict[str, int] = {}
+            titles: List[str] = []
             for p in products:
+                _t = (p.get("title") or "").strip()
+                if _t and len(titles) < 40:
+                    titles.append(_t[:80])
                 variants = p.get("variants") or []
                 v_prices = []
                 has_promo = False
@@ -305,11 +309,19 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
                 profile["median_price"] = round(statistics.median(prices), 2)
                 profile["min_price"] = round(min(prices), 2)
                 profile["max_price"] = round(max(prices), 2)
+                # Persist price quartiles now — the knowledge stage classifies
+                # from stored data and never re-fetches, so price bands have to
+                # be captured here while the sample is in hand.
+                _sp = sorted(prices)
+                _q = lambda f: round(_sp[min(len(_sp) - 1, int(f * (len(_sp) - 1)))], 2)
+                profile["price_p25"] = _q(0.25)
+                profile["price_p75"] = _q(0.75)
             profile["promo_rate"] = round(promo / len(products) * 100, 1) if products else None
             top = lambda d, n: [k for k, _ in sorted(d.items(), key=lambda kv: -kv[1])[:n]]
             profile["product_types"] = top(types, 15)
             profile["tags"] = top(tags, 20)
             profile["vendors"] = top(vendors, 10)
+            profile["product_titles"] = titles
 
         # 4. /collections.json — taxonomy hints (only worth it on a live catalog)
         if products_ok:
@@ -436,6 +448,350 @@ def classify_store(
         logger.debug("classify_store AI fallback failed: %s", exc)
 
     return {"category": "Other", "subcategory": "General", "description": _clean(description, 200) or None, "method": "fallback"}
+
+
+# ── Multi-signal classification (confidence + evidence) ────────────────────
+# The old classifier took the FIRST keyword hit anywhere in the text, so a
+# single stray word ("gift" on a pet store) could misclassify — that's how
+# Everlane ends up recommended for pet accessories. v2 SCORES every category
+# by weighted evidence across distinct signals and only commits when the
+# winner clearly leads, recording exactly why.
+
+# Signal weights: what a merchant DECLARES (product_type) counts far more than
+# an incidental homepage word.
+_SIGNAL_WEIGHT = {
+    "product_type": 4,   # merchant-assigned; strongest
+    "product_title": 2,
+    "collection": 2,
+    "tag": 1,
+    "homepage": 1,
+}
+
+
+def classify_store_v2(
+    title: str = "",
+    description: str = "",
+    homepage_text: str = "",
+    product_types: Optional[List[str]] = None,
+    product_titles: Optional[List[str]] = None,
+    tags: Optional[List[str]] = None,
+    collections: Optional[List[dict]] = None,
+) -> Dict[str, Any]:
+    """
+    Score every taxonomy category by weighted keyword evidence across distinct
+    signals. Returns {category, subcategory, confidence (0-100),
+    evidence: [{signal, detail, category}], method}. Confidence reflects how
+    decisively the winner beat the field AND how much evidence backed it —
+    thin or contested classifications score low so callers can withhold them.
+    """
+    signals: List[tuple] = []  # (signal_kind, text)
+    for pt in (product_types or []):
+        signals.append(("product_type", str(pt).lower()))
+    for t in (product_titles or [])[:60]:
+        signals.append(("product_title", str(t).lower()))
+    for c in (collections or []):
+        signals.append(("collection", str(c.get("title") or "").lower()))
+    for tg in (tags or [])[:40]:
+        signals.append(("tag", str(tg).lower()))
+    hp = " ".join([title or "", description or "", homepage_text or ""]).lower()
+    if hp.strip():
+        signals.append(("homepage", hp[:2000]))
+
+    scores: Dict[str, float] = {}
+    sub_hits: Dict[str, Dict[str, int]] = {}
+    evidence: Dict[str, List[dict]] = {}
+
+    for kind, text in signals:
+        w = _SIGNAL_WEIGHT.get(kind, 1)
+        for keyword, (cat, sub) in _RULE_KEYWORDS:
+            if keyword in text:
+                scores[cat] = scores.get(cat, 0) + w
+                sub_hits.setdefault(cat, {})
+                sub_hits[cat][sub] = sub_hits[cat].get(sub, 0) + w
+                evidence.setdefault(cat, [])
+                # keep the strongest few distinct evidence items per category
+                if len(evidence[cat]) < 6 and not any(e["detail"] == keyword for e in evidence[cat]):
+                    evidence[cat].append({"signal": kind, "detail": keyword, "weight": w})
+
+    if not scores:
+        return {"category": "Other", "subcategory": "General", "confidence": 0,
+                "evidence": [], "method": "no_signal"}
+
+    ranked = sorted(scores.items(), key=lambda kv: -kv[1])
+    winner, top = ranked[0]
+    runner = ranked[1][1] if len(ranked) > 1 else 0
+    total = sum(scores.values())
+
+    # Confidence blends three things: share of total evidence, margin over the
+    # runner-up, and absolute evidence volume (a single hit is never confident).
+    share = top / total
+    margin = (top - runner) / top if top else 0
+    volume = min(1.0, top / 12.0)
+    confidence = int(round(100 * (0.45 * share + 0.35 * margin + 0.20 * volume)))
+    confidence = max(0, min(100, confidence))
+
+    sub = max(sub_hits.get(winner, {"General": 1}).items(), key=lambda kv: kv[1])[0]
+    ev = sorted(evidence.get(winner, []), key=lambda e: -e["weight"])[:6]
+
+    # AI tiebreak ONLY when the top two are close and confidence is middling —
+    # cheap, and only where the rules are genuinely uncertain.
+    method = "multi_signal"
+    if confidence < 70 and runner and (top - runner) <= _SIGNAL_WEIGHT["product_type"]:
+        ai = _ai_classify_tiebreak(hp, [winner, ranked[1][0]])
+        if ai and ai in scores:
+            winner = ai
+            sub = max(sub_hits.get(winner, {"General": 1}).items(), key=lambda kv: kv[1])[0]
+            ev = sorted(evidence.get(winner, []), key=lambda e: -e["weight"])[:6]
+            confidence = max(confidence, 72)
+            method = "multi_signal+ai"
+
+    return {
+        "category": winner,
+        "subcategory": sub,
+        "confidence": confidence,
+        "evidence": ev,
+        "method": method,
+    }
+
+
+def _ai_classify_tiebreak(text: str, candidates: List[str]) -> Optional[str]:
+    try:
+        from app.core.config import get_settings
+        settings = get_settings()
+        if not settings.anthropic_api_key or not text.strip():
+            return None
+        import anthropic
+        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+        msg = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=20,
+            messages=[{"role": "user", "content": (
+                f"This ecommerce store could be one of: {', '.join(candidates)}. "
+                f"Based on this store text, reply with ONLY the single best-fitting one, verbatim.\n\n{text[:1000]}"
+            )}],
+        )
+        ans = msg.content[0].text.strip()
+        for c in candidates:
+            if c.lower() in ans.lower():
+                return c
+    except Exception as exc:
+        logger.debug("ai tiebreak failed: %s", exc)
+    return None
+
+
+# ── Stage 2: Verification ──────────────────────────────────────────────────
+# Turn a DISCOVERED domain into VERIFIED or REJECTED. Verification fetches the
+# storefront ONCE and stores the raw signals; it does NOT classify. Every
+# rejection records a strict, machine-readable reason. Classification is a
+# separate stage that reads those stored signals with zero extra network — the
+# memory-efficient split the pipeline is built around.
+
+# Strict rejection codes (mirror the migration comment).
+REJECT_DEAD          = "dead_domain"
+REJECT_NOT_SHOPIFY   = "not_shopify"
+REJECT_NO_PRODUCTS   = "no_products"
+REJECT_PASSWORD      = "password_protected"
+REJECT_INVALID       = "invalid_storefront"
+REJECT_DUPLICATE     = "duplicate"
+
+
+def _rejection_reason(result: Dict[str, Any]) -> str:
+    """Map a light-pass result onto one strict rejection code."""
+    if not result.get("reachable"):
+        return REJECT_DEAD
+    signals = result.get("signals") or []
+    profile = result.get("profile") or {}
+    shopify_marker = any(
+        s in signals for s in (
+            "Storefront API detected",
+            "Product catalog accessible",
+            "Storefront responds (bot-protected)",
+        )
+    )
+    if not shopify_marker:
+        return REJECT_NOT_SHOPIFY
+    # Shopify-shaped but the catalog came back empty.
+    if not profile.get("product_count"):
+        return REJECT_NO_PRODUCTS
+    return REJECT_INVALID
+
+
+def verify_and_store(db, domain: str, source: str, source_query: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Stage 2. Fetch the storefront once; persist a VERIFIED row with raw signals
+    (no classification) or a REJECTED row with a reason. Returns
+    {domain, outcome: verified|rejected|failed, reason}.
+    """
+    from app.core.config import get_settings
+    settings = get_settings()
+    domain = normalize_domain(domain)
+    now = datetime.now(timezone.utc).isoformat()
+
+    def _reject(reason: str) -> Dict[str, Any]:
+        upsert_index_row(db, domain, {
+            "status": "rejected",
+            "rejection_reason": reason,
+            "failure_reason": reason,
+            "source": source, "source_query": source_query,
+            "last_verified_at": now, "verified_at": now,
+        })
+        return {"domain": domain, "outcome": "rejected", "reason": reason}
+
+    try:
+        result = index_store_pass(domain)
+    except Exception as exc:
+        logger.warning("verify pass crashed for %s: %s", domain, exc)
+        upsert_index_row(db, domain, {
+            "status": "failed", "failure_reason": f"pass_error: {exc}"[:300],
+            "rejection_reason": None,
+            "source": source, "source_query": source_query,
+            "last_verified_at": now, "verified_at": now,
+        })
+        return {"domain": domain, "outcome": "failed", "reason": "pass_error"}
+
+    confidence = result.get("confidence") or 0
+    profile = result.get("profile") or {}
+
+    # Reject anything that fails the storefront bar, or scores below the
+    # configured Shopify-confidence threshold.
+    if not result.get("reachable") or confidence < settings.shopify_index_min_confidence:
+        return _reject(_rejection_reason(result))
+
+    # Duplicate guard: a DIFFERENT domain already verified under the same brand
+    # is almost certainly the same merchant (brand.com vs brand.myshopify.com).
+    brand = (profile.get("brand_name") or "").strip()
+    if brand and len(brand) > 2:
+        try:
+            dup = db.table("shopify_store_index").select("domain")\
+                .eq("brand_name", brand).eq("status", "verified")\
+                .neq("domain", domain).limit(1).execute()
+            if dup and dup.data:
+                return _reject(REJECT_DUPLICATE)
+        except Exception:
+            pass
+
+    # VERIFIED — store raw signals only. Classification happens in Stage 3.
+    market = derive_market_context(profile.get("product_count"), profile.get("median_price"))
+    upsert_index_row(db, domain, {
+        "status": "verified",
+        "rejection_reason": None,
+        "failure_reason": None,
+        "business_stage": market["business_stage"],
+        "pricing_tier": market["pricing_tier"],
+        "brand_name": profile.get("brand_name"),
+        "homepage_url": profile.get("homepage_url"),
+        "homepage_message": profile.get("meta_description"),
+        "language": profile.get("language"),
+        "product_count": profile.get("product_count"),
+        "collection_count": len(profile.get("collections") or []) or None,
+        "median_price": profile.get("median_price"),
+        "min_price": profile.get("min_price"),
+        "max_price": profile.get("max_price"),
+        "price_bands": {
+            "p25": profile.get("price_p25"),
+            "p50": profile.get("median_price"),
+            "p75": profile.get("price_p75"),
+        } if profile.get("median_price") is not None else None,
+        "promo_rate": profile.get("promo_rate"),
+        "collections": profile.get("collections"),
+        "product_types": profile.get("product_types"),
+        "product_titles": profile.get("product_titles"),
+        "tags": profile.get("tags"),
+        "vendors": profile.get("vendors"),
+        "verification_confidence": confidence,
+        "verification_signals": result.get("signals"),
+        "source": source,
+        "discovery_source": source,
+        "source_query": source_query,
+        "verified_at": now,
+        "last_verified_at": now,
+        "last_light_scanned_at": now,
+    })
+    return {"domain": domain, "outcome": "verified", "reason": None}
+
+
+# ── Stage 3: Knowledge ─────────────────────────────────────────────────────
+# Runs ONLY on verified stores. Its job is understanding, not discovery: it
+# reads the raw signals stored at verification and builds a confidence-scored
+# category (with evidence), price bands, target customer, and brand keywords —
+# no network access at all.
+
+def _derive_target_customer(pricing_tier: Optional[str], category: Optional[str]) -> Optional[str]:
+    tier_map = {
+        "budget":     "value-conscious shoppers",
+        "mid-market": "mainstream shoppers",
+        "premium":    "quality-focused buyers",
+        "luxury":     "affluent, premium-seeking buyers",
+    }
+    return tier_map.get(pricing_tier or "")
+
+
+def _brand_keywords(row: Dict[str, Any], evidence: List[dict]) -> List[str]:
+    """Compact, human-readable descriptors — the strongest distinct evidence
+    terms plus the merchant's own top product types."""
+    kws: List[str] = []
+    for e in evidence:
+        d = (e.get("detail") or "").strip()
+        if d and d not in kws:
+            kws.append(d)
+    for pt in (row.get("product_types") or []):
+        pt = str(pt).strip().lower()
+        if pt and pt not in kws:
+            kws.append(pt)
+        if len(kws) >= 8:
+            break
+    return kws[:8]
+
+
+def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Stage 3. Classify a verified store from its STORED signals (no re-fetch).
+    Writes category/subcategory/confidence/evidence, price bands, target
+    customer and brand keywords, and stamps knowledge_at. Returns
+    {domain, category, confidence}.
+    """
+    domain = normalize_domain(row.get("domain") or "")
+    now = datetime.now(timezone.utc).isoformat()
+
+    classification = classify_store_v2(
+        title=row.get("brand_name") or "",
+        description=row.get("homepage_message") or row.get("description") or "",
+        homepage_text=row.get("homepage_message") or "",
+        product_types=row.get("product_types"),
+        product_titles=row.get("product_titles"),
+        tags=row.get("tags"),
+        collections=row.get("collections"),
+    )
+
+    evidence = classification.get("evidence") or []
+    pricing_tier = row.get("pricing_tier") or derive_market_context(
+        row.get("product_count"), row.get("median_price")
+    )["pricing_tier"]
+
+    price_bands = row.get("price_bands")
+    if not price_bands and row.get("median_price") is not None:
+        price_bands = {
+            "p25": row.get("min_price"),
+            "p50": row.get("median_price"),
+            "p75": row.get("max_price"),
+        }
+
+    upsert_index_row(db, domain, {
+        "category": classification["category"],
+        "subcategory": classification["subcategory"],
+        "category_confidence": classification["confidence"],
+        "category_evidence": evidence,
+        "description": row.get("description") or row.get("homepage_message"),
+        "price_bands": price_bands,
+        "target_customer": _derive_target_customer(pricing_tier, classification["category"]),
+        "brand_keywords": _brand_keywords(row, evidence),
+        "knowledge_at": now,
+    })
+    return {
+        "domain": domain,
+        "category": classification["category"],
+        "confidence": classification["confidence"],
+    }
 
 
 # ── Competitor knowledge graph ─────────────────────────────────────────────

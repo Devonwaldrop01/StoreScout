@@ -81,6 +81,14 @@ class Settings(BaseSettings):
     shopify_index_daily_candidate_limit: int = 150
     shopify_index_min_confidence: int = 60
     shopify_index_concurrency: int = 2
+    # Three-stage pipeline knobs (discovery → verification → knowledge). Each
+    # stage is chunked so it fits the shared worker's memory and can resume.
+    shopify_index_discovery_batch: int = 60   # candidate domains surfaced per discovery run
+    shopify_index_verify_batch: int = 40      # discovered → verified/rejected per verify run
+    shopify_index_knowledge_batch: int = 60   # verified → classified per knowledge run
+    # Only recommend a store when its category is at least this confident —
+    # this is the guard against "Everlane for pet accessories" weak guesses.
+    shopify_index_category_min_confidence: int = 55
 
     # Admin endpoints (/api/v1/admin/*) — disabled while this is empty
     admin_token: str = ""

@@ -28,7 +28,7 @@ import httpx
 from .celery_app import celery
 from app.core.config import get_settings
 from app.core.database import get_supabase
-from app.services.store_index import SEED_QUERIES, normalize_domain
+from app.services.store_index import SEED_QUERIES, normalize_domain, run_knowledge
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +54,219 @@ def _process_via_web(domain: str, source: str, source_query: Optional[str]) -> d
         if attempt == 0:
             time.sleep(5)
     return {"domain": domain, "outcome": "failed", "confidence": 0}
+
+
+def _verify_via_web(domain: str, source: str, source_query: Optional[str]) -> dict:
+    """Run one domain's Stage-2 verification pass on the web service (worker
+    IPs get blocked from outbound storefront fetches)."""
+    settings = get_settings()
+    url = f"{settings.api_internal_url}/api/v1/internal/store-index/verify"
+    payload = {"domain": domain, "source": source, "source_query": source_query}
+    headers = {"x-internal-token": settings.internal_secret}
+    for attempt in range(2):
+        try:
+            resp = httpx.post(url, json=payload, headers=headers, timeout=60.0)
+            if resp.status_code == 200:
+                return resp.json()
+            logger.warning("store-index verify %s returned HTTP %d", domain, resp.status_code)
+        except Exception as exc:
+            logger.warning("store-index verify %s failed (attempt %d): %s", domain, attempt + 1, exc)
+        if attempt == 0:
+            time.sleep(5)
+    return {"domain": domain, "outcome": "failed", "reason": "web_unreachable"}
+
+
+# ── Stage 1: DISCOVERY ──────────────────────────────────────────────────────
+# Pluggable sources surface candidate domains only. Nothing is verified,
+# classified, or scanned here. Each source resumes from a persisted cursor so
+# the crawl continues over time and never rediscovers the same store.
+
+@celery.task(name="app.tasks.store_index.stage_discovery")
+def stage_discovery(limit_override: Optional[int] = None, force: bool = False) -> dict:
+    """Run every enabled discovery source once, insert new candidate domains as
+    status='discovered', and persist each source's cursor. Chunked + resumable;
+    dedupes against the whole index so nothing is ever rediscovered."""
+    from app.services.runtime_config import get_config
+    from app.services.discovery_sources import all_sources
+
+    settings = get_settings()
+    if not get_config("shopify_index_enabled", settings.shopify_index_enabled) and not force:
+        return {"status": "disabled"}
+
+    db = get_supabase()
+    per_source = max(1, min(limit_override or get_config(
+        "shopify_index_discovery_batch", settings.shopify_index_discovery_batch), 200))
+    now = datetime.now(timezone.utc).isoformat()
+
+    totals = {"discovered": 0, "duplicates": 0}
+    by_source: dict = {}
+
+    for source in all_sources():
+        # Load this source's saved cursor + enabled flag.
+        cursor = None
+        enabled = True
+        try:
+            cur = db.table("discovery_cursors").select("cursor, enabled")\
+                .eq("source", source.name).maybe_single().execute()
+            if cur and cur.data:
+                cursor = cur.data.get("cursor")
+                enabled = cur.data.get("enabled", True)
+        except Exception:
+            pass  # table may not exist pre-migration — treat as fresh cursor
+        if not enabled:
+            continue
+
+        try:
+            domains, next_cursor = source.fetch(cursor, per_source)
+        except Exception as exc:
+            logger.warning("discovery source %s fetch failed: %s", source.name, exc)
+            continue
+
+        inserted = 0
+        if domains:
+            # Dedupe against the entire index — never rediscover a known domain.
+            try:
+                existing = db.table("shopify_store_index").select("domain")\
+                    .in_("domain", domains).execute()
+                seen = {r["domain"] for r in (existing.data or [])}
+            except Exception:
+                seen = set()
+            rows = [
+                {"domain": d, "status": "discovered", "discovery_source": source.name,
+                 "source": source.name, "discovered_at": now,
+                 "created_at": now, "updated_at": now}
+                for d in dict.fromkeys(domains) if d not in seen
+            ]
+            totals["duplicates"] += len(domains) - len(rows)
+            if rows:
+                try:
+                    db.table("shopify_store_index").insert(rows).execute()
+                    inserted = len(rows)
+                except Exception as exc:
+                    logger.warning("discovery insert (%s) failed: %s", source.name, exc)
+
+        totals["discovered"] += inserted
+        by_source[source.name] = inserted
+
+        # Persist cursor + lifetime counter so the crawl resumes next run.
+        try:
+            db.table("discovery_cursors").upsert({
+                "source": source.name, "cursor": next_cursor,
+                "last_run_at": now, "updated_at": now,
+            }, on_conflict="source").execute()
+            if inserted:
+                # increment lifetime discovered counter (best-effort)
+                prev = db.table("discovery_cursors").select("discovered")\
+                    .eq("source", source.name).maybe_single().execute()
+                base = (prev.data or {}).get("discovered", 0) if prev else 0
+                db.table("discovery_cursors").update(
+                    {"discovered": (base or 0)}).eq("source", source.name).execute()
+        except Exception as exc:
+            logger.debug("discovery cursor persist (%s) skipped: %s", source.name, exc)
+
+    logger.info("stage_discovery: %d new candidates %s", totals["discovered"], by_source)
+    return {"status": "ok", **totals, "by_source": by_source}
+
+
+# ── Stage 2: VERIFICATION ───────────────────────────────────────────────────
+# Turn DISCOVERED domains into VERIFIED or REJECTED (with a reason). Fetches
+# run on the web process. Chunked so the shared worker stays within memory.
+
+@celery.task(name="app.tasks.store_index.stage_verification")
+def stage_verification(limit_override: Optional[int] = None, force: bool = False) -> dict:
+    from app.services.runtime_config import get_config
+    settings = get_settings()
+    if not get_config("shopify_index_enabled", settings.shopify_index_enabled) and not force:
+        return {"status": "disabled"}
+
+    db = get_supabase()
+    batch = max(1, min(limit_override or get_config(
+        "shopify_index_verify_batch", settings.shopify_index_verify_batch), 200))
+    concurrency = max(1, min(settings.shopify_index_concurrency, 4))
+
+    try:
+        res = db.table("shopify_store_index")\
+            .select("domain, source, source_query")\
+            .eq("status", "discovered")\
+            .order("discovered_at")\
+            .limit(batch).execute()
+        rows = res.data or []
+    except Exception as exc:
+        logger.error("stage_verification: discovered fetch failed: %s", exc)
+        return {"status": "error", "verified": 0}
+
+    if not rows:
+        return {"status": "ok", "verified": 0, "rejected": 0, "failed": 0, "note": "queue_empty"}
+
+    work = [{**r, "domain": normalize_domain(r["domain"])} for r in rows]
+    counts = {"verified": 0, "rejected": 0, "failed": 0}
+    reasons: dict = {}
+    # Chunk the batch so the worker never holds too many results at once.
+    chunk = max(concurrency * 5, 10)
+    for i in range(0, len(work), chunk):
+        part = work[i:i + chunk]
+        with ThreadPoolExecutor(max_workers=concurrency) as pool:
+            results = list(pool.map(
+                lambda w: _verify_via_web(w["domain"], w.get("source") or "unknown", w.get("source_query")),
+                part,
+            ))
+        for r in results:
+            outcome = r.get("outcome", "failed")
+            counts[outcome] = counts.get(outcome, 0) + 1
+            if outcome == "rejected" and r.get("reason"):
+                reasons[r["reason"]] = reasons.get(r["reason"], 0) + 1
+
+    logger.info("stage_verification: %d verified, %d rejected, %d failed %s",
+                counts["verified"], counts["rejected"], counts["failed"], reasons)
+    return {"status": "ok", **counts, "rejection_reasons": reasons}
+
+
+# ── Stage 3: KNOWLEDGE ──────────────────────────────────────────────────────
+# Runs ONLY on verified stores and ONLY on their stored signals — no network.
+# Because there is no storefront fetch, it runs directly in the worker.
+
+@celery.task(name="app.tasks.store_index.stage_knowledge")
+def stage_knowledge(limit_override: Optional[int] = None, force: bool = False) -> dict:
+    from app.services.runtime_config import get_config
+    settings = get_settings()
+    if not get_config("shopify_index_enabled", settings.shopify_index_enabled) and not force:
+        return {"status": "disabled"}
+
+    db = get_supabase()
+    batch = max(1, min(limit_override or get_config(
+        "shopify_index_knowledge_batch", settings.shopify_index_knowledge_batch), 300))
+
+    try:
+        res = db.table("shopify_store_index")\
+            .select("domain, brand_name, homepage_message, description, product_types, "
+                    "product_titles, tags, collections, pricing_tier, product_count, "
+                    "median_price, min_price, max_price, price_bands")\
+            .eq("status", "verified")\
+            .is_("knowledge_at", "null")\
+            .order("verified_at")\
+            .limit(batch).execute()
+        rows = res.data or []
+    except Exception as exc:
+        logger.error("stage_knowledge: verified fetch failed: %s", exc)
+        return {"status": "error", "classified": 0}
+
+    if not rows:
+        return {"status": "ok", "classified": 0, "note": "queue_empty"}
+
+    classified = 0
+    low_conf = 0
+    cat_min = get_config("shopify_index_category_min_confidence", settings.shopify_index_category_min_confidence)
+    for row in rows:
+        try:
+            out = run_knowledge(db, row)
+            classified += 1
+            if (out.get("confidence") or 0) < cat_min:
+                low_conf += 1
+        except Exception as exc:
+            logger.warning("stage_knowledge: %s failed: %s", row.get("domain"), exc)
+
+    logger.info("stage_knowledge: %d classified (%d below category threshold)", classified, low_conf)
+    return {"status": "ok", "classified": classified, "below_threshold": low_conf}
 
 
 @celery.task(name="app.tasks.store_index.generate_niche_candidates")

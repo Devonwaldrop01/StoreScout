@@ -7,11 +7,11 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import {
-  Database, RefreshCw, Check, X, AlertTriangle, Plus, Play, LogOut, Search, Crosshair,
+  Database, RefreshCw, Check, X, AlertTriangle, Plus, Play, Search, Radar, ShieldCheck, Brain,
 } from "lucide-react";
 import { EngineControls } from "@/components/admin/EngineControls";
+import { StoreInspector } from "@/components/admin/StoreInspector";
 
 const TOKEN_KEY = "ss_admin_token";
 
@@ -63,11 +63,32 @@ interface Stats {
   rows: IndexRow[];
 }
 
+interface Ops {
+  pipeline: { discovered: number; candidates: number; verified: number; rejected: number; failed: number; knowledge_done: number; knowledge_pending: number };
+  today: { discovered: number; verified: number; rejected: number; knowledge: number; success_rate: number | null };
+  success_rate: number | null;
+  avg_category_confidence: number | null;
+  low_confidence_categories: number;
+  category_min_confidence: number;
+  knowledge_completion: number | null;
+  categories: { name: string; count: number }[];
+  top_failures: { reason: string; count: number }[];
+  sources: { source: string; cursor: Record<string, unknown> | null; enabled: boolean; last_run_at: string | null; discovered: number }[];
+  worker: { enabled: boolean; last_activity: string | null };
+}
+
 const STATUS_COLOR: Record<string, string> = {
   verified: "#4CC38A",
+  discovered: "#7DB8C9",
   candidate: "#7DB8C9",
   rejected: "#F2555A",
   failed: "#6C7164",
+};
+
+const REASON_LABEL: Record<string, string> = {
+  not_shopify: "Not Shopify", no_products: "No products", dead_domain: "Dead domain",
+  duplicate: "Duplicate", password_protected: "Password-protected", invalid_storefront: "Invalid storefront",
+  low_confidence: "Low confidence",
 };
 
 async function adminFetch<T>(path: string, token: string, init?: RequestInit): Promise<T> {
@@ -93,6 +114,8 @@ export default function StoreIndexAdminPage() {
   const [authError, setAuthError] = useState("");
 
   const [stats, setStats] = useState<Stats | null>(null);
+  const [ops, setOps] = useState<Ops | null>(null);
+  const [inspect, setInspect] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const [filterStatus, setFilterStatus] = useState("");
@@ -115,6 +138,12 @@ export default function StoreIndexAdminPage() {
       setStats(r.data);
       setAuthed(true);
       setAuthError("");
+      try { window.dispatchEvent(new Event("ss-admin-auth")); } catch { /* ignore */ }
+      // Index Operations dashboard data — best-effort, never blocks the console.
+      try {
+        const o = await adminFetch<{ data: Ops }>("/admin/index-ops", tok);
+        setOps(o.data);
+      } catch { /* pre-migration or transient — pipeline panel just hides */ }
     } catch (e: unknown) {
       const status403 = (e as { status?: number })?.status === 403;
       setAuthed(false);
@@ -141,14 +170,6 @@ export default function StoreIndexAdminPage() {
     try { localStorage.setItem(TOKEN_KEY, t); } catch { /* ignore */ }
     setToken(t);
     loadStats(t);
-  }
-
-  function handleLogout() {
-    try { localStorage.removeItem(TOKEN_KEY); } catch { /* ignore */ }
-    setToken("");
-    setTokenInput("");
-    setAuthed(false);
-    setStats(null);
   }
 
   async function handleSeed() {
@@ -259,13 +280,6 @@ export default function StoreIndexAdminPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href="/admin/leads"
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-md transition-all hover:bg-white/[0.06]"
-              style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
-            >
-              <Crosshair className="w-3.5 h-3.5" /> Leads
-            </Link>
             <button
               onClick={() => loadStats(token, filterStatus, filterDomain)}
               className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-md transition-all hover:bg-white/[0.06]"
@@ -273,15 +287,111 @@ export default function StoreIndexAdminPage() {
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
             </button>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-md transition-all hover:bg-white/[0.06]"
-              style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
-            >
-              <LogOut className="w-3.5 h-3.5" /> Sign out
-            </button>
           </div>
         </div>
+
+        {/* ── Index Operations — the three-stage pipeline at a glance ──────── */}
+        {ops && (
+          <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+              <p className="label-caps">Pipeline · discovery → verification → knowledge</p>
+              <span className="flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded"
+                    style={{ background: "var(--bg3)", color: ops.worker.enabled ? "#4CC38A" : "var(--muted)" }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: ops.worker.enabled ? "#4CC38A" : "var(--muted)" }} />
+                {ops.worker.enabled ? "Worker running daily" : "Worker paused (manual runs only)"}
+                {ops.worker.last_activity ? ` · last verify ${new Date(ops.worker.last_activity).toLocaleDateString()}` : ""}
+              </span>
+            </div>
+
+            {/* Three stages as flowing columns */}
+            <div className="grid sm:grid-cols-3 gap-3">
+              {[
+                { icon: Radar, name: "1 · Discovery", color: "#7DB8C9",
+                  big: ops.pipeline.discovered, bigLabel: "in queue",
+                  sub: `+${ops.today.discovered} found today` },
+                { icon: ShieldCheck, name: "2 · Verification", color: "#4CC38A",
+                  big: ops.pipeline.verified, bigLabel: "verified",
+                  sub: ops.success_rate != null ? `${ops.success_rate}% success · +${ops.today.verified} today` : `+${ops.today.verified} today` },
+                { icon: Brain, name: "3 · Knowledge", color: "var(--accent)",
+                  big: ops.pipeline.knowledge_done, bigLabel: "classified",
+                  sub: ops.knowledge_completion != null ? `${ops.knowledge_completion}% complete · ${ops.pipeline.knowledge_pending} pending` : `${ops.pipeline.knowledge_pending} pending` },
+              ].map((st) => {
+                const Icon = st.icon;
+                return (
+                  <div key={st.name} className="rounded-md p-3" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Icon className="w-3.5 h-3.5" style={{ color: st.color }} />
+                      <p className="label-caps">{st.name}</p>
+                    </div>
+                    <p className="num text-2xl font-bold" style={{ color: "var(--text)" }}>{st.big.toLocaleString()}</p>
+                    <p className="text-[11px]" style={{ color: "var(--muted)" }}>{st.bigLabel}</p>
+                    <p className="text-[11px] mt-1.5" style={{ color: st.color }}>{st.sub}</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Health strip */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+              {[
+                { label: "Verify success", value: ops.success_rate != null ? `${ops.success_rate}%` : "—",
+                  hint: ops.success_rate != null && ops.success_rate < 60 ? "target 60%+" : "on target",
+                  color: ops.success_rate != null && ops.success_rate >= 60 ? "#4CC38A" : "var(--accent)" },
+                { label: "Avg category conf.", value: ops.avg_category_confidence != null ? `${ops.avg_category_confidence}%` : "—",
+                  hint: `min to recommend: ${ops.category_min_confidence}%`, color: "var(--text)" },
+                { label: "Below threshold", value: String(ops.low_confidence_categories),
+                  hint: "won't be recommended", color: ops.low_confidence_categories > 0 ? "var(--accent)" : "#4CC38A" },
+                { label: "Rejected today", value: String(ops.today.rejected),
+                  hint: `${ops.pipeline.rejected.toLocaleString()} all-time`, color: "var(--text-2)" },
+              ].map((t) => (
+                <div key={t.label} className="rounded-md px-3 py-2" style={{ background: "var(--bg3)" }}>
+                  <p className="label-caps mb-0.5">{t.label}</p>
+                  <p className="num text-lg font-bold" style={{ color: t.color }}>{t.value}</p>
+                  <p className="text-[10px]" style={{ color: "var(--muted)" }}>{t.hint}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Discovery sources + recent failures */}
+            <div className="grid md:grid-cols-2 gap-3 mt-3">
+              <div className="rounded-md p-3" style={{ background: "var(--bg3)" }}>
+                <p className="label-caps mb-2">Discovery sources</p>
+                {ops.sources.length === 0 ? (
+                  <p className="text-[11px]" style={{ color: "var(--muted)" }}>No sources have run yet. Shop App is Discovery Source #1.</p>
+                ) : (
+                  <div className="space-y-1.5">
+                    {ops.sources.map((s) => (
+                      <div key={s.source} className="flex items-center justify-between gap-2">
+                        <span className="flex items-center gap-1.5 text-xs num" style={{ color: "var(--text-2)" }}>
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.enabled ? "#4CC38A" : "var(--muted)" }} />
+                          {s.source}
+                        </span>
+                        <span className="text-[10px]" style={{ color: "var(--muted)" }}>
+                          {s.last_run_at ? `ran ${new Date(s.last_run_at).toLocaleDateString()}` : "never run"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="rounded-md p-3" style={{ background: "var(--bg3)" }}>
+                <p className="label-caps mb-2">Recent rejections · by reason</p>
+                {ops.top_failures.length === 0 ? (
+                  <p className="text-[11px]" style={{ color: "var(--muted)" }}>None recorded — good sign.</p>
+                ) : (
+                  <div className="space-y-1">
+                    {ops.top_failures.map((f) => (
+                      <div key={f.reason} className="flex items-center justify-between gap-2">
+                        <span className="text-[11px]" style={{ color: "var(--text-2)" }}>{REASON_LABEL[f.reason] || f.reason}</span>
+                        <span className="num text-xs font-bold" style={{ color: STATUS_COLOR.rejected }}>{f.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Stat tiles */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
@@ -388,7 +498,7 @@ export default function StoreIndexAdminPage() {
           token={token}
           title="Daily discovery worker"
           knobs={[
-            { key: "shopify_index_enabled", label: "Automatic daily discovery", type: "toggle", help: "Runs at 04:30 UTC. Manual test runs below always work regardless." },
+            { key: "shopify_index_enabled", label: "Run the pipeline automatically", type: "toggle", help: "Enables all three stages on the shared worker (discovery 4h · verification 30m · knowledge 30m). Manual test runs below always work regardless." },
             { key: "shopify_index_daily_verified_target", label: "New verified stores / day", type: "number", min: 1, max: 250, help: "Dev 25–50 · early prod 50–100 · scaled 100–250" },
             { key: "shopify_index_daily_candidate_limit", label: "Request budget / day", type: "number", min: 1, max: 500, help: "Hard cap on domains processed" },
           ]}
@@ -497,7 +607,9 @@ export default function StoreIndexAdminPage() {
               </thead>
               <tbody>
                 {stats!.rows.map((r) => (
-                  <tr key={r.domain} style={{ borderBottom: "1px solid var(--border)" }}>
+                  <tr key={r.domain} onClick={() => setInspect(r.domain)}
+                      className="cursor-pointer transition-colors hover:bg-white/[0.03]"
+                      style={{ borderBottom: "1px solid var(--border)" }}>
                     <td className="px-3 py-2">
                       <p className="num text-xs font-semibold" style={{ color: "var(--text)" }}>{r.domain}</p>
                       {r.brand_name && <p className="text-[11px]" style={{ color: "var(--muted)" }}>{r.brand_name}</p>}
@@ -534,10 +646,19 @@ export default function StoreIndexAdminPage() {
         </div>
 
         <p className="text-[11px]" style={{ color: "var(--muted)", opacity: 0.6 }}>
-          Latest 50 rows by update time. Daily worker: SHOPIFY_INDEX_ENABLED · limit {""}
-          SHOPIFY_INDEX_DAILY_CANDIDATE_LIMIT · threshold SHOPIFY_INDEX_MIN_CONFIDENCE.
+          Latest 50 rows by update time — click any row to open the Store Inspector. Pipeline runs on the
+          shared worker: discovery every 4h, verification every 30m, knowledge on the off-half-hour.
         </p>
       </div>
+
+      {inspect && (
+        <StoreInspector
+          domain={inspect}
+          token={token}
+          onClose={() => setInspect(null)}
+          onChanged={() => loadStats(token, filterStatus, filterDomain)}
+        />
+      )}
     </div>
   );
 }

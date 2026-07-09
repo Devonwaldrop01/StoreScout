@@ -192,6 +192,225 @@ def store_index_stats(
     }
 
 
+# ── Index Operations dashboard — the three-stage pipeline at a glance ────────
+
+@router.get("/admin/index-ops")
+def index_ops(x_admin_token: Optional[str] = Header(default=None)):
+    """
+    Everything the operator needs to see what the index is doing right now:
+    the discovery→verification→knowledge funnel, today's throughput, success
+    rate, category coverage, discovery sources + progress, recent failures with
+    reasons, and index growth. Degrades to zeros pre-migration (never 500s).
+    """
+    _require_admin(x_admin_token)
+    db = get_supabase()
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%dT00:00:00+00:00")
+
+    def _count(**filters) -> int:
+        try:
+            q = db.table("shopify_store_index").select("id", count="exact")
+            for k, v in filters.items():
+                q = q.eq(k, v)
+            return q.execute().count or 0
+        except Exception:
+            return 0
+
+    def _count_gte(col: str, val: str, **filters) -> int:
+        try:
+            q = db.table("shopify_store_index").select("id", count="exact").gte(col, val)
+            for k, v in filters.items():
+                q = q.eq(k, v)
+            return q.execute().count or 0
+        except Exception:
+            return 0
+
+    # ── Pipeline funnel (lifetime) ──
+    discovered = _count(status="discovered")
+    verified = _count(status="verified")
+    rejected = _count(status="rejected")
+    failed = _count(status="failed")
+    candidates = _count(status="candidate")
+    attempted = verified + rejected + failed
+
+    # Knowledge completion among verified stores.
+    try:
+        knowledge_done = db.table("shopify_store_index").select("id", count="exact")\
+            .eq("status", "verified").not_.is_("knowledge_at", "null").execute().count or 0
+    except Exception:
+        knowledge_done = 0
+
+    # ── Today ──
+    discovered_today = _count_gte("discovered_at", today)
+    verified_today = _count_gte("verified_at", today, status="verified")
+    rejected_today = _count_gte("verified_at", today, status="rejected")
+    attempted_today = verified_today + rejected_today
+    knowledge_today = _count_gte("knowledge_at", today)
+
+    # ── Category coverage + failure reasons (slim sample; PostgREST has no GROUP BY) ──
+    categories: dict = {}
+    low_conf_categories = 0
+    reasons: dict = {}
+    conf_sum = 0
+    conf_n = 0
+    cat_min = get_settings().shopify_index_category_min_confidence
+    try:
+        agg = db.table("shopify_store_index")\
+            .select("status, category, category_confidence, rejection_reason")\
+            .in_("status", ["verified", "rejected"])\
+            .order("updated_at", desc=True).limit(5000).execute()
+        for r in agg.data or []:
+            if r.get("status") == "verified" and r.get("category"):
+                categories[r["category"]] = categories.get(r["category"], 0) + 1
+                cc = r.get("category_confidence")
+                if cc is not None:
+                    conf_sum += cc
+                    conf_n += 1
+                    if cc < cat_min:
+                        low_conf_categories += 1
+            if r.get("status") == "rejected" and r.get("rejection_reason"):
+                reasons[r["rejection_reason"]] = reasons.get(r["rejection_reason"], 0) + 1
+    except Exception as exc:
+        logger.warning("index-ops aggregates failed: %s", exc)
+
+    # ── Discovery sources + cursors ──
+    sources: List[dict] = []
+    try:
+        cur = db.table("discovery_cursors")\
+            .select("source, cursor, enabled, last_run_at, discovered").execute()
+        sources = cur.data or []
+    except Exception:
+        pass  # table lands with migration 015
+
+    # ── Index growth (last 14 daily runs) ──
+    runs: List[dict] = []
+    try:
+        runs = db.table("store_index_runs")\
+            .select("ran_at, trigger, processed, verified, rejected, failed")\
+            .order("ran_at", desc=True).limit(14).execute().data or []
+    except Exception:
+        pass
+
+    # ── Worker heartbeat: most recent verified/rejected stamp ──
+    last_activity = None
+    try:
+        la = db.table("shopify_store_index").select("verified_at")\
+            .not_.is_("verified_at", "null").order("verified_at", desc=True)\
+            .limit(1).execute()
+        if la and la.data:
+            last_activity = la.data[0].get("verified_at")
+    except Exception:
+        pass
+
+    _top = lambda d, n: sorted(d.items(), key=lambda kv: -kv[1])[:n]
+    from app.services.runtime_config import get_config
+    settings = get_settings()
+    return {
+        "data": {
+            "pipeline": {
+                "discovered": discovered,
+                "candidates": candidates,
+                "verified": verified,
+                "rejected": rejected,
+                "failed": failed,
+                "knowledge_done": knowledge_done,
+                "knowledge_pending": max(0, verified - knowledge_done),
+            },
+            "today": {
+                "discovered": discovered_today,
+                "verified": verified_today,
+                "rejected": rejected_today,
+                "knowledge": knowledge_today,
+                "success_rate": round(verified_today / attempted_today * 100, 1) if attempted_today else None,
+            },
+            "success_rate": round(verified / attempted * 100, 1) if attempted else None,
+            "avg_category_confidence": round(conf_sum / conf_n, 1) if conf_n else None,
+            "low_confidence_categories": low_conf_categories,
+            "category_min_confidence": cat_min,
+            "knowledge_completion": round(knowledge_done / verified * 100, 1) if verified else None,
+            "categories": [{"name": k, "count": v} for k, v in _top(categories, 14)],
+            "top_failures": [{"reason": k, "count": v} for k, v in _top(reasons, 8)],
+            "sources": sources,
+            "runs": runs,
+            "worker": {
+                "enabled": bool(get_config("shopify_index_enabled", settings.shopify_index_enabled)),
+                "last_activity": last_activity,
+            },
+        }
+    }
+
+
+# ── Store Inspector — one indexed store, everything we know + re-run actions ──
+
+@router.get("/admin/store-inspector/{domain}")
+def store_inspector(domain: str, x_admin_token: Optional[str] = Header(default=None)):
+    _require_admin(x_admin_token)
+    from app.services.store_index import normalize_domain, graph_neighbors
+    db = get_supabase()
+    domain = normalize_domain(domain)
+
+    try:
+        res = db.table("shopify_store_index").select("*").eq("domain", domain).maybe_single().execute()
+        row = res.data if res else None
+    except Exception as exc:
+        logger.warning("store-inspector fetch failed for %s: %s", domain, exc)
+        raise HTTPException(status_code=404, detail="not found")
+    if not row:
+        raise HTTPException(status_code=404, detail="not found")
+
+    # Relationship-graph foundation — neighbors if any edges exist (placeholder-safe).
+    related: List[dict] = []
+    try:
+        neighbors = graph_neighbors(db, [domain], limit=8)
+        related = [{"domain": d, "weight": w} for d, w in
+                   sorted(neighbors.items(), key=lambda kv: -kv[1]) if w > 0][:8]
+    except Exception:
+        pass
+
+    return {"data": {"store": row, "related": related}}
+
+
+class InspectorActionBody(BaseModel):
+    action: str  # "reverify" | "reclassify"
+
+
+@router.post("/admin/store-inspector/{domain}/action")
+def store_inspector_action(domain: str, body: InspectorActionBody,
+                           x_admin_token: Optional[str] = Header(default=None)):
+    """Re-run verification (re-fetches storefront via the web process) or
+    re-run knowledge (re-classifies from stored signals) for one store."""
+    _require_admin(x_admin_token)
+    from app.services.store_index import normalize_domain, run_knowledge, verify_and_store
+    db = get_supabase()
+    domain = normalize_domain(domain)
+
+    if body.action == "reverify":
+        try:
+            row = db.table("shopify_store_index").select("source, source_query")\
+                .eq("domain", domain).maybe_single().execute()
+            src = (row.data or {}).get("source") if row else None
+            sq = (row.data or {}).get("source_query") if row else None
+        except Exception:
+            src, sq = None, None
+        result = verify_and_store(db, domain, src or "admin_reverify", sq)
+        return {"data": result}
+
+    if body.action == "reclassify":
+        try:
+            row = db.table("shopify_store_index").select(
+                "domain, brand_name, homepage_message, description, product_types, "
+                "product_titles, tags, collections, pricing_tier, product_count, "
+                "median_price, min_price, max_price, price_bands").eq("domain", domain)\
+                .maybe_single().execute()
+        except Exception:
+            row = None
+        if not row or not row.data:
+            raise HTTPException(status_code=404, detail="not found")
+        result = run_knowledge(db, row.data)
+        return {"data": result}
+
+    raise HTTPException(status_code=422, detail="unknown action")
+
+
 class SeedBody(BaseModel):
     urls: List[str]
 
