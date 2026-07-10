@@ -802,10 +802,28 @@ export interface BusinessKnowledge {
   scan_history: number;
 }
 
+export interface IntegrationEntry {
+  id: string;
+  name: string;
+  category: string;
+  dimensions: string[];
+  learns: string[];
+  gets_better: string;
+  capabilities: string[];
+  status: "connected" | "available" | "coming_soon";
+}
+export interface IntegrationHubData {
+  categories: { key: string; label: string; count: number }[];
+  integrations: IntegrationEntry[];
+  intelligence: { key: string; label: string; pct: number; connected: number; total: number }[];
+  connected_count: number;
+}
+
 export const integrations = {
   get: () => apiFetch<{ data: { klaviyo: KlaviyoStatus; google_enabled?: boolean } }>("/integrations"),
   intelligenceSources: () =>
     apiFetch<{ data: BusinessKnowledge }>("/integrations/intelligence-sources"),
+  hub: () => apiFetch<{ data: IntegrationHubData }>("/integrations/hub"),
   klaviyo: {
     save: (api_key: string) =>
       apiFetch<{ data: KlaviyoStatus }>("/integrations/klaviyo", {
