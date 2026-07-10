@@ -302,6 +302,93 @@ function LeadCard({ lead, token, onChanged }: { lead: Lead; token: string; onCha
   );
 }
 
+// ── Intent signals (Phase 2) ─────────────────────────────────────────────────
+
+interface Signal {
+  id: string; title: string | null; quote: string | null; author: string | null;
+  url: string | null; channel: string | null; intent_score: number | null;
+  intent_reason: string | null; matched_domain: string | null; status: string;
+}
+
+function SignalsPanel({ token }: { token: string }) {
+  const [rows, setRows] = useState<Signal[]>([]);
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  const [open, setOpen] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  const load = useCallback(async () => {
+    try {
+      const r = await adminFetch<{ data: { rows: Signal[]; counts: Record<string, number> } }>("/admin/leads/signals?status=new", token);
+      setRows(r.data.rows || []);
+      setCounts(r.data.counts || {});
+    } catch { /* migration not applied yet — panel just stays empty */ }
+  }, [token]);
+
+  useEffect(() => { if (open) load(); }, [open, load]);
+
+  async function scan() {
+    if (scanning) return;
+    setScanning(true); setMsg("");
+    try {
+      const r = await adminFetch<{ status: string; result?: { created?: number; fetched?: number; note?: string } }>("/admin/leads/signals/scan", token, { method: "POST" });
+      setMsg(r.status === "queued" ? "Scan queued — refresh in a minute." : `Scan: ${r.result?.created ?? 0} new signals from ${r.result?.fetched ?? 0} posts.${r.result?.note ? " " + r.result.note : ""}`);
+      load();
+    } catch (e: unknown) { setMsg((e as Error).message || "Scan failed."); }
+    finally { setScanning(false); }
+  }
+
+  async function act(id: string, status: string) {
+    try { await adminFetch(`/admin/leads/signals/${id}`, token, { method: "PATCH", body: JSON.stringify({ status }) }); load(); } catch { /* ignore */ }
+  }
+
+  return (
+    <div className="rounded-md" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Intent signals</p>
+          <span className="text-[11px]" style={{ color: "var(--muted)" }}>· people publicly asking for competitor tracking</span>
+          {(counts.new ?? 0) > 0 && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: "#F2555A18", color: "#F2555A" }}>{counts.new} new</span>}
+        </div>
+        {open ? <ChevronUp className="w-4 h-4" style={{ color: "var(--muted)" }} /> : <ChevronDown className="w-4 h-4" style={{ color: "var(--muted)" }} />}
+      </button>
+      {open && (
+        <div className="px-4 pb-4 space-y-2" style={{ borderTop: "1px solid var(--border)" }}>
+          <div className="flex items-center gap-2 pt-3">
+            <button onClick={scan} disabled={scanning} className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40" style={{ background: "var(--accent)", color: "var(--ink)" }}>
+              {scanning ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />} Scan now
+            </button>
+            {msg && <span className="text-[11px]" style={{ color: "var(--text-2)" }}>{msg}</span>}
+          </div>
+          {rows.length === 0 ? (
+            <p className="text-xs" style={{ color: "var(--muted)" }}>No open intent signals. Enable INTENT_ENGINE_ENABLED or hit &quot;Scan now&quot; (requires migration 019).</p>
+          ) : rows.map((s) => (
+            <div key={s.id} className="rounded-md p-3" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="num text-sm font-bold" style={{ color: (s.intent_score ?? 0) >= 75 ? "#F2555A" : "#FFB224" }}>{s.intent_score ?? "—"}</span>
+                    <span className="text-xs font-medium" style={{ color: "var(--text)" }}>{s.title || "(untitled)"}</span>
+                    {s.channel && <span className="text-[10px] num px-1.5 py-0.5 rounded" style={{ background: "var(--bg-card)", color: "var(--muted)" }}>r/{s.channel}</span>}
+                    {s.matched_domain && <span className="text-[10px] num px-1.5 py-0.5 rounded" style={{ background: "#4CC38A18", color: "#4CC38A" }}>{s.matched_domain}</span>}
+                  </div>
+                  {s.intent_reason && <p className="text-[11px] mt-0.5" style={{ color: "var(--accent)" }}>{s.intent_reason}</p>}
+                  {s.quote && <p className="text-[11px] mt-1 line-clamp-2" style={{ color: "var(--text-2)" }}>{s.quote.slice(0, 220)}</p>}
+                </div>
+                <div className="flex flex-col gap-1 shrink-0">
+                  {s.url && <a href={s.url} target="_blank" rel="noreferrer" className="text-[11px] text-center px-2 py-1 rounded" style={{ border: "1px solid var(--border)", color: "var(--text-2)" }}>Open</a>}
+                  <button onClick={() => act(s.id, "engaged")} className="text-[11px] px-2 py-1 rounded" style={{ border: "1px solid var(--border)", color: "#4CC38A" }}>Engaged</button>
+                  <button onClick={() => act(s.id, "dismissed")} className="text-[11px] px-2 py-1 rounded" style={{ border: "1px solid var(--border)", color: "var(--muted)" }}>Dismiss</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Page ────────────────────────────────────────────────────────────────────
 
 export default function LeadsAdminPage() {
@@ -466,6 +553,9 @@ export default function LeadsAdminPage() {
             { key: "lead_engine_min_qualification", label: "Min qualification score", type: "number", min: 0, max: 100, help: "Below this a store never becomes a prospect" },
           ]}
         />
+
+        {/* Intent signals (Phase 2) */}
+        <SignalsPanel token={token} />
 
         {/* Tiles */}
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">

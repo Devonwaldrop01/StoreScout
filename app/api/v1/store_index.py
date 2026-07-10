@@ -509,21 +509,34 @@ class ReclassifyBody(BaseModel):
     category: Optional[str] = None          # only this (mis)category
     only_low_confidence: Optional[bool] = None
     threshold: int = 70
+    reenrich_thin: Optional[bool] = None    # re-fetch products for stores with none, then re-classify
 
 
 @router.post("/admin/store-index/reclassify")
 def reclassify(body: ReclassifyBody, x_admin_token: Optional[str] = Header(default=None)):
     """
-    Queue verified stores for re-classification by clearing knowledge_at — the
-    knowledge stage then re-runs them through the new AI classifier. Scope it to
-    a suspect category (e.g. 'Kids & Baby', 'Other') or to everything below a
-    confidence threshold, so you don't reprocess the whole index blindly.
+    Fix classifications. Two modes:
+      · default — clear knowledge_at so the knowledge stage re-runs the AI
+        classifier on the STORED product data (scope by category or confidence).
+      · reenrich_thin — for verified stores with NO product data (the
+        'Other · General' rows from the discovery write-back), send them back to
+        'discovered' so verification re-fetches their catalog, then knowledge
+        classifies them properly.
     """
     _require_admin(x_admin_token)
     db = get_supabase()
+    now = datetime.now(timezone.utc).isoformat()
     try:
+        if body.reenrich_thin:
+            # No products sampled → can't be classified. Re-run the full pipeline.
+            res = db.table("shopify_store_index").update(
+                {"status": "discovered", "knowledge_at": None, "updated_at": now}
+            ).eq("status", "verified").is_("product_count", "null").execute()
+            n = len(res.data or [])
+            return {"data": {"queued": n, "note": f"{n} product-less store(s) re-queued for verification → they'll be re-fetched and classified."}}
+
         q = db.table("shopify_store_index").update(
-            {"knowledge_at": None, "updated_at": datetime.now(timezone.utc).isoformat()}
+            {"knowledge_at": None, "updated_at": now}
         ).eq("status", "verified")
         if body.category:
             q = q.eq("category", body.category)

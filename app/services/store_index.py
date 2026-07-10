@@ -966,7 +966,7 @@ def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
     # accurate than keyword matching; fall back to the keyword scorer only if AI
     # is unavailable or errors.
     classification = classify_store_ai(
-        brand=row.get("brand_name") or "",
+        brand=row.get("brand_name") or domain,
         description=row.get("homepage_message") or row.get("description") or "",
         product_types=row.get("product_types"),
         product_titles=row.get("product_titles"),
