@@ -401,12 +401,24 @@ export interface StoreProfileResponse {
   has_blog?: boolean;
   has_wholesale?: boolean;
   content_investment_score?: number;
+  decode_teaser?: { headline?: string; positioning?: string } | null;
   // Pro/Agency nested fields
+  decode?: BrandDecode | null;
   collection_intel?: CollectionIntel;
   brand_signals?: BrandSignals;
   content_intel?: ContentIntel;
   locked: boolean;
   tier: string;
+}
+
+export interface BrandDecode {
+  headline: string;
+  positioning?: string;
+  merchandising?: string;
+  marketing_engine?: string;
+  vulnerabilities?: string[];
+  openings?: string[];
+  one_move: string;
 }
 
 export type ComparisonVerdict = "winning" | "losing" | "matched" | "neutral";

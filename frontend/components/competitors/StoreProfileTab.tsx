@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Building2, FileText, BookOpen, Lock, CheckCircle, XCircle, ChevronRight } from "lucide-react";
+import { Building2, FileText, BookOpen, Lock, CheckCircle, XCircle, ChevronRight, Sparkles, ShieldAlert, DoorOpen, ArrowRight, ChevronDown } from "lucide-react";
 import { competitors as api, type StoreProfileResponse } from "@/lib/api";
 import UpgradeModal from "@/components/UpgradeModal";
 import { SaveToPlaybook } from "@/components/SaveToPlaybook";
@@ -51,6 +51,26 @@ function FreeTierView({
 }) {
   return (
     <div className="space-y-4">
+      {/* Decode teaser — a real taste of the strategy read, then locked */}
+      {data.decode_teaser?.headline && (
+        <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: "3px solid var(--accent)" }}>
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
+            <p className="label-caps" style={{ color: "var(--accent)" }}>What&apos;s really going on here</p>
+          </div>
+          <p className="text-base font-semibold leading-snug mb-2" style={{ color: "var(--text)" }}>{data.decode_teaser.headline}</p>
+          {data.decode_teaser.positioning && (
+            <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{data.decode_teaser.positioning}</p>
+          )}
+          <div className="mt-3 pt-3 flex items-center gap-2" style={{ borderTop: "1px solid var(--border)" }}>
+            <Lock className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
+            <button onClick={onUpgrade} className="text-xs font-semibold" style={{ color: "var(--accent)" }}>
+              Unlock how they merchandise, where they&apos;re exposed, and your move →
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Teasers */}
       <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2 mb-4">
@@ -170,38 +190,167 @@ function brandInterpretation(data: StoreProfileResponse): { read: string; move: 
   return { read, move };
 }
 
+// Plain-English meaning of each operational signal — no jargon, no app names.
+const SIGNAL_MEANING: Record<string, string> = {
+  has_sale: "Runs a permanent sale collection — trains shoppers to wait for markdowns",
+  has_new_arrivals: "Refreshes the catalog often — active launch cadence",
+  has_best_sellers: "Merchandises social proof — steers buyers to proven winners",
+  has_bundles: "Sells bundles/kits — pushing higher order value over volume",
+  has_subscription: "Offers subscriptions — engineering repeat, predictable revenue",
+  has_gift: "Runs a gift shop — chasing seasonal & gifting demand",
+  has_wholesale: "Has a wholesale/B2B channel — revenue beyond DTC",
+  has_affiliate: "Runs an affiliate/ambassador program — word-of-mouth acquisition",
+  has_press: "Maintains a press page — invests in PR & credibility",
+  has_sustainability: "Leads with sustainability — values-based positioning",
+  has_size_guide: "Detailed size guides — reducing returns, apparel-serious",
+  has_rewards: "Loyalty/rewards program — buying retention",
+};
+
+function DecodedSignals({ flags }: { flags: Record<string, boolean | undefined> }) {
+  const active = Object.entries(flags).filter(([, v]) => v).map(([k]) => k);
+  if (active.length === 0) return null;
+  return (
+    <div className="space-y-1.5">
+      {active.map((k) => (
+        <div key={k} className="flex items-start gap-2">
+          <CheckCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: "#FFB224" }} />
+          <p className="text-[13px] leading-snug" style={{ color: "var(--text-2)" }}>{SIGNAL_MEANING[k] || k}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ProView({ data, competitorId }: { data: StoreProfileResponse; competitorId?: string }) {
   const col = data.collection_intel;
   const brand = data.brand_signals;
   const content = data.content_intel;
+  const decode = data.decode;
   const interp = brandInterpretation(data);
+  const [showRaw, setShowRaw] = useState(false);
+
+  const allFlags = {
+    has_sale: col?.has_sale, has_new_arrivals: col?.has_new_arrivals, has_best_sellers: col?.has_best_sellers,
+    has_bundles: col?.has_bundles, has_subscription: col?.has_subscription, has_gift: col?.has_gift,
+    has_wholesale: brand?.has_wholesale, has_affiliate: brand?.has_affiliate, has_press: brand?.has_press,
+    has_sustainability: brand?.has_sustainability, has_size_guide: brand?.has_size_guide, has_rewards: brand?.has_rewards,
+  };
 
   return (
-    <div className="space-y-5">
-      {/* What their brand posture means — the actionable read, up top */}
-      {interp && (
+    <div className="space-y-4">
+      {/* ── THE DECODE — a readable strategy brief, not tag soup ─────────── */}
+      {decode ? (
+        <>
+          <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: "3px solid var(--accent)" }}>
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
+              <p className="label-caps" style={{ color: "var(--accent)" }}>What&apos;s really going on here</p>
+            </div>
+            <p className="text-base font-semibold leading-snug mb-3" style={{ color: "var(--text)" }}>{decode.headline}</p>
+            <div className="space-y-3">
+              {([
+                ["Positioning", decode.positioning],
+                ["How they merchandise & price", decode.merchandising],
+                ["Their growth engine", decode.marketing_engine],
+              ] as [string, string | undefined][]).filter(([, v]) => v).map(([label, v]) => (
+                <div key={label}>
+                  <p className="text-[11px] font-semibold uppercase tracking-wide mb-0.5" style={{ color: "var(--text-2)" }}>{label}</p>
+                  <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{v}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Vulnerabilities + openings — the exploitable part */}
+          <div className="grid sm:grid-cols-2 gap-4">
+            {(decode.vulnerabilities?.length ?? 0) > 0 && (
+              <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <ShieldAlert className="w-4 h-4" style={{ color: "#F2555A" }} />
+                  <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Where they&apos;re exposed</h4>
+                </div>
+                <ul className="space-y-1.5">
+                  {decode.vulnerabilities!.map((v, i) => (
+                    <li key={i} className="text-[13px] leading-snug flex items-start gap-2" style={{ color: "var(--text-2)" }}>
+                      <span className="mt-1.5 w-1 h-1 rounded-full shrink-0" style={{ background: "#F2555A" }} />{v}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {(decode.openings?.length ?? 0) > 0 && (
+              <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <DoorOpen className="w-4 h-4" style={{ color: "#4CC38A" }} />
+                  <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Openings for you</h4>
+                </div>
+                <ul className="space-y-1.5">
+                  {decode.openings!.map((v, i) => (
+                    <li key={i} className="text-[13px] leading-snug flex items-start gap-2" style={{ color: "var(--text-2)" }}>
+                      <span className="mt-1.5 w-1 h-1 rounded-full shrink-0" style={{ background: "#4CC38A" }} />{v}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {/* The one move */}
+          <div className="rounded-md p-4" style={{ background: "rgba(255,178,36,.06)", border: "1px solid rgba(255,178,36,.25)" }}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-2">
+                <ArrowRight className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "var(--accent)" }} />
+                <div>
+                  <p className="label-caps mb-0.5" style={{ color: "var(--accent)" }}>Your highest-leverage move</p>
+                  <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text)" }}>{decode.one_move}</p>
+                </div>
+              </div>
+              {competitorId && (
+                <SaveToPlaybook size="xs" item={{
+                  source_type: "pro_analysis", source_ref: `${competitorId}:brand`, competitor_id: competitorId,
+                  title: decode.one_move, reason: decode.headline,
+                  evidence: [decode.positioning, decode.merchandising].filter(Boolean).join(" "), priority: "high",
+                }} />
+              )}
+            </div>
+          </div>
+        </>
+      ) : interp && (
         <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: "3px solid var(--accent)" }}>
           <p className="label-caps mb-1.5" style={{ color: "var(--accent)" }}>What their brand strategy tells you</p>
           <p className="text-sm leading-relaxed mb-2" style={{ color: "var(--text-2)" }}>{interp.read}</p>
-          <div className="flex items-start justify-between gap-3">
-            <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text)" }}>→ {interp.move}</p>
-            {competitorId && (
-              <SaveToPlaybook
-                size="xs"
-                item={{
-                  source_type: "pro_analysis",
-                  source_ref: `${competitorId}:brand`,
-                  competitor_id: competitorId,
-                  title: interp.move,
-                  reason: interp.read,
-                  evidence: "Brand signals: " + [col?.has_subscription && "subscription", col?.has_bundles && "bundles", brand?.has_affiliate && "affiliate", (content?.content_investment_score ?? 0) >= 50 && "content-heavy"].filter(Boolean).join(", "),
-                  priority: "medium",
-                }}
-              />
-            )}
-          </div>
+          <p className="text-sm font-semibold leading-snug" style={{ color: "var(--text)" }}>→ {interp.move}</p>
         </div>
       )}
+
+      {/* ── Decoded signals — plain English, not raw tags ──────────────── */}
+      <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <p className="label-caps mb-2">What we detected · in plain English</p>
+        <DecodedSignals flags={allFlags} />
+        {col?.names && col.names.length > 0 && (
+          <div className="mt-3 pt-3 border-t" style={{ borderColor: "var(--border)" }}>
+            <p className="text-[11px] mb-1.5" style={{ color: "var(--muted)" }}>Collections they run</p>
+            <div className="flex flex-wrap gap-1.5">{col.names.map((n) => <CollectionTag key={n} name={n} />)}</div>
+          </div>
+        )}
+        {content && content.content_investment_score != null && (
+          <div className="mt-3 pt-3 border-t" style={{ borderColor: "var(--border)" }}>
+            <ScoreBar score={content.content_investment_score} />
+            {content.recent_article_titles?.length > 0 && (
+              <p className="text-[11px] mt-2" style={{ color: "var(--muted)" }}>
+                Recent posts: {content.recent_article_titles.slice(0, 3).join(" · ")}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Raw signal grid — collapsed by default for those who want the checklist */}
+      <button onClick={() => setShowRaw(!showRaw)} className="flex items-center gap-1.5 text-xs font-medium" style={{ color: "var(--muted)" }}>
+        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showRaw ? "rotate-180" : ""}`} /> {showRaw ? "Hide" : "Show"} full signal checklist
+      </button>
+      {showRaw && (
+        <div className="space-y-5">
       {/* Collections */}
       {col && (
         <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
@@ -288,6 +437,8 @@ function ProView({ data, competitorId }: { data: StoreProfileResponse; competito
       {!col && !brand && !content && (
         <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <p style={{ color: "var(--muted)" }}>Brand profile data will appear after the next full rescan.</p>
+        </div>
+      )}
         </div>
       )}
     </div>

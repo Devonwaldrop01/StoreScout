@@ -381,7 +381,11 @@ export default function WinningProductsTab({ competitorId }: { competitorId: str
   if (!data || data.products.length === 0) {
     return (
       <div className="rounded-md p-8 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <p style={{ color: "var(--muted)" }}>No products to score yet — check back after the next scan.</p>
+        <p className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>Scoring their catalog</p>
+        <p className="text-sm max-w-sm mx-auto" style={{ color: "var(--muted)" }}>
+          StoreScout ranks every product they sell into Hero / Strong / Emerging tiers — the ones worth
+          responding to — as soon as the first full scan finishes. This fills in automatically; no need to refresh.
+        </p>
       </div>
     );
   }

@@ -1173,10 +1173,18 @@ def get_store_profile(competitor_id: str, user_id: str = Depends(get_effective_u
     brand = profile.get("brand_signals") or {}
     content = profile.get("content_intel") or {}
 
-    # Free tier: surface key signals, lock the details
+    # The decode is generated once (cached by signature) and used for BOTH tiers:
+    # free sees a real teaser (headline + positioning), Pro gets the whole brief.
+    decode = _get_or_make_decode(db, competitor_id, data, col, brand, content)
+
+    # Free tier: surface key signals + a decode teaser, lock the strategy.
     if tier == "free":
+        teaser = None
+        if decode:
+            teaser = {"headline": decode.get("headline"), "positioning": decode.get("positioning")}
         return {
             "data": {
+                "decode_teaser": teaser,
                 "collection_count": col.get("count", 0),
                 "has_sale_collection": col.get("has_sale", False),
                 "has_new_arrivals": col.get("has_new_arrivals", False),
@@ -1191,6 +1199,7 @@ def get_store_profile(competitor_id: str, user_id: str = Depends(get_effective_u
 
     return {
         "data": {
+            "decode": decode,
             "collection_intel": col,
             "brand_signals": brand,
             "content_intel": content,
@@ -1198,6 +1207,50 @@ def get_store_profile(competitor_id: str, user_id: str = Depends(get_effective_u
             "tier": tier,
         }
     }
+
+
+def _get_or_make_decode(db, competitor_id, data, col, brand, content):
+    """Fetch the cached brand decode or generate + cache it (keyed by a
+    signature of the inputs). Returns the decode dict or None."""
+    try:
+        from app.services.brand_decode import decode_signature, generate_brand_decode
+        crow = db.table("competitors").select("hostname, brand_decode, brand_decode_sig")\
+            .eq("id", competitor_id).maybe_single().execute()
+        crow = (crow.data if crow else {}) or {}
+        ctx = {
+            "hostname": crow.get("hostname"),
+            "category": (data or {}).get("category"),
+            "pricing_tier": (data or {}).get("pricing_tier"),
+            "product_count": (data or {}).get("product_count"),
+            "median_price": (data or {}).get("median_price"),
+            "promo_rate": (data or {}).get("promo_rate"),
+            "collection_names": col.get("names") or [],
+            "flags": {
+                "has_sale": col.get("has_sale"), "has_new_arrivals": col.get("has_new_arrivals"),
+                "has_best_sellers": col.get("has_best_sellers"), "has_bundles": col.get("has_bundles"),
+                "has_subscription": col.get("has_subscription"), "has_gift": col.get("has_gift"),
+                "has_wholesale": brand.get("has_wholesale"), "has_affiliate": brand.get("has_affiliate"),
+                "has_press": brand.get("has_press"), "has_sustainability": brand.get("has_sustainability"),
+                "has_size_guide": brand.get("has_size_guide"), "has_rewards": brand.get("has_rewards"),
+            },
+            "blog_count": content.get("blog_count"),
+            "article_titles": content.get("recent_article_titles") or [],
+            "content_score": content.get("content_investment_score"),
+        }
+        sig = decode_signature(ctx)
+        if crow.get("brand_decode") and crow.get("brand_decode_sig") == sig:
+            return crow["brand_decode"]
+        decode = generate_brand_decode(ctx)
+        if decode:
+            from datetime import datetime as _dt, timezone as _tz
+            db.table("competitors").update({
+                "brand_decode": decode, "brand_decode_sig": sig,
+                "brand_decode_at": _dt.now(_tz.utc).isoformat(),
+            }).eq("id", competitor_id).execute()
+        return decode
+    except Exception as exc:
+        logger.debug("brand decode skipped for %s: %s", competitor_id, exc)
+        return None
 
 
 @router.get("/{competitor_id}/comparison")
