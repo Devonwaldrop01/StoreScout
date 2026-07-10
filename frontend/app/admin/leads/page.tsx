@@ -38,14 +38,28 @@ interface Lead {
   suggested_email: string | null;
   notes: string | null;
   created_at: string;
+  fit_tier?: string | null;
+  fit_reasoning?: string | null;
+  contact_email?: string | null;
+  contact_source?: string | null;
+  tech_signals?: string[] | null;
+  score_breakdown?: { factor: string; points: number; note: string }[] | null;
 }
 
 interface LeadsData {
   rows: Lead[];
   counts: Record<string, number>;
+  tiers?: Record<string, number>;
   new_today: number;
   stages: string[];
 }
+
+const TIER_META: Record<string, { label: string; color: string }> = {
+  hot:       { label: "🔥 Hot",    color: "#F2555A" },
+  warm:      { label: "Warm",       color: "#FFB224" },
+  cold:      { label: "Cold",       color: "#7DB8C9" },
+  not_a_fit: { label: "Not a fit",  color: "#6C7164" },
+};
 
 const STATUS_META: Record<string, { label: string; color: string }> = {
   ready:            { label: "Ready",        color: "#FFB224" },
@@ -89,6 +103,7 @@ function LeadCard({ lead, token, onChanged }: { lead: Lead; token: string; onCha
   const [notes, setNotes] = useState(lead.notes ?? "");
 
   const meta = STATUS_META[lead.outreach_status] ?? { label: lead.outreach_status, color: "var(--muted)" };
+  const tier = lead.fit_tier ? TIER_META[lead.fit_tier] : null;
   const findings = lead.generated_insights?.findings ?? [];
 
   function copy(text: string, key: string) {
@@ -119,24 +134,33 @@ function LeadCard({ lead, token, onChanged }: { lead: Lead; token: string; onCha
     <div className="rounded-md overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
       {/* Row header */}
       <button onClick={() => setOpen(!open)} className="w-full flex items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-white/[.02]">
-        <div className="w-12 shrink-0 text-center">
-          <p className="num text-xl font-bold leading-none" style={{ color: scoreColor(lead.lead_score) }}>{lead.lead_score ?? "—"}</p>
-          <p className="text-[9px] uppercase tracking-wider mt-0.5" style={{ color: "var(--muted)" }}>score</p>
+        <div className="w-14 shrink-0 text-center">
+          {tier ? (
+            <span className="text-[11px] font-bold px-2 py-1 rounded block" style={{ background: `${tier.color}1a`, color: tier.color }}>
+              {tier.label}
+            </span>
+          ) : (
+            <p className="num text-xl font-bold leading-none" style={{ color: scoreColor(lead.lead_score) }}>{lead.lead_score ?? "—"}</p>
+          )}
+          <p className="num text-[10px] mt-1" style={{ color: "var(--muted)" }}>{lead.lead_score ?? "—"}/100</p>
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="num text-sm font-semibold" style={{ color: "var(--text)" }}>{lead.domain}</p>
             {lead.brand_name && <span className="text-xs" style={{ color: "var(--muted)" }}>{lead.brand_name}</span>}
+            {lead.contact_email && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded num" style={{ background: "#4CC38A18", color: "#4CC38A" }}>✉ contact</span>}
             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: `${meta.color}18`, color: meta.color }}>
               {meta.label}
             </span>
           </div>
           <p className="text-xs mt-0.5 truncate" style={{ color: "var(--text-2)" }}>
-            {lead.recommended_angle || [lead.category, lead.business_stage, lead.pricing_tier].filter(Boolean).join(" · ")}
+            {lead.fit_reasoning || lead.recommended_angle || [lead.category, lead.business_stage, lead.pricing_tier].filter(Boolean).join(" · ")}
           </p>
         </div>
         <div className="hidden sm:block text-right shrink-0">
-          <p className="num text-xs" style={{ color: "var(--text-2)" }}>{lead.competitors_found ?? 0} rivals indexed</p>
+          {(lead.tech_signals?.length ?? 0) > 0 && (
+            <p className="num text-[11px]" style={{ color: "#4CC38A" }}>{lead.tech_signals!.length} paid tools</p>
+          )}
           <p className="text-[11px]" style={{ color: "var(--muted)" }}>
             {[lead.category, lead.business_stage].filter(Boolean).join(" · ") || "—"}
           </p>
@@ -147,7 +171,37 @@ function LeadCard({ lead, token, onChanged }: { lead: Lead; token: string; onCha
       {/* Expanded detail */}
       {open && (
         <div className="px-4 pb-4 space-y-4" style={{ borderTop: "1px solid var(--border)" }}>
-          <div className="grid md:grid-cols-2 gap-4 pt-4">
+          {/* AI fit verdict + contact — the "should I contact them" answer */}
+          {(lead.fit_reasoning || lead.contact_email) && (
+            <div className="rounded-md p-3 mt-4" style={{ background: "var(--bg3)", border: `1px solid ${tier?.color ?? "var(--border)"}40` }}>
+              <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+                <p className="label-caps">Fit verdict{tier ? ` · ${tier.label}` : ""}</p>
+                {lead.contact_email && (
+                  <button
+                    onClick={() => copy(lead.contact_email!, "contact")}
+                    className="flex items-center gap-1 num text-[11px] font-medium px-2 py-1 rounded transition-all hover:bg-white/[.06]"
+                    style={{ color: copied === "contact" ? "#4CC38A" : "var(--text-2)", border: "1px solid var(--border)" }}
+                  >
+                    {copied === "contact" ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    {lead.contact_email}
+                  </button>
+                )}
+              </div>
+              {lead.fit_reasoning
+                ? <p className="text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>{lead.fit_reasoning}</p>
+                : <p className="text-xs" style={{ color: "var(--muted)" }}>No AI verdict recorded.</p>}
+              {(lead.tech_signals?.length ?? 0) > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <span className="text-[10px] uppercase tracking-wider" style={{ color: "var(--muted)" }}>Pays for:</span>
+                  {lead.tech_signals!.map((t, i) => (
+                    <span key={i} className="text-[10px] px-1.5 py-0.5 rounded num" style={{ background: "var(--bg-card)", color: "var(--text-2)" }}>{t}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="grid md:grid-cols-2 gap-4 pt-1">
             {/* Why this lead */}
             <div>
               <p className="label-caps mb-2">Why this lead · qualification {lead.qualification_score ?? "—"}</p>
@@ -259,15 +313,17 @@ export default function LeadsAdminPage() {
   const [data, setData] = useState<LeadsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState("");
+  const [filterTier, setFilterTier] = useState("");
   const [q, setQ] = useState("");
   const [running, setRunning] = useState(false);
   const [runResult, setRunResult] = useState("");
 
-  const load = useCallback(async (tok: string, status = "", query = "") => {
+  const load = useCallback(async (tok: string, status = "", query = "", tier = "") => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (status) params.set("status", status);
+      if (tier) params.set("fit_tier", tier);
       if (query) params.set("q", query);
       const r = await adminFetch<{ data: LeadsData }>(`/admin/leads?${params}`, tok);
       setData(r.data);
@@ -310,7 +366,7 @@ export default function LeadsAdminPage() {
       else {
         const res = r.result || {};
         setRunResult(`Run complete: ${res.created ?? 0} prospects created (${res.examined ?? 0} examined, ${res.below_threshold ?? 0} below threshold).`);
-        load(token, filterStatus, q);
+        load(token, filterStatus, q, filterTier);
       }
     } catch (e: unknown) {
       setRunResult((e as Error).message || "Run failed.");
@@ -385,7 +441,7 @@ export default function LeadsAdminPage() {
               {running ? "Running…" : "Discover 5 now"}
             </button>
             <button
-              onClick={() => load(token, filterStatus, q)}
+              onClick={() => load(token, filterStatus, q, filterTier)}
               className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-md transition-all hover:bg-white/[0.06]"
               style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
             >
@@ -421,12 +477,31 @@ export default function LeadsAdminPage() {
           ))}
         </div>
 
-        {/* Filters */}
+        {/* Fit-tier filter — the primary lens: contact Hot first */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {[["", "All fits"], ["hot", "🔥 Hot"], ["warm", "Warm"], ["cold", "Cold"], ["not_a_fit", "Not a fit"]].map(([t, label]) => {
+            const active = filterTier === t;
+            const c = t ? (TIER_META[t]?.color ?? "var(--text)") : "var(--text)";
+            const count = t ? (data?.tiers?.[t] ?? 0) : undefined;
+            return (
+              <button
+                key={t || "all"}
+                onClick={() => { setFilterTier(t); load(token, filterStatus, q, t); }}
+                className="text-xs font-semibold px-3 py-1.5 rounded-md transition-all"
+                style={{ background: active ? `${c}1a` : "transparent", border: `1px solid ${active ? c : "var(--border)"}`, color: active ? c : "var(--muted)" }}
+              >
+                {label}{count !== undefined ? ` · ${count}` : ""}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Status filters + search */}
         <div className="flex items-center gap-2 flex-wrap">
           {["", "ready", "contacted", "replied", "customer", "lost"].map((s) => (
             <button
               key={s || "all"}
-              onClick={() => { setFilterStatus(s); load(token, s, q); }}
+              onClick={() => { setFilterStatus(s); load(token, s, q, filterTier); }}
               className="text-xs font-medium px-3 py-1.5 rounded-md transition-all"
               style={{
                 background: filterStatus === s ? "var(--bg3)" : "transparent",
@@ -442,7 +517,7 @@ export default function LeadsAdminPage() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") load(token, filterStatus, q); }}
+              onKeyDown={(e) => { if (e.key === "Enter") load(token, filterStatus, q, filterTier); }}
               placeholder="Search domain or brand…"
               className="bg-transparent outline-none text-xs w-44"
               style={{ color: "var(--text)" }}
@@ -463,7 +538,7 @@ export default function LeadsAdminPage() {
         ) : (
           <div className="space-y-2">
             {data!.rows.map((lead) => (
-              <LeadCard key={lead.id} lead={lead} token={token} onChanged={() => load(token, filterStatus, q)} />
+              <LeadCard key={lead.id} lead={lead} token={token} onChanged={() => load(token, filterStatus, q, filterTier)} />
             ))}
           </div>
         )}
