@@ -17,6 +17,8 @@ class BusinessProfileRequest(BaseModel):
     target_customer: Optional[str] = None
     primary_goal: Optional[str] = None
     sells: Optional[str] = None
+    brand_traits: Optional[list] = None
+    notes: Optional[str] = None
     own_store_url: Optional[str] = None
 
 
@@ -40,7 +42,16 @@ def update_business_profile(body: BusinessProfileRequest, user_id: str = Depends
     try:
         db.table("business_profiles").upsert(fields, on_conflict="user_id").execute()
     except Exception as exc:
-        # Table missing (pre-migration) — don't block onboarding
+        # Columns added by migration 021 may not exist yet — retry without them
+        # so a richer profile still saves what the schema supports.
+        newer = ("brand_traits", "notes", "sells")
+        stripped = {k: v for k, v in fields.items() if k not in newer}
+        if len(stripped) < len(fields):
+            try:
+                db.table("business_profiles").upsert(stripped, on_conflict="user_id").execute()
+                return {"status": "ok", "partial": True}
+            except Exception:
+                pass
         import logging
         logging.getLogger(__name__).warning("business profile upsert failed for %s: %s", user_id, exc)
         return {"status": "unavailable"}

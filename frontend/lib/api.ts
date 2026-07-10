@@ -610,6 +610,8 @@ export interface BusinessProfile {
   target_customer?: string;
   primary_goal?: string;
   sells?: string;
+  brand_traits?: string[];
+  notes?: string;
   own_store_url?: string;
 }
 
