@@ -30,6 +30,7 @@ import ComparisonTab from "@/components/competitors/ComparisonTab";
 import { AskStoreScout } from "@/components/competitors/AskStoreScout";
 import { ResearchProgress } from "@/components/competitors/ResearchProgress";
 import { MarketBenchmarks } from "@/components/competitors/MarketBenchmarks";
+import { positioning as derivePositioning, promotionFrequency, launchVelocity, assortmentBreadth, type StrategicMetric } from "@/lib/market";
 import { ProAnalysis, type ProAnalysisData } from "@/components/competitors/ProAnalysis";
 import { QuickWins } from "@/components/competitors/QuickWins";
 import UpgradeModal from "@/components/UpgradeModal";
@@ -971,6 +972,36 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
             {tab === "overview" && (
               <div className="space-y-6 fade-up">
 
+                {/* Strategic read — what the numbers MEAN, before the numbers */}
+                {(() => {
+                  const new30d = (launch as Record<string, Record<string, Record<string, number>>>)?.launch_counts?.["30d"]?.count;
+                  const reads: StrategicMetric[] = [
+                    derivePositioning(pricing.median as number),
+                    launchVelocity(typeof new30d === "number" ? new30d : undefined),
+                    promotionFrequency(discounts.discounted_pct as number),
+                    assortmentBreadth(catalog.total_products as number),
+                  ].filter((m): m is StrategicMetric => m != null);
+                  const toneColor: Record<string, string> = { hot: "#FF7A45", warm: "#FFB224", neutral: "var(--muted)", cool: "#7DB8C9" };
+                  if (reads.length === 0) return null;
+                  return (
+                    <div className="rounded-md p-3.5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                      <p className="tick-label mb-2.5">Strategic read · how this store plays</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {reads.map((m) => (
+                          <div key={m.label}>
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: toneColor[m.tone] }} />
+                              <p className="text-sm font-bold leading-tight" style={{ color: "var(--text)" }}>{m.value}</p>
+                            </div>
+                            <p className="text-[10px] uppercase tracking-wider mt-1" style={{ color: "var(--muted)" }}>{m.label}</p>
+                            {m.detail && <p className="text-[11px] mt-0.5" style={{ color: "var(--muted)", opacity: .8 }}>{m.detail}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {/* KPI cards with trend deltas */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <KpiCard
@@ -1027,7 +1058,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                       className="flex items-center justify-between px-5 py-3.5"
                       style={{ background: "var(--bg3)", borderBottom: "1px solid var(--border)" }}
                     >
-                      <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Latest Signals</h3>
+                      <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>Strategic Signals</h3>
                       <button
                         onClick={() => setTab("changes")}
                         className="text-xs font-medium hover:underline"
