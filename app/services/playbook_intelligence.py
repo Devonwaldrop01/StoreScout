@@ -83,6 +83,52 @@ def _find_price_gap(pricing: dict) -> Optional[dict]:
 
 # ── snapshot intelligence — takes ALL competitors at once ────────────────────
 
+_PRIO_NUM = {"high": 90, "medium": 60, "low": 35}
+_TF_SECTION = {"today": "act_now", "this week": "right_now", "this month": "this_week"}
+
+
+def _rec(id, competitor_id, hostname, category, title, what_happened, why_it_matters,
+         interpretation, objective, execution_paths, expected_outcome, evidence,
+         confidence="verified", priority="medium", effort="1 hour", timeframe="this week") -> dict:
+    """Build a strategy-first recommendation in the Playbook-2.0 schema
+    (deterministic template fallback — instant, grounded, no channel-first)."""
+    return {
+        "id": id,
+        "section": _TF_SECTION.get(timeframe, "right_now"),
+        "priority": _PRIO_NUM.get(priority, 60),
+        "competitor_id": competitor_id,
+        "hostname": hostname,
+        "source": "snapshot",
+        # strategy-first
+        "category": category,
+        "title": title,
+        "what_happened": what_happened,
+        "why_it_matters": why_it_matters,
+        "interpretation": interpretation,
+        "objective": objective,
+        "execution_paths": execution_paths,
+        "expected_outcome": expected_outcome,
+        "evidence": evidence,
+        "confidence": confidence,
+        "priority_label": priority,
+        "effort": effort,
+        "timeframe": timeframe,
+        # legacy-compat
+        "headline": title,
+        "action": (execution_paths[0]["action"] if execution_paths else objective),
+        "deadline": timeframe,
+        "type": category.lower(),
+        "tab": "overview",
+        "detail": {
+            "steps": [f"{ep['surface']}: {ep['action']}" for ep in execution_paths],
+            "why": why_it_matters,
+            "outcome": expected_outcome,
+            "competitors": [{"hostname": hostname, "metric": evidence[0] if evidence else ""}],
+        },
+        "draft_asset": None,
+    }
+
+
 def snapshot_intelligence(competitors_data: list[dict]) -> list[dict]:
     """
     Analyse all competitors' snapshots together and return synthesised plays.
@@ -143,542 +189,317 @@ def snapshot_intelligence(competitors_data: list[dict]) -> list[dict]:
         if median >= 90:
             premium_comps.append(entry)
 
-    # ── 1. Discount synthesis ─────────────────────────────────────────────────
+    recs: list[dict] = []
+
+    # ── Discount posture — protect margin when the market races to the bottom ──
     if len(heavy_discounters) >= 2:
+        names = ", ".join(d["hostname"] for d in heavy_discounters[:3])
         avg_promo = int(sum(d["promo_pct"] for d in heavy_discounters) / len(heavy_discounters))
-        names_2   = [d["hostname"] for d in heavy_discounters[:2]]
-        rest_n    = len(heavy_discounters) - 2
-        names_str = f"{names_2[0]}, {names_2[1]}, and {rest_n} others" if rest_n > 0 else " and ".join(names_2)
-
-        comp_rows = [
-            {"hostname": d["hostname"],
-             "metric": f"{d['promo_pct']}% on sale · avg {d['avg_disc']:.0f}% off"}
-            for d in heavy_discounters
-        ]
-        brand_list = ", ".join(d["hostname"].split(".")[0].title() for d in heavy_discounters[:3])
-
-        plays.append(_play(
+        recs.append(_rec(
             id="synth-discount-industry",
-            section="right_now",
-            priority=72,
             competitor_id=heavy_discounters[0]["comp_id"],
             hostname=f"{len(heavy_discounters)} competitors",
-            headline=f"{len(heavy_discounters)} of your competitors are discounting right now — averaging {avg_promo}% of catalog on sale",
-            action=(
-                f"{names_str} are all running sales simultaneously. "
-                f"When the whole market discounts, full-price is the differentiator. "
-                f"{names_str} are all running sales simultaneously. "
-                f"When the whole market discounts, full-price positioning is the differentiator. "
-                f"Open Meta Ads Manager, duplicate your best ad set, add their brand names as Interests "
-                f"in the audience, and test 'Still full price. Still worth it.' as a headline copy angle. "
-                f"Run $10/day for 5 days and compare CTR to your control."
-            ),
-            deadline="this week",
-            play_type="positioning",
-            source="snapshot",
-            tab="discounts",
-            detail={
-                "competitors": comp_rows,
-                "steps": [
-                    "Open Meta Ads Manager → Campaigns → find your best-performing campaign (sort by CPA or CTR)",
-                    "Go to the Ad Set level and click Duplicate",
-                    f"In the new ad set, open Detailed Targeting → search each of these brand names: {brand_list}",
-                    "If their brand appears as an Interest, add it. If not, add their product categories as interests instead (e.g. 'activewear', 'yoga pants' — whatever category they're in)",
-                    "Go to the Ad level → duplicate your best creative → edit the headline",
-                    "Test headline copy: 'Still full price. Still worth it.' or 'No sale. No games. Just [your product].'",
-                    "Set daily budget: $10/day",
-                    "Run for 5 days, then compare CTR % to your original ad set",
-                    "If CTR is >15% higher — save this ad set. Reactivate it every time these brands run a sale",
-                ],
-                "why": (
-                    f"When {len(heavy_discounters)} competitors discount simultaneously, their shared audience "
-                    f"experiences deal fatigue. Full-price positioning stands out more in this environment, not less. "
-                    f"The contrast is doing the work for you."
-                ),
-                "outcome": (
-                    "A CTR lift of >15% confirms the full-price angle resonates with their audience. "
-                    "If it works, save this ad set and reactivate it every time these brands run a sale."
-                ),
-            },
+            category="Competitive Defense",
+            title="Hold the full-price lane while rivals train their customers to wait for discounts",
+            what_happened=f"{len(heavy_discounters)} competitors ({names}) are discounting at once — averaging {avg_promo}% of catalog on sale.",
+            why_it_matters="When a whole niche discounts simultaneously, shoppers develop deal fatigue and margin erodes across the market. Full price becomes a differentiator, not a disadvantage.",
+            interpretation="They're competing on price — a race that conditions their own customers to wait for markdowns and compresses everyone's margin. It's a weakness you can exploit, not match.",
+            objective="Reduce discount dependence and protect margin",
+            execution_paths=[
+                {"surface": "Homepage", "action": "Lead with quality, guarantee, and craftsmanship messaging that justifies full price instead of matching their sale."},
+                {"surface": "Merchandising", "action": "Raise perceived value with a bundle or a bonus at full price rather than cutting the price itself."},
+                {"surface": "Email", "action": "Tell your list plainly why you don't chase discounts — consistent pricing signals confidence and quality."},
+                {"surface": "Product Pages", "action": "Add trust signals (materials, warranty, reviews) so the price feels earned next to their markdowns."},
+            ],
+            expected_outcome="You protect margin and premium perception while competitors erode theirs.",
+            evidence=[f"{len(heavy_discounters)} competitors ≥45% of catalog on sale", f"avg {avg_promo}% on sale"],
+            confidence="verified", priority="high", effort="half day", timeframe="this week",
         ))
     elif len(heavy_discounters) == 1:
         d = heavy_discounters[0]
-        plays.append(_play(
+        recs.append(_rec(
             id=f"snap-discount-{d['comp_id']}",
-            section="right_now",
-            priority=65,
-            competitor_id=d["comp_id"],
-            hostname=d["hostname"],
-            headline=f"{d['hostname']} has {d['promo_pct']}% of their catalog on sale right now",
-            action=(
-                f"Open {d['hostname']}'s site and find their top 3 discounted products. "
-                f"Check if you carry anything similar. If yes — hold your price and update your listing "
-                f"to lead with a value angle that isn't price. If no — their shoppers are comparison searching. "
-                f"Run a $10 Google Shopping campaign on their exact product names this week."
-            ),
-            deadline="this week",
-            play_type="positioning",
-            source="snapshot",
-            tab="discounts",
-            detail={
-                "competitors": [{"hostname": d["hostname"], "metric": f"{d['promo_pct']}% on sale · avg {d['avg_disc']:.0f}% off"}],
-                "steps": [
-                    f"Go to {d['hostname']} and sort by 'On Sale' or 'Discount'",
-                    "Find the top 3 discounted products by traffic or positioning (usually homepage or nav featured)",
-                    "Check: do you carry anything similar in your catalog?",
-                    "If YES: go to that product page in your store → add social proof (reviews, images, guarantee) to justify full price",
-                    "If NO: open Google Ads → Shopping campaigns → add those exact product names as search terms",
-                    "Budget: $10/day, 5-day test. Measure clicks and cost per click vs your other Shopping campaigns",
-                ],
-                "why": f"{d['hostname']} training their customers to wait for discounts creates a comparison-shopping window. Shoppers who search their product names are still deciding.",
-                "outcome": "Even a small Google Shopping test captures in-market shoppers who searched their product and are now comparing alternatives.",
-            },
+            competitor_id=d["comp_id"], hostname=d["hostname"],
+            category="Pricing",
+            title=f"Use {d['hostname'].split('.')[0].title()}'s heavy discounting to look like the confident choice",
+            what_happened=f"{d['hostname']} has {d['promo_pct']}% of its catalog on sale (avg {d['avg_disc']:.0f}% off).",
+            why_it_matters="A near-permanent sale teaches their buyers to never pay full price — quietly training away their own margin and brand equity.",
+            interpretation="This is a demand or inventory problem they're solving with price. Their discount is your opening to own the quality position.",
+            objective="Win the full-price lane in your category",
+            execution_paths=[
+                {"surface": "Product Pages", "action": "On products you both carry, hold price and strengthen the value story instead of matching."},
+                {"surface": "Homepage", "action": "Make 'always fair pricing, never a fake sale' a visible promise."},
+                {"surface": "Email", "action": "Contrast your steady pricing with the discount treadmill — without naming them."},
+            ],
+            expected_outcome="You capture price-shoppers who've stopped trusting their 'sales' while keeping margin intact.",
+            evidence=[f"{d['promo_pct']}% on sale", f"avg {d['avg_disc']:.0f}% off"],
+            confidence="verified", priority="medium", effort="1 hour", timeframe="this week",
         ))
 
-    # ── 2. Slow launch → own new search ──────────────────────────────────────
-    if slow_launchers:
-        s = slow_launchers[0]
-        others = len(slow_launchers) - 1
-        others_note = f" ({others} other competitor{'s' if others > 1 else ''} also in a quiet phase)" if others else ""
-        all_slow = [{"hostname": sl["hostname"], "metric": "0 products launched in 30 days"} for sl in slow_launchers]
-        plays.append(_play(
-            id=f"snap-slowlaunch-{s['comp_id']}",
-            section="right_now",
-            priority=60,
-            competitor_id=s["comp_id"],
-            hostname=s["hostname"],
-            headline=f"{s['hostname']} hasn't launched a new product in 30+ days{others_note}",
-            action=(
-                f"Open Google and search their main product category — check the Shopping tab "
-                f"and filter to 'Past 90 days'. If their new listings are absent, "
-                f"there's organic search demand with no fresh competition. "
-                f"A new listing with original photos and a solid title can rank in 2–4 weeks."
-            ),
-            deadline="this week",
-            play_type="catalog",
-            source="snapshot",
-            tab="launches",
-            detail={
-                "competitors": all_slow,
-                "steps": [
-                    "Go to google.com → Shopping tab (or google.com/shopping)",
-                    f"Search {s['hostname']}'s core product type — use a category term, not their brand name (e.g. 'resistance bands' not 'brand X bands')",
-                    "Click Tools → Any time → Past 90 days",
-                    f"Count how many Shopping results are from {s['hostname']} vs other brands",
-                    "If their listings are thin, dated, or absent: you have a recency opening",
-                    "Open your Shopify admin → Products → pick your most relevant product for this category",
-                    "Rewrite the SEO title to lead with the category term you searched (Shopify admin → Edit website SEO)",
-                    "Submit your updated product feed to Google Merchant Center — new listings with original content typically appear in Shopping results in 2–4 weeks",
-                ],
-                "why": (
-                    f"New product launches from competitors create Google Shopping ranking pressure. "
-                    f"When they stop launching, that pressure lifts. A fresh listing from you has "
-                    f"less recency competition and can move up faster."
-                ),
-                "outcome": "A well-titled listing with original images can rank in Shopping results within 2–4 weeks with no ad spend needed.",
-            },
-        ))
-
-    # ── 3. Fast launch → research their bets ─────────────────────────────────
+    # ── Launch cadence — freshness as a retention lever ──
     if fast_launchers:
-        f = fast_launchers[0]
-        others = len(fast_launchers) - 1
-        others_note = f" (and {others} other{'s' if others > 1 else ''} pushing hard)" if others else ""
-        all_fast = [{"hostname": fl["hostname"], "metric": f"{fl.get('launch_count', '?')} products launched this month"} for fl in fast_launchers]
-        plays.append(_play(
-            id=f"snap-fastlaunch-{f['comp_id']}",
-            section="right_now",
-            priority=65,
-            competitor_id=f["comp_id"],
-            hostname=f["hostname"],
-            headline=f"{f['hostname']} launched {f.get('launch_count', 'many')} products this month{others_note}",
-            action=(
-                f"Go to {f['hostname']} and filter or sort by newest products right now. "
-                f"Find any that are: full price, have 8+ variants, and outside their usual range — "
-                f"those are their conviction bets. Research those categories for sourcing "
-                f"before they build organic momentum over the next 4–6 weeks."
-            ),
-            deadline="right now",
-            play_type="catalog",
-            source="snapshot",
-            tab="launches",
-            detail={
-                "competitors": all_fast,
-                "steps": [
-                    f"Go to {f['hostname']} → find their 'New Arrivals' or 'New In' nav link, or add ?sort_by=created-descending to their main collection URL",
-                    "Look at the last 10 products added",
-                    "For each product, check: (1) Is it full price, not discounted? (2) How many variants? (3) Is it in their usual category or something new?",
-                    "Make a note of any that are: full price + 8+ variants + different from their usual range",
-                    "Those are their conviction bets — they invested in depth because they believe in them",
-                    "Search that product category on Alibaba or your sourcing platform with the price band in mind",
-                    "Set a reminder for 14 days: go back and check if those products are still at full price",
-                    "Still full price in 14 days = validated demand. That's your sourcing window.",
-                ],
-                "why": (
-                    "Established brands test products before investing in variants and photography. "
-                    "When they launch with deep variants and full price, they have internal data that the product works. "
-                    "Getting into that category early compounds over the next 4–6 weeks as their product gains reviews."
-                ),
-                "outcome": "If their product is still at full price in 2 weeks, you have category validation that no market research tool can give you — real sales data from a real competitor.",
-            },
+        f = max(fast_launchers, key=lambda x: x.get("launch_count", 0))
+        recs.append(_rec(
+            id=f"snap-launch-{f['comp_id']}",
+            competitor_id=f["comp_id"], hostname=f["hostname"],
+            category="Product Strategy",
+            title="Match their launch momentum with a cadence you can actually sustain",
+            what_happened=f"{f['hostname']} shipped {f.get('launch_count', 0)} new products in the last 30 days.",
+            why_it_matters="Constant freshness keeps a brand top-of-mind with repeat visitors and gives email/social a reason to fire — it compounds into retention.",
+            interpretation="They're using velocity to stay relevant. You don't need to out-launch them; you need a rhythm your audience can rely on.",
+            objective="Stay fresh and top-of-mind without over-extending",
+            execution_paths=[
+                {"surface": "Collections", "action": "Stand up a 'Just In' collection and rotate it on a fixed schedule (e.g. every 2 weeks)."},
+                {"surface": "Email", "action": "Announce each drop to your list — a predictable cadence beats sporadic volume."},
+                {"surface": "Merchandising", "action": "Rotate your homepage hero with each launch so returning visitors always see something new."},
+                {"surface": "Content", "action": "Post the story behind each launch — freshness plus narrative outperforms freshness alone."},
+            ],
+            expected_outcome="Repeat visitors see a living store and a reason to come back, without you burning out on production.",
+            evidence=[f"{f.get('launch_count', 0)} launches in 30d"],
+            confidence="verified", priority="medium", effort="half day", timeframe="this month",
+        ))
+    elif slow_launchers and len(slow_launchers) >= 2:
+        s = slow_launchers[0]
+        recs.append(_rec(
+            id="snap-launch-quiet",
+            competitor_id=s["comp_id"], hostname=f"{len(slow_launchers)} competitors",
+            category="Market Expansion",
+            title="Competitors have gone quiet on launches — an opening to own attention in the niche",
+            what_happened=f"{len(slow_launchers)} tracked competitors have launched little or nothing new in 30 days.",
+            why_it_matters="When rivals stall, the customers browsing the category still want newness. Whoever shows up with fresh product captures that attention.",
+            interpretation="A lull in the market is a demand vacuum. Momentum right now costs less to win than it will once they wake up.",
+            objective="Capture demand while attention is uncontested",
+            execution_paths=[
+                {"surface": "Product Launches", "action": "Push your next launch forward and market it hard while the category is quiet."},
+                {"surface": "SEO", "action": "Publish category/'new for [season]' content — you'll rank while competitors aren't producing."},
+                {"surface": "Collections", "action": "Feature a prominent 'New Arrivals' set to signal you're the active brand."},
+            ],
+            expected_outcome="You become the brand that's clearly moving while others coast — winning share of attention cheaply.",
+            evidence=[f"{len(slow_launchers)} competitors stalled on launches"],
+            confidence="estimated", priority="medium", effort="half day", timeframe="this month",
         ))
 
-    # ── 4. Price band gap ─────────────────────────────────────────────────────
-    for comp in price_gap_comps[:2]:
-        plays.append(_play(
-            id=f"snap-pricegap-{comp['comp_id']}",
-            section="this_week",
-            priority=62,
-            competitor_id=comp["comp_id"],
-            hostname=comp["hostname"],
-            headline=f"{comp['hostname']} has almost nothing priced in the {comp['band']} range",
-            action=(
-                f"If you have a product that could sit in the {comp['band']} range, "
-                f"move its price there and push it in your ads this week — you're in uncontested territory. "
-                f"No product? Search Alibaba with {comp['band']} as your cost ceiling and add it to your sourcing list."
-            ),
-            deadline="this week",
-            play_type="pricing",
-            source="snapshot",
-            tab="pricing",
-            detail={
-                "competitors": [{"hostname": comp["hostname"], "metric": f"near-zero products in {comp['band']} range"}],
-                "steps": [
-                    f"Check your current catalog: do you have any product priced in the {comp['band']} range?",
-                    "If YES: push that product to the top of your store homepage and ads this week — you own that price point",
-                    f"If NO: open Alibaba.com and search '[their product category]'",
-                    f"Filter by the cost range that would allow you to retail in the {comp['band']} band (usually 3–5x cost)",
-                    "Look for verified suppliers with MOQ you can handle (start with 50–100 units to test)",
-                    "Order samples if unit cost fits your margin target",
-                    "Add this as a sourcing priority — price band gaps close when competitors eventually fill them",
-                ],
-                "why": (
-                    f"Their customers are already spending in the {comp['band']} range — just not with them. "
-                    f"This is captured demand, not created demand. You're not convincing anyone to spend money; "
-                    f"you're just showing up where they're already looking."
-                ),
-                "outcome": f"A product in the {comp['band']} range competes with zero resistance from {comp['hostname']} specifically. You're not fighting for their customers — they're looking for alternatives.",
-            },
+    # ── Price-band white space ──
+    if price_gap_comps:
+        g = price_gap_comps[0]
+        recs.append(_rec(
+            id=f"snap-gap-{g['comp_id']}",
+            competitor_id=g["comp_id"], hostname=g["hostname"],
+            category="Catalog",
+            title=f"Move into the {g['band']} price band they've left thin",
+            what_happened=f"{g['hostname']} concentrates its catalog away from the {g['band']} band, leaving it underserved.",
+            why_it_matters="A price band a competitor ignores is demand with no strong answer — the cheapest place to win a sale is where no one is really competing.",
+            interpretation="Their pricing is clustered elsewhere by choice or constraint. That gap is assortment white space you can own.",
+            objective="Expand assortment into an uncontested price band",
+            execution_paths=[
+                {"surface": "Catalog", "action": f"Introduce or reposition 2-3 products squarely in the {g['band']} band."},
+                {"surface": "Collections", "action": f"Create a curated collection anchored on the {g['band']} price point."},
+                {"surface": "Merchandising", "action": "Feature these on category pages so shoppers filtering by price find you first."},
+            ],
+            expected_outcome=f"You capture buyers shopping the {g['band']} range who currently have no strong option.",
+            evidence=[f"white space in {g['band']} band"],
+            confidence="estimated", priority="medium", effort="several days", timeframe="this month",
         ))
 
-    # ── 5. Premium price → entry point ───────────────────────────────────────
-    if premium_comps:
+    # ── Premium rival → accessible entry point ──
+    if premium_comps and not price_gap_comps:
         p = premium_comps[0]
-        entry_low  = max(29, int(p["median"] * 0.35))
-        entry_high = int(p["median"] * 0.55)
-        plays.append(_play(
+        entry_low, entry_high = int(p["median"] * 0.35), int(p["median"] * 0.55)
+        recs.append(_rec(
             id=f"snap-premium-{p['comp_id']}",
-            section="this_week",
-            priority=50,
-            competitor_id=p["comp_id"],
-            hostname=p["hostname"],
-            headline=f"{p['hostname']}'s median price is ${p['median']:.0f} — their entry-level is a gap you can own",
-            action=(
-                f"Go to {p['hostname']}'s site and look at their cheapest in-stock products. "
-                f"A ${entry_low}–${entry_high} product from you in the same category "
-                f"gets discovered by their audience before they're ready to spend ${p['median']:.0f}."
-            ),
-            deadline="this week",
-            play_type="pricing",
-            source="snapshot",
-            tab="pricing",
-            detail={
-                "competitors": [{"hostname": p["hostname"], "metric": f"${p['median']:.0f} median price"}],
-                "steps": [
-                    f"Go to {p['hostname']}'s site and sort by 'Price: low to high'",
-                    "Look at their cheapest in-stock, non-clearance products — that's their entry point",
-                    f"Identify what category those entry-level products are in",
-                    f"Check your catalog: do you have anything priced ${entry_low}–${entry_high} in that category?",
-                    "If YES: push that product in your Google Shopping and Meta ads targeting their audience",
-                    "If NO: add a ${entry_low}–${entry_high} product in that category to your sourcing pipeline",
-                    "The goal is to be the first brand their audience discovers before they're ready to spend ${:.0f}".format(p["median"]),
-                ],
-                "why": (
-                    f"Premium brands like {p['hostname']} (${p['median']:.0f} median) have an audience of people "
-                    f"who can't afford them yet. Those shoppers are actively looking for accessible alternatives "
-                    f"in the same category. A ${entry_low}–${entry_high} product from you captures that "
-                    f"consideration set and builds brand familiarity before they graduate to higher price points."
-                ),
-                "outcome": f"An entry-level product at ${entry_low}–${entry_high} attracts {p['hostname']}'s aspirational audience. Once they buy from you, they're in your funnel — not theirs.",
-            },
+            competitor_id=p["comp_id"], hostname=p["hostname"],
+            category="Market Expansion",
+            title=f"Capture {p['hostname'].split('.')[0].title()}'s aspirational audience with an accessible entry product",
+            what_happened=f"{p['hostname']} sits at a ${p['median']:.0f} median — premium positioning.",
+            why_it_matters="Premium brands have a large audience of shoppers who admire them but can't buy yet. Those people are actively seeking accessible alternatives in the same category.",
+            interpretation="Their price is a moat that also locks out their own aspirational demand. An entry product at a fraction of their price scoops up that consideration set.",
+            objective="Capture demand priced out of a premium rival",
+            execution_paths=[
+                {"surface": "Catalog", "action": f"Offer an entry product at ${entry_low}-${entry_high} that echoes the premium look at an accessible price."},
+                {"surface": "Product Pages", "action": "Position it as 'the accessible way in' — same category, honest price."},
+                {"surface": "SEO", "action": f"Target '{p['hostname'].split('.')[0]} alternative' and 'affordable [category]' queries."},
+            ],
+            expected_outcome="You bring their aspirational shoppers into YOUR funnel before they graduate to higher price points.",
+            evidence=[f"premium rival at ${p['median']:.0f} median"],
+            confidence="estimated", priority="low", effort="several days", timeframe="this month",
         ))
 
-    return plays
+    return recs
+
 
 
 # ── change event plays ────────────────────────────────────────────────────────
 
 def change_event_play(change: dict, hostname: str, comp_id: str) -> Optional[dict]:
+    """Reactive strategy-first recommendation from a single competitor change
+    event. Strategy is the recommendation; execution paths are tool-agnostic
+    options — never 'run a Meta ad'."""
     ct    = change.get("change_type", "")
     sev   = change.get("severity", "info")
     delta = float(change.get("delta_pct") or 0)
-    title = (change.get("product_title") or "")[:40]
+    prod  = (change.get("product_title") or "").strip()[:60]
     old_v = change.get("old_value") or {}
     new_v = change.get("new_value") or {}
     count = old_v.get("count") or new_v.get("count") or "several"
+    brand = hostname.split(".")[0].title()
 
     if sev == "info" and ct not in ("discount_end", "availability_change"):
         return None
 
-    from datetime import datetime, timezone, timedelta
-    detected  = change.get("detected_at", "")
-    hours_ago = 0.0
+    from datetime import datetime, timezone
+    detected = change.get("detected_at", "")
+    hours_ago = 999.0
     if detected:
         try:
             dt = datetime.fromisoformat(detected.replace("Z", "+00:00"))
             hours_ago = (datetime.now(timezone.utc) - dt).total_seconds() / 3600
         except Exception:
             pass
+    timeframe = "today" if hours_ago < 48 else "this week"
 
-    deadline = "today" if hours_ago < 24 else ("within 48h" if hours_ago < 48 else "this week")
-    base = dict(competitor_id=comp_id, hostname=hostname, source="change_event", tab="changes")
+    def mk(cid_suffix, category, title, what, why, interp, objective, paths, outcome,
+           priority="medium", effort="1 hour", confidence="verified"):
+        return _rec(
+            id=f"change-{cid_suffix}-{change.get('id', '')}",
+            competitor_id=comp_id, hostname=hostname, category=category, title=title,
+            what_happened=what, why_it_matters=why, interpretation=interp, objective=objective,
+            execution_paths=paths, expected_outcome=outcome,
+            evidence=[f"{ct.replace('_',' ')}" + (f" · {prod}" if prod else "") + (f" · {delta:+.0f}%" if delta else "")],
+            confidence=confidence, priority=priority, effort=effort, timeframe=timeframe,
+        )
 
+    # ── Competitor flash sale / deep price drop ──
     if ct == "price_change" and delta <= -15 and sev == "critical":
-        return _play(
-            id=f"change-flash-{change['id']}", section="act_now", priority=95,
-            headline=f"{hostname} flash sale — {abs(delta):.0f}% off",
-            action=(
-                f"Flash sales typically run 48–72h. Queue an email to your list in the next 6 hours. "
-                f"Even 'our prices didn't change' captures their shoppers who are actively comparing. "
-                f"If running a counter-offer, keep it time-limited to match their urgency."
-            ),
-            deadline="within 48h", play_type="change", **base, tab="pricing",
-            detail={
-                "steps": [
-                    f"Go to {hostname} right now and confirm the sale is live",
-                    "Note which categories and price points are discounted",
-                    "Open your email tool and create a new campaign — target your full list",
-                    "Subject line options: 'Still full price.' / 'No flash needed.' / 'Our prices haven't changed'",
-                    "Body: 1-2 sentences, your product, in-stock, no games. CTA to your site.",
-                    "Send within the next 6 hours — flash sale windows move fast",
-                    "Optional: run a $15/day Meta ad to their audience with the same 'no flash needed' angle",
-                ],
-                "why": f"Their shoppers are in a buying mindset right now and actively comparing. The 48–72h flash sale window is the highest-intent moment for competitor audiences.",
-                "outcome": "Email opens during competitor sale windows are typically 20–30% higher than normal. Even a 2% conversion on your list is meaningful.",
-            },
-        )
+        return mk("flash", "Competitive Defense",
+            f"{brand} just cut prices {abs(delta):.0f}% — meet the moment without joining the race",
+            f"{hostname} dropped price {abs(delta):.0f}%" + (f" on {prod}" if prod else "") + " — likely a short flash window.",
+            "Their shoppers are in a high-intent, comparing mindset right now. This is the moment to be visible with a confident answer, not to panic-discount.",
+            "A short, deep cut usually signals inventory pressure — a reason to hold your position, not mirror it.",
+            "Capture their comparison shoppers while protecting your margin",
+            [
+                {"surface": "Email", "action": "Send a timely note to your list — steady pricing, in stock, no games. You don't need a sale to win the comparison."},
+                {"surface": "Homepage", "action": "Surface your best sellers and guarantees so comparers landing on you see value immediately."},
+                {"surface": "Pricing", "action": "If you must respond, use a time-boxed bundle rather than an across-the-board cut."},
+            ],
+            "You convert their in-market shoppers without training your own customers to wait for discounts.",
+            priority="high", effort="1 hour")
 
+    # ── Competitor raised prices ──
     if ct == "price_change" and delta >= 10:
-        return _play(
-            id=f"change-priceinc-{change['id']}", section="act_now", priority=85,
-            headline=f"{hostname} raised prices {delta:.0f}% on {title or 'key products'}",
-            action=(
-                f"Their price-sensitive customers are comparison shopping right now. "
-                f"Pull up Google Ads or Meta — search their brand and see if they're running ads. "
-                f"'[Their product] just got more expensive. Ours didn't.' Even $20 this week captures active comparers."
-            ),
-            deadline="today", play_type="change", **base, tab="pricing",
-            detail={
-                "steps": [
-                    f"Go to {hostname} and verify the price increase on {title or 'their products'}",
-                    "Note the old vs new price — that delta is your headline",
-                    "Open Google Ads → find or create a Search campaign",
-                    f"Add keyword: '{hostname.split('.')[0]} {title or 'product'}' (exact match)",
-                    "Ad headline: '[Their product name] just went up in price. Ours hasn't.' — use your actual price in the ad body",
-                    "Budget: $15–20/day for 7 days",
-                    f"Also try Meta: duplicate your best ad set → in Detailed Targeting, search '{hostname.split('.')[0]}' — if it appears as an Interest, add it; otherwise add their product category as an interest",
-                    "Measure clicks and conversions for 7 days before deciding to scale",
-                ],
-                "why": f"Price increases create a 1–2 week window where their loyal customers reconsider. People who were loyal because of value are suddenly in the market.",
-                "outcome": "Price comparison searches spike for 1–2 weeks after a competitor increase. A targeted campaign in this window captures high-intent shoppers at peak decision time.",
-            },
-        )
+        return mk("priceinc", "Pricing",
+            f"{brand} raised prices {delta:.0f}% — become the better-value choice in the comparison",
+            f"{hostname} increased price {delta:.0f}%" + (f" on {prod}" if prod else "") + ".",
+            "A price increase sends their price-sensitive customers shopping — and you're the alternative they'll find.",
+            "They're prioritizing margin over volume. That trade-off opens a value gap you can occupy.",
+            "Win their price-sensitive shoppers",
+            [
+                {"surface": "Product Pages", "action": "On the equivalent products, make your (now-relatively-lower) price and value explicit."},
+                {"surface": "SEO", "action": f"Publish a '{brand} alternative' / comparison page targeting shoppers reacting to the increase."},
+                {"surface": "Email", "action": "Remind your list of your steady, fair pricing — quietly contrasting the market."},
+            ],
+            "You capture the demand their increase pushed out the door.",
+            priority="high")
 
+    # ── Competitor cut price modestly ──
     if ct == "price_change" and delta < -5:
-        return _play(
-            id=f"change-pricedrop-{change['id']}", section="act_now", priority=78,
-            headline=f"{hostname} dropped prices {abs(delta):.0f}% on {title or 'products'}",
-            action=(
-                f"Check if their discounted products overlap with yours. Go to their site and find the exact SKUs. "
-                f"If you have similar products — don't match the price. Lead with value that isn't price: "
-                f"better materials, warranty, reviews. Price wars on Shopify rarely win."
-            ),
-            deadline="today", play_type="change", **base, tab="pricing",
-            detail={
-                "steps": [
-                    f"Go to {hostname} and find the exact products that dropped",
-                    "Search those product names or categories in your own catalog",
-                    "If you have similar products: do NOT lower your price to match",
-                    "Instead: update your product page to lead with differentiation — materials, warranty, reviews, photos",
-                    "Add a comparison table if you have one ('Us vs them')",
-                    "If you don't have similar products: monitor for 2 weeks to see if the drop is permanent or a test",
-                ],
-                "why": "Matching a competitor's price cut signals to customers that yours was overpriced. Reinforcing your value proposition converts better than racing to the bottom.",
-                "outcome": "Customers who choose you at full price after comparing are more loyal and have higher LTV than discount buyers.",
-            },
-        )
+        return mk("pricecut", "Pricing",
+            f"{brand} trimmed prices {abs(delta):.0f}% — decide deliberately whether to hold or differentiate",
+            f"{hostname} lowered price {abs(delta):.0f}%" + (f" on {prod}" if prod else "") + ".",
+            "Small cuts test elasticity. Reflexively matching erodes your margin for no strategic gain.",
+            "They may be probing price sensitivity. Your best answer is usually value, not a matching cut.",
+            "Protect margin while staying competitive",
+            [
+                {"surface": "Product Pages", "action": "Reinforce why your equivalent product is worth its price — reviews, materials, service."},
+                {"surface": "Merchandising", "action": "Add value with a bundle instead of dropping price."},
+            ],
+            "You stay competitive on perceived value without giving up margin.",
+            priority="medium")
 
     if ct == "bulk_price_change":
-        return _play(
-            id=f"change-bulkprice-{change['id']}", section="act_now", priority=70,
-            headline=f"{hostname} repriced {count} products",
-            action=(
-                f"Open their site and sort by Price: low to high. Scan the first two pages — what changed? "
-                f"If they went up, you have room to move yours. If they went down across the board, they may be clearing a category."
-            ),
-            deadline="this week", play_type="change", **base, tab="pricing",
-            detail={
-                "steps": [
-                    f"Go to {hostname} → sort by Price: low to high",
-                    "Scan the first 2 pages — look for products that now sit at odd price points (signs of adjustment)",
-                    "Did prices go up or down overall?",
-                    "If UP: check if any overlap your catalog — you now have room to raise too without looking expensive",
-                    "If DOWN across the board: they may be clearing out a category. Watch for what replaces it in 2–3 weeks",
-                    "Take a screenshot for your records so you can compare at next scan",
-                ],
-                "why": "Bulk repricing is a strategic signal — it means they reviewed their entire pricing model, not just one product. Understanding the direction tells you where they're going.",
-                "outcome": "Knowing their new pricing structure lets you position yours intentionally, not reactively.",
-            },
-        )
+        return mk("bulkprice", "Competitive Defense",
+            f"{brand} repriced across its catalog — re-check where you now stand",
+            f"{hostname} changed prices on {count} products at once.",
+            "A catalog-wide reprice resets the competitive map — your relative position just moved, for better or worse.",
+            "Broad repricing is a strategy shift, not a one-off. It's worth a deliberate response.",
+            "Re-establish your price positioning",
+            [
+                {"surface": "Pricing", "action": "Audit your prices against theirs on your top overlapping products and decide where to hold vs adjust."},
+                {"surface": "Collections", "action": "Re-merchandise so your strongest value propositions lead."},
+            ],
+            "Your pricing stays intentional relative to a competitor that just shifted the board.",
+            priority="medium", effort="half day")
 
-    if ct == "new_product":
-        return _play(
-            id=f"change-newprod-{change['id']}", section="act_now", priority=65,
-            headline=f"{hostname} launched: {title}" if title else f"{hostname} launched a new product",
-            action=(
-                f"Go look at the listing now. Is it full price or discounted? How many variants? "
-                f"If it overlaps your catalog — watch if it's still at full price in 2 weeks. "
-                f"If yes, that's validated demand. If it goes on sale fast, they misjudged."
-            ),
-            deadline="this week", play_type="change", **base, tab="launches",
-            detail={
-                "steps": [
-                    f"Go to {hostname} and find the new listing: {title or 'check their new arrivals'}",
-                    "Note: current price, number of variants, product category",
-                    "Is it in their usual product range or something new?",
-                    "Does it overlap with anything in your catalog?",
-                    "Set a 14-day reminder to check back on this product",
-                    "At 14 days: still full price + still listed = real demand. Discounted or removed = misjudged.",
-                    "If still full price at 14 days: research sourcing in that category",
-                ],
-                "why": "New product launches are experiments. You can't know if they worked from the launch alone — but 14 days of full-price listing is a reliable validation signal.",
-                "outcome": "A 14-day full-price hold means their internal data supports the product. That's better market research than any survey.",
-            },
-        )
-
-    if ct == "bulk_new_products":
-        return _play(
-            id=f"change-bulklaunch-{change['id']}", section="act_now", priority=68,
-            headline=f"{hostname} added {count} new products",
-            action=(
-                f"Filter their site to newest. Pick the 3 that look most different from their usual range — those are their category bets. "
-                f"Full price with deep variants = conviction. Set a 14-day reminder to check if they're still there."
-            ),
-            deadline="this week", play_type="change", **base, tab="launches",
-            detail={
-                "steps": [
-                    f"Go to {hostname} → filter or sort by newest products",
-                    "Look at the first 10 new additions",
-                    "Flag any that are: (a) full price (b) 8+ variants (c) outside their usual category",
-                    "Those are the ones they believe in — the others are tests",
-                    "Research the category of your flagged products on Google Trends and Alibaba",
-                    "Set a 14-day reminder: check which of these are still live and still full price",
-                    "Still live + full price at 14 days = demand validated. That's your sourcing signal.",
-                ],
-                "why": f"When brands launch in bulk, most products are experiments. The ones with deep variants and full price are the bets. Identifying those early gives you a sourcing lead time advantage.",
-                "outcome": "If you source into their validated category while they're still building reviews and organic rank, you enter with lower CPA than if you wait.",
-            },
-        )
+    if ct in ("new_product", "bulk_new_products"):
+        many = ct == "bulk_new_products"
+        return mk("launch", "Product Strategy",
+            f"{brand} launched " + (f"{count} new products" if many else (prod or "a new product")) + " — read the signal before you react",
+            f"{hostname} added " + (f"{count} products" if many else (f'"{prod}"' if prod else "a product")) + " to its catalog.",
+            "New launches reveal where a competitor sees demand — a free read on the category's direction.",
+            "They're betting on this direction. You can fast-follow, counter-position, or deliberately skip it.",
+            "Turn their launch into your assortment decision",
+            [
+                {"surface": "Catalog", "action": "Decide: do you have (or can you quickly add) an answer in this space, or is it a lane to concede?"},
+                {"surface": "Product Pages", "action": "If you already compete here, sharpen your equivalent's positioning to intercept the interest they're generating."},
+                {"surface": "Content", "action": "Publish comparison/education content for the category they just validated."},
+            ],
+            "You respond to their bet with a decision, not a reflex — expanding where it's smart, skipping where it isn't.",
+            priority="medium", effort="1 hour", confidence="verified")
 
     if ct == "product_removed":
-        return _play(
-            id=f"change-removed-{change['id']}", section="act_now", priority=55,
-            headline=f"{hostname} pulled '{title or 'a product'}' from their catalog",
-            action=(
-                f"Search the product name on Google Shopping. If there's search demand (autocomplete, related searches), "
-                f"that demand doesn't disappear when they delist — it redirects. If you carry something similar, push it now."
-            ),
-            deadline="this week", play_type="change", **base,
-            detail={
-                "steps": [
-                    f"Search '{title or 'their product name'}' on Google Shopping",
-                    "Check if autocomplete shows related searches — that's evidence of active demand",
-                    "Check if other brands are appearing in results for that term",
-                    "If you carry something similar: add it to your Google Shopping feed and update the title to include that search term",
-                    "If you don't carry it: check if demand is high enough to source (search volume on Google Keyword Planner)",
-                ],
-                "why": "When a product is delisted, its search demand doesn't disappear immediately. Shoppers still search for it and get redirected to alternatives. Being that alternative is a traffic opportunity.",
-                "outcome": "A product that matches a delisted competitor SKU can see organic Shopping traffic within 2–3 weeks of being listed.",
-            },
-        )
+        return mk("removed", "Market Expansion",
+            f"{brand} pulled " + (prod or "a product") + " — a gap may have just opened",
+            f"{hostname} removed " + (f'"{prod}"' if prod else "a product") + " from its catalog.",
+            "A discontinued product leaves its buyers looking for a replacement — demand with a suddenly-weaker answer.",
+            "They exited this for a reason (margin, inventory, focus). Their exit is your entry if the demand remains.",
+            "Capture orphaned demand from a discontinued product",
+            [
+                {"surface": "SEO", "action": f"Target searches for the discontinued item and '{brand} alternative' to catch its former buyers."},
+                {"surface": "Catalog", "action": "Make sure you carry (or add) a strong equivalent, and feature it."},
+            ],
+            "You absorb the demand their exit left behind.",
+            priority="low", confidence="estimated")
 
     if ct == "discount_start":
-        pct_disc = _normalize_pct(new_v.get("discounted_pct")) * 100
-        if pct_disc >= 25 or sev == "critical":
-            return _play(
-                id=f"change-discstart-{change['id']}", section="act_now", priority=80,
-                headline=f"{hostname} started discounting — {pct_disc:.0f}% of catalog on sale" if pct_disc else f"{hostname} started a discount campaign",
-                action=(
-                    f"Identify which category is most discounted on their site — that's the inventory they're clearing. "
-                    f"If you don't carry it, no action needed. If you do — hold your price and add social proof to justify it."
-                ),
-                deadline="today", play_type="change", **base, tab="discounts",
-                detail={
-                    "steps": [
-                        f"Go to {hostname} → filter by 'On Sale' or 'Discounted'",
-                        "Which category has the most discounts? (clothing, footwear, accessories, etc.)",
-                        "Do you carry anything in that category?",
-                        "If NO: no urgent action — monitor for 1 week",
-                        "If YES: go to your product page for those items",
-                        "Add: customer reviews, better photos, a short 'why we're worth full price' section",
-                        "Run a small retargeting ad ($10/day) to people who visited your site but didn't convert — 'still full price, still in stock'",
-                    ],
-                    "why": "Discount campaigns drive comparison shopping. Shoppers who see a competitor's sale often open multiple tabs. Being positioned with strong social proof converts better than matching the price.",
-                    "outcome": "Retargeting your own site visitors during a competitor's sale period typically shows 2–3x higher conversion rates than cold traffic.",
-                },
-            )
+        return mk("promostart", "Competitive Defense",
+            f"{brand} started a promotion — hold your position with intent",
+            f"{hostname} launched a discount/campaign" + (f" on {prod}" if prod else "") + ".",
+            "A competitor's sale pulls attention and comparison traffic into the category — including toward you.",
+            "This is likely a planned campaign, not desperation. Reacting emotionally with your own sale is the trap.",
+            "Benefit from the attention without discounting reflexively",
+            [
+                {"surface": "Homepage", "action": "Make your value and guarantees prominent for the comparison traffic their sale stirs up."},
+                {"surface": "Email", "action": "Time a value-led (not discount-led) message to your list while the category is hot."},
+            ],
+            "You capture spillover attention while keeping your pricing discipline.",
+            priority="medium")
 
     if ct == "discount_end":
-        return _play(
-            id=f"change-discend-{change['id']}", section="act_now", priority=88,
-            headline=f"{hostname}'s sale just ended — post-sale window is open",
-            action=(
-                f"Shoppers who missed their sale are still in a buying mindset. "
-                f"Send an email to your list in the next 4 hours. "
-                f"'This week only: [your offer]' converts well in this exact window."
-            ),
-            deadline="today", play_type="change", **base, tab="discounts",
-            detail={
-                "steps": [
-                    f"Confirm {hostname}'s sale has ended (check their site)",
-                    "Open your email tool — create a new broadcast to your full list",
-                    "Subject line: time-sensitive but doesn't need to mention the competitor",
-                    "Try: 'Still looking for [product]? We have it.' or '[Product] — this week only: [your offer]'",
-                    "Body: keep it to 3 sentences max. Your product, your CTA, your price.",
-                    "Send within 4 hours of confirming their sale ended",
-                    "Optional: run $15/day Meta retargeting to your site visitors for the next 48 hours",
-                ],
-                "why": "The 4–24h window after a competitor's sale ends is one of the highest-intent moments in competitive e-commerce. Shoppers who missed the deal are still in the market and actively reconsidering.",
-                "outcome": "Post-sale email windows typically see 25–40% higher open rates if sent within 4 hours. The urgency is real — it drops off sharply after 24h.",
-            },
-        )
+        return mk("promoend", "Pricing",
+            f"{brand}'s promotion ended — a brief window where your price looks strong",
+            f"{hostname} ended a discount/campaign" + (f" on {prod}" if prod else "") + ", returning to full price.",
+            "When their sale ends, your steady price is momentarily the better deal in the category.",
+            "Post-sale, their prices snap back up. For a short window you're the value option by default.",
+            "Capitalize on the post-promo price gap",
+            [
+                {"surface": "Product Pages", "action": "On overlapping products, make your comparatively-lower price obvious now."},
+                {"surface": "Email", "action": "Send a well-timed nudge while your price advantage is real."},
+            ],
+            "You convert shoppers during the brief window your pricing looks best.",
+            priority="low", confidence="estimated")
 
     if ct == "availability_change":
-        return _play(
-            id=f"change-oos-{change['id']}", section="act_now", priority=75,
-            headline=f"{hostname} has products going out of stock",
-            action=(
-                f"{hostname} has products going out of stock — their shoppers are actively looking for alternatives right now. "
-                f"Open Meta Ads Manager, add their brand or product category as a targeting Interest, "
-                f"and run 'In stock, ships today' copy at $15/day until they restock (usually 1–3 weeks). "
-                f"OOS windows are the fastest-converting moments for competitors."
-            ),
-            deadline="right now", play_type="availability", **base,
-            detail={
-                "steps": [
-                    "Open Meta Ads Manager → go to your Campaigns tab",
-                    "Create a new campaign (Awareness or Traffic objective to start, or Sales if you have pixel data)",
-                    f"At the Ad Set level → Detailed Targeting → search '{hostname.split('.')[0]}' — if it shows as a Facebook Interest, select it. If not, search their main product category (e.g. 'resistance bands', 'yoga wear') and target that instead",
-                    "Creative: use your best product photo, clearly in-stock, no discount needed",
-                    "Copy: 'In stock now. Ships [your lead time].' — contrast is the hook, not a discount",
-                    "Headline: 'In stock now' or 'Ships today' or 'No waitlist here'",
-                    "Budget: $15/day",
-                    "Run until you see their OOS products restock — check their site every 3–4 days",
-                    "OOS windows typically last 1–3 weeks — stop the campaign when they're back",
-                ],
-                "why": f"{hostname} shoppers who hit an out-of-stock page are immediately in the market for alternatives. They've already decided to buy — they just need a place to buy from.",
-                "outcome": "OOS retargeting campaigns typically see 2–4x higher CTR than standard prospecting because the audience is already purchase-ready.",
-            },
-        )
+        return mk("stock", "Market Expansion",
+            f"{brand} has stock gaps — be the in-stock answer",
+            f"{hostname} shows out-of-stock/availability changes" + (f" on {prod}" if prod else "") + ".",
+            "Out-of-stock is unmet demand in real time — those shoppers need an alternative right now.",
+            "Stock gaps are the most perishable opportunity in ecommerce; the demand doesn't wait.",
+            "Capture demand they can't currently fulfill",
+            [
+                {"surface": "Merchandising", "action": "Make sure your equivalent in-stock product is easy to find and prominently featured."},
+                {"surface": "SEO", "action": f"Ensure you rank for the category / '{brand} alternative' so their stranded shoppers find you."},
+            ],
+            "You convert shoppers their stockout sent looking.",
+            priority="medium", confidence="estimated")
 
     return None
+

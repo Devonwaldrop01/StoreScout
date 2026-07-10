@@ -97,6 +97,10 @@ export const competitors = {
     apiFetch<{ data: StoreProfileResponse }>(`/competitors/${id}/store-profile`),
   comparison: (id: string) =>
     apiFetch<{ data: ComparisonResponse }>(`/competitors/${id}/comparison`),
+  ask: (id: string, question: string) =>
+    apiFetch<{ data: { answer: string | null; followups: string[] } }>(`/competitors/${id}/ask`, {
+      method: "POST", body: JSON.stringify({ question }),
+    }),
   quickWins: (id: string) =>
     apiFetch<{ data: QuickWinsResponse }>(`/competitors/${id}/quick-wins`),
   priceHistory: (id: string) =>
@@ -518,11 +522,25 @@ export interface PlaybookPlay {
   headline: string;
   action: string;
   deadline: string;
-  type: "availability" | "pricing" | "catalog" | "positioning" | "change" | "product" | "discounts" | "alert";
+  type: "availability" | "pricing" | "catalog" | "positioning" | "change" | "product" | "discounts" | "alert" | string;
   source: "snapshot" | "change_event" | "ai";
   tab?: string;
   detail?: PlaybookDetail;
   draft_asset?: DraftAsset | null;
+  // ── Strategy-first schema (Playbook 2.0) — present on AI recommendations ──
+  category?: string;
+  title?: string;
+  what_happened?: string;
+  why_it_matters?: string;
+  interpretation?: string;
+  objective?: string;
+  execution_paths?: { surface: string; action: string }[];
+  expected_outcome?: string;
+  evidence?: string[];
+  confidence?: "verified" | "estimated" | "predicted" | string;
+  priority_label?: "high" | "medium" | "low" | string;
+  effort?: string;
+  timeframe?: string;
 }
 
 export interface PlaybookResponse {
@@ -788,10 +806,28 @@ export interface BusinessKnowledge {
   scan_history: number;
 }
 
+export interface IntegrationEntry {
+  id: string;
+  name: string;
+  category: string;
+  dimensions: string[];
+  learns: string[];
+  gets_better: string;
+  capabilities: string[];
+  status: "connected" | "available" | "coming_soon";
+}
+export interface IntegrationHubData {
+  categories: { key: string; label: string; count: number }[];
+  integrations: IntegrationEntry[];
+  intelligence: { key: string; label: string; pct: number; connected: number; total: number }[];
+  connected_count: number;
+}
+
 export const integrations = {
   get: () => apiFetch<{ data: { klaviyo: KlaviyoStatus; google_enabled?: boolean } }>("/integrations"),
   intelligenceSources: () =>
     apiFetch<{ data: BusinessKnowledge }>("/integrations/intelligence-sources"),
+  hub: () => apiFetch<{ data: IntegrationHubData }>("/integrations/hub"),
   klaviyo: {
     save: (api_key: string) =>
       apiFetch<{ data: KlaviyoStatus }>("/integrations/klaviyo", {

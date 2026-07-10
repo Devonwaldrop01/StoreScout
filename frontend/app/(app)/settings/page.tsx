@@ -11,6 +11,7 @@ import {
 } from "@/lib/api";
 import UpgradeModal from "@/components/UpgradeModal";
 import { IntelligenceSources } from "@/components/settings/IntelligenceSources";
+import { IntegrationHub } from "@/components/integrations/IntegrationHub";
 import { track } from "@/lib/analytics";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -801,6 +802,17 @@ function SettingsContent() {
           </p>
 
           <IntelligenceSources />
+
+          {/* The ecosystem — intelligence map + value-story cards for every integration */}
+          <div className="my-6 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
+            <IntegrationHub onConnect={(id) => {
+              if ((id === "ga4" || id === "gsc") && googleEnabled) { handleGoogleConnect(); return; }
+              // Klaviyo / Shopify / others: bring the real connect controls into view.
+              try { document.getElementById("integration-controls")?.scrollIntoView({ behavior: "smooth" }); } catch { /* ignore */ }
+            }} />
+          </div>
+
+          <div id="integration-controls" />
 
           {/* Google Analytics + Search Console — hidden until prod OAuth is verified */}
           {googleEnabled && (

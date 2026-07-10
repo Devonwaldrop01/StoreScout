@@ -13,6 +13,11 @@ import {
 } from "@/lib/api";
 import UpgradeModal from "@/components/UpgradeModal";
 import { EmptyStateCard, LockedValueCard } from "@/components/ui";
+import { RecommendationCard } from "@/components/playbook/RecommendationCard";
+
+// A play is a Playbook-2.0 strategic recommendation when it carries the rich
+// strategy-first fields (vs a legacy template/change play).
+const isRichRec = (p: PlaybookPlay) => !!(p.objective || (p.execution_paths && p.execution_paths.length > 0));
 
 // ── persistence ───────────────────────────────────────────────────────────────
 
@@ -741,23 +746,34 @@ function PlaySection({ section, plays, done, onDone, onOpen, steps, onToggleStep
       </div>
       <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>{meta.desc}</p>
 
-      <div
-        className="rounded-md overflow-hidden"
-        style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-      >
-        {plays.map((p, i) => (
-          <PlayCard
-            key={p.id}
-            play={p}
-            done={done.has(p.id)}
-            onDone={() => onDone(p.id)}
-            onOpen={() => onOpen(p)}
-            isLast={i === plays.length - 1}
-            stepsChecked={steps[p.id] ?? []}
-            onToggleStep={(idx) => onToggleStep(p.id, idx)}
-          />
-        ))}
-      </div>
+      {plays.every(isRichRec) ? (
+        // Playbook 2.0 — strategy-first recommendation cards (each self-contained)
+        <div className="space-y-3">
+          {plays.map((p) => (
+            <RecommendationCard key={p.id} play={p} done={done.has(p.id)} onDone={() => onDone(p.id)} />
+          ))}
+        </div>
+      ) : (
+        // Legacy template/change plays — the boxed step-list card
+        <div className="rounded-md overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          {plays.map((p, i) => (
+            isRichRec(p) ? (
+              <RecommendationCard key={p.id} play={p} done={done.has(p.id)} onDone={() => onDone(p.id)} />
+            ) : (
+              <PlayCard
+                key={p.id}
+                play={p}
+                done={done.has(p.id)}
+                onDone={() => onDone(p.id)}
+                onOpen={() => onOpen(p)}
+                isLast={i === plays.length - 1}
+                stepsChecked={steps[p.id] ?? []}
+                onToggleStep={(idx) => onToggleStep(p.id, idx)}
+              />
+            )
+          ))}
+        </div>
+      )}
     </div>
   );
 }

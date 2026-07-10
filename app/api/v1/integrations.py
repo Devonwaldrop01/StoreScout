@@ -67,6 +67,45 @@ def get_intelligence_sources(user_id: str = Depends(get_current_user_id)):
     return {"data": build_business_knowledge(user_id)}
 
 
+@router.get("/hub")
+def get_integration_hub(user_id: str = Depends(get_current_user_id)):
+    """The Integrations Hub — the full ecosystem framed as intelligence, with
+    each integration's value story, live connection state, and the intelligence
+    map (what StoreScout already understands, what the next connection unlocks)."""
+    from app.services.integration_catalog import build_hub
+
+    connected: list[str] = []
+    db = get_supabase()
+
+    # Real connection state, guarded so a missing table never 500s the hub.
+    row = _get_integration_row(user_id)
+    if row.get("klaviyo_api_key"):
+        connected.append("klaviyo")
+    if row.get("ga4_property_id"):
+        connected.append("ga4")
+    if row.get("gsc_site_url"):
+        connected.append("gsc")
+    try:
+        sc = db.table("shopify_connections").select("shop, access_token")\
+            .eq("user_id", user_id).is_("uninstalled_at", "null").maybe_single().execute()
+        if sc and sc.data and sc.data.get("access_token"):
+            connected.append("shopify")
+    except Exception:
+        pass
+    # Fallback: if they've added their own store as a tracked competitor, treat
+    # business-level data as partially present even without the Admin app.
+    if "shopify" not in connected:
+        try:
+            ms = db.table("competitors").select("id").eq("user_id", user_id)\
+                .eq("is_my_store", True).limit(1).execute()
+            if ms and ms.data:
+                connected.append("shopify")
+        except Exception:
+            pass
+
+    return {"data": build_hub(connected)}
+
+
 # ── Klaviyo ────────────────────────────────────────────────────────────────────
 
 class KlaviyoKeyRequest(BaseModel):

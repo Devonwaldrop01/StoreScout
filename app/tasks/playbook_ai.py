@@ -13,18 +13,16 @@ from app.core.database import get_supabase
 
 logger = logging.getLogger(__name__)
 
-_SYSTEM_PROMPT = """You are a Shopify competitive intelligence advisor. Turn real competitor data into specific, executable plays.
+_SYSTEM_PROMPT = """You are a senior ecommerce strategist advising a Shopify store owner — the kind of operator who has scaled DTC brands and thinks in strategy, not tactics.
 
-Platforms you know: Meta Ads Manager, Google Shopping, Klaviyo, Shopify admin, TikTok Ads.
+Your ONE job: turn verified competitor intelligence into genuine STRATEGIC ADVICE. Answer "If I were running this business, what would I actually do?" — never "what marketing channel should they use?".
 
-Great plays have all three: (1) exact navigation paths a complete beginner can follow step-by-step, (2) dollar budgets with a scale trigger, (3) specific product names, categories, or search terms from the data.
-
-Step structure — every play's 3 steps must follow this format:
-• Step 1: platform name + exact menu path + the action to take ("In Meta Ads Manager → Campaigns → + Create → choose Traffic objective → proceed to Ad Set")
-• Step 2: the specific content to create — exact headline copy, search term to use, product handle, or Klaviyo segment name (use product names from the data)
-• Step 3: budget + scale trigger ("Start $15/day → scale to $50/day once CTR exceeds 1.8% after 4 days" or "Spend 30 min this week → measure with [specific metric]")
-
-Meta Ads: Campaigns → Ad Set → Detailed Targeting → type brand name or product category as Interest. Cannot target followers directly. Audience size 500K–2M is ideal."""
+Hard rules:
+- Recommend the BUSINESS STRATEGY first (protect margins, reduce discount dependence, defend hero products, expand assortment, raise AOV, capture demand, differentiate, improve retention…). The strategy IS the recommendation.
+- NEVER make "run Meta ads", "send a Klaviyo campaign", or "use TikTok" the recommendation. Those are just ONE possible way to execute — offer several, across different surfaces (email, paid search, paid social, homepage, merchandising, bundles, product pages, SEO, content, influencers, SMS, pricing, collections, wholesale). The merchant may use none of a given tool, so every recommendation must be executable regardless of their software stack.
+- Interpret, don't report. Say what a competitor's move MEANS for this merchant, what pattern it reveals, what strategy they're pursuing.
+- Separate VERIFIED facts from ESTIMATED and PREDICTED — never blur them.
+- Every recommendation must feel like it came from an experienced operator, and be different from the others (different category, different angle). The merchant should think "I never looked at my competitor that way" or "I should actually do that.\""""
 
 _SECTION_PRIORITY = {"act_now": 95, "right_now": 75, "this_week": 55}
 _FRESHNESS_HOURS = 23
@@ -397,7 +395,7 @@ def generate_ai_playbook(user_id: str) -> dict:
         if my_store_section else ""
     )
 
-    prompt = f"""Analyze this Shopify competitor intelligence and generate exactly 3 plays for a store owner.
+    prompt = f"""Analyze this Shopify competitor intelligence and generate 3-4 STRATEGIC recommendations for a store owner — genuine operator advice, each a different category and angle.
 {last_themes_str}
 {my_store_prompt}COMPETITOR DATA:
 {chr(10).join(comp_blocks)}
@@ -407,44 +405,36 @@ RECENT ALERTS (last 7 days — critical/warning only):
 
 {my_store_instruction}Return ONLY valid JSON — no markdown, no preamble, no explanation after the closing brace:
 {{
-  "plays": [
+  "recommendations": [
     {{
-      "section": "act_now|right_now|this_week",
-      "headline": "6-10 words with a specific number from the data",
-      "action": "1 sentence max 40 words — platform name + product or category + one concrete action with budget or timeframe",
-      "deadline": "right now|today|within 48h|this week",
-      "type": "pricing|catalog|positioning|discounts|alert",
-      "tab": "overview|pricing|launches|discounts|changes",
-      "competitor_hostname": "exact hostname or 'multiple'",
-      "detail": {{
-        "steps": [
-          "Step 1: [Platform → exact menu path] — [action to take]",
-          "Step 2: [exact content to create — headline copy, search term, or product name from the data]",
-          "Step 3: Budget $[X]/day — scale to $[Y]/day when [metric > threshold after N days] OR [time-based: spend 30 min + track with metric]"
-        ],
-        "why": "1 sentence on why this window exists right now",
-        "outcome": "1 sentence measurable result with a number (e.g. '10-20% CTR lift within 5 days')",
-        "competitor_metrics": "the exact data point from the competitor data that validates this play"
-      }},
-      "draft_asset": null
+      "category": "one of: Pricing, Merchandising, Catalog, Operations, Brand Positioning, Customer Experience, Retention, Acquisition, Inventory, Bundles, Collections, Product Strategy, Competitive Defense, Market Expansion, Seasonality, Product Launches, Cross-selling, Upselling",
+      "title": "the strategic recommendation as an objective-led headline (NOT a channel). e.g. 'Protect your premium position while they train customers to wait for discounts'",
+      "what_happened": "the VERIFIED competitor activity, with the specific numbers from the data",
+      "why_it_matters": "the business meaning — what this does to the market and to the merchant. Meaning, not data.",
+      "interpretation": "StoreScout's read: what pattern this reveals, what strategy the competitor is pursuing",
+      "objective": "what the merchant should accomplish (e.g. 'Reduce discount dependence', 'Defend hero products', 'Raise AOV')",
+      "execution_paths": [
+        {{"surface": "one of: Email, Paid Search, Paid Social, Homepage, Merchandising, Bundles, Product Pages, SEO, Content, Influencers, SMS, Pricing, Collections, Wholesale", "action": "a concrete, tool-agnostic step on that surface"}}
+      ],
+      "expected_outcome": "what should happen if they act on this",
+      "evidence": ["the specific signals/data points this is based on"],
+      "confidence": "verified|estimated|predicted",
+      "priority": "high|medium|low",
+      "effort": "15 minutes|1 hour|half day|several days",
+      "timeframe": "today|this week|this month",
+      "competitor_hostname": "exact hostname or 'multiple'"
     }}
   ]
 }}
 
 Rules:
-- act_now: competitor doing something RIGHT NOW, <48h window — only if recent alerts exist above
-- right_now: current state reveals an opportunity, act in 2-3 days
-- this_week: strategic gap or trend (7 days)
-- No recent alerts = no act_now plays
-- Steps must follow the exact 3-step format above — Step 1 always has platform + nav path, Step 3 always has budget + scale trigger
+- The `title` and `objective` are the STRATEGY. Never make a channel the recommendation.
+- Give 3-4 execution_paths per recommendation, each on a DIFFERENT surface, so any merchant can act regardless of their tools. Do NOT default to paid ads.
+- `confidence`: "verified" only for things directly in the data; "estimated" for reasonable inference; "predicted" for forward-looking calls. Never blur them.
+- Each recommendation must be a DIFFERENT category.
 {diversity_rule}
-- Vary the channel across the 3 plays — do NOT make every play a paid-ads play. Include at least one email/Klaviyo, Shopify merchandising, or organic/SEO move. Recommend paid ads only when the data clearly supports it.
-- For each act_now and right_now play, replace "draft_asset": null with a ready-to-paste asset object:
-    email -> {{"type":"email","label":"<what it is>","subject":"<subject line>","body_opening":"<2-3 sentences ready to send>","headlines":[],"ad_body":null}}
-    ad    -> {{"type":"ad","label":"<what it is>","headlines":["<=30 chars","<=30 chars","<=30 chars"],"ad_body":"<1-2 sentences>","subject":null,"body_opening":null}}
-  this_week plays keep "draft_asset": null
-- If the data includes a "90d trend" or competitor ad activity, use it: cite the seasonality/cadence or their ad momentum in the play's why/competitor_metrics
-- Output exactly 3 plays, no more, no less"""
+- If the data includes a "90d trend" or competitor ad activity, weave the seasonality/cadence into what_happened or interpretation.
+- Output 3-4 recommendations."""
 
     try:
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
@@ -464,60 +454,64 @@ Rules:
             logger.error("generate_ai_playbook: bad JSON from Claude for %s: %s — raw: %r", user_id, exc, raw_text[:500])
             return {"status": "error", "reason": "invalid_json"}
 
-        plays = parsed.get("plays") or []
+        recs = parsed.get("recommendations") or parsed.get("plays") or []
+        _TF_SECTION = {"today": "act_now", "this week": "right_now", "this month": "this_week"}
+        _PRIO_NUM = {"high": 90, "medium": 60, "low": 35}
         normalised: list[dict] = []
-        for i, p in enumerate(plays):
-            section = p.get("section", "this_week")
+        for i, p in enumerate(recs):
             host = p.get("competitor_hostname", "")
-            detail = p.get("detail") or {}
+            timeframe = (p.get("timeframe") or "this week").lower()
+            section = _TF_SECTION.get(timeframe, "right_now")
+            prio_label = (p.get("priority") or "medium").lower()
 
             if host and host != "multiple":
                 comp_id = comp_map.get(host) or comp_ids[0]
                 display_hostname = host
-                competitors_row = [{"hostname": host, "metric": detail.get("competitor_metrics", "")}]
             else:
-                # Cross-competitor play — no single dashboard to deep-link to
-                comp_id = ""  # empty so frontend hides the "View in dashboard" button
+                comp_id = ""  # cross-competitor — frontend hides deep-link
                 display_hostname = f"{len(competitors)} competitors"
-                competitors_row = [
-                    {"hostname": c["hostname"], "metric": ""}
-                    for c in competitors[:4]
-                ]
 
-            draft_raw = p.get("draft_asset") or {}
-            da_type = draft_raw.get("type", "none")
-            draft_asset = (
-                {
-                    "type": da_type,
-                    "label": draft_raw.get("label") or "",
-                    "subject": draft_raw.get("subject"),
-                    "body_opening": draft_raw.get("body_opening"),
-                    "headlines": draft_raw.get("headlines") or [],
-                    "ad_body": draft_raw.get("ad_body"),
-                }
-                if da_type in ("email", "ad")
-                else None
-            )
+            paths = []
+            for ep in (p.get("execution_paths") or []):
+                if isinstance(ep, dict) and ep.get("action"):
+                    paths.append({"surface": str(ep.get("surface") or "")[:40], "action": str(ep.get("action"))[:400]})
+
+            evidence = [str(e)[:200] for e in (p.get("evidence") or [])][:6]
 
             normalised.append({
                 "id": f"ai-{section}-{i}",
                 "section": section,
-                "priority": _SECTION_PRIORITY.get(section, 55) - i,
+                "priority": _PRIO_NUM.get(prio_label, 60) - i,
                 "competitor_id": comp_id,
                 "hostname": display_hostname,
-                "headline": p.get("headline", ""),
-                "action": p.get("action", ""),
-                "deadline": p.get("deadline", "this week"),
-                "type": p.get("type", "positioning"),
                 "source": "ai",
-                "tab": p.get("tab", "overview"),
+                # ── Strategy-first schema ──
+                "category": p.get("category") or "Competitive Defense",
+                "title": p.get("title") or "",
+                "what_happened": p.get("what_happened") or "",
+                "why_it_matters": p.get("why_it_matters") or "",
+                "interpretation": p.get("interpretation") or "",
+                "objective": p.get("objective") or "",
+                "execution_paths": paths,
+                "expected_outcome": p.get("expected_outcome") or "",
+                "evidence": evidence,
+                "confidence": (p.get("confidence") or "estimated").lower(),
+                "priority_label": prio_label,
+                "effort": p.get("effort") or "1 hour",
+                "timeframe": timeframe,
+                # ── Legacy-compat fields (old card + deep-links keep working) ──
+                "headline": p.get("title") or "",
+                "action": (paths[0]["action"] if paths else (p.get("objective") or "")),
+                "deadline": timeframe,
+                "type": (p.get("category") or "positioning").lower(),
+                "tab": "overview",
                 "detail": {
-                    "steps": detail.get("steps") or [],
-                    "why": detail.get("why", ""),
-                    "outcome": detail.get("outcome", ""),
-                    "competitors": competitors_row,
+                    "steps": [f"{ep['surface']}: {ep['action']}" for ep in paths],
+                    "why": p.get("why_it_matters") or "",
+                    "outcome": p.get("expected_outcome") or "",
+                    "competitors": [{"hostname": display_hostname, "metric": evidence[0] if evidence else ""}],
                 },
-                "draft_asset": draft_asset,
+                "draft_asset": None,
             })
 
         db.table("ai_summaries").insert({
