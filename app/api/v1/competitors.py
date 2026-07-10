@@ -469,6 +469,28 @@ async def discover_ai(
     except Exception as ctx_exc:
         logger.debug("discover-ai store context fetch failed: %s", ctx_exc)
 
+    # The user's CATEGORY drives direct-competitor matching against the
+    # classified index. Prefer the user's own store's classification; fall back
+    # to classifying their description (cheap, no network).
+    user_category: Optional[str] = None
+    try:
+        from app.services.store_index import normalize_domain as _nd
+        if my_store_hostname:
+            r = db.table("shopify_store_index").select("category, category_confidence")\
+                .eq("domain", _nd(my_store_hostname)).maybe_single().execute()
+            if r and r.data and r.data.get("category") and (r.data.get("category_confidence") or 0) >= 50:
+                user_category = r.data["category"]
+    except Exception:
+        pass
+    if not user_category:
+        try:
+            from app.services.store_index import classify_store_v2
+            c = classify_store_v2(description=body.description, homepage_text=body.description)
+            if (c.get("confidence") or 0) >= 45 and c.get("category") != "Other":
+                user_category = c["category"]
+        except Exception:
+            pass
+
     # ── Staged pipeline ──────────────────────────────────────────────────
     # Claude answers ONE question — "who does this business compete with?" —
     # ranked by market similarity, platform ignored. StoreScout then answers
@@ -593,25 +615,42 @@ Rules:
                 for t in terms
                 for col in ("category", "subcategory", "description", "brand_name")
             )
-            def _idx_query(with_cat_conf: bool):
+            def _idx_query(with_cat_conf: bool, by_category: bool):
                 cols = ("domain, brand_name, category, subcategory, description, "
                         "verification_confidence, verification_signals, business_stage, pricing_tier")
                 if with_cat_conf:
                     cols += ", category_confidence, category_evidence"
-                return db.table("shopify_store_index")\
+                q = db.table("shopify_store_index")\
                     .select(cols)\
                     .eq("status", "verified")\
-                    .gte("verification_confidence", settings.shopify_index_min_confidence)\
-                    .or_(ors)\
-                    .order("verification_confidence", desc=True)\
-                    .limit(TARGET_VERIFIED * 3)\
-                    .execute()
-            # Prefer the category-confidence columns (migration 015); fall back
-            # cleanly to the pre-015 shape so discovery never breaks.
-            try:
-                idx_res = _idx_query(True)
-            except Exception:
-                idx_res = _idx_query(False)
+                    .gte("verification_confidence", settings.shopify_index_min_confidence)
+                # Direct-competitor match: same classified category. Otherwise
+                # fall back to keyword overlap on the description.
+                q = q.eq("category", user_category) if by_category else q.or_(ors)
+                return q.order("verification_confidence", desc=True)\
+                        .limit(TARGET_VERIFIED * 3).execute()
+
+            # Category-exact matches first (true direct competitors), then keyword
+            # matches to broaden. Prefer the 015 columns; fall back cleanly.
+            idx_rows: list = []
+            for by_cat in ([True, False] if user_category else [False]):
+                try:
+                    res = _idx_query(True, by_cat)
+                except Exception:
+                    try:
+                        res = _idx_query(False, by_cat)
+                    except Exception:
+                        continue
+                for r in (res.data or []):
+                    r["_by_category"] = by_cat
+                    idx_rows.append(r)
+            # Dedupe by domain, keeping the category-exact hit if present.
+            _by_domain: dict = {}
+            for r in idx_rows:
+                d = r["domain"]
+                if d not in _by_domain or r.get("_by_category"):
+                    _by_domain[d] = r
+            idx_res = type("_R", (), {"data": list(_by_domain.values())})()
 
             # Category-confidence floor — the guard against weak guesses
             # ("Everlane for pet accessories"). A store is only recommended when
@@ -626,6 +665,13 @@ Rules:
                 score = float(row.get("verification_confidence") or 0)
                 stage = row.get("business_stage")
                 tier = row.get("pricing_tier")
+                # Same classified category = a genuine direct competitor: rank it
+                # decisively above loose keyword matches.
+                if row.get("_by_category"):
+                    score += 60
+                    cc = row.get("category_confidence")
+                    if cc:
+                        score += min(20, cc / 5)  # more confident classification ranks higher
                 if user_stage and stage:
                     order = ["startup", "growing", "established", "enterprise"]
                     try:
