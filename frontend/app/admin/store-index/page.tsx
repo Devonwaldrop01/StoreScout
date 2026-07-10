@@ -254,6 +254,23 @@ export default function StoreIndexAdminPage() {
     }
   }
 
+  async function runReclassify() {
+    if (stageBusy) return;
+    setStageBusy("reclassify");
+    setStageResult("");
+    try {
+      const r = await adminFetch<{ data: { queued: number; note: string } }>(
+        "/admin/store-index/reclassify", token,
+        { method: "POST", body: JSON.stringify({ only_low_confidence: true, threshold: 75 }) },
+      );
+      setStageResult(r.data.note || `Queued ${r.data.queued} for re-classification.`);
+    } catch (e: unknown) {
+      setStageResult((e as Error).message || "Re-classify failed.");
+    } finally {
+      setStageBusy("");
+    }
+  }
+
   async function runStage(stage: "discovery" | "resolution" | "verification" | "knowledge") {
     if (stageBusy) return;
     setStageBusy(stage);
@@ -520,6 +537,12 @@ export default function StoreIndexAdminPage() {
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40"
               style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--accent)" }}>
               {stageBusy === "knowledge" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Brain className="w-3.5 h-3.5" />} 4 · Classify
+            </button>
+            <button onClick={runReclassify} disabled={!!stageBusy}
+              title="Re-queue low-confidence classifications to be re-run through the AI classifier"
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40"
+              style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--muted)" }}>
+              {stageBusy === "reclassify" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Brain className="w-3.5 h-3.5" />} Re-classify weak
             </button>
           </div>
           {stageResult && <p className="num text-[11px] mt-2 break-all" style={{ color: "var(--text-2)" }}>{stageResult}</p>}

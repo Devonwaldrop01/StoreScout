@@ -56,17 +56,28 @@ SEED_QUERIES = [
 # these, never invent new categories.
 
 CATEGORY_TAXONOMY: Dict[str, List[str]] = {
-    "Fitness Apparel":       ["Activewear", "Gym Accessories"],
-    "Beauty":                ["Skincare", "Cosmetics", "Haircare"],
-    "Food & Beverage":       ["Coffee", "Snacks", "Alcohol", "Tea"],
-    "Pets":                  ["Pet Accessories", "Pet Food"],
-    "Fashion":               ["Streetwear", "Womenswear", "Menswear", "Footwear"],
-    "Jewelry":               ["Fine Jewelry", "Fashion Jewelry", "Watches"],
-    "Home & Living":         ["Home Decor", "Kitchen", "Bedding", "Furniture"],
-    "Supplements":           ["Sports Nutrition", "Vitamins", "Wellness"],
-    "Kids & Baby":           ["Baby Gear", "Kids Apparel", "Toys"],
-    "Outdoors":              ["Camping", "Cycling", "Water Sports"],
-    "Electronics & Gadgets": ["Audio", "Accessories", "Smart Home"],
+    "Fitness Apparel":       ["Activewear", "Gym Accessories", "Athleisure"],
+    "Fashion":               ["Womenswear", "Menswear", "Streetwear", "Swimwear", "Lingerie", "Outerwear", "Denim"],
+    "Footwear":              ["Sneakers", "Sandals", "Boots", "Heels", "Kids Shoes"],
+    "Accessories":           ["Bags", "Sunglasses", "Wallets", "Hats", "Belts", "Scarves"],
+    "Jewelry":               ["Fine Jewelry", "Fashion Jewelry", "Watches", "Engagement"],
+    "Beauty":                ["Skincare", "Cosmetics", "Haircare", "Fragrance", "Nails", "Tools"],
+    "Health & Personal Care":["Personal Care", "Sexual Wellness", "Oral Care", "Medical", "Vision"],
+    "Supplements":           ["Sports Nutrition", "Vitamins", "Wellness", "Protein"],
+    "Food & Beverage":       ["Coffee", "Tea", "Snacks", "Alcohol", "Condiments", "Beverages", "Candy"],
+    "Pets":                  ["Pet Accessories", "Pet Food", "Pet Toys", "Pet Health"],
+    "Home & Living":         ["Home Decor", "Kitchen", "Bedding", "Furniture", "Bath", "Candles", "Cleaning"],
+    "Home Improvement":      ["Tools", "Hardware", "Lighting", "Doors & Windows", "Garden"],
+    "Kids & Baby":           ["Baby Gear", "Kids Apparel", "Nursery", "Maternity", "Feeding"],
+    "Toys & Games":          ["Toys", "Board Games", "Puzzles", "Collectibles", "Hobbies"],
+    "Outdoors":              ["Camping", "Cycling", "Water Sports", "Hunting & Fishing", "Hiking"],
+    "Sporting Goods":        ["Equipment", "Team Sports", "Golf", "Combat Sports"],
+    "Electronics & Gadgets": ["Audio", "Wearables", "Smart Home", "Computers", "Cameras"],
+    "Tech Accessories":      ["Phone Cases", "Chargers & Cables", "Mounts", "Screen Protectors"],
+    "Automotive":            ["Car Accessories", "Parts", "Motorcycle", "Detailing"],
+    "Arts & Crafts":         ["Craft Supplies", "Stationery", "Art", "Sewing"],
+    "Books & Media":         ["Books", "Music", "Films", "Games"],
+    "Adult":                 ["General"],
     "Other":                 ["General"],
 }
 
@@ -663,6 +674,89 @@ def classify_store_v2(
     }
 
 
+def classify_store_ai(
+    brand: str = "",
+    description: str = "",
+    product_types: Optional[List[str]] = None,
+    product_titles: Optional[List[str]] = None,
+    collections: Optional[List[dict]] = None,
+    tags: Optional[List[str]] = None,
+) -> Optional[Dict[str, Any]]:
+    """
+    AI-primary classification — the reliable way to KNOW what a store sells.
+    Claude reads the store's actual product titles/types/collections (the ground
+    truth) and assigns a category + subcategory from the fixed taxonomy, plus a
+    confidence and short evidence. It is explicitly told to ignore stray words
+    (colour names like 'baby blue', materials, marketing copy) and to return
+    'Other' at low confidence rather than guess. Returns None on failure so the
+    caller can fall back to the keyword classifier.
+    """
+    import json as _json
+    import anthropic
+    from app.core.config import get_settings
+
+    settings = get_settings()
+    if not settings.anthropic_api_key:
+        return None
+
+    titles = [str(t) for t in (product_titles or [])][:40]
+    ptypes = [str(t) for t in (product_types or [])][:20]
+    colls = [str(c.get("title") or "") for c in (collections or [])][:20]
+    if not (titles or ptypes or colls or (description or "").strip()):
+        return None  # nothing to reason over
+
+    taxonomy = "\n".join(f"- {c}: {', '.join(subs)}" for c, subs in CATEGORY_TAXONOMY.items())
+    payload = (
+        f"STORE: {brand or '(unknown)'}\n"
+        f"DESCRIPTION: {(description or '')[:300]}\n"
+        f"PRODUCT TYPES: {', '.join(ptypes) or '(none)'}\n"
+        f"COLLECTIONS: {', '.join(colls) or '(none)'}\n"
+        f"PRODUCT TITLES (the ground truth — judge by these):\n"
+        + "\n".join(f"  · {t}" for t in titles[:40])
+    )
+    prompt = f"""You categorize Shopify stores. Decide what the store ACTUALLY SELLS, based on the product titles and product types — those are the ground truth.
+
+Pick EXACTLY ONE category and one subcategory from this fixed taxonomy:
+{taxonomy}
+
+Hard rules:
+- Judge by the actual products. If the titles are men's/women's sandals and clothing, it is Footwear or Fashion — NOT Kids & Baby, even if the word "baby" appears in a colour or material.
+- IGNORE stray words: colour names ("baby blue", "kids size"), materials, marketing fluff, shipping/returns text.
+- If the products are mixed or don't clearly fit, use category "Other" with a LOW confidence. Never guess a specific category you aren't sure of.
+- confidence 0-100 = how certain you are. Be honest; a single ambiguous signal is low.
+
+{payload}
+
+Return ONLY JSON:
+{{"category": "<exact category>", "subcategory": "<exact subcategory>", "confidence": <0-100>, "evidence": ["<=3 short product-based reasons"]}}"""
+
+    try:
+        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+        msg = client.messages.create(
+            model="claude-haiku-4-5-20251001", max_tokens=220,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        text = msg.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+        p = _json.loads(text)
+        cat = str(p.get("category") or "").strip()
+        if cat not in CATEGORY_TAXONOMY:
+            # Snap to the closest valid category name, else Other.
+            cat = next((c for c in CATEGORY_TAXONOMY if c.lower() == cat.lower()), "Other")
+        subs = CATEGORY_TAXONOMY[cat]
+        sub = str(p.get("subcategory") or "").strip()
+        if sub not in subs:
+            sub = next((s for s in subs if s.lower() == sub.lower()), subs[0])
+        conf = max(0, min(100, int(p.get("confidence") or 0)))
+        ev = [{"signal": "ai", "detail": str(e)[:80], "weight": 0} for e in (p.get("evidence") or [])[:3]]
+        return {"category": cat, "subcategory": sub, "confidence": conf,
+                "evidence": ev, "method": "ai"}
+    except Exception as exc:
+        logger.debug("classify_store_ai failed: %s", exc)
+        return None
+
+
 def _ai_classify_tiebreak(text: str, candidates: List[str]) -> Optional[str]:
     try:
         from app.core.config import get_settings
@@ -868,15 +962,27 @@ def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
     domain = normalize_domain(row.get("domain") or "")
     now = datetime.now(timezone.utc).isoformat()
 
-    classification = classify_store_v2(
-        title=row.get("brand_name") or "",
+    # AI-primary classification (reads the real product titles) is far more
+    # accurate than keyword matching; fall back to the keyword scorer only if AI
+    # is unavailable or errors.
+    classification = classify_store_ai(
+        brand=row.get("brand_name") or "",
         description=row.get("homepage_message") or row.get("description") or "",
-        homepage_text=row.get("homepage_message") or "",
         product_types=row.get("product_types"),
         product_titles=row.get("product_titles"),
-        tags=row.get("tags"),
         collections=row.get("collections"),
+        tags=row.get("tags"),
     )
+    if not classification:
+        classification = classify_store_v2(
+            title=row.get("brand_name") or "",
+            description=row.get("homepage_message") or row.get("description") or "",
+            homepage_text=row.get("homepage_message") or "",
+            product_types=row.get("product_types"),
+            product_titles=row.get("product_titles"),
+            tags=row.get("tags"),
+            collections=row.get("collections"),
+        )
 
     evidence = classification.get("evidence") or []
     pricing_tier = row.get("pricing_tier") or derive_market_context(
