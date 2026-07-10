@@ -43,6 +43,45 @@ def _require_admin(token: Optional[str]) -> None:
 
 # ── Search (authenticated users; internal consumer: discovery) ────────────
 
+@router.get("/store-index/network-stats")
+def network_stats(user_id: str = Depends(get_effective_user_id)):
+    """Public-facing credibility numbers for the Intelligence Network panel —
+    how much verified data grounds StoreScout's analysis. Cheap counts; degrades
+    to zeros pre-migration so it never breaks the dashboard."""
+    db = get_supabase()
+
+    def _count(table, **filters) -> int:
+        try:
+            q = db.table(table).select("id", count="exact")
+            for k, v in filters.items():
+                q = q.eq(k, v)
+            return q.execute().count or 0
+        except Exception:
+            return 0
+
+    verified = _count("shopify_store_index", status="verified")
+    discovered = 0
+    try:
+        dq = db.table("discovery_queue").select("id", count="exact").execute().count or 0
+        discovered = dq
+    except Exception:
+        discovered = 0
+    # Distinct categories present (slim sample; PostgREST has no distinct count).
+    categories = 0
+    try:
+        agg = db.table("shopify_store_index").select("category")\
+            .eq("status", "verified").not_.is_("category", "null").limit(5000).execute()
+        categories = len({r["category"] for r in (agg.data or []) if r.get("category")})
+    except Exception:
+        categories = 0
+
+    return {"data": {
+        "verified_stores": verified,
+        "discovered_universe": max(discovered, verified),
+        "categories": categories,
+    }}
+
+
 @router.get("/store-index/search")
 def search_store_index(
     q: str = "",

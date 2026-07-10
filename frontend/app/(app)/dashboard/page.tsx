@@ -16,6 +16,7 @@ import { cn, formatPrice, formatRelativeTime } from "@/lib/utils";
 import { groupAlertEvents, type SignalGroup, SIGNAL_CONFIG } from "@/lib/signals";
 import { SignalFeed } from "@/components/signals/SignalFeed";
 import { ActionPlaybook } from "@/components/competitors/ActionPlaybook";
+import { MarketAtAGlance, IntelligenceNetwork } from "@/components/dashboard/MarketPulse";
 import UpgradeModal from "@/components/UpgradeModal";
 import { ScoutBrief } from "@/components/ui";
 import { GettingStarted } from "@/components/dashboard/GettingStarted";
@@ -944,6 +945,9 @@ function DashboardContent() {
           {/* Mission control: attention first — what needs a decision today */}
           <ActionPlaybook competitorCount={competitorList.length} />
 
+          {/* Market at a glance — what StoreScout learned across the landscape */}
+          <MarketAtAGlance competitors={competitorList} />
+
           {/* Status strip — the room's instruments */}
           {!alertsLoading && <StatsBar competitorList={competitorList} signalGroups={signalGroups} alertList={alertList} />}
 
@@ -1052,6 +1056,11 @@ function DashboardContent() {
             <WatchPanel competitorList={competitorList} signalGroups={signalGroups} />
             <WatchlistPanel />
             <PlaybookWidget />
+          </div>
+
+          {/* Credibility bar — grounds the analysis in the real verified index */}
+          <div className="mt-6">
+            <IntelligenceNetwork />
           </div>
         </>
       )}

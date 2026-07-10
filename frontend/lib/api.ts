@@ -187,6 +187,11 @@ export const alerts = {
 };
 
 // ── Feedback ──────────────────────────────────────────────────
+export const storeIndex = {
+  networkStats: () =>
+    apiFetch<{ data: { verified_stores: number; discovered_universe: number; categories: number } }>("/store-index/network-stats"),
+};
+
 export const feedback = {
   submit: (data: { rating: number; message: string; allow_testimonial: boolean; page?: string }) =>
     apiFetch<{ ok: boolean }>("/feedback", {
