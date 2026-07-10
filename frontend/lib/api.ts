@@ -192,6 +192,25 @@ export const storeIndex = {
     apiFetch<{ data: { verified_stores: number; discovered_universe: number; categories: number } }>("/store-index/network-stats"),
 };
 
+export interface MarketSignalInterpretation {
+  what_happened?: string;
+  why_it_matters?: string;
+  your_move?: string;
+}
+
+export const market = {
+  // Rewrite deterministic Market Signals with per-category nuance grounded in
+  // the user's own business. Returns {} interpretations on any failure so the
+  // caller keeps its deterministic copy.
+  interpretSignals: (
+    signals: { id: string; headline?: string; what_happened?: string; competitor_count: number; members: { hostname: string; label?: string }[] }[],
+  ) =>
+    apiFetch<{ data: { interpretations: Record<string, MarketSignalInterpretation> } }>("/market/signals/interpret", {
+      method: "POST",
+      body: JSON.stringify({ signals }),
+    }),
+};
+
 export const feedback = {
   submit: (data: { rating: number; message: string; allow_testimonial: boolean; page?: string }) =>
     apiFetch<{ ok: boolean }>("/feedback", {

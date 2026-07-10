@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import {
   RefreshCw, ArrowRight, Sparkles,
   Zap, X, Lock, Target, Plus, Check,
+  DollarSign, Rocket, Package, Tag,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -14,9 +15,11 @@ import {
 } from "@/lib/api";
 import { cn, formatPrice, formatRelativeTime } from "@/lib/utils";
 import { groupAlertEvents, type SignalGroup, SIGNAL_CONFIG } from "@/lib/signals";
+import { watchIndicators } from "@/lib/market";
 import { SignalFeed } from "@/components/signals/SignalFeed";
 import { ActionPlaybook } from "@/components/competitors/ActionPlaybook";
 import { MarketAtAGlance, IntelligenceNetwork } from "@/components/dashboard/MarketPulse";
+import { MarketSignals, QuietIntelligence } from "@/components/dashboard/MarketSignals";
 import UpgradeModal from "@/components/UpgradeModal";
 import { ScoutBrief } from "@/components/ui";
 import { GettingStarted } from "@/components/dashboard/GettingStarted";
@@ -78,7 +81,7 @@ function StatsBar({ competitorList, signalGroups, alertList }: { competitorList:
 
   const readouts: { label: string; value: string; color?: string; sub?: string }[] = [
     {
-      label: "Changes · 7d",
+      label: "Market moves · 7d",
       value: thisWeekChanges.toLocaleString(),
       color: thisWeekChanges > 0 ? "var(--text)" : "var(--muted)",
       sub: weeklyDelta !== null
@@ -485,6 +488,13 @@ function CompetitorMonitor({
 
 // ── Watch list panel ──────────────────────────────────────────────────────
 
+const WATCH_INDICATORS = [
+  { key: "pricing" as const, Icon: DollarSign, label: "Pricing activity", color: "#7DB8C9" },
+  { key: "launches" as const, Icon: Rocket, label: "New launches", color: "#2F9FC9" },
+  { key: "inventory" as const, Icon: Package, label: "Inventory changes", color: "#FFB224" },
+  { key: "promotions" as const, Icon: Tag, label: "Promotions", color: "#F2555A" },
+];
+
 function WatchPanel({ competitorList, signalGroups }: { competitorList: Competitor[]; signalGroups: SignalGroup[] }) {
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const errorCount = competitorList.filter((c) => c.scan_status === "error").length;
@@ -495,7 +505,7 @@ function WatchPanel({ competitorList, signalGroups }: { competitorList: Competit
         <div className="flex items-center gap-2">
           <span className={cn("w-1.5 h-1.5 rounded-full", scanningCount > 0 && "animate-pulse")}
             style={{ background: errorCount > 0 ? "var(--red)" : scanningCount > 0 ? "var(--accent)" : "var(--emerald)" }} />
-          <p className="tick-label">Watch station</p>
+          <p className="tick-label">Market watchlist</p>
         </div>
         <Link href="/competitors" className="text-[11px] font-medium" style={{ color: "var(--muted)" }}
           onMouseEnter={(e) => { (e.target as HTMLElement).style.color = "var(--text-2)"; }}
@@ -512,39 +522,54 @@ function WatchPanel({ competitorList, signalGroups }: { competitorList: Competit
           const weeklyChanges = signalGroups
             .filter((g) => g.competitor_id === c.id && new Date(g.detected_at).getTime() > weekAgo)
             .reduce((s, g) => s + g.count, 0);
+          const ind = watchIndicators(c.id, signalGroups, c);
+          const activityColor = ind.activityLevel === "active" ? "var(--accent)" : ind.activityLevel === "moving" ? "var(--text-2)" : "var(--muted)";
           const subtext = isScanning
             ? "Scanning now"
             : isError
             ? "Scan error"
             : c.last_scanned_at
             ? weeklyChanges > 0
-              ? `${formatRelativeTime(c.last_scanned_at)} · ${weeklyChanges} change${weeklyChanges !== 1 ? "s" : ""}`
-              : formatRelativeTime(c.last_scanned_at)
+              ? `${weeklyChanges} move${weeklyChanges !== 1 ? "s" : ""} · ${formatRelativeTime(c.last_scanned_at)}`
+              : `Quiet · ${formatRelativeTime(c.last_scanned_at)}`
             : `Next: ${formatNextScan(c.next_scan_at)}`;
           return (
             <Link
               key={c.id}
               href={`/dashboard/${c.id}`}
-              className="flex items-center justify-between px-4 py-2.5 border-b last:border-0 hover:bg-white/[0.02] transition-colors"
+              className="block px-4 py-2.5 border-b last:border-0 hover:bg-white/[0.02] transition-colors"
               style={{ borderColor: "var(--border)" }}
             >
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold truncate" style={{ color: "var(--text)" }}>
-                  {c.display_name || c.hostname}
-                </p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", isScanning && "animate-pulse")} style={{ background: dotColor }} />
-                  <span className="text-[11px] truncate" style={{ color: weeklyChanges > 0 && !isScanning ? "var(--text-2)" : "var(--muted)" }}>
-                    {subtext}
-                  </span>
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold truncate" style={{ color: "var(--text)" }}>
+                    {c.display_name || c.hostname}
+                  </p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", isScanning && "animate-pulse")} style={{ background: dotColor }} />
+                    <span className="text-[11px] truncate" style={{ color: weeklyChanges > 0 && !isScanning ? "var(--text-2)" : "var(--muted)" }}>
+                      {subtext}
+                    </span>
+                  </div>
                 </div>
+                {/* Per-competitor market-movement pulse — read the market
+                    without opening anyone. Lit = active this week. */}
+                {!isScanning && !isError && (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {WATCH_INDICATORS.map(({ key, Icon, label, color }) => {
+                      const on = ind[key];
+                      return (
+                        <span key={key} title={`${label}: ${on ? "active" : "quiet"}`}
+                          className="flex items-center justify-center w-4 h-4 rounded"
+                          style={{ background: on ? `${color}22` : "transparent" }}>
+                          <Icon className="w-3 h-3" style={{ color: on ? color : "var(--border)" }} />
+                        </span>
+                      );
+                    })}
+                    <span className="w-1 h-1 rounded-full ml-0.5" style={{ background: activityColor }} title={`Activity: ${ind.activityLevel}`} />
+                  </div>
+                )}
               </div>
-              {c.product_count != null && (
-                <span className="text-[11px] font-mono shrink-0 ml-3 text-right" style={{ color: "var(--muted)" }}>
-                  {c.product_count.toLocaleString()}
-                  <span className="block text-[9px] opacity-70">products</span>
-                </span>
-              )}
             </Link>
           );
         })}
@@ -963,8 +988,12 @@ function DashboardContent() {
               {/* Signal feed */}
               {!alertsLoading && (
                 <>
+                  {/* Cross-competitor market signals dominate — the strategic
+                      read before the raw timeline. */}
+                  <MarketSignals groups={signalGroups} />
+
                   <div className="flex items-center justify-between mb-2.5">
-                    <p className="tick-label">Explore · signal timeline</p>
+                    <p className="tick-label">Strategic Signals · market movement</p>
                     <Link
                       href="/alerts"
                       className="num text-[11px] font-medium flex items-center gap-1 transition-colors hover:brightness-150"
@@ -976,42 +1005,41 @@ function DashboardContent() {
                   <SignalBreakdown groups={signalGroups} />
                   {signalGroups.length === 0 ? (
                     alertList.length === 0 ? (
-                      /* Brand-new account: explain what monitoring means — the
-                         feed isn't broken, it's a baseline that fills itself. */
-                      <div
-                        className="rounded-lg px-5 py-6"
-                        style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-                      >
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="signal-dot" />
-                          <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                            Monitoring has started
+                      /* Brand-new account: explain what monitoring means, then
+                         surface the market baseline so the page still teaches. */
+                      <div className="space-y-4">
+                        <div
+                          className="rounded-lg px-5 py-6"
+                          style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="signal-dot" />
+                            <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                              Monitoring is live
+                            </p>
+                          </div>
+                          <p className="text-sm leading-relaxed mb-3" style={{ color: "var(--text-2)" }}>
+                            Today&apos;s scan is the baseline. From now on, every scan is compared against
+                            it — the moment {competitorList[0]?.display_name || competitorList[0]?.hostname || "your competitor"}{" "}
+                            launches a product, moves a price, starts a discount, or pulls inventory, StoreScout
+                            interprets it and tells you what to do.
+                          </p>
+                          <p className="text-xs" style={{ color: "var(--muted)" }}>
+                            The full first-scan analysis is already in the{" "}
+                            {competitorList[0]?.id ? (
+                              <Link href={`/dashboard/${competitorList[0].id}`} className="underline" style={{ color: "var(--text-2)" }}>
+                                competitor dossier
+                              </Link>
+                            ) : "competitor dossier"}
+                            {" "}— catalog, pricing, and market openings.
                           </p>
                         </div>
-                        <p className="text-sm leading-relaxed mb-3" style={{ color: "var(--text-2)" }}>
-                          Today&apos;s scan is the baseline. From now on, every scan is compared against
-                          it — the moment {competitorList[0]?.display_name || competitorList[0]?.hostname || "your competitor"}{" "}
-                          launches a product, moves a price, starts a discount, or pulls inventory, it shows up here.
-                        </p>
-                        <p className="text-xs" style={{ color: "var(--muted)" }}>
-                          In the meantime, the full first-scan analysis is already in the{" "}
-                          {competitorList[0]?.id ? (
-                            <Link href={`/dashboard/${competitorList[0].id}`} className="underline" style={{ color: "var(--text-2)" }}>
-                              competitor dossier
-                            </Link>
-                          ) : "competitor dossier"}
-                          {" "}— catalog, pricing, and market openings.
-                        </p>
+                        <QuietIntelligence competitors={competitorList} />
                       </div>
                     ) : (
-                      <div
-                        className="rounded-lg px-4 py-5 text-center"
-                        style={{ border: "1px solid var(--border)" }}
-                      >
-                        <p className="text-sm" style={{ color: "var(--muted)" }}>
-                          No activity detected recently — we&apos;ll show signals here as competitors make changes.
-                        </p>
-                      </div>
+                      /* Quiet day — never a dead end. Surface what we already
+                         know about the market so the user leaves smarter. */
+                      <QuietIntelligence competitors={competitorList} />
                     )
                   ) : (
                     <SignalFeed groups={signalGroups} />
