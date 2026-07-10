@@ -211,10 +211,13 @@ def stage_resolution(limit_override: Optional[int] = None, force: bool = False) 
     refs = [p["ref"] for p in pending]
     # Rate-limited resolution runs on the web process.
     url = f"{settings.api_internal_url}/api/v1/internal/shop-app-resolve"
+    stats: dict = {}
     try:
         resp = httpx.post(url, json={"refs": refs},
-                          headers={"x-internal-token": settings.internal_secret}, timeout=120.0)
-        resolved = resp.json().get("resolved", []) if resp.status_code == 200 else []
+                          headers={"x-internal-token": settings.internal_secret}, timeout=180.0)
+        body = resp.json() if resp.status_code == 200 else {}
+        resolved = body.get("resolved", [])
+        stats = body.get("stats", {}) or {}
     except Exception as exc:
         logger.warning("stage_resolution: resolve call failed: %s", exc)
         resolved = []
@@ -263,10 +266,12 @@ def stage_resolution(limit_override: Optional[int] = None, force: bool = False) 
             except Exception:
                 pass
 
-    logger.info("stage_resolution: %d/%d refs resolved → %d new index rows",
-                promoted, len(pending), len([d for d in domains if d not in seen]))
+    new_count = len([d for d in domains if d not in seen])
+    logger.info("stage_resolution: %d/%d refs resolved → %d new index rows (rate_limited=%s)",
+                promoted, len(pending), new_count, stats.get("rate_limited"))
     return {"status": "ok", "processed": len(pending), "resolved": promoted,
-            "new_domains": len([d for d in domains if d not in seen])}
+            "new_domains": new_count, "rate_limited": stats.get("rate_limited"),
+            "no_domain": stats.get("no_domain")}
 
 
 # ── Stage 2: VERIFICATION ───────────────────────────────────────────────────

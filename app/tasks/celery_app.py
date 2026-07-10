@@ -87,9 +87,11 @@ celery.conf.update(
             "task": "app.tasks.store_index.stage_discovery",
             "schedule": crontab(minute=10, hour="*/6"),
         },
+        # Resolution is the rate-limited bottleneck — run it often so it keeps a
+        # steady stream flowing (each run self-throttles with backoff).
         "index-stage-resolution": {
             "task": "app.tasks.store_index.stage_resolution",
-            "schedule": crontab(minute="5,35"),
+            "schedule": crontab(minute="*/12"),
         },
         "index-stage-verification": {
             "task": "app.tasks.store_index.stage_verification",

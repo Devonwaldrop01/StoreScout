@@ -389,7 +389,9 @@ def internal_shop_app_resolve(body: dict, x_internal_token: str = Header(...)):
 
     resolved = []
     rate_limited = no_domain = 0
-    with ThreadPoolExecutor(max_workers=6) as pool:
+    # Modest concurrency + per-request backoff: steady beats bursty under a
+    # rate limit (a big burst just trips more 429s).
+    with ThreadPoolExecutor(max_workers=4) as pool:
         for ref, (domain, st) in zip(refs, pool.map(lambda r: _shop_app_resolve_one(r), refs)):
             if domain:
                 resolved.append({"ref": ref, "domain": domain})
@@ -604,13 +606,17 @@ def _shop_app_resolve_one(handle_url: str, timeout: int = 20, retry_429: bool = 
     """Resolve one shop.app/m/{handle} store page to the merchant's real domain.
     Prefers the vanity domain (most-frequent external host on the page); falls
     back to the {shop}.myshopify.com domain, which is always a live Shopify
-    storefront. Returns (domain|None, http_status)."""
+    storefront. Retries through throttling with exponential backoff so a 429
+    doesn't waste the ref. Returns (domain|None, http_status)."""
     import re as _re
     import time as _time
     status, text = _shop_app_get(handle_url, timeout)
-    if status == 429 and retry_429:
-        _time.sleep(3.0)  # one polite backoff on throttle
-        status, text = _shop_app_get(handle_url, timeout)
+    if retry_429:
+        for backoff in (2.0, 5.0, 10.0):
+            if status != 429:
+                break
+            _time.sleep(backoff)
+            status, text = _shop_app_get(handle_url, timeout)
     if status != 200 or not text:
         return None, status
 
