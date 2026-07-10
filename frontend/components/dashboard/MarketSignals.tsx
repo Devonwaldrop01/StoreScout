@@ -21,6 +21,10 @@ import { market, type MarketSignalInterpretation } from "@/lib/api";
 import type { SignalGroup } from "@/lib/signals";
 import type { Competitor } from "@/lib/api";
 
+const CONFIDENCE_COLOR: Record<string, string> = {
+  high: "#4CC38A", medium: "#FFB224", low: "var(--muted)",
+};
+
 function SignalBlock({ signal, primary, ai }: { signal: MarketSignal; primary: boolean; ai?: MarketSignalInterpretation }) {
   const [open, setOpen] = useState(false);
   const lang = INSIGHT_LANGUAGE[signal.kind];
@@ -69,7 +73,14 @@ function SignalBlock({ signal, primary, ai }: { signal: MarketSignal; primary: b
           {whatHappened}
         </h3>
 
-        {/* 2. Why it matters — the interpretation */}
+        {/* 2. Why it matters — the interpretation (an inference, labeled with
+            its confidence so a correlation never reads as proven fact) */}
+        <div className="flex items-center gap-1.5 mb-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Why it matters</span>
+          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ background: "var(--bg3)", color: CONFIDENCE_COLOR[signal.confidence] }}>
+            {signal.confidence} confidence
+          </span>
+        </div>
         <p className="text-[13px] leading-relaxed mb-3" style={{ color: "var(--text-2)" }}>
           {whyItMatters}
         </p>
