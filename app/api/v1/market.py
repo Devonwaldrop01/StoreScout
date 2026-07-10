@@ -10,7 +10,6 @@ cheap batched Haiku call; degrades to the deterministic copy on any failure.
 """
 from __future__ import annotations
 
-import json as _json
 import logging
 from typing import List, Optional
 
@@ -21,6 +20,8 @@ from app.core.auth import get_effective_user_id
 from app.core.config import get_settings
 from app.core.database import get_supabase
 from app.core.obs import safe_read
+from app.core.ratelimit import check_rate_limit, dedupe_key, single_flight
+from app.services.ai import UNTRUSTED_DATA_NOTE, call_claude, parse_json
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/market", tags=["market"])
@@ -85,9 +86,15 @@ def _user_market_context(db, user_id: str) -> str:
 @safe_read("POST /market/signals/interpret", {"data": {"interpretations": {}}})
 def interpret_signals(body: InterpretRequest, user_id: str = Depends(get_effective_user_id)):
     settings = get_settings()
-    signals = (body.signals or [])[:6]
+    # Bound the list server-side (never trust the client) and cap per-user rate.
+    signals = (body.signals or [])[:max(1, settings.ai_max_signals)]
     if not signals or not settings.anthropic_api_key:
         return {"data": {"interpretations": {}}}
+
+    allowed, _ = check_rate_limit("ai_interpret", user_id, settings.ai_ratelimit_interpret_per_hour, 3600)
+    if not allowed:
+        # Friendly degrade — the deterministic copy already renders client-side.
+        return {"data": {"interpretations": {}, "rate_limited": True}}
 
     db = get_supabase()
     ctx = _user_market_context(db, user_id)
@@ -106,6 +113,8 @@ def interpret_signals(body: InterpretRequest, user_id: str = Depends(get_effecti
 
     prompt = f"""You are StoreScout, a competitive-intelligence strategist advising a Shopify store owner. Below are MARKET SIGNALS — moves several of their competitors made at the same time. Rewrite each one so it is specific to THIS owner's business and category, not generic.
 
+{UNTRUSTED_DATA_NOTE}
+
 THE OWNER'S BUSINESS: {ctx}
 
 MARKET SIGNALS (each has an id):
@@ -119,28 +128,27 @@ For EACH signal, write three fields, grounded only in what's stated — never in
 Talk like a smart operator, no fluff, no "as an AI". Return ONLY JSON:
 {{"interpretations": {{"<id>": {{"what_happened": "...", "why_it_matters": "...", "your_move": "..."}}}}}}"""
 
-    try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
-        msg = client.messages.create(
+    # Collapse duplicate simultaneous requests for the same signal set.
+    df_key = dedupe_key(user_id, "|".join(sorted(s.id for s in signals)))
+    with single_flight("ai_interpret", df_key, ttl_s=30) as fresh:
+        if not fresh:
+            return {"data": {"interpretations": {}, "in_flight": True}}
+        res = call_claude(
+            "market_interpret", prompt,
             model="claude-haiku-4-5-20251001", max_tokens=900,
-            messages=[{"role": "user", "content": prompt}],
+            user_id=user_id,
         )
-        text = msg.content[0].text.strip()
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-        p = _json.loads(text)
-        raw = p.get("interpretations") or {}
-        valid_ids = {s.id for s in signals}
-        out = {}
-        for sid, v in raw.items():
-            if sid in valid_ids and isinstance(v, dict) and v.get("why_it_matters"):
-                out[sid] = {
-                    "what_happened": str(v.get("what_happened") or "")[:280],
-                    "why_it_matters": str(v.get("why_it_matters") or "")[:500],
-                    "your_move": str(v.get("your_move") or "")[:400],
-                }
-        return {"data": {"interpretations": out}}
-    except Exception as exc:
-        logger.warning("market signal interpret failed: %s", exc)
+    if not res.ok:
         return {"data": {"interpretations": {}}}
+    p = parse_json(res.text) or {}
+    raw = p.get("interpretations") or {}
+    valid_ids = {s.id for s in signals}
+    out = {}
+    for sid, v in raw.items():
+        if sid in valid_ids and isinstance(v, dict) and v.get("why_it_matters"):
+            out[sid] = {
+                "what_happened": str(v.get("what_happened") or "")[:280],
+                "why_it_matters": str(v.get("why_it_matters") or "")[:500],
+                "your_move": str(v.get("your_move") or "")[:400],
+            }
+    return {"data": {"interpretations": out}}

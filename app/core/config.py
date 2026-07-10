@@ -55,6 +55,20 @@ class Settings(BaseSettings):
 
     # Anthropic
     anthropic_api_key: str = ""
+    # Shared AI-call layer (app/services/ai.py): explicit timeout, bounded
+    # transient retries, and a per-feature circuit breaker so a failing
+    # Anthropic never hangs requests or hammers the API. All safe defaults.
+    anthropic_timeout_s: float = 30.0
+    anthropic_max_retries: int = 2            # transient failures only (429/5xx/timeouts)
+    ai_circuit_threshold: int = 5             # consecutive failures before the breaker opens
+    ai_circuit_cooldown_s: int = 60           # how long the breaker stays open
+
+    # Server-side AI abuse controls (app/core/ratelimit.py) for interactive
+    # endpoints. Per-user hourly caps + input bounds; Redis-backed, fail-open.
+    ai_ratelimit_ask_per_hour: int = 30
+    ai_ratelimit_interpret_per_hour: int = 60
+    ai_max_question_len: int = 500            # Ask StoreScout question hard cap
+    ai_max_signals: int = 8                   # market-signal interpretation list cap
 
     # Launch-time memory guard: hard cap on products a single scan processes.
     # Bounds peak memory of fetch → normalize → analyze → detect for huge

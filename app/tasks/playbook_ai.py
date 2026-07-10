@@ -4,12 +4,12 @@ import logging
 import re
 from datetime import datetime, timezone, timedelta
 
-import anthropic
 import redis as _redis_lib
 
 from .celery_app import celery
 from app.core.config import get_settings
 from app.core.database import get_supabase
+from app.services.ai import call_claude
 
 logger = logging.getLogger(__name__)
 
@@ -437,15 +437,15 @@ Rules:
 - Output 3-4 recommendations."""
 
     try:
-        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
-        message = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=3000,
-            system=_SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": prompt}],
+        res = call_claude(
+            "playbook", prompt,
+            model="claude-sonnet-4-6", max_tokens=3000,
+            system=_SYSTEM_PROMPT, user_id=user_id,
         )
-        raw_text = message.content[0].text.strip()
-        if message.stop_reason == "max_tokens":
+        if not res.ok:
+            return {"status": "error", "reason": "ai_unavailable"}
+        raw_text = res.text
+        if res.truncated:
             logger.warning("generate_ai_playbook: response truncated at max_tokens for %s", user_id)
 
         try:
