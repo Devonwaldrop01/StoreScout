@@ -1606,6 +1606,93 @@ Return ONLY JSON:
         return {"data": {"answer": "I couldn't analyze that one — try rephrasing.", "followups": []}}
 
 
+# ── Market benchmarks — competitor vs the category's norms ───────────────────
+
+@router.get("/{competitor_id}/benchmarks")
+@safe_read("GET /benchmarks", {"data": {"category": None, "benchmarks": []}})
+def get_benchmarks(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
+    """Benchmark this competitor against its category's averages, computed from
+    the verified store index. Turns raw numbers into 'where do they sit in the
+    market' — instant market-norm understanding."""
+    import statistics as _stats
+    from app.services.store_index import normalize_domain
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+
+    crow = db.table("competitors").select("hostname").eq("id", competitor_id).maybe_single().execute()
+    hostname = ((crow.data if crow else {}) or {}).get("hostname") or ""
+    domain = normalize_domain(hostname)
+
+    # The competitor's category + its own index-stored figures (fallback: snapshot).
+    category = None
+    idx = None
+    try:
+        r = db.table("shopify_store_index")\
+            .select("category, median_price, product_count, promo_rate, collection_count")\
+            .eq("domain", domain).maybe_single().execute()
+        idx = (r.data if r else {}) or {}
+        category = idx.get("category")
+    except Exception:
+        idx = {}
+
+    sd = _latest_snapshot_data(db, competitor_id) or {}
+    comp_vals = {
+        "median_price": idx.get("median_price") or (sd.get("pricing") or {}).get("median"),
+        "product_count": idx.get("product_count") or (sd.get("catalog") or {}).get("total_products"),
+        "promo_rate": idx.get("promo_rate") if idx.get("promo_rate") is not None else (sd.get("discounts") or {}).get("discounted_pct"),
+        "collection_count": idx.get("collection_count") or ((sd.get("store_profile") or {}).get("collection_intel") or {}).get("count"),
+    }
+
+    if not category or category == "Other":
+        return {"data": {"category": category, "benchmarks": [], "sample_size": 0,
+                         "note": "Not enough category data yet to benchmark this store."}}
+
+    # Category norms from verified peers in the index.
+    try:
+        peers = db.table("shopify_store_index")\
+            .select("median_price, product_count, promo_rate, collection_count")\
+            .eq("status", "verified").eq("category", category)\
+            .neq("domain", domain).limit(3000).execute()
+        rows = peers.data or []
+    except Exception:
+        rows = []
+
+    def _series(key):
+        return [float(r[key]) for r in rows if r.get(key) is not None]
+
+    _META = [
+        ("median_price", "Median price", "$", "higher-is-premium"),
+        ("product_count", "Catalog size", "", "neutral"),
+        ("promo_rate", "Discount rate", "%", "lower-is-premium"),
+        ("collection_count", "Collections", "", "neutral"),
+    ]
+    benchmarks = []
+    for key, label, unit, _kind in _META:
+        series = _series(key)
+        val = comp_vals.get(key)
+        if not series or val is None:
+            continue
+        val = float(val)
+        avg = round(_stats.mean(series), 2)
+        median = round(_stats.median(series), 2)
+        pctile = round(100 * sum(1 for s in series if s <= val) / len(series))
+        diff_pct = round((val - avg) / avg * 100) if avg else 0
+        # Plain-English read.
+        where = "above" if diff_pct >= 8 else ("below" if diff_pct <= -8 else "in line with")
+        if where == "in line with":
+            read = f"About average for {category}."
+        else:
+            mag = abs(diff_pct)
+            read = f"{mag}% {where} the {category} average — {'higher than' if pctile >= 50 else 'lower than'} {pctile if pctile >= 50 else 100 - pctile}% of peers."
+        benchmarks.append({
+            "key": key, "label": label, "unit": unit,
+            "value": round(val, 2), "average": avg, "median": median,
+            "percentile": pctile, "diff_pct": diff_pct, "read": read,
+        })
+
+    return {"data": {"category": category, "sample_size": len(rows), "benchmarks": benchmarks}}
+
+
 def _user_tier(db, user_id: str) -> str:
     user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
     return (user.data or {}).get("tier", "free") if user else "free"
