@@ -109,6 +109,12 @@ celery.conf.update(
             "task": "app.tasks.lead_engine.discover_leads_daily",
             "schedule": crontab(hour=5, minute=30),
         },
+        # Intent-signal scan — inbound buying-intent from public discussions.
+        # No-ops unless INTENT_ENGINE_ENABLED. Twice a day, off-peak.
+        "scan-intent-signals": {
+            "task": "app.tasks.lead_engine.scan_intent_signals",
+            "schedule": crontab(hour="6,18", minute=15),
+        },
         # Daily Intelligence Brief dispatcher — hourly; each user's brief
         # fires at their configured digest hour (default 08:00 UTC).
         "send-daily-briefs": {

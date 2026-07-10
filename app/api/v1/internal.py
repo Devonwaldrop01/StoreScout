@@ -752,6 +752,66 @@ def _shop_app_discover(cursor: dict, limit: int) -> dict:
             "child": child_i, "child_total": len(handles), "note": note}
 
 
+@router.post("/reddit-search")
+def internal_reddit_search(body: dict, x_internal_token: str = Header(...)):
+    """
+    Search Reddit's public JSON for intent phrases across channels (runs on the
+    web process — worker IPs are blocked). Returns normalized posts. Reddit
+    requires a descriptive User-Agent and rate-limits, so this is polite.
+    Body: {channels: [str], queries: [str], limit: int}. Returns {posts: [...]}.
+    """
+    _require_internal(x_internal_token)
+    import time as _time
+    from app.services.fetch import _USE_CURL_CFFI
+
+    channels = (body or {}).get("channels") or []
+    queries = (body or {}).get("queries") or []
+    limit = max(1, min(int((body or {}).get("limit") or 15), 50))
+    ua = {"User-Agent": "StoreScout/1.0 (competitor intelligence; contact admin@storescout.app)"}
+
+    def _get(url: str):
+        try:
+            if _USE_CURL_CFFI:
+                from curl_cffi.requests import Session as CurlSession
+                with CurlSession() as c:
+                    r = c.get(url, headers=ua, timeout=20)
+            else:
+                import httpx
+                with httpx.Client(follow_redirects=True) as c:
+                    r = c.get(url, headers=ua, timeout=20)
+            return r.json() if r.status_code == 200 else None
+        except Exception:
+            return None
+
+    posts: list = []
+    seen = set()
+    from urllib.parse import quote_plus
+    for ch in channels[:8]:
+        for q in queries[:10]:
+            url = f"https://www.reddit.com/r/{ch}/search.json?q={quote_plus(q)}&restrict_sr=1&sort=new&t=year&limit={limit}"
+            data = _get(url)
+            _time.sleep(1.0)  # polite — Reddit rate-limits
+            if not data:
+                continue
+            for child in (data.get("data", {}).get("children") or []):
+                d = child.get("data", {})
+                pid = d.get("id")
+                if not pid or pid in seen:
+                    continue
+                seen.add(pid)
+                posts.append({
+                    "external_id": pid,
+                    "title": (d.get("title") or "")[:300],
+                    "body": (d.get("selftext") or "")[:2000],
+                    "author": d.get("author"),
+                    "url": f"https://www.reddit.com{d.get('permalink') or ''}",
+                    "channel": d.get("subreddit"),
+                    "created_utc": d.get("created_utc"),
+                })
+    logger.info("[REDDIT] %d posts across %d channels", len(posts), len(channels))
+    return {"posts": posts}
+
+
 @router.post("/debug-fetch")
 def debug_fetch(body: dict, x_internal_token: str = Header(...)):
     """

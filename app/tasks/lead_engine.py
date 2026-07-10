@@ -33,6 +33,77 @@ logger = logging.getLogger(__name__)
 _POOL_MULTIPLIER = 5  # examine up to target×5 stores to find target keepers
 
 
+@celery.task(name="app.tasks.lead_engine.scan_intent_signals")
+def scan_intent_signals(limit_override: Optional[int] = None, force: bool = False) -> dict:
+    """
+    Phase 2: capture inbound buying-intent from public discussions. Fetches
+    Reddit (via the web process), scores each post's intent, extracts a store
+    domain when the poster linked one, and stores signals. High-intent posts
+    with an extractable domain are flagged for promotion into the lead pipeline.
+    Disabled by default (INTENT_ENGINE_ENABLED).
+    """
+    settings = get_settings()
+    from app.services.runtime_config import get_config
+    if not get_config("intent_engine_enabled", settings.intent_engine_enabled) and not force:
+        return {"status": "disabled"}
+
+    from app.services.intent_signals import fetch_reddit_via_web, score_intent, extract_domain
+
+    db = get_supabase()
+    min_score = get_config("intent_min_score", settings.intent_min_score)
+    per_query = max(5, min(limit_override or 15, 40))
+
+    posts = fetch_reddit_via_web(per_query)
+    if not posts:
+        return {"status": "ok", "fetched": 0, "created": 0, "note": "no posts (source blocked or empty)"}
+
+    # Skip anything we've already captured.
+    ext_ids = [p["external_id"] for p in posts if p.get("external_id")]
+    seen = set()
+    try:
+        ex = db.table("intent_signals").select("external_id").in_("external_id", ext_ids).execute()
+        seen = {r["external_id"] for r in (ex.data or [])}
+    except Exception as exc:
+        logger.error("intent scan: table unavailable (migration 019?): %s", exc)
+        return {"status": "error", "reason": "intent_signals table unavailable"}
+
+    from datetime import datetime as _dt
+    created = 0
+    high = 0
+    for p in posts:
+        if p["external_id"] in seen:
+            continue
+        scored = score_intent(p.get("title", ""), p.get("body", ""))
+        if scored["score"] < min_score:
+            continue
+        domain = extract_domain(f"{p.get('title','')} {p.get('body','')}")
+        posted = None
+        if p.get("created_utc"):
+            try:
+                posted = _dt.utcfromtimestamp(float(p["created_utc"])).isoformat()
+            except Exception:
+                posted = None
+        now = datetime.now(timezone.utc).isoformat()
+        row = {
+            "source": "reddit", "external_id": p["external_id"],
+            "title": p.get("title"), "quote": (p.get("body") or p.get("title") or "")[:1000],
+            "author": p.get("author"), "url": p.get("url"), "channel": p.get("channel"),
+            "intent_score": scored["score"], "intent_reason": scored["reason"],
+            "matched_domain": domain, "status": "new",
+            "created_at": now, "posted_at": posted, "updated_at": now,
+        }
+        try:
+            db.table("intent_signals").insert(row).execute()
+            created += 1
+            if scored["score"] >= 75:
+                high += 1
+        except Exception as exc:
+            logger.debug("intent insert failed for %s: %s", p["external_id"], exc)
+
+    logger.info("intent scan: %d fetched, %d signals created (%d high-intent)", len(posts), created, high)
+    return {"status": "ok", "fetched": len(posts), "created": created, "high_intent": high}
+
+
 @celery.task(name="app.tasks.lead_engine.discover_leads_daily")
 def discover_leads_daily(limit_override: Optional[int] = None, force: bool = False) -> dict:
     settings = get_settings()

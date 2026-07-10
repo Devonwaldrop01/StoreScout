@@ -101,6 +101,11 @@ class Settings(BaseSettings):
     lead_engine_min_qualification: int = 55   # below this a store never becomes a prospect
     lead_outreach_sender_name: str = "Devon"
 
+    # Intent-signal engine (Phase 2) — inbound buying-intent from public
+    # discussions. Off by default; the live fetch runs on the web process.
+    intent_engine_enabled: bool = False
+    intent_min_score: int = 60        # below this an intent post is ignored
+
 
 @lru_cache
 def get_settings() -> Settings:

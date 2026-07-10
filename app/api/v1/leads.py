@@ -126,6 +126,61 @@ def update_lead(lead_id: str, body: LeadUpdate, x_admin_token: Optional[str] = H
     return {"data": res.data[0]}
 
 
+# ── Intent signals (Phase 2) ─────────────────────────────────────────────────
+
+@router.get("/signals")
+def list_signals(status: str = "new", limit: int = 100, x_admin_token: Optional[str] = Header(default=None)):
+    _require_admin(x_admin_token)
+    db = get_supabase()
+    limit = max(1, min(limit, 200))
+    rows, counts = [], {}
+    try:
+        q = db.table("intent_signals").select(
+            "id, source, title, quote, author, url, channel, intent_score, intent_reason, "
+            "matched_domain, contact_email, status, promoted_lead_id, posted_at, created_at"
+        ).order("intent_score", desc=True).order("created_at", desc=True).limit(limit)
+        if status and status != "all":
+            q = q.eq("status", status)
+        rows = q.execute().data or []
+        agg = db.table("intent_signals").select("status").limit(5000).execute()
+        for r in agg.data or []:
+            counts[r["status"]] = counts.get(r["status"], 0) + 1
+    except Exception as exc:
+        logger.warning("signals list failed (migration 019 applied?): %s", exc)
+    return {"data": {"rows": rows, "counts": counts}}
+
+
+class SignalUpdate(BaseModel):
+    status: Optional[str] = None      # reviewed | promoted | engaged | dismissed
+
+
+@router.patch("/signals/{signal_id}")
+def update_signal(signal_id: str, body: SignalUpdate, x_admin_token: Optional[str] = Header(default=None)):
+    _require_admin(x_admin_token)
+    valid = {"new", "reviewed", "promoted", "engaged", "dismissed"}
+    if body.status and body.status not in valid:
+        raise HTTPException(status_code=422, detail=f"status must be one of {valid}")
+    db = get_supabase()
+    fields = {"status": body.status, "updated_at": datetime.now(timezone.utc).isoformat()}
+    res = db.table("intent_signals").update(fields).eq("id", signal_id).execute()
+    if not res.data:
+        raise HTTPException(status_code=404, detail="signal not found")
+    return {"data": res.data[0]}
+
+
+@router.post("/signals/scan")
+def scan_signals(x_admin_token: Optional[str] = Header(default=None)):
+    """Manual intent scan (bypasses INTENT_ENGINE_ENABLED)."""
+    _require_admin(x_admin_token)
+    from app.tasks.lead_engine import scan_intent_signals
+    try:
+        task = scan_intent_signals.delay(force=True)
+        return {"status": "queued", "task_id": str(task.id)}
+    except Exception as exc:
+        logger.warning("signals scan: Celery unavailable (%s) — inline", exc)
+        return {"status": "completed_inline", "result": scan_intent_signals(force=True)}
+
+
 class RunBody(BaseModel):
     limit: int = 5
 
