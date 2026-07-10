@@ -51,6 +51,26 @@ function FreeTierView({
 }) {
   return (
     <div className="space-y-4">
+      {/* Decode teaser — a real taste of the strategy read, then locked */}
+      {data.decode_teaser?.headline && (
+        <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: "3px solid var(--accent)" }}>
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
+            <p className="label-caps" style={{ color: "var(--accent)" }}>What&apos;s really going on here</p>
+          </div>
+          <p className="text-base font-semibold leading-snug mb-2" style={{ color: "var(--text)" }}>{data.decode_teaser.headline}</p>
+          {data.decode_teaser.positioning && (
+            <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{data.decode_teaser.positioning}</p>
+          )}
+          <div className="mt-3 pt-3 flex items-center gap-2" style={{ borderTop: "1px solid var(--border)" }}>
+            <Lock className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
+            <button onClick={onUpgrade} className="text-xs font-semibold" style={{ color: "var(--accent)" }}>
+              Unlock how they merchandise, where they&apos;re exposed, and your move →
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Teasers */}
       <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2 mb-4">

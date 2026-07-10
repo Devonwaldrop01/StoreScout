@@ -401,6 +401,7 @@ export interface StoreProfileResponse {
   has_blog?: boolean;
   has_wholesale?: boolean;
   content_investment_score?: number;
+  decode_teaser?: { headline?: string; positioning?: string } | null;
   // Pro/Agency nested fields
   decode?: BrandDecode | null;
   collection_intel?: CollectionIntel;

@@ -19,41 +19,58 @@ function verdictStyle(v: string): { color: string; bg: string; label: string; Ic
 
 function DimensionCard({ dim, onUpgrade }: { dim: ComparisonDimension; onUpgrade: () => void }) {
   const { color, bg, label, Icon } = verdictStyle(dim.verdict);
+  // Highlight the side that's ahead from the user's POV.
+  const youAhead = dim.verdict === "winning";
+  const themAhead = dim.verdict === "losing";
+  const youStyle = youAhead
+    ? { background: "rgba(76,195,138,.08)", border: "1px solid rgba(76,195,138,.35)", valueColor: "#4CC38A" }
+    : themAhead
+      ? { background: "var(--bg3)", border: "1px solid var(--border)", valueColor: "var(--text-2)" }
+      : { background: "var(--bg3)", border: "1px solid var(--border)", valueColor: "var(--text)" };
+  const themStyle = themAhead
+    ? { background: "rgba(242,85,90,.06)", border: "1px solid rgba(242,85,90,.3)", valueColor: "#F2555A" }
+    : { background: "var(--bg3)", border: "1px solid var(--border)", valueColor: "var(--text-2)" };
+
   return (
-    <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>{dim.label}</h4>
-        <span className="flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-1 rounded-md shrink-0" style={{ background: bg, color }}>
-          <Icon className="w-3 h-3" /> {label}
-        </span>
+    <div className="rounded-md overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: `3px solid ${color}` }}>
+      <div className="p-5">
+        <div className="flex items-center justify-between gap-3 mb-3.5">
+          <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>{dim.label}</h4>
+          <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-md shrink-0" style={{ background: bg, color }}>
+            <Icon className="w-3 h-3" /> {label}
+          </span>
+        </div>
+
+        {/* Head-to-head tiles — symmetric, winner highlighted */}
+        <div className="grid grid-cols-[1fr_auto_1fr] items-stretch gap-2 mb-3.5">
+          <div className="text-center rounded-md py-2.5 px-2" style={{ background: youStyle.background, border: youStyle.border }}>
+            <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: "var(--muted)" }}>You</p>
+            <p className="font-mono font-bold text-base leading-none" style={{ color: youStyle.valueColor }}>{dim.your_value}</p>
+          </div>
+          <div className="flex items-center justify-center">
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: "var(--bg3)", color: "var(--muted)" }}>VS</span>
+          </div>
+          <div className="text-center rounded-md py-2.5 px-2" style={{ background: themStyle.background, border: themStyle.border }}>
+            <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: "var(--muted)" }}>Them</p>
+            <p className="font-mono font-bold text-base leading-none" style={{ color: themStyle.valueColor }}>{dim.their_value}</p>
+          </div>
+        </div>
+
+        <p className="text-[13px] leading-relaxed" style={{ color: "var(--text-2)" }}>{dim.insight}</p>
       </div>
 
-      <div className="flex items-center gap-3 mb-3 text-sm">
-        <div className="flex-1 text-center rounded py-2" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
-          <p className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: "var(--muted)" }}>You</p>
-          <p className="font-mono font-bold" style={{ color: "var(--text)" }}>{dim.your_value}</p>
-        </div>
-        <Swords className="w-4 h-4 shrink-0" style={{ color: "var(--muted)" }} />
-        <div className="flex-1 text-center rounded-lg py-2" style={{ background: "var(--bg3)" }}>
-          <p className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: "var(--muted)" }}>Them</p>
-          <p className="font-mono font-bold" style={{ color: "var(--text)" }}>{dim.their_value}</p>
-        </div>
-      </div>
-
-      <p className="text-sm leading-relaxed mb-3" style={{ color: "var(--muted)" }}>{dim.insight}</p>
-
-      {/* Action — gated */}
+      {/* Action — gated; sits in a footer band so the "what to do" reads as the payoff */}
       {dim.action_locked ? (
         <button
           onClick={onUpgrade}
-          className="w-full flex items-center justify-center gap-2 text-xs font-medium py-2 rounded-lg transition-all hover:brightness-110"
-          style={{ background: "rgba(255,178,36,.08)", color: "var(--accent)", border: "1px dashed rgba(255,178,36,.3)" }}
+          className="w-full flex items-center justify-center gap-2 text-xs font-semibold py-2.5 transition-all hover:brightness-110"
+          style={{ background: "rgba(255,178,36,.07)", color: "var(--accent)", borderTop: "1px dashed rgba(255,178,36,.3)" }}
         >
-          <Lock className="w-3 h-3" /> Unlock what to do about this
+          <Lock className="w-3.5 h-3.5" /> Unlock the move → what to do about this
         </button>
       ) : dim.action ? (
-        <div className="flex items-start gap-2 text-sm rounded p-3" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
-          <ArrowRight className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "var(--text-2)" }} />
+        <div className="flex items-start gap-2 text-[13px] px-5 py-3" style={{ background: "var(--bg3)", borderTop: "1px solid var(--border)" }}>
+          <ArrowRight className="w-4 h-4 mt-0.5 shrink-0" style={{ color: color }} />
           <span style={{ color: "var(--text)" }}>{dim.action}</span>
         </div>
       ) : null}
@@ -201,17 +218,24 @@ export default function ComparisonTab({ competitorId }: { competitorId: string }
         </div>
       </div>
 
-      {/* Overall verdict */}
-      <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: `1px solid ${overallColor}40` }}>
-        <div className="flex items-center justify-between mb-2">
-          <span className="font-bold text-lg" style={{ color: overallColor }}>{verdict}</span>
-          <div className="flex gap-3 text-xs font-mono">
-            <span style={{ color: "#4CC38A" }}>{data.overall.score.winning}W</span>
-            <span style={{ color: "#F2555A" }}>{data.overall.score.losing}L</span>
-            <span style={{ color: "#A8AC9E" }}>{data.overall.score.matched}M</span>
+      {/* Overall verdict — the scoreboard */}
+      <div className="rounded-md p-5" style={{ background: "var(--bg-card)", border: `1px solid ${overallColor}40`, borderLeft: `3px solid ${overallColor}` }}>
+        <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+          <span className="font-bold text-lg leading-tight" style={{ color: overallColor }}>{verdict}</span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {([
+              ["Ahead", data.overall.score.winning, "#4CC38A"],
+              ["Behind", data.overall.score.losing, "#F2555A"],
+              ["Even", data.overall.score.matched, "#A8AC9E"],
+            ] as [string, number, string][]).map(([lbl, n, c]) => (
+              <div key={lbl} className="text-center rounded-md px-2.5 py-1" style={{ background: `${c}14` }}>
+                <p className="num text-sm font-bold leading-none" style={{ color: c }}>{n}</p>
+                <p className="text-[9px] uppercase tracking-wider mt-0.5" style={{ color: "var(--muted)" }}>{lbl}</p>
+              </div>
+            ))}
           </div>
         </div>
-        <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{data.overall.summary}</p>
+        <p className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>{data.overall.summary}</p>
       </div>
 
       {/* Match strategy */}
