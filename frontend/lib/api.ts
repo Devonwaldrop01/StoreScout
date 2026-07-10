@@ -518,11 +518,25 @@ export interface PlaybookPlay {
   headline: string;
   action: string;
   deadline: string;
-  type: "availability" | "pricing" | "catalog" | "positioning" | "change" | "product" | "discounts" | "alert";
+  type: "availability" | "pricing" | "catalog" | "positioning" | "change" | "product" | "discounts" | "alert" | string;
   source: "snapshot" | "change_event" | "ai";
   tab?: string;
   detail?: PlaybookDetail;
   draft_asset?: DraftAsset | null;
+  // ── Strategy-first schema (Playbook 2.0) — present on AI recommendations ──
+  category?: string;
+  title?: string;
+  what_happened?: string;
+  why_it_matters?: string;
+  interpretation?: string;
+  objective?: string;
+  execution_paths?: { surface: string; action: string }[];
+  expected_outcome?: string;
+  evidence?: string[];
+  confidence?: "verified" | "estimated" | "predicted" | string;
+  priority_label?: "high" | "medium" | "low" | string;
+  effort?: string;
+  timeframe?: string;
 }
 
 export interface PlaybookResponse {
