@@ -571,6 +571,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const [copied,         setCopied]         = useState(false);
   const [exporting,      setExporting]      = useState(false);
   const [upgradeOpen,    setUpgradeOpen]    = useState(false);
+  const [deepOpen,       setDeepOpen]       = useState(false);
   const [tier,           setTier]           = useState<string>("free");
   const [showAllChanges, setShowAllChanges] = useState(false);
   const [priceHistory,   setPriceHistory]   = useState<PriceHistoryPoint[]>([]);
@@ -1053,48 +1054,50 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                 {/* Quick wins */}
                 <QuickWins competitorId={id} />
 
-                {/* Competitive positioning bars */}
-                {[positioning.market_position, positioning.promo_intensity, positioning.launch_velocity, positioning.catalog_complexity].some(Boolean) && (
-                  <div>
-                    <p className="tick-label mb-3" style={{ color: "var(--muted)" }}>
-                      Competitive positioning
-                    </p>
-                    <div className="grid grid-cols-2 gap-3">
-                      {[
-                        { label: "Market Position",    pos: positioning.market_position    as Record<string, unknown> },
-                        { label: "Promo Intensity",    pos: positioning.promo_intensity    as Record<string, unknown> },
-                        { label: "Launch Velocity",    pos: positioning.launch_velocity    as Record<string, unknown> },
-                        { label: "Catalog Complexity", pos: positioning.catalog_complexity as Record<string, unknown> },
-                      ].map(({ label, pos }) => pos ? (
-                        <PositioningBar
-                          key={label}
-                          label={label}
-                          score={(pos.score as number) ?? 50}
-                          scoreLabel={(pos.label as string) ?? "—"}
-                        />
-                      ) : null)}
-                    </div>
-                  </div>
-                )}
-
-                {/* Key insights */}
-                {takeaways.length > 0 && (
-                  <div
-                    className="rounded-md p-5"
-                    style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}
-                  >
-                    <div className="flex items-center gap-2 mb-4">
-                      <Sparkles className="w-4 h-4" style={{ color: "var(--text-2)" }} />
-                      <h3 className="font-semibold text-sm" style={{ color: "var(--text)" }}>What This Means</h3>
-                    </div>
-                    <ul className="space-y-3">
-                      {takeaways.map((t, i) => (
-                        <li key={i} className="flex items-start gap-3 text-sm leading-snug" style={{ color: "var(--text-2)" }}>
-                          <span className="mt-1.5 w-1 h-1 rounded-full shrink-0" style={{ background: "var(--muted)" }} />
-                          {t}
-                        </li>
-                      ))}
-                    </ul>
+                {/* Full strategic read — positioning meters + the detailed
+                    takeaways, collapsed by default so the Overview stays focused
+                    (these repeat the headline numbers in more depth). */}
+                {([positioning.market_position, positioning.promo_intensity, positioning.launch_velocity, positioning.catalog_complexity].some(Boolean) || takeaways.length > 0) && (
+                  <div className="rounded-md" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                    <button
+                      onClick={() => setDeepOpen((v) => !v)}
+                      className="w-full flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-white/[.015]"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4" style={{ color: "var(--text-2)" }} />
+                        <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>Full strategic read</span>
+                      </span>
+                      <span className="flex items-center gap-2 text-[11px]" style={{ color: "var(--muted)" }}>
+                        positioning meters · what it means
+                        <ChevronDown className={`w-4 h-4 transition-transform ${deepOpen ? "rotate-180" : ""}`} />
+                      </span>
+                    </button>
+                    {deepOpen && (
+                      <div className="px-4 pb-4 pt-1 space-y-5" style={{ borderTop: "1px solid var(--border)" }}>
+                        {[positioning.market_position, positioning.promo_intensity, positioning.launch_velocity, positioning.catalog_complexity].some(Boolean) && (
+                          <div className="grid grid-cols-2 gap-3">
+                            {[
+                              { label: "Market Position",    pos: positioning.market_position    as Record<string, unknown> },
+                              { label: "Promo Intensity",    pos: positioning.promo_intensity    as Record<string, unknown> },
+                              { label: "Launch Velocity",    pos: positioning.launch_velocity    as Record<string, unknown> },
+                              { label: "Catalog Complexity", pos: positioning.catalog_complexity as Record<string, unknown> },
+                            ].map(({ label, pos }) => pos ? (
+                              <PositioningBar key={label} label={label} score={(pos.score as number) ?? 50} scoreLabel={(pos.label as string) ?? "—"} />
+                            ) : null)}
+                          </div>
+                        )}
+                        {takeaways.length > 0 && (
+                          <ul className="space-y-2.5">
+                            {takeaways.map((t, i) => (
+                              <li key={i} className="flex items-start gap-3 text-sm leading-snug" style={{ color: "var(--text-2)" }}>
+                                <span className="mt-1.5 w-1 h-1 rounded-full shrink-0" style={{ background: "var(--muted)" }} />
+                                {t}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
 
