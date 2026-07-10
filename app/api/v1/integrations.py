@@ -77,8 +77,12 @@ def get_integration_hub(user_id: str = Depends(get_current_user_id)):
     connected: list[str] = []
     db = get_supabase()
 
-    # Real connection state, guarded so a missing table never 500s the hub.
-    row = _get_integration_row(user_id)
+    # Real connection state, guarded end-to-end so a missing row/table/column
+    # (brand-new user with no integrations yet) never 500s the hub.
+    try:
+        row = _get_integration_row(user_id) or {}
+    except Exception:
+        row = {}
     if row.get("klaviyo_api_key"):
         connected.append("klaviyo")
     if row.get("ga4_property_id"):
@@ -103,7 +107,11 @@ def get_integration_hub(user_id: str = Depends(get_current_user_id)):
         except Exception:
             pass
 
-    return {"data": build_hub(connected)}
+    try:
+        return {"data": build_hub(connected)}
+    except Exception as exc:
+        logger.warning("integration hub build failed: %s", exc)
+        return {"data": build_hub([])}
 
 
 # ── Klaviyo ────────────────────────────────────────────────────────────────────
