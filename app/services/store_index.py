@@ -997,6 +997,38 @@ def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
             "p75": row.get("max_price"),
         }
 
+    brand_keywords = _brand_keywords(row, evidence)
+    target_customer = _derive_target_customer(pricing_tier, classification["category"])
+
+    # Store DNA — the semantic business profile that lets the index rank TRUE
+    # direct competitors, not just same-category stores. One cheap Haiku call,
+    # cached by an input signature so it never re-runs unless the picture
+    # changes. Fully guarded: DNA is a bonus layer, never a gate on knowledge.
+    dna = dna_kws = dna_sig = None
+    try:
+        from app.services.store_dna import dna_signature, generate_store_dna
+        dna_ctx = {
+            "brand_name": row.get("brand_name"), "domain": domain,
+            "category": classification["category"],
+            "subcategory": classification["subcategory"],
+            "pricing_tier": pricing_tier, "median_price": row.get("median_price"),
+            "product_count": row.get("product_count"),
+            "product_types": row.get("product_types"),
+            "product_titles": row.get("product_titles"),
+            "collections": row.get("collections"),
+            "brand_keywords": brand_keywords, "target_customer": target_customer,
+            "homepage_message": row.get("homepage_message"),
+            "description": row.get("description"),
+        }
+        dna_sig = dna_signature(dna_ctx)
+        if row.get("dna_signature") == dna_sig and row.get("store_dna"):
+            dna, dna_kws = row.get("store_dna"), row.get("dna_keywords")  # unchanged — reuse
+        else:
+            dna = generate_store_dna(dna_ctx)
+            dna_kws = (dna or {}).get("keywords")
+    except Exception as dna_exc:
+        logger.debug("store DNA skipped for %s: %s", domain, dna_exc)
+
     upsert_index_row(db, domain, {
         "category": classification["category"],
         "subcategory": classification["subcategory"],
@@ -1004,8 +1036,12 @@ def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
         "category_evidence": evidence,
         "description": row.get("description") or row.get("homepage_message"),
         "price_bands": price_bands,
-        "target_customer": _derive_target_customer(pricing_tier, classification["category"]),
-        "brand_keywords": _brand_keywords(row, evidence),
+        "target_customer": target_customer,
+        "brand_keywords": brand_keywords,
+        "store_dna": dna,
+        "dna_keywords": dna_kws,
+        "dna_signature": dna_sig,
+        "dna_at": now if dna else None,
         "knowledge_at": now,
     })
     return {
@@ -1099,6 +1135,7 @@ def upsert_index_row(db, domain: str, fields: Dict[str, Any]) -> str:
         "price_bands", "target_customer", "brand_keywords", "homepage_message",
         "collection_count", "related_ready", "product_titles",
         "tech_signals", "contact_email", "contact_source", "sells_wholesale", "multi_market",
+        "store_dna", "dna_keywords", "dna_signature", "dna_at",
     )
 
     def _write(payload: Dict[str, Any]) -> None:

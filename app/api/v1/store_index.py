@@ -32,6 +32,9 @@ _SEARCH_FIELDS = (
     "product_count, median_price, promo_rate, verification_confidence, "
     "business_stage, pricing_tier"
 )
+# Store DNA (022) rides on top of the base fields; a missing column drops back
+# to _SEARCH_FIELDS so search keeps working during the migration window.
+_SEARCH_FIELDS_DNA = _SEARCH_FIELDS + ", store_dna, dna_keywords, target_customer"
 
 
 def _require_admin(token: Optional[str]) -> None:
@@ -92,30 +95,34 @@ def search_store_index(
     db = get_supabase()
     limit = max(1, min(limit, 50))
 
-    query = db.table("shopify_store_index")\
-        .select(_SEARCH_FIELDS)\
-        .eq("status", "verified")\
-        .order("verification_confidence", desc=True)\
-        .limit(limit)
-
-    if category:
-        query = query.eq("category", category)
-
     terms = [t.strip() for t in (q or "").split() if len(t.strip()) >= 3][:5]
-    if terms:
-        ors = []
-        for t in terms:
-            for col in ("brand_name", "description", "category", "subcategory", "domain"):
-                ors.append(f"{col}.ilike.%{t}%")
-        query = query.or_(",".join(ors))
 
-    try:
-        result = query.execute()
-        return {"data": result.data or []}
-    except Exception as exc:
-        # Table may not exist yet (migration pending) — empty result, not a 500
-        logger.warning("store-index search failed: %s", exc)
-        return {"data": []}
+    def _build(fields: str):
+        query = db.table("shopify_store_index")\
+            .select(fields)\
+            .eq("status", "verified")\
+            .order("verification_confidence", desc=True)\
+            .limit(limit)
+        if category:
+            query = query.eq("category", category)
+        if terms:
+            ors = []
+            for t in terms:
+                for col in ("brand_name", "description", "category", "subcategory", "domain"):
+                    ors.append(f"{col}.ilike.%{t}%")
+            query = query.or_(",".join(ors))
+        return query
+
+    for fields in (_SEARCH_FIELDS_DNA, _SEARCH_FIELDS):
+        try:
+            result = _build(fields).execute()
+            return {"data": result.data or []}
+        except Exception as exc:
+            if fields is _SEARCH_FIELDS_DNA:
+                continue  # pre-022 — retry without DNA columns
+            # Table may not exist yet (migration pending) — empty result, not a 500
+            logger.warning("store-index search failed: %s", exc)
+            return {"data": []}
 
 
 # ── Admin ──────────────────────────────────────────────────────────────────
@@ -549,6 +556,7 @@ class ReclassifyBody(BaseModel):
     only_low_confidence: Optional[bool] = None
     threshold: int = 70
     reenrich_thin: Optional[bool] = None    # re-fetch products for stores with none, then re-classify
+    backfill_dna: Optional[bool] = None     # re-run knowledge on verified rows that have no Store DNA yet
 
 
 @router.post("/admin/store-index/reclassify")
@@ -573,6 +581,19 @@ def reclassify(body: ReclassifyBody, x_admin_token: Optional[str] = Header(defau
             ).eq("status", "verified").is_("product_count", "null").execute()
             n = len(res.data or [])
             return {"data": {"queued": n, "note": f"{n} product-less store(s) re-queued for verification → they'll be re-fetched and classified."}}
+
+        if body.backfill_dna:
+            # Verified stores that predate Store DNA (dna_at IS NULL) — clear
+            # knowledge_at so the Classify stage re-runs and generates DNA from
+            # their already-stored signals (no re-fetch, one Haiku call each).
+            try:
+                res = db.table("shopify_store_index").update(
+                    {"knowledge_at": None, "updated_at": now}
+                ).eq("status", "verified").is_("dna_at", "null").execute()
+            except Exception:
+                raise HTTPException(status_code=400, detail="backfill_dna needs migration 022 applied first.")
+            n = len(res.data or [])
+            return {"data": {"queued": n, "note": f"{n} store(s) without Store DNA queued — run the Classify stage to generate their profiles."}}
 
         q = db.table("shopify_store_index").update(
             {"knowledge_at": None, "updated_at": now}

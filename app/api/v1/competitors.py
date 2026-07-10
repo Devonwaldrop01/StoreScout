@@ -491,6 +491,41 @@ async def discover_ai(
         except Exception:
             pass
 
+    # The user's DNA fingerprint — what they sell, their brand traits, and their
+    # own store's stored keywords — drives Store-DNA direct-competitor ranking of
+    # index hits. Assembled cheaply from the description + business profile +
+    # (if present) their store's index row. Fully guarded.
+    user_match_ctx: Optional[dict] = None
+    try:
+        from app.services.store_dna import normalize_keywords
+        from app.services.store_index import normalize_domain as _nd2
+        kw_sources: list = [body.description, user_category]
+        try:
+            bp = db.table("business_profiles").select("sells, brand_traits, description")\
+                .eq("user_id", user_id).maybe_single().execute()
+            if bp and bp.data:
+                kw_sources += [bp.data.get("sells"), bp.data.get("brand_traits"), bp.data.get("description")]
+        except Exception:
+            pass
+        own_dna_kw = None
+        if my_store_hostname:
+            try:
+                r2 = db.table("shopify_store_index").select("dna_keywords, subcategory")\
+                    .eq("domain", _nd2(my_store_hostname)).maybe_single().execute()
+                if r2 and r2.data:
+                    own_dna_kw = r2.data.get("dna_keywords")
+                    kw_sources.append(r2.data.get("subcategory"))
+            except Exception:
+                pass
+        user_kw = normalize_keywords([own_dna_kw, kw_sources])
+        if user_kw or user_category:
+            user_match_ctx = {
+                "category": user_category, "pricing_tier": user_price_tier,
+                "dna_keywords": user_kw,
+            }
+    except Exception as umc_exc:
+        logger.debug("discover-ai user match context skipped: %s", umc_exc)
+
     # ── Staged pipeline ──────────────────────────────────────────────────
     # Claude answers ONE question — "who does this business compete with?" —
     # ranked by market similarity, platform ignored. StoreScout then answers
@@ -619,7 +654,9 @@ Rules:
                 cols = ("domain, brand_name, category, subcategory, description, "
                         "verification_confidence, verification_signals, business_stage, pricing_tier")
                 if with_cat_conf:
-                    cols += ", category_confidence, category_evidence"
+                    # DNA columns (022) ride with the richer select — a missing
+                    # column here just drops us to the leaner variant below.
+                    cols += ", category_confidence, category_evidence, dna_keywords, store_dna, target_customer"
                 q = db.table("shopify_store_index")\
                     .select(cols)\
                     .eq("status", "verified")\
@@ -672,6 +709,16 @@ Rules:
                     cc = row.get("category_confidence")
                     if cc:
                         score += min(20, cc / 5)  # more confident classification ranks higher
+                # Store-DNA overlap — the difference between a same-category store
+                # and one that ACTUALLY sells what the user competes on. Up to +45,
+                # so a strong DNA match can lift a keyword hit above a weak
+                # category hit and reorders same-category rivals by real similarity.
+                if user_match_ctx is not None:
+                    try:
+                        from app.services.store_dna import dna_match_score
+                        score += dna_match_score(row, user_match_ctx) * 0.45
+                    except Exception:
+                        pass
                 if user_stage and stage:
                     order = ["startup", "growing", "established", "enterprise"]
                     try:
@@ -698,12 +745,13 @@ Rules:
                 if cc is not None and cc < cat_floor:
                     continue
                 seen.add(d)
-                reason = row.get("description") or " · ".join(
+                dna = row.get("store_dna") if isinstance(row.get("store_dna"), dict) else None
+                reason = (dna or {}).get("summary") or row.get("description") or " · ".join(
                     x for x in [row.get("category"), row.get("subcategory")] if x
                 ) or "verified Shopify store in our index"
                 verified.append({
                     "domain": d,
-                    "reason": reason[:90],
+                    "reason": reason[:110],
                     "confidence": row.get("verification_confidence"),
                     "signals": row.get("verification_signals") or [],
                     "source": "index",
