@@ -239,6 +239,19 @@ def index_ops(x_admin_token: Optional[str] = Header(default=None)):
     except Exception:
         knowledge_done = 0
 
+    # Discovered universe — the discovery_queue staging table (migration 017).
+    def _qcount(**filters) -> int:
+        try:
+            q = db.table("discovery_queue").select("id", count="exact")
+            for k, v in filters.items():
+                q = q.eq(k, v)
+            return q.execute().count or 0
+        except Exception:
+            return 0
+    queue_total = _qcount()
+    queue_pending = _qcount(status="pending")
+    queue_resolved = _qcount(status="resolved")
+
     # ── Today ──
     discovered_today = _count_gte("discovered_at", today)
     verified_today = _count_gte("verified_at", today, status="verified")
@@ -307,6 +320,9 @@ def index_ops(x_admin_token: Optional[str] = Header(default=None)):
     return {
         "data": {
             "pipeline": {
+                "queue_total": queue_total,
+                "queue_pending": queue_pending,
+                "queue_resolved": queue_resolved,
                 "discovered": discovered,
                 "candidates": candidates,
                 "verified": verified,
@@ -522,11 +538,12 @@ def run_stage(body: StageBody, x_admin_token: Optional[str] = Header(default=Non
     stage = (body.stage or "").strip().lower()
     task_map = {
         "discovery": "stage_discovery",
+        "resolution": "stage_resolution",
         "verification": "stage_verification",
         "knowledge": "stage_knowledge",
     }
     if stage not in task_map:
-        raise HTTPException(status_code=422, detail="stage must be discovery|verification|knowledge")
+        raise HTTPException(status_code=422, detail="stage must be discovery|resolution|verification|knowledge")
 
     from app.tasks import store_index as tasks
     task = getattr(tasks, task_map[stage])

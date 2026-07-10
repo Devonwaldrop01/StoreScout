@@ -356,6 +356,52 @@ def internal_shop_app_count(body: dict, x_internal_token: str = Header(...)):
     return _shop_app_count()
 
 
+@router.post("/shop-app-harvest")
+def internal_shop_app_harvest(body: dict, x_internal_token: str = Header(...)):
+    """
+    Stage 1 (Discovery), cheap + bulk: return a page of raw Shop App refs
+    (shop.app/m/{handle} URLs) straight from the storefronts sitemap — NO
+    per-store page fetches, so this scales to thousands per run. Resolution to
+    real domains happens separately. Body: {cursor, limit}. Returns
+    {refs, cursor, child_total}.
+    """
+    _require_internal(x_internal_token)
+    cursor = (body or {}).get("cursor") or {}
+    limit = max(1, min(int((body or {}).get("limit") or 500), 5000))
+    result = _shop_app_harvest(cursor, limit)
+    logger.info("[SHOP_APP_HARVEST] cursor=%s → %d refs (child_total=%s)",
+                cursor, len(result.get("refs", [])), result.get("child_total"))
+    return result
+
+
+@router.post("/shop-app-resolve")
+def internal_shop_app_resolve(body: dict, x_internal_token: str = Header(...)):
+    """
+    Stage 2 (Resolution), rate-limited: given raw Shop App refs, fetch each
+    store page and return its real merchant domain. Concurrent + 429-backoff.
+    Body: {refs: [url]}. Returns {resolved: [{ref, domain}], stats}.
+    """
+    _require_internal(x_internal_token)
+    from concurrent.futures import ThreadPoolExecutor
+    refs = [r for r in ((body or {}).get("refs") or []) if r][:60]
+    if not refs:
+        return {"resolved": [], "stats": {"processed": 0}}
+
+    resolved = []
+    rate_limited = no_domain = 0
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        for ref, (domain, st) in zip(refs, pool.map(lambda r: _shop_app_resolve_one(r), refs)):
+            if domain:
+                resolved.append({"ref": ref, "domain": domain})
+            elif st == 429:
+                rate_limited += 1
+            else:
+                no_domain += 1
+    return {"resolved": resolved,
+            "stats": {"processed": len(refs), "resolved": len(resolved),
+                      "rate_limited": rate_limited, "no_domain": no_domain}}
+
+
 _SHOP_APP_SKIP = (
     "shop.app", "shopify.com", "cdn.shopify", "shopifycdn", "myshopify.com",
     "shopifyinc.com", "shopifycloud", "shopifysvc", "shopifyapps.com",
@@ -612,6 +658,35 @@ def _shop_app_count() -> dict:
         per_child.append({"child": c.rsplit("/", 1)[-1], "handles": n, "status": st})
         total += n
     return {"total_handles": total, "children": len(children), "per_child": per_child}
+
+
+def _shop_app_harvest(cursor: dict, limit: int) -> dict:
+    """Cheap bulk harvest: read one child sitemap and return a page of
+    shop.app/m/{handle} refs, advancing a {child, offset} cursor. No per-store
+    fetches — this is how discovery scales to the full ceiling fast."""
+    import re as _re
+    cursor = cursor or {}
+    child_i = int(cursor.get("child", 0))
+    offset = int(cursor.get("offset", 0))
+
+    children, idx_status = _shop_app_children()
+    if not children:
+        return {"refs": [], "cursor": cursor, "note": f"index unreadable (HTTP {idx_status})"}
+
+    child_i %= len(children)
+    _, ch_text = _shop_app_get(children[child_i])
+    handles = _re.findall(r"<loc>\s*([^<\s]+/m/[^<\s]+)\s*</loc>", ch_text or "", _re.I)
+    if not handles:
+        return {"refs": [], "cursor": {"child": (child_i + 1) % len(children), "offset": 0},
+                "child_total": 0}
+
+    refs = handles[offset: offset + limit]
+    new_offset = offset + len(refs)
+    if new_offset >= len(handles):
+        new_cursor = {"child": (child_i + 1) % len(children), "offset": 0}
+    else:
+        new_cursor = {"child": child_i, "offset": new_offset}
+    return {"refs": refs, "cursor": new_cursor, "child": child_i, "child_total": len(handles)}
 
 
 def _shop_app_discover(cursor: dict, limit: int) -> dict:

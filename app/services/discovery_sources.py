@@ -35,6 +35,33 @@ class DiscoverySource(Protocol):
 class ShopAppSource:
     """Discovery Source #1 — Shopify's Shop App merchant feed."""
     name = "shop_app"
+    # This source yields RAW REFS (shop.app/m/{handle}) that need a separate,
+    # rate-limited resolution step to become real domains — so discovery scales
+    # cheaply and resolution runs in the background.
+    needs_resolution = True
+
+    def harvest(self, cursor: Optional[dict], limit: int) -> Tuple[List[str], Optional[dict]]:
+        """Cheap bulk harvest of raw refs from the storefronts sitemap (no
+        per-store fetch). Returns (refs, next_cursor)."""
+        from app.core.config import get_settings
+        settings = get_settings()
+        try:
+            import httpx
+            resp = httpx.post(
+                f"{settings.api_internal_url}/api/v1/internal/shop-app-harvest",
+                headers={"x-internal-token": settings.internal_secret},
+                json={"cursor": cursor or {}, "limit": limit},
+                timeout=60.0,
+            )
+            if resp.status_code != 200:
+                logger.info("shop_app harvest: HTTP %s — holding cursor", resp.status_code)
+                return [], cursor
+            body = resp.json()
+            refs = [r for r in (body.get("refs") or []) if r]
+            return refs, (body.get("cursor") or cursor)
+        except Exception as exc:
+            logger.info("shop_app harvest unavailable (%s) — holding cursor", exc)
+            return [], cursor
 
     def fetch(self, cursor: Optional[dict], limit: int) -> Tuple[List[str], Optional[dict]]:
         from app.core.config import get_settings
