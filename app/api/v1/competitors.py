@@ -1189,8 +1189,50 @@ def get_store_profile(competitor_id: str, user_id: str = Depends(get_effective_u
             }
         }
 
+    # ── Brand decode (Pro): a readable strategy brief, cached by signature ──
+    decode = None
+    try:
+        from app.services.brand_decode import decode_signature, generate_brand_decode
+        crow = db.table("competitors").select("hostname, brand_decode, brand_decode_sig")\
+            .eq("id", competitor_id).maybe_single().execute()
+        crow = crow.data if crow else {}
+        ctx = {
+            "hostname": (crow or {}).get("hostname"),
+            "category": (data or {}).get("category"),
+            "pricing_tier": (data or {}).get("pricing_tier"),
+            "product_count": (data or {}).get("product_count"),
+            "median_price": (data or {}).get("median_price"),
+            "promo_rate": (data or {}).get("promo_rate"),
+            "collection_names": col.get("names") or [],
+            "flags": {
+                "has_sale": col.get("has_sale"), "has_new_arrivals": col.get("has_new_arrivals"),
+                "has_best_sellers": col.get("has_best_sellers"), "has_bundles": col.get("has_bundles"),
+                "has_subscription": col.get("has_subscription"), "has_gift": col.get("has_gift"),
+                "has_wholesale": brand.get("has_wholesale"), "has_affiliate": brand.get("has_affiliate"),
+                "has_press": brand.get("has_press"), "has_sustainability": brand.get("has_sustainability"),
+                "has_size_guide": brand.get("has_size_guide"), "has_rewards": brand.get("has_rewards"),
+            },
+            "blog_count": content.get("blog_count"),
+            "article_titles": content.get("recent_article_titles") or [],
+            "content_score": content.get("content_investment_score"),
+        }
+        sig = decode_signature(ctx)
+        if (crow or {}).get("brand_decode") and (crow or {}).get("brand_decode_sig") == sig:
+            decode = crow["brand_decode"]  # fresh cache
+        else:
+            decode = generate_brand_decode(ctx)
+            if decode:
+                from datetime import datetime as _dt, timezone as _tz
+                db.table("competitors").update({
+                    "brand_decode": decode, "brand_decode_sig": sig,
+                    "brand_decode_at": _dt.now(_tz.utc).isoformat(),
+                }).eq("id", competitor_id).execute()
+    except Exception as exc:
+        logger.debug("brand decode skipped for %s: %s", competitor_id, exc)
+
     return {
         "data": {
+            "decode": decode,
             "collection_intel": col,
             "brand_signals": brand,
             "content_intel": content,
