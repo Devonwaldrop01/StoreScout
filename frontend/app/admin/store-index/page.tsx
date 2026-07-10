@@ -13,6 +13,7 @@ import {
 import { EngineControls } from "@/components/admin/EngineControls";
 import { StoreInspector } from "@/components/admin/StoreInspector";
 import { useToast } from "@/components/ui/Toast";
+import { Skeleton, SkeletonStats } from "@/components/ui/Skeleton";
 
 const TOKEN_KEY = "ss_admin_token";
 
@@ -395,6 +396,17 @@ export default function StoreIndexAdminPage() {
             </button>
           </div>
         </div>
+
+        {/* First-load skeleton — no blank flash before the console fills in */}
+        {!stats && (
+          <div className="space-y-6">
+            <Skeleton style={{ height: 150 }} />
+            <SkeletonStats count={8} />
+            <div className="grid md:grid-cols-3 gap-4">
+              {[0, 1, 2].map((i) => <Skeleton key={i} style={{ height: 180 }} />)}
+            </div>
+          </div>
+        )}
 
         {/* ── Index Operations — the three-stage pipeline at a glance ──────── */}
         {ops && (
