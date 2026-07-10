@@ -97,6 +97,10 @@ export const competitors = {
     apiFetch<{ data: StoreProfileResponse }>(`/competitors/${id}/store-profile`),
   comparison: (id: string) =>
     apiFetch<{ data: ComparisonResponse }>(`/competitors/${id}/comparison`),
+  ask: (id: string, question: string) =>
+    apiFetch<{ data: { answer: string | null; followups: string[] } }>(`/competitors/${id}/ask`, {
+      method: "POST", body: JSON.stringify({ question }),
+    }),
   quickWins: (id: string) =>
     apiFetch<{ data: QuickWinsResponse }>(`/competitors/${id}/quick-wins`),
   priceHistory: (id: string) =>

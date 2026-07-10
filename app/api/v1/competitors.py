@@ -1509,6 +1509,98 @@ def export_products_csv(competitor_id: str, user_id: str = Depends(get_effective
     )
 
 
+# ── Ask StoreScout — conversational exploration of a competitor ──────────────
+
+def _competitor_context_str(hostname: str, sd: dict, decode: Optional[dict]) -> str:
+    """Compact, factual context block about a competitor for the analyst prompt."""
+    pr = sd.get("pricing") or {}
+    disc = sd.get("discounts") or {}
+    cat = sd.get("catalog") or {}
+    pos = sd.get("positioning") or {}
+    launch = (sd.get("launch_timeline") or {}).get("velocity") or {}
+    lists = sd.get("lists") or {}
+    tags = [t.get("tag") for t in ((sd.get("tag_analysis") or {}).get("top_tags") or [])[:8] if t.get("tag")]
+    parts = [f"Competitor: {hostname}"]
+    if pr.get("median"):
+        parts.append(f"Median price ${pr['median']:.0f} (p25 ${pr.get('p25', 0):.0f} / p75 ${pr.get('p75', 0):.0f})")
+    if cat.get("total_products"):
+        parts.append(f"~{cat['total_products']} products")
+    if disc.get("discounted_pct") is not None:
+        parts.append(f"{disc['discounted_pct']:.0f}% of catalog on sale (avg {disc.get('avg_discount_pct', 0):.0f}% off)")
+    if (pos.get("market_position") or {}).get("label"):
+        parts.append(f"Market position: {pos['market_position']['label']}")
+    if launch.get("last_30d") is not None:
+        parts.append(f"Launch pace: {launch['last_30d']}/mo")
+    if tags:
+        parts.append("Top categories: " + ", ".join(tags))
+    newest = [p.get("title") for p in (lists.get("newest_products") or [])[:5] if p.get("title")]
+    if newest:
+        parts.append("Recent launches: " + ", ".join(f'"{t}"' for t in newest))
+    if decode:
+        parts.append("StoreScout's read: " + (decode.get("headline") or ""))
+        if decode.get("positioning"):
+            parts.append("Positioning: " + decode["positioning"])
+        if decode.get("vulnerabilities"):
+            parts.append("Known weaknesses: " + "; ".join(decode["vulnerabilities"][:3]))
+    return "\n".join(parts)
+
+
+class AskRequest(BaseModel):
+    question: str
+
+
+@router.post("/{competitor_id}/ask")
+@safe_read("POST /ask", {"data": {"answer": None, "followups": []}})
+def ask_storescout(competitor_id: str, body: AskRequest, user_id: str = Depends(get_effective_user_id)):
+    """Ask StoreScout anything about a competitor — grounded in its real scanned
+    data + StoreScout's strategic read. Turns the dossier into a conversation."""
+    import json as _json
+    import anthropic
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    q = (body.question or "").strip()[:400]
+    if not q:
+        raise HTTPException(status_code=422, detail="question required")
+
+    settings = get_settings()
+    if not settings.anthropic_api_key:
+        return {"data": {"answer": "Ask StoreScout is warming up — try again shortly.", "followups": []}}
+
+    crow = db.table("competitors").select("hostname, brand_decode").eq("id", competitor_id).maybe_single().execute()
+    crow = (crow.data if crow else {}) or {}
+    hostname = crow.get("hostname") or "this competitor"
+    sd = _latest_snapshot_data(db, competitor_id) or {}
+    context = _competitor_context_str(hostname, sd, crow.get("brand_decode"))
+
+    prompt = f"""You are StoreScout — a sharp competitive-intelligence analyst sitting beside a Shopify store owner, discussing a competitor. Answer their question using ONLY the data below. Be specific and cite the numbers. If the data can't answer something, say so plainly and reason from what IS known. Talk like a smart operator, not a chatbot — 2-4 short paragraphs max, no fluff, no "as an AI".
+
+COMPETITOR DATA:
+{context}
+
+MERCHANT'S QUESTION: {q}
+
+Return ONLY JSON:
+{{"answer": "<your analysis>", "followups": ["<3 natural follow-up questions the merchant would want to ask next>"]}}"""
+
+    try:
+        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+        msg = client.messages.create(
+            model="claude-sonnet-4-6", max_tokens=700,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        text = msg.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+        p = _json.loads(text)
+        return {"data": {
+            "answer": str(p.get("answer") or "")[:2500],
+            "followups": [str(f)[:120] for f in (p.get("followups") or [])][:3],
+        }}
+    except Exception as exc:
+        logger.warning("ask_storescout failed for %s: %s", competitor_id, exc)
+        return {"data": {"answer": "I couldn't analyze that one — try rephrasing.", "followups": []}}
+
+
 def _user_tier(db, user_id: str) -> str:
     user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
     return (user.data or {}).get("tier", "free") if user else "free"

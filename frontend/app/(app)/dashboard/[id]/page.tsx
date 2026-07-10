@@ -27,6 +27,8 @@ import GapsTab from "@/components/competitors/GapsTab";
 import { WatchlistPanel } from "@/components/dashboard/WatchlistPanel";
 import StoreProfileTab from "@/components/competitors/StoreProfileTab";
 import ComparisonTab from "@/components/competitors/ComparisonTab";
+import { AskStoreScout } from "@/components/competitors/AskStoreScout";
+import { ResearchProgress } from "@/components/competitors/ResearchProgress";
 import { ProAnalysis, type ProAnalysisData } from "@/components/competitors/ProAnalysis";
 import { QuickWins } from "@/components/competitors/QuickWins";
 import UpgradeModal from "@/components/UpgradeModal";
@@ -948,6 +950,17 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
           {/* ── Tab navigation ────────────────────────────────────────────── */}
           <TabBar tabs={MAIN_TABS} active={tab} onChange={setTab} />
 
+          {/* Guided research trail → transitions research into monitoring */}
+          <div className="mt-4">
+            <ResearchProgress
+              competitorId={id}
+              currentTab={tab as "overview" | "catalog" | "pricing" | "changes" | "intelligence"}
+              onNavigate={(t) => setTab(t)}
+              isFree={isFree}
+              onUpgrade={() => setUpgradeOpen(true)}
+            />
+          </div>
+
           <div className="mt-6">
 
             {/* ══════════════════════════════════════════════════════════════
@@ -997,6 +1010,10 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     locked={isFree}
                   />
                 </div>
+
+                {/* Ask StoreScout — the research conversation. Especially valuable
+                    for new users with no change history yet: always another thread. */}
+                <AskStoreScout competitorId={id} hostname={hostname} />
 
                 {/* Recent changes — moved up, most time-sensitive after KPIs */}
                 {changes.length > 0 && (
