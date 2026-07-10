@@ -505,6 +505,38 @@ def shop_app_probe(url: str = "", x_admin_token: Optional[str] = Header(default=
         return {"data": {"results": [], "note": f"probe error: {exc}"[:200]}}
 
 
+class ReclassifyBody(BaseModel):
+    category: Optional[str] = None          # only this (mis)category
+    only_low_confidence: Optional[bool] = None
+    threshold: int = 70
+
+
+@router.post("/admin/store-index/reclassify")
+def reclassify(body: ReclassifyBody, x_admin_token: Optional[str] = Header(default=None)):
+    """
+    Queue verified stores for re-classification by clearing knowledge_at — the
+    knowledge stage then re-runs them through the new AI classifier. Scope it to
+    a suspect category (e.g. 'Kids & Baby', 'Other') or to everything below a
+    confidence threshold, so you don't reprocess the whole index blindly.
+    """
+    _require_admin(x_admin_token)
+    db = get_supabase()
+    try:
+        q = db.table("shopify_store_index").update(
+            {"knowledge_at": None, "updated_at": datetime.now(timezone.utc).isoformat()}
+        ).eq("status", "verified")
+        if body.category:
+            q = q.eq("category", body.category)
+        if body.only_low_confidence:
+            q = q.lt("category_confidence", max(1, min(body.threshold, 100)))
+        res = q.execute()
+        n = len(res.data or [])
+        return {"data": {"queued": n, "note": f"{n} store(s) queued for re-classification — run the Classify stage or wait for the worker."}}
+    except Exception as exc:
+        logger.warning("reclassify failed: %s", exc)
+        raise HTTPException(status_code=500, detail="reclassify failed — is migration 015 applied?")
+
+
 @router.get("/admin/store-index/shop-app-count")
 def shop_app_count(x_admin_token: Optional[str] = Header(default=None)):
     """How many storefronts Shop App exposes in its sitemap — the discovery
