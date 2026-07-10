@@ -1154,11 +1154,12 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                         const la   = (eA - sA) * (pct / 100) > Math.PI ? 1 : 0;
                         const color = pct > 50 ? "#F2555A" : pct > 25 ? "#FFB224" : "#7DB8C9";
                         return (
-                          <svg viewBox="0 0 128 70" className="w-full h-full">
+                          <svg viewBox="0 0 128 80" className="w-full h-full">
                             <path d={`M ${s.x} ${s.y} A ${r} ${r} 0 1 1 ${e.x} ${e.y}`} fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="10" strokeLinecap="round" />
                             {pct > 0 && <path d={`M ${s.x} ${s.y} A ${r} ${r} 0 ${la} 1 ${f.x} ${f.y}`} fill="none" stroke={color} strokeWidth="10" strokeLinecap="round" />}
-                            <text x={cx} y={cy - 2} textAnchor="middle" fontSize="20" fontWeight="bold" fill="var(--text)" fontFamily="monospace">{Math.round(pct)}%</text>
-                            <text x={cx} y={cy + 16} textAnchor="middle" fontSize="9" fill="var(--muted)" fontFamily="system-ui">discounted</text>
+                            {/* Text sits inside the dome (arc spans y 16–64) — kept clear of the viewBox floor */}
+                            <text x={cx} y={50} textAnchor="middle" fontSize="19" fontWeight="bold" fill="var(--text)" fontFamily="monospace">{Math.round(pct)}%</text>
+                            <text x={cx} y={64} textAnchor="middle" fontSize="9" fill="var(--muted)" fontFamily="system-ui">of catalog</text>
                           </svg>
                         );
                       })()}
