@@ -254,16 +254,19 @@ export default function StoreIndexAdminPage() {
     }
   }
 
-  async function runReclassify() {
+  async function runReclassify(mode: "weak" | "reenrich") {
     if (stageBusy) return;
-    setStageBusy("reclassify");
+    setStageBusy(mode === "weak" ? "reclassify" : "reenrich");
     setStageResult("");
     try {
+      const payload = mode === "weak"
+        ? { only_low_confidence: true, threshold: 75 }
+        : { reenrich_thin: true };
       const r = await adminFetch<{ data: { queued: number; note: string } }>(
         "/admin/store-index/reclassify", token,
-        { method: "POST", body: JSON.stringify({ only_low_confidence: true, threshold: 75 }) },
+        { method: "POST", body: JSON.stringify(payload) },
       );
-      setStageResult(r.data.note || `Queued ${r.data.queued} for re-classification.`);
+      setStageResult(r.data.note || `Queued ${r.data.queued}.`);
     } catch (e: unknown) {
       setStageResult((e as Error).message || "Re-classify failed.");
     } finally {
@@ -538,11 +541,17 @@ export default function StoreIndexAdminPage() {
               style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--accent)" }}>
               {stageBusy === "knowledge" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Brain className="w-3.5 h-3.5" />} 4 · Classify
             </button>
-            <button onClick={runReclassify} disabled={!!stageBusy}
+            <button onClick={() => runReclassify("weak")} disabled={!!stageBusy}
               title="Re-queue low-confidence classifications to be re-run through the AI classifier"
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40"
               style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--muted)" }}>
               {stageBusy === "reclassify" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Brain className="w-3.5 h-3.5" />} Re-classify weak
+            </button>
+            <button onClick={() => runReclassify("reenrich")} disabled={!!stageBusy}
+              title="Re-fetch products for verified stores that have none (the 'Other · General' rows), then classify them"
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40"
+              style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--muted)" }}>
+              {stageBusy === "reenrich" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />} Re-enrich “Other”
             </button>
           </div>
           {stageResult && <p className="num text-[11px] mt-2 break-all" style={{ color: "var(--text-2)" }}>{stageResult}</p>}
