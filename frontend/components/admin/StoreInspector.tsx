@@ -10,7 +10,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
-import { X, RefreshCw, Check, AlertTriangle, ExternalLink, Brain, ShieldCheck } from "lucide-react";
+import { X, RefreshCw, Check, AlertTriangle, ExternalLink, Brain, ShieldCheck, Dna } from "lucide-react";
 
 interface StoreRow {
   domain: string;
@@ -41,6 +41,13 @@ interface StoreRow {
   target_customer: string | null;
   brand_keywords: string[] | null;
   homepage_message: string | null;
+  store_dna: {
+    summary?: string; sells?: string; audience?: string;
+    price_positioning?: string; personality?: string[];
+    differentiators?: string[]; keywords?: string[]; method?: string;
+  } | null;
+  dna_keywords: string[] | null;
+  dna_at: string | null;
 }
 
 interface InspectorData {
@@ -208,6 +215,56 @@ export function StoreInspector({ domain, token, onClose, onChanged }: {
                   </p>
                 )}
               </div>
+
+              {/* Store DNA — the semantic profile that powers direct-competitor matching */}
+              {s.store_dna ? (
+                <div className="rounded-md p-3" style={{ background: "var(--bg3)", border: "1px solid var(--border)" }}>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Dna className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
+                    <p className="label-caps">Store DNA · direct-competitor profile</p>
+                    {s.store_dna.method === "heuristic" && (
+                      <span className="text-[10px]" style={{ color: "var(--muted)" }}>(heuristic — AI unavailable)</span>
+                    )}
+                  </div>
+                  {s.store_dna.summary && (
+                    <p className="text-sm leading-snug mb-2" style={{ color: "var(--text)" }}>{s.store_dna.summary}</p>
+                  )}
+                  <div className="grid sm:grid-cols-2 gap-x-4 gap-y-1 text-[11px] mb-2">
+                    {s.store_dna.sells && <p style={{ color: "var(--text-2)" }}><span className="label-caps mr-1.5">Sells</span>{s.store_dna.sells}</p>}
+                    {s.store_dna.audience && <p style={{ color: "var(--text-2)" }}><span className="label-caps mr-1.5">Audience</span>{s.store_dna.audience}</p>}
+                    {s.store_dna.price_positioning && <p style={{ color: "var(--text-2)" }}><span className="label-caps mr-1.5">Pricing</span>{s.store_dna.price_positioning}</p>}
+                  </div>
+                  {(s.store_dna.personality?.length ?? 0) > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      {s.store_dna.personality!.map((p, i) => (
+                        <span key={i} className="text-[11px] px-2 py-0.5 rounded" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--accent)" }}>{p}</span>
+                      ))}
+                    </div>
+                  )}
+                  {(s.store_dna.differentiators?.length ?? 0) > 0 && (
+                    <ul className="space-y-0.5 mb-2">
+                      {s.store_dna.differentiators!.map((d, i) => (
+                        <li key={i} className="text-[11px] flex gap-1.5" style={{ color: "var(--text-2)" }}>
+                          <span style={{ color: "var(--accent)" }}>·</span>{d}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {(s.dna_keywords?.length ?? s.store_dna.keywords?.length ?? 0) > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {(s.dna_keywords || s.store_dna.keywords || []).map((k, i) => (
+                        <span key={i} className="text-[10px] px-1.5 py-0.5 rounded num" style={{ background: "var(--bg-card)", color: "var(--muted)" }}>{k}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : s.status === "verified" && (
+                <div className="rounded-md p-3 text-[11px]" style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--muted)" }}>
+                  <div className="flex items-center gap-1.5"><Dna className="w-3.5 h-3.5" style={{ color: "var(--muted)" }} />
+                    <span>No Store DNA yet — hit “Re-run knowledge” or run a Classify stage to generate it.</span>
+                  </div>
+                </div>
+              )}
 
               {/* Catalog + pricing */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
