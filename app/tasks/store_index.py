@@ -83,9 +83,13 @@ def _verify_via_web(domain: str, source: str, source_query: Optional[str]) -> di
 
 @celery.task(name="app.tasks.store_index.stage_discovery")
 def stage_discovery(limit_override: Optional[int] = None, force: bool = False) -> dict:
-    """Run every enabled discovery source once, insert new candidate domains as
-    status='discovered', and persist each source's cursor. Chunked + resumable;
-    dedupes against the whole index so nothing is ever rediscovered."""
+    """
+    Stage 1. Cheap + bulk. For sources that yield raw refs needing resolution
+    (Shop App), harvest thousands of refs straight into the discovery_queue with
+    NO per-store fetches — this is what lets the discovered universe scale to
+    100k+. For sources that already yield real domains, insert them straight
+    into shopify_store_index as 'discovered'. Resumable per-source cursor.
+    """
     from app.services.runtime_config import get_config
     from app.services.discovery_sources import all_sources
 
@@ -94,15 +98,14 @@ def stage_discovery(limit_override: Optional[int] = None, force: bool = False) -
         return {"status": "disabled"}
 
     db = get_supabase()
-    per_source = max(1, min(limit_override or get_config(
-        "shopify_index_discovery_batch", settings.shopify_index_discovery_batch), 200))
+    harvest_batch = max(1, min(limit_override or get_config(
+        "shopify_index_harvest_batch", settings.shopify_index_harvest_batch), 5000))
     now = datetime.now(timezone.utc).isoformat()
 
-    totals = {"discovered": 0, "duplicates": 0}
+    totals = {"queued": 0, "discovered": 0, "duplicates": 0}
     by_source: dict = {}
 
     for source in all_sources():
-        # Load this source's saved cursor + enabled flag.
         cursor = None
         enabled = True
         try:
@@ -112,60 +115,158 @@ def stage_discovery(limit_override: Optional[int] = None, force: bool = False) -
                 cursor = cur.data.get("cursor")
                 enabled = cur.data.get("enabled", True)
         except Exception:
-            pass  # table may not exist pre-migration — treat as fresh cursor
+            pass
         if not enabled:
             continue
 
-        try:
-            domains, next_cursor = source.fetch(cursor, per_source)
-        except Exception as exc:
-            logger.warning("discovery source %s fetch failed: %s", source.name, exc)
-            continue
-
-        inserted = 0
-        if domains:
-            # Dedupe against the entire index — never rediscover a known domain.
+        added = 0
+        if getattr(source, "needs_resolution", False):
+            # ── Bulk harvest raw refs into the discovery_queue (cheap) ──
             try:
-                existing = db.table("shopify_store_index").select("domain")\
-                    .in_("domain", domains).execute()
-                seen = {r["domain"] for r in (existing.data or [])}
-            except Exception:
-                seen = set()
-            rows = [
-                {"domain": d, "status": "discovered", "discovery_source": source.name,
-                 "source": source.name, "discovered_at": now,
-                 "created_at": now, "updated_at": now}
-                for d in dict.fromkeys(domains) if d not in seen
-            ]
-            totals["duplicates"] += len(domains) - len(rows)
-            if rows:
+                refs, next_cursor = source.harvest(cursor, harvest_batch)
+            except Exception as exc:
+                logger.warning("harvest %s failed: %s", source.name, exc)
+                continue
+            if refs:
+                rows = [{"source": source.name, "ref": r, "status": "pending",
+                         "discovered_at": now, "updated_at": now}
+                        for r in dict.fromkeys(refs)]
                 try:
-                    db.table("shopify_store_index").insert(rows).execute()
-                    inserted = len(rows)
+                    # upsert on (source, ref) so re-harvested refs don't error
+                    res = db.table("discovery_queue").upsert(
+                        rows, on_conflict="source,ref", ignore_duplicates=True).execute()
+                    added = len(res.data or [])
                 except Exception as exc:
-                    logger.warning("discovery insert (%s) failed: %s", source.name, exc)
+                    logger.warning("discovery_queue insert (%s) failed: %s", source.name, exc)
+            totals["queued"] += added
+        else:
+            # ── Source yields real domains → straight to index 'discovered' ──
+            try:
+                domains, next_cursor = source.fetch(cursor, harvest_batch)
+            except Exception as exc:
+                logger.warning("discovery source %s fetch failed: %s", source.name, exc)
+                continue
+            if domains:
+                try:
+                    existing = db.table("shopify_store_index").select("domain")\
+                        .in_("domain", domains).execute()
+                    seen = {r["domain"] for r in (existing.data or [])}
+                except Exception:
+                    seen = set()
+                rows = [{"domain": d, "status": "discovered", "discovery_source": source.name,
+                         "source": source.name, "discovered_at": now,
+                         "created_at": now, "updated_at": now}
+                        for d in dict.fromkeys(domains) if d not in seen]
+                if rows:
+                    try:
+                        db.table("shopify_store_index").insert(rows).execute()
+                        added = len(rows)
+                    except Exception as exc:
+                        logger.warning("discovery insert (%s) failed: %s", source.name, exc)
+            totals["discovered"] += added
 
-        totals["discovered"] += inserted
-        by_source[source.name] = inserted
-
-        # Persist cursor + lifetime counter so the crawl resumes next run.
+        by_source[source.name] = added
         try:
             db.table("discovery_cursors").upsert({
                 "source": source.name, "cursor": next_cursor,
                 "last_run_at": now, "updated_at": now,
             }, on_conflict="source").execute()
-            if inserted:
-                # increment lifetime discovered counter (best-effort)
-                prev = db.table("discovery_cursors").select("discovered")\
-                    .eq("source", source.name).maybe_single().execute()
-                base = (prev.data or {}).get("discovered", 0) if prev else 0
-                db.table("discovery_cursors").update(
-                    {"discovered": (base or 0)}).eq("source", source.name).execute()
         except Exception as exc:
             logger.debug("discovery cursor persist (%s) skipped: %s", source.name, exc)
 
-    logger.info("stage_discovery: %d new candidates %s", totals["discovered"], by_source)
+    logger.info("stage_discovery: queued %d, discovered %d %s",
+                totals["queued"], totals["discovered"], by_source)
     return {"status": "ok", **totals, "by_source": by_source}
+
+
+# ── Stage 1.5: RESOLUTION ───────────────────────────────────────────────────
+# Turn queued raw refs (shop.app/m/{handle}) into real merchant domains and
+# promote them into the index as 'discovered'. This is the rate-limited step,
+# isolated from cheap discovery and paced so it never bursts.
+
+@celery.task(name="app.tasks.store_index.stage_resolution")
+def stage_resolution(limit_override: Optional[int] = None, force: bool = False) -> dict:
+    from app.services.runtime_config import get_config
+    settings = get_settings()
+    if not get_config("shopify_index_enabled", settings.shopify_index_enabled) and not force:
+        return {"status": "disabled"}
+
+    db = get_supabase()
+    batch = max(1, min(limit_override or get_config(
+        "shopify_index_resolve_batch", settings.shopify_index_resolve_batch), 60))
+    now = datetime.now(timezone.utc).isoformat()
+
+    try:
+        res = db.table("discovery_queue").select("id, ref, attempts")\
+            .eq("status", "pending").eq("source", "shop_app")\
+            .order("discovered_at").limit(batch).execute()
+        pending = res.data or []
+    except Exception as exc:
+        logger.error("stage_resolution: queue fetch failed (apply migration 017): %s", exc)
+        return {"status": "error", "resolved": 0}
+
+    if not pending:
+        return {"status": "ok", "resolved": 0, "note": "queue_empty"}
+
+    refs = [p["ref"] for p in pending]
+    # Rate-limited resolution runs on the web process.
+    url = f"{settings.api_internal_url}/api/v1/internal/shop-app-resolve"
+    try:
+        resp = httpx.post(url, json={"refs": refs},
+                          headers={"x-internal-token": settings.internal_secret}, timeout=120.0)
+        resolved = resp.json().get("resolved", []) if resp.status_code == 200 else []
+    except Exception as exc:
+        logger.warning("stage_resolution: resolve call failed: %s", exc)
+        resolved = []
+
+    ref_to_domain = {r["ref"]: r["domain"] for r in resolved if r.get("domain")}
+
+    # Promote resolved domains into the index as 'discovered'; dedupe first.
+    domains = list(dict.fromkeys(ref_to_domain.values()))
+    seen = set()
+    if domains:
+        try:
+            ex = db.table("shopify_store_index").select("domain").in_("domain", domains).execute()
+            seen = {r["domain"] for r in (ex.data or [])}
+        except Exception:
+            seen = set()
+        new_rows = [{"domain": d, "status": "discovered", "discovery_source": "shop_app",
+                     "source": "shop_app", "discovered_at": now, "created_at": now, "updated_at": now}
+                    for d in domains if d not in seen]
+        if new_rows:
+            try:
+                db.table("shopify_store_index").insert(new_rows).execute()
+            except Exception as exc:
+                logger.warning("stage_resolution: index insert failed: %s", exc)
+
+    # Update the queue rows: resolved (success) or bump attempts / fail.
+    promoted = 0
+    for p in pending:
+        ref = p["ref"]
+        if ref in ref_to_domain:
+            try:
+                db.table("discovery_queue").update({
+                    "status": "resolved", "resolved_domain": ref_to_domain[ref],
+                    "resolved_at": now, "updated_at": now,
+                }).eq("id", p["id"]).execute()
+                promoted += 1
+            except Exception:
+                pass
+        else:
+            attempts = (p.get("attempts") or 0) + 1
+            try:
+                db.table("discovery_queue").update({
+                    "attempts": attempts,
+                    "status": "failed" if attempts >= 4 else "pending",
+                    "updated_at": now,
+                }).eq("id", p["id"]).execute()
+            except Exception:
+                pass
+
+    logger.info("stage_resolution: %d/%d refs resolved → %d new index rows",
+                promoted, len(pending), len([d for d in domains if d not in seen]))
+    return {"status": "ok", "processed": len(pending), "resolved": promoted,
+            "new_domains": len([d for d in domains if d not in seen])}
 
 
 # ── Stage 2: VERIFICATION ───────────────────────────────────────────────────

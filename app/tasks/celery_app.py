@@ -79,17 +79,25 @@ celery.conf.update(
         # verification (the only stage that fetches storefronts) drains the
         # queue every 30 min; knowledge classifies from stored data (no network)
         # on the off-half-hour.
+        # DISCOVERY bulk-harvests raw refs into the queue (cheap) a few times a
+        # day. RESOLUTION drains the queue into real domains (rate-limited).
+        # VERIFICATION and KNOWLEDGE finish the funnel. All staggered on the one
+        # worker; each no-ops unless SHOPIFY_INDEX_ENABLED.
         "index-stage-discovery": {
             "task": "app.tasks.store_index.stage_discovery",
-            "schedule": crontab(minute=10, hour="*/4"),
+            "schedule": crontab(minute=10, hour="*/6"),
+        },
+        "index-stage-resolution": {
+            "task": "app.tasks.store_index.stage_resolution",
+            "schedule": crontab(minute="5,35"),
         },
         "index-stage-verification": {
             "task": "app.tasks.store_index.stage_verification",
-            "schedule": crontab(minute="0,30"),
+            "schedule": crontab(minute="15,45"),
         },
         "index-stage-knowledge": {
             "task": "app.tasks.store_index.stage_knowledge",
-            "schedule": crontab(minute="20,50"),
+            "schedule": crontab(minute="25,55"),
         },
         # Legacy combined discovery pass — kept for admin manual test runs but
         # no longer scheduled (superseded by the three staged tasks above).

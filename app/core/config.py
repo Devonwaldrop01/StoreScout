@@ -84,6 +84,8 @@ class Settings(BaseSettings):
     # Three-stage pipeline knobs (discovery → verification → knowledge). Each
     # stage is chunked so it fits the shared worker's memory and can resume.
     shopify_index_discovery_batch: int = 60   # candidate domains surfaced per discovery run
+    shopify_index_harvest_batch: int = 1000   # raw refs bulk-harvested into the queue per run
+    shopify_index_resolve_batch: int = 40     # queued refs resolved → real domains per run
     shopify_index_verify_batch: int = 40      # discovered → verified/rejected per verify run
     shopify_index_knowledge_batch: int = 60   # verified → classified per knowledge run
     # Only recommend a store when its category is at least this confident —

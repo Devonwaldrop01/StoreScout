@@ -64,7 +64,7 @@ interface Stats {
 }
 
 interface Ops {
-  pipeline: { discovered: number; candidates: number; verified: number; rejected: number; failed: number; knowledge_done: number; knowledge_pending: number };
+  pipeline: { queue_total?: number; queue_pending?: number; queue_resolved?: number; discovered: number; candidates: number; verified: number; rejected: number; failed: number; knowledge_done: number; knowledge_pending: number };
   today: { discovered: number; verified: number; rejected: number; knowledge: number; success_rate: number | null };
   success_rate: number | null;
   avg_category_confidence: number | null;
@@ -242,7 +242,19 @@ export default function StoreIndexAdminPage() {
     }
   }
 
-  async function runStage(stage: "discovery" | "verification" | "knowledge") {
+  async function runCount() {
+    if (probing) return;
+    setStageResult("Counting Shop App storefronts…");
+    try {
+      const r = await adminFetch<{ data: { total_handles: number; children?: number; note?: string } }>("/admin/store-index/shop-app-count", token);
+      const d = r.data;
+      setStageResult(d.note ? `Ceiling: ${d.note}` : `Shop App exposes ~${d.total_handles.toLocaleString()} storefronts across ${d.children ?? "?"} sitemaps — that's the discovery ceiling.`);
+    } catch (e: unknown) {
+      setStageResult((e as Error).message || "Count failed.");
+    }
+  }
+
+  async function runStage(stage: "discovery" | "resolution" | "verification" | "knowledge") {
     if (stageBusy) return;
     setStageBusy(stage);
     setStageResult("");
@@ -358,7 +370,7 @@ export default function StoreIndexAdminPage() {
         {ops && (
           <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
             <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-              <p className="label-caps">Pipeline · discovery → verification → knowledge</p>
+              <p className="label-caps">Pipeline · discovered → resolved → verified → classified</p>
               <span className="flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded"
                     style={{ background: "var(--bg3)", color: ops.worker.enabled ? "#4CC38A" : "var(--muted)" }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: ops.worker.enabled ? "#4CC38A" : "var(--muted)" }} />
@@ -367,17 +379,20 @@ export default function StoreIndexAdminPage() {
               </span>
             </div>
 
-            {/* Three stages as flowing columns */}
-            <div className="grid sm:grid-cols-3 gap-3">
+            {/* Four stages as a flowing funnel: cheap discovery → quality index */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[
-                { icon: Radar, name: "1 · Discovery", color: "#7DB8C9",
-                  big: ops.pipeline.discovered, bigLabel: "in queue",
-                  sub: `+${ops.today.discovered} found today` },
-                { icon: ShieldCheck, name: "2 · Verification", color: "#4CC38A",
-                  big: ops.pipeline.verified, bigLabel: "verified",
+                { icon: Radar, name: "1 · Discovered", color: "#7DB8C9",
+                  big: ops.pipeline.queue_total ?? 0, bigLabel: "in universe (queue)",
+                  sub: `${(ops.pipeline.queue_pending ?? 0).toLocaleString()} awaiting resolution` },
+                { icon: Search, name: "2 · Resolved", color: "#7DB8C9",
+                  big: ops.pipeline.discovered, bigLabel: "real domains, ready to verify",
+                  sub: `${(ops.pipeline.queue_resolved ?? 0).toLocaleString()} resolved from queue` },
+                { icon: ShieldCheck, name: "3 · Verified", color: "#4CC38A",
+                  big: ops.pipeline.verified, bigLabel: "verified Shopify stores",
                   sub: ops.success_rate != null ? `${ops.success_rate}% success · +${ops.today.verified} today` : `+${ops.today.verified} today` },
-                { icon: Brain, name: "3 · Knowledge", color: "var(--accent)",
-                  big: ops.pipeline.knowledge_done, bigLabel: "classified",
+                { icon: Brain, name: "4 · Classified", color: "var(--accent)",
+                  big: ops.pipeline.knowledge_done, bigLabel: "classified (user-facing)",
                   sub: ops.knowledge_completion != null ? `${ops.knowledge_completion}% complete · ${ops.pipeline.knowledge_pending} pending` : `${ops.pipeline.knowledge_pending} pending` },
               ].map((st) => {
                 const Icon = st.icon;
@@ -461,9 +476,10 @@ export default function StoreIndexAdminPage() {
         <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <p className="label-caps mb-1">Run the pipeline manually</p>
           <p className="text-xs mb-3 leading-relaxed" style={{ color: "var(--muted)" }}>
-            Test each stage in isolation. Start with <span style={{ color: "var(--text-2)" }}>Probe Shop App</span> to confirm
-            Discovery Source #1 actually returns domains, then Discovery → Verification → Knowledge. This is the real pipeline —
-            unlike the legacy “Run 10 domains” below, which drains AI-guessed candidates and is why your success rate looks like 23%.
+            The funnel: <span style={{ color: "var(--text-2)" }}>Harvest</span> bulk-loads Shop App refs into the queue (cheap, thousands/run) →
+            <span style={{ color: "var(--text-2)" }}> Resolve</span> turns queued refs into real domains (rate-limited) →
+            <span style={{ color: "var(--text-2)" }}> Verify</span> confirms Shopify → <span style={{ color: "var(--text-2)" }}>Classify</span> adds category + confidence.
+            Only verified + classified stores are ever shown to users. “Count ceiling” shows how many storefronts Shop App exposes in total.
           </p>
           <div className="flex items-center gap-2 flex-wrap">
             <button onClick={runProbe} disabled={probing}
@@ -479,21 +495,31 @@ export default function StoreIndexAdminPage() {
               className="text-[11px] num rounded-md px-2.5 py-1.5 outline-none w-56"
               style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
             />
+            <button onClick={runCount} disabled={probing}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40"
+              style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text-2)" }}>
+              <Database className="w-3.5 h-3.5" /> Count ceiling
+            </button>
             <span style={{ color: "var(--muted)" }}>·</span>
             <button onClick={() => runStage("discovery")} disabled={!!stageBusy}
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40"
               style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "#7DB8C9" }}>
-              {stageBusy === "discovery" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Radar className="w-3.5 h-3.5" />} 1 · Discovery
+              {stageBusy === "discovery" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Radar className="w-3.5 h-3.5" />} 1 · Harvest
+            </button>
+            <button onClick={() => runStage("resolution")} disabled={!!stageBusy}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40"
+              style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "#7DB8C9" }}>
+              {stageBusy === "resolution" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />} 2 · Resolve
             </button>
             <button onClick={() => runStage("verification")} disabled={!!stageBusy}
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40"
               style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "#4CC38A" }}>
-              {stageBusy === "verification" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />} 2 · Verification
+              {stageBusy === "verification" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />} 3 · Verify
             </button>
             <button onClick={() => runStage("knowledge")} disabled={!!stageBusy}
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110 disabled:opacity-40"
               style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--accent)" }}>
-              {stageBusy === "knowledge" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Brain className="w-3.5 h-3.5" />} 3 · Knowledge
+              {stageBusy === "knowledge" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Brain className="w-3.5 h-3.5" />} 4 · Classify
             </button>
           </div>
           {stageResult && <p className="num text-[11px] mt-2 break-all" style={{ color: "var(--text-2)" }}>{stageResult}</p>}

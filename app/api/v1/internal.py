@@ -330,17 +330,76 @@ def internal_shop_app_page(body: dict, x_internal_token: str = Header(...)):
     """
     _require_internal(x_internal_token)
     cursor = (body or {}).get("cursor") or {}
-    limit = max(1, min(int((body or {}).get("limit") or 10), 25))
+    limit = max(1, min(int((body or {}).get("limit") or 30), 50))
 
     result = _shop_app_discover(cursor, limit)
-    logger.info("[SHOP_APP] cursor=%s → %d domains (%s)",
-                cursor, len(result.get("domains", [])), result.get("note") or "ok")
+    logger.info("[SHOP_APP] cursor=%s processed=%s resolved=%s rate_limited=%s → %d domains (%s)",
+                cursor, result.get("processed"), result.get("resolved"),
+                result.get("rate_limited"), len(result.get("domains", [])), result.get("note") or "ok")
     return {
         "domains": result.get("domains", []),
         "cursor": result.get("cursor", cursor),
         "note": result.get("note"),
         "processed": result.get("processed"),
+        "resolved": result.get("resolved"),
+        "rate_limited": result.get("rate_limited"),
+        "no_domain": result.get("no_domain"),
+        "child_total": result.get("child_total"),
     }
+
+
+@router.post("/shop-app-count")
+def internal_shop_app_count(body: dict, x_internal_token: str = Header(...)):
+    """Return how many storefront handles Shop App publishes (the discovery
+    ceiling) — cheap, no per-store fetches. Runs on the web process."""
+    _require_internal(x_internal_token)
+    return _shop_app_count()
+
+
+@router.post("/shop-app-harvest")
+def internal_shop_app_harvest(body: dict, x_internal_token: str = Header(...)):
+    """
+    Stage 1 (Discovery), cheap + bulk: return a page of raw Shop App refs
+    (shop.app/m/{handle} URLs) straight from the storefronts sitemap — NO
+    per-store page fetches, so this scales to thousands per run. Resolution to
+    real domains happens separately. Body: {cursor, limit}. Returns
+    {refs, cursor, child_total}.
+    """
+    _require_internal(x_internal_token)
+    cursor = (body or {}).get("cursor") or {}
+    limit = max(1, min(int((body or {}).get("limit") or 500), 5000))
+    result = _shop_app_harvest(cursor, limit)
+    logger.info("[SHOP_APP_HARVEST] cursor=%s → %d refs (child_total=%s)",
+                cursor, len(result.get("refs", [])), result.get("child_total"))
+    return result
+
+
+@router.post("/shop-app-resolve")
+def internal_shop_app_resolve(body: dict, x_internal_token: str = Header(...)):
+    """
+    Stage 2 (Resolution), rate-limited: given raw Shop App refs, fetch each
+    store page and return its real merchant domain. Concurrent + 429-backoff.
+    Body: {refs: [url]}. Returns {resolved: [{ref, domain}], stats}.
+    """
+    _require_internal(x_internal_token)
+    from concurrent.futures import ThreadPoolExecutor
+    refs = [r for r in ((body or {}).get("refs") or []) if r][:60]
+    if not refs:
+        return {"resolved": [], "stats": {"processed": 0}}
+
+    resolved = []
+    rate_limited = no_domain = 0
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        for ref, (domain, st) in zip(refs, pool.map(lambda r: _shop_app_resolve_one(r), refs)):
+            if domain:
+                resolved.append({"ref": ref, "domain": domain})
+            elif st == 429:
+                rate_limited += 1
+            else:
+                no_domain += 1
+    return {"resolved": resolved,
+            "stats": {"processed": len(refs), "resolved": len(resolved),
+                      "rate_limited": rate_limited, "no_domain": no_domain}}
 
 
 _SHOP_APP_SKIP = (
@@ -541,13 +600,17 @@ def _shop_app_get(url: str, timeout: int = 20):
         return None, ""
 
 
-def _shop_app_resolve_one(handle_url: str, timeout: int = 20):
+def _shop_app_resolve_one(handle_url: str, timeout: int = 20, retry_429: bool = True):
     """Resolve one shop.app/m/{handle} store page to the merchant's real domain.
     Prefers the vanity domain (most-frequent external host on the page); falls
     back to the {shop}.myshopify.com domain, which is always a live Shopify
     storefront. Returns (domain|None, http_status)."""
     import re as _re
+    import time as _time
     status, text = _shop_app_get(handle_url, timeout)
+    if status == 429 and retry_429:
+        _time.sleep(3.0)  # one polite backoff on throttle
+        status, text = _shop_app_get(handle_url, timeout)
     if status != 200 or not text:
         return None, status
 
@@ -571,26 +634,78 @@ def _shop_app_resolve_one(handle_url: str, timeout: int = 20):
     return (vanity or myshopify), status
 
 
+def _shop_app_children() -> tuple:
+    """(children list, index http status) for the storefronts sitemap index."""
+    import re as _re
+    idx_status, idx_text = _shop_app_get(_STOREFRONTS_INDEX)
+    children = [l for l in _re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", idx_text or "", _re.I)
+                if l.endswith(".xml") or l.endswith(".gz")]
+    return children, idx_status
+
+
+def _shop_app_count() -> dict:
+    """Count every storefront handle Shop App publishes — the discovery ceiling.
+    Cheap: 10-ish gzipped sitemaps, no per-store page fetches."""
+    import re as _re
+    children, idx_status = _shop_app_children()
+    if not children:
+        return {"total_handles": 0, "children": 0, "note": f"index unreadable (HTTP {idx_status})"}
+    per_child = []
+    total = 0
+    for c in children:
+        st, txt = _shop_app_get(c)
+        n = len(_re.findall(r"<loc>[^<]*?/m/", txt or "", _re.I))
+        per_child.append({"child": c.rsplit("/", 1)[-1], "handles": n, "status": st})
+        total += n
+    return {"total_handles": total, "children": len(children), "per_child": per_child}
+
+
+def _shop_app_harvest(cursor: dict, limit: int) -> dict:
+    """Cheap bulk harvest: read one child sitemap and return a page of
+    shop.app/m/{handle} refs, advancing a {child, offset} cursor. No per-store
+    fetches — this is how discovery scales to the full ceiling fast."""
+    import re as _re
+    cursor = cursor or {}
+    child_i = int(cursor.get("child", 0))
+    offset = int(cursor.get("offset", 0))
+
+    children, idx_status = _shop_app_children()
+    if not children:
+        return {"refs": [], "cursor": cursor, "note": f"index unreadable (HTTP {idx_status})"}
+
+    child_i %= len(children)
+    _, ch_text = _shop_app_get(children[child_i])
+    handles = _re.findall(r"<loc>\s*([^<\s]+/m/[^<\s]+)\s*</loc>", ch_text or "", _re.I)
+    if not handles:
+        return {"refs": [], "cursor": {"child": (child_i + 1) % len(children), "offset": 0},
+                "child_total": 0}
+
+    refs = handles[offset: offset + limit]
+    new_offset = offset + len(refs)
+    if new_offset >= len(handles):
+        new_cursor = {"child": (child_i + 1) % len(children), "offset": 0}
+    else:
+        new_cursor = {"child": child_i, "offset": new_offset}
+    return {"refs": refs, "cursor": new_cursor, "child": child_i, "child_total": len(handles)}
+
+
 def _shop_app_discover(cursor: dict, limit: int) -> dict:
     """
     Resumable Shop App discovery. Walks the storefronts sitemap:
       index → child .xml.gz → shop.app/m/{handle} pages → resolve real domain.
     The cursor {child, offset} remembers exactly where it stopped, so each run
-    continues over time and never rediscovers. Deliberately SMALL + polite
-    (one page per store, paced) to stay under Shop App's 429 rate limit.
+    continues over time and never rediscovers. Resolves a batch concurrently
+    (bounded pool) with a 429 backoff so it moves faster without bursting.
     """
     import re as _re
-    import time as _time
+    from concurrent.futures import ThreadPoolExecutor
 
     cursor = cursor or {}
     child_i = int(cursor.get("child", 0))
     offset = int(cursor.get("offset", 0))
-    # Hard cap per run — page fetches are ~0.5MB each and rate-limited.
-    batch = max(1, min(limit, 10))
+    batch = max(1, min(limit, 50))
 
-    idx_status, idx_text = _shop_app_get(_STOREFRONTS_INDEX)
-    children = [l for l in _re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", idx_text or "", _re.I)
-                if l.endswith(".xml") or l.endswith(".gz")]
+    children, idx_status = _shop_app_children()
     if not children:
         return {"domains": [], "cursor": cursor,
                 "note": f"storefronts index unreadable (HTTP {idx_status})"}
@@ -599,22 +714,21 @@ def _shop_app_discover(cursor: dict, limit: int) -> dict:
     ch_status, ch_text = _shop_app_get(children[child_i])
     handles = _re.findall(r"<loc>\s*([^<\s]+/m/[^<\s]+)\s*</loc>", ch_text or "", _re.I)
     if not handles:
-        # Empty/unreadable child — advance so we don't get stuck on it.
         return {"domains": [], "cursor": {"child": (child_i + 1) % len(children), "offset": 0},
                 "note": f"child {child_i} empty (HTTP {ch_status})"}
 
     slice_ = handles[offset: offset + batch]
     domains: list = []
-    resolved_429 = 0
-    for h in slice_:
-        d, st = _shop_app_resolve_one(h)
-        if d:
-            domains.append(d)
-        elif st == 429:
-            resolved_429 += 1
-        _time.sleep(1.0)  # polite pacing between store pages
-        if resolved_429 >= 3:
-            break  # being throttled — stop early, keep our place
+    resolved = rate_limited = no_domain = 0
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        for d, st in pool.map(lambda h: _shop_app_resolve_one(h), slice_):
+            if d:
+                domains.append(d)
+                resolved += 1
+            elif st == 429:
+                rate_limited += 1
+            else:
+                no_domain += 1
 
     new_offset = offset + len(slice_)
     if new_offset >= len(handles):
@@ -623,9 +737,13 @@ def _shop_app_discover(cursor: dict, limit: int) -> dict:
         new_cursor = {"child": child_i, "offset": new_offset}
 
     domains = list(dict.fromkeys(domains))
+    note = None
+    if rate_limited:
+        note = f"{rate_limited}/{len(slice_)} rate-limited (429)"
     return {"domains": domains, "cursor": new_cursor,
-            "processed": len(slice_), "child": child_i,
-            "note": ("rate-limited (429) — backing off" if resolved_429 else None)}
+            "processed": len(slice_), "resolved": resolved,
+            "rate_limited": rate_limited, "no_domain": no_domain,
+            "child": child_i, "child_total": len(handles), "note": note}
 
 
 @router.post("/debug-fetch")
