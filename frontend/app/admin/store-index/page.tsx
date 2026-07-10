@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { EngineControls } from "@/components/admin/EngineControls";
 import { StoreInspector } from "@/components/admin/StoreInspector";
+import { useToast } from "@/components/ui/Toast";
+import { Skeleton, SkeletonStats } from "@/components/ui/Skeleton";
 
 const TOKEN_KEY = "ss_admin_token";
 
@@ -117,6 +119,7 @@ export default function StoreIndexAdminPage() {
   const [ops, setOps] = useState<Ops | null>(null);
   const [inspect, setInspect] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const [filterStatus, setFilterStatus] = useState("");
   const [filterDomain, setFilterDomain] = useState("");
@@ -210,10 +213,12 @@ export default function StoreIndexAdminPage() {
         { method: "POST", body: JSON.stringify({ urls }) },
       );
       setSeedResult(`Seeded ${r.inserted} new candidate${r.inserted === 1 ? "" : "s"} (${r.duplicates} already known).`);
+      toast(`Seeded ${r.inserted} new candidate${r.inserted === 1 ? "" : "s"}`, "success");
       setSeedText("");
       loadStats(token, filterStatus, filterDomain);
     } catch (e: unknown) {
       setSeedResult((e as Error).message || "Seeding failed.");
+      toast((e as Error).message || "Seeding failed.", "error");
     } finally {
       setSeeding(false);
     }
@@ -230,6 +235,7 @@ export default function StoreIndexAdminPage() {
       );
       if (r.status === "queued") {
         setRunResult("Test run queued (10 domains) — refresh stats in ~a minute.");
+        toast("Test run queued — results in ~a minute", "info");
       } else {
         const res = r.result || {};
         setRunResult(`Run complete: ${res.processed ?? 0} processed — ${res.verified ?? 0} verified, ${res.rejected ?? 0} rejected, ${res.failed ?? 0} failed.`);
@@ -237,6 +243,7 @@ export default function StoreIndexAdminPage() {
       }
     } catch (e: unknown) {
       setRunResult((e as Error).message || "Run failed.");
+      toast((e as Error).message || "Run failed.", "error");
     } finally {
       setRunning(false);
     }
@@ -267,8 +274,10 @@ export default function StoreIndexAdminPage() {
         { method: "POST", body: JSON.stringify(payload) },
       );
       setStageResult(r.data.note || `Queued ${r.data.queued}.`);
+      toast(r.data.note || `Queued ${r.data.queued} for re-processing`, "success");
     } catch (e: unknown) {
       setStageResult((e as Error).message || "Re-classify failed.");
+      toast((e as Error).message || "Re-classify failed.", "error");
     } finally {
       setStageBusy("");
     }
@@ -285,12 +294,14 @@ export default function StoreIndexAdminPage() {
       );
       if (r.status === "queued") {
         setStageResult(`${stage} queued — refresh in ~a minute to see the effect.`);
+        toast(`${stage} stage queued`, "info");
       } else {
         setStageResult(`${stage}: ${JSON.stringify(r.result ?? {})}`);
         loadStats(token, filterStatus, filterDomain);
       }
     } catch (e: unknown) {
       setStageResult((e as Error).message || `${stage} failed.`);
+      toast((e as Error).message || `${stage} failed.`, "error");
     } finally {
       setStageBusy("");
     }
@@ -385,6 +396,17 @@ export default function StoreIndexAdminPage() {
             </button>
           </div>
         </div>
+
+        {/* First-load skeleton — no blank flash before the console fills in */}
+        {!stats && (
+          <div className="space-y-6">
+            <Skeleton style={{ height: 150 }} />
+            <SkeletonStats count={8} />
+            <div className="grid md:grid-cols-3 gap-4">
+              {[0, 1, 2].map((i) => <Skeleton key={i} style={{ height: 180 }} />)}
+            </div>
+          </div>
+        )}
 
         {/* ── Index Operations — the three-stage pipeline at a glance ──────── */}
         {ops && (

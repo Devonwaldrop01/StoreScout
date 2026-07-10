@@ -23,6 +23,12 @@ const CATEGORIES = [
 ] as const;
 type Category = (typeof CATEGORIES)[number] | "";
 
+// Brand descriptors — feed direct-competitor matching + personalization.
+const BRAND_TRAITS = [
+  "Premium", "Luxury", "Budget", "Value", "Sustainable", "Handmade",
+  "Performance", "Minimalist", "Bold", "Classic", "Playful", "Tech-forward",
+] as const;
+
 const GOALS = [
   {
     id: "price",
@@ -187,6 +193,9 @@ function OnboardingContent() {
   const [goalId, setGoalId] = useState<GoalId>("");
   const [priceRange, setPriceRange] = useState<"" | "budget" | "mid" | "premium" | "luxury">("");
   const [customer, setCustomer] = useState("");
+  const [sells, setSells] = useState("");
+  const [brandTraits, setBrandTraits] = useState<string[]>([]);
+  const [notes, setNotes] = useState("");
   const [quickAdding, setQuickAdding] = useState<string | null>(null); // url being quick-added
 
   // Whether they skipped the competitor step without adding one
@@ -200,9 +209,11 @@ function OnboardingContent() {
 
   function buildDescription(): string {
     return [
-      category && `Sells ${category}`,
+      sells.trim() ? sells.trim() : (category && `Sells ${category}`),
+      brandTraits.length > 0 && `${brandTraits.join(", ")} brand`,
       priceRange && `${priceRange} pricing`,
-      customer.trim() && `Customer: ${customer.trim()}`,
+      customer.trim() && `Sells to: ${customer.trim()}`,
+      notes.trim() && notes.trim(),
     ].filter(Boolean).join(". ");
   }
 
@@ -524,6 +535,14 @@ function OnboardingContent() {
                   <p className="text-sm font-semibold mb-3" style={{ color: "var(--text)" }}>
                     What do you sell? <span className="font-normal" style={{ color: "var(--muted)" }}>(required)</span>
                   </p>
+                  <input
+                    value={sells}
+                    onChange={(e) => setSells(e.target.value)}
+                    placeholder="Be specific — e.g. premium golf apparel, organic dog treats, handmade jewelry"
+                    className="w-full mb-3 px-4 py-2.5 rounded-md text-sm outline-none"
+                    style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                  />
+                  <p className="text-[11px] mb-2" style={{ color: "var(--muted)" }}>…and the closest category:</p>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     {CATEGORIES.map((c) => (
                       <button
@@ -578,8 +597,48 @@ function OnboardingContent() {
                   <input
                     value={customer}
                     onChange={(e) => setCustomer(e.target.value)}
-                    placeholder="e.g. women 25–40 into fitness, budget-conscious"
+                    placeholder="e.g. small dog owners, new parents, golf enthusiasts, outdoor adventurers"
                     className="w-full px-4 py-2.5 rounded-md text-sm outline-none"
+                    style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
+                  />
+                </div>
+
+                <div>
+                  <p className="text-sm font-semibold mb-2" style={{ color: "var(--text)" }}>
+                    How would you describe your brand? <span className="font-normal" style={{ color: "var(--muted)" }}>(pick any)</span>
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {BRAND_TRAITS.map((t) => {
+                      const on = brandTraits.includes(t);
+                      return (
+                        <button
+                          key={t}
+                          type="button"
+                          onClick={() => setBrandTraits((prev) => on ? prev.filter((x) => x !== t) : [...prev, t])}
+                          className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+                          style={{
+                            background: on ? "rgba(255,178,36,.12)" : "var(--bg3)",
+                            border: `1px solid ${on ? "rgba(255,178,36,.5)" : "var(--border)"}`,
+                            color: on ? "var(--accent)" : "var(--muted)",
+                          }}
+                        >
+                          {t}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-semibold mb-2" style={{ color: "var(--text)" }}>
+                    Anything else we should know? <span className="font-normal" style={{ color: "var(--muted)" }}>(optional)</span>
+                  </p>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    rows={2}
+                    placeholder="e.g. we sell orthopedic dog beds for older large dogs with joint issues"
+                    className="w-full px-4 py-2.5 rounded-md text-sm outline-none resize-none"
                     style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
                   />
                 </div>
@@ -638,6 +697,9 @@ function OnboardingContent() {
                     price_range: priceRange || undefined,
                     target_customer: customer.trim() || undefined,
                     primary_goal: goalId || undefined,
+                    sells: sells.trim() || undefined,
+                    brand_traits: brandTraits.length ? brandTraits : undefined,
+                    notes: notes.trim() || undefined,
                   }).catch(() => {});
                   // Kick discovery now so the competitor step is already personalized.
                   runDiscovery();
