@@ -226,6 +226,16 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
             if lang_m:
                 profile["language"] = lang_m.group(1)[:8]
 
+            # Commercial signals for lead scoring — proof of budget/marketing
+            # maturity + a contact. Extracted from the homepage we already have,
+            # so near-zero added cost.
+            commercial = extract_commercial_signals(html, domain)
+            profile["tech_signals"] = commercial["tech_signals"]
+            profile["contact_email"] = commercial["contact_email"]
+            profile["contact_source"] = commercial["contact_source"]
+            profile["sells_wholesale"] = commercial["sells_wholesale"]
+            profile["multi_market"] = commercial["multi_market"]
+
         # 2. /cart.js — storefront API marker
         try:
             r = _get(client, f"https://{domain}/cart.js", timeout=8)
@@ -343,6 +353,105 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
         "monitorable": products_ok or "Storefront responds (bot-protected)" in signals,
         "profile": profile,
         "failure_reason": None if reachable else "unreachable_or_dns",
+    }
+
+
+# ── Commercial signals (lead-quality intelligence) ─────────────────────────
+# What a merchant spends money on tells us far more about whether they'll BUY
+# than how big their catalog is. These footprints are the highest-signal, and
+# they're free — the homepage is already fetched for verification.
+
+# marker substrings → (signal key, category). Category groups feed scoring.
+_TECH_MARKERS: List[tuple] = [
+    ("klaviyo", ("klaviyo", "email_marketing")),
+    ("attentive", ("attentive", "sms_marketing")),
+    ("postscript", ("postscript", "sms_marketing")),
+    ("connect.facebook.net", ("meta_pixel", "paid_ads")),
+    ("fbevents.js", ("meta_pixel", "paid_ads")),
+    ("analytics.tiktok.com", ("tiktok_pixel", "paid_ads")),
+    ("snap.licdn.com", ("linkedin_pixel", "paid_ads")),
+    ("googletagmanager.com", ("gtm", "analytics")),
+    ("gtag(", ("google_ads", "paid_ads")),
+    ("judge.me", ("judgeme", "reviews")),
+    ("yotpo", ("yotpo", "reviews")),
+    ("stamped.io", ("stamped", "reviews")),
+    ("loox", ("loox", "reviews")),
+    ("okendo", ("okendo", "reviews")),
+    ("reviews.io", ("reviewsio", "reviews")),
+    ("rechargecdn", ("recharge", "subscriptions")),
+    ("recharge.com", ("recharge", "subscriptions")),
+    ("appstle", ("appstle", "subscriptions")),
+    ("seal-subscriptions", ("seal", "subscriptions")),
+    ("gorgias", ("gorgias", "support")),
+    ("intercom", ("intercom", "support")),
+    ("tidio", ("tidio", "support")),
+    ("zendesk", ("zendesk", "support")),
+    ("privy", ("privy", "email_capture")),
+    ("justuno", ("justuno", "email_capture")),
+    ("optinmonster", ("optinmonster", "email_capture")),
+    ("rebuy", ("rebuy", "upsell")),
+    ("zipify", ("zipify", "upsell")),
+    ("aftersell", ("aftersell", "upsell")),
+    ("bold", ("bold", "upsell")),
+]
+
+_EMAIL_RE = re.compile(r"[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}", re.I)
+_MAILTO_RE = re.compile(r'mailto:([a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,})', re.I)
+_EMAIL_JUNK = ("example.com", "sentry", "wixpress", "godaddy", "your-email",
+               "email.com", "domain.com", "shopify.com", "@2x", "sentry.io",
+               "wordpress", "squarespace", "test.com")
+_PREFERRED_INBOX = ("hello@", "info@", "contact@", "support@", "sales@", "team@", "hi@")
+
+
+def extract_commercial_signals(html: str, domain: str) -> Dict[str, Any]:
+    """Detect budget/marketing footprints, a contact email, wholesale posture,
+    and multi-market presence from a storefront's HTML."""
+    h = (html or "").lower()
+    tech: List[str] = []
+    cats = set()
+    for marker, (key, cat) in _TECH_MARKERS:
+        if marker in h and key not in tech:
+            tech.append(key)
+            cats.add(cat)
+
+    # Contact email — prefer a mailto, then a role inbox on the brand's domain,
+    # then any plausible address; drop obvious junk/vendor addresses.
+    email = None
+    source = None
+    root = normalize_domain(domain).split(":")[0]
+    root_base = root[4:] if root.startswith("www.") else root
+    candidates = []
+    for m in _MAILTO_RE.finditer(html or ""):
+        candidates.append(("mailto", m.group(1).lower()))
+    for m in _EMAIL_RE.finditer(html or ""):
+        candidates.append(("page", m.group(0).lower()))
+    for src, cand in candidates:
+        if any(j in cand for j in _EMAIL_JUNK):
+            continue
+        on_brand = root_base.split(".")[0] in cand
+        role = any(cand.startswith(p) for p in _PREFERRED_INBOX)
+        if email is None:
+            email, source = cand, src
+        # upgrade to an on-brand role inbox if we find one
+        if on_brand and role:
+            email, source = cand, src
+            break
+        if on_brand and email and root_base.split(".")[0] not in email:
+            email, source = cand, src
+
+    sells_wholesale = any(k in h for k in (
+        "/pages/wholesale", "wholesale enquir", "wholesale inquir",
+        "trade account", "become a stockist", "minimum order quantity", "b2b portal"))
+    # Multi-market: several hreflang alternates or Shopify markets selector.
+    multi_market = h.count("hreflang=") >= 3 or "localization" in h and "country" in h
+
+    return {
+        "tech_signals": tech,
+        "tech_categories": sorted(cats),
+        "contact_email": email,
+        "contact_source": source,
+        "sells_wholesale": sells_wholesale,
+        "multi_market": bool(multi_market),
     }
 
 
@@ -700,6 +809,12 @@ def verify_and_store(db, domain: str, source: str, source_query: Optional[str] =
         "vendors": profile.get("vendors"),
         "verification_confidence": confidence,
         "verification_signals": result.get("signals"),
+        # Commercial signals for lead scoring (migration 018).
+        "tech_signals": profile.get("tech_signals"),
+        "contact_email": profile.get("contact_email"),
+        "contact_source": profile.get("contact_source"),
+        "sells_wholesale": profile.get("sells_wholesale"),
+        "multi_market": profile.get("multi_market"),
         "source": source,
         "discovery_source": source,
         "source_query": source_query,
@@ -877,6 +992,7 @@ def upsert_index_row(db, domain: str, fields: Dict[str, Any]) -> str:
         "rejection_reason", "category_confidence", "category_evidence",
         "price_bands", "target_customer", "brand_keywords", "homepage_message",
         "collection_count", "related_ready", "product_titles",
+        "tech_signals", "contact_email", "contact_source", "sells_wholesale", "multi_market",
     )
 
     def _write(payload: Dict[str, Any]) -> None:
