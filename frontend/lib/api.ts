@@ -101,6 +101,8 @@ export const competitors = {
     apiFetch<{ data: { answer: string | null; followups: string[] } }>(`/competitors/${id}/ask`, {
       method: "POST", body: JSON.stringify({ question }),
     }),
+  benchmarks: (id: string) =>
+    apiFetch<{ data: BenchmarksData }>(`/competitors/${id}/benchmarks`),
   quickWins: (id: string) =>
     apiFetch<{ data: QuickWinsResponse }>(`/competitors/${id}/quick-wins`),
   priceHistory: (id: string) =>
@@ -444,6 +446,24 @@ export interface MatchStrategy {
   match_these: string[];
   own_these: string[];
   locked?: boolean;
+}
+
+export interface BenchmarkItem {
+  key: string;
+  label: string;
+  unit: string;
+  value: number;
+  average: number;
+  median: number;
+  percentile: number;
+  diff_pct: number;
+  read: string;
+}
+export interface BenchmarksData {
+  category: string | null;
+  sample_size?: number;
+  benchmarks: BenchmarkItem[];
+  note?: string;
 }
 
 export interface ComparisonResponse {

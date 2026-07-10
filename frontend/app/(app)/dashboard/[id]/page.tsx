@@ -29,6 +29,7 @@ import StoreProfileTab from "@/components/competitors/StoreProfileTab";
 import ComparisonTab from "@/components/competitors/ComparisonTab";
 import { AskStoreScout } from "@/components/competitors/AskStoreScout";
 import { ResearchProgress } from "@/components/competitors/ResearchProgress";
+import { MarketBenchmarks } from "@/components/competitors/MarketBenchmarks";
 import { ProAnalysis, type ProAnalysisData } from "@/components/competitors/ProAnalysis";
 import { QuickWins } from "@/components/competitors/QuickWins";
 import UpgradeModal from "@/components/UpgradeModal";
@@ -1010,6 +1011,9 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                     locked={isFree}
                   />
                 </div>
+
+                {/* Market benchmarks — puts their KPIs in category context */}
+                <MarketBenchmarks competitorId={id} />
 
                 {/* Ask StoreScout — the research conversation. Especially valuable
                     for new users with no change history yet: always another thread. */}
