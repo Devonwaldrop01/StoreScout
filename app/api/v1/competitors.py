@@ -1566,8 +1566,13 @@ def ask_storescout(competitor_id: str, body: AskRequest, user_id: str = Depends(
     if not settings.anthropic_api_key:
         return {"data": {"answer": "Ask StoreScout is warming up — try again shortly.", "followups": []}}
 
-    crow = db.table("competitors").select("hostname, brand_decode").eq("id", competitor_id).maybe_single().execute()
-    crow = (crow.data if crow else {}) or {}
+    try:
+        crow = db.table("competitors").select("hostname, brand_decode").eq("id", competitor_id).maybe_single().execute()
+        crow = (crow.data if crow else {}) or {}
+    except Exception:
+        # brand_decode column may not exist pre-migration-020 — fall back.
+        crow = db.table("competitors").select("hostname").eq("id", competitor_id).maybe_single().execute()
+        crow = (crow.data if crow else {}) or {}
     hostname = crow.get("hostname") or "this competitor"
     sd = _latest_snapshot_data(db, competitor_id) or {}
     context = _competitor_context_str(hostname, sd, crow.get("brand_decode"))
