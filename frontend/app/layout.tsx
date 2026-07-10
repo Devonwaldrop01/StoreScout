@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { Suspense } from "react";
 import Analytics from "@/components/Analytics";
+import { ToastProvider } from "@/components/ui/Toast";
 import "./globals.css";
 
 const grotesk = Space_Grotesk({
@@ -33,7 +34,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${grotesk.variable} ${jetbrains.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased">
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
         <Suspense fallback={null}>
           <Analytics />
         </Suspense>
