@@ -12,18 +12,25 @@
  * still teaches the user something about their market.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ArrowRight, Sparkles } from "lucide-react";
 import { INSIGHT_LANGUAGE } from "@/lib/insight";
 import { deriveMarketSignals, deriveQuietIntelligence, type MarketSignal, type MarketFact } from "@/lib/market";
+import { market, type MarketSignalInterpretation } from "@/lib/api";
 import type { SignalGroup } from "@/lib/signals";
 import type { Competitor } from "@/lib/api";
 
-function SignalBlock({ signal, primary }: { signal: MarketSignal; primary: boolean }) {
+function SignalBlock({ signal, primary, ai }: { signal: MarketSignal; primary: boolean; ai?: MarketSignalInterpretation }) {
   const [open, setOpen] = useState(false);
   const lang = INSIGHT_LANGUAGE[signal.kind];
   const Icon = lang.Icon;
+  // Progressive enhancement: prefer the AI-tailored copy when it has arrived,
+  // otherwise the instant deterministic read.
+  const whatHappened = ai?.what_happened || signal.whatHappened;
+  const whyItMatters = ai?.why_it_matters || signal.whyItMatters;
+  const yourMove = ai?.your_move || signal.yourMove;
+  const tailored = !!ai?.why_it_matters;
 
   return (
     <div
@@ -41,6 +48,11 @@ function SignalBlock({ signal, primary }: { signal: MarketSignal; primary: boole
           <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: lang.color }}>
             Market Signal · {lang.label}
           </span>
+          {tailored && (
+            <span className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: "var(--accent)" }} title="Tailored to your category by StoreScout AI">
+              <Sparkles className="w-2.5 h-2.5" /> tailored
+            </span>
+          )}
           <span
             className="num text-[10px] font-semibold px-1.5 py-0.5 rounded ml-auto"
             style={{ background: "var(--bg3)", color: "var(--muted)" }}
@@ -54,12 +66,12 @@ function SignalBlock({ signal, primary }: { signal: MarketSignal; primary: boole
           className={primary ? "font-bold leading-snug mb-1" : "font-semibold leading-snug mb-1"}
           style={{ color: "var(--text)", fontSize: primary ? "1.05rem" : "0.95rem" }}
         >
-          {signal.whatHappened}
+          {whatHappened}
         </h3>
 
         {/* 2. Why it matters — the interpretation */}
         <p className="text-[13px] leading-relaxed mb-3" style={{ color: "var(--text-2)" }}>
-          {signal.whyItMatters}
+          {whyItMatters}
         </p>
 
         {/* 3. Your move — the decision */}
@@ -70,7 +82,7 @@ function SignalBlock({ signal, primary }: { signal: MarketSignal; primary: boole
               Your Move
             </span>
           </div>
-          <p className="text-[13px] leading-relaxed" style={{ color: "var(--text)" }}>{signal.yourMove}</p>
+          <p className="text-[13px] leading-relaxed" style={{ color: "var(--text)" }}>{yourMove}</p>
         </div>
 
         {/* 4. Evidence — who moved (the detail lives underneath) */}
@@ -105,6 +117,27 @@ function SignalBlock({ signal, primary }: { signal: MarketSignal; primary: boole
 
 export function MarketSignals({ groups }: { groups: SignalGroup[] }) {
   const signals = deriveMarketSignals(groups);
+  const [ai, setAi] = useState<Record<string, MarketSignalInterpretation>>({});
+
+  // Deterministic signals render instantly; the AI then tailors each to the
+  // user's category in the background and swaps in when ready. A signature of
+  // the current signals guards against refetching the same set.
+  const sig = signals.map((s) => `${s.id}:${s.competitorCount}:${s.totalCount}`).join("|");
+  useEffect(() => {
+    if (!signals.length) return;
+    let cancelled = false;
+    market
+      .interpretSignals(signals.map((s) => ({
+        id: s.id, headline: s.headline, what_happened: s.whatHappened,
+        competitor_count: s.competitorCount,
+        members: s.members.map((m) => ({ hostname: m.hostname, label: m.label })),
+      })))
+      .then((r) => { if (!cancelled) setAi(r.data?.interpretations || {}); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sig]);
+
   if (signals.length === 0) return null;
 
   return (
@@ -112,7 +145,7 @@ export function MarketSignals({ groups }: { groups: SignalGroup[] }) {
       <p className="tick-label mb-2.5">Market movement · what your landscape is doing at once</p>
       <div className="space-y-3">
         {signals.map((s, i) => (
-          <SignalBlock key={s.id} signal={s} primary={i === 0} />
+          <SignalBlock key={s.id} signal={s} primary={i === 0} ai={ai[s.id]} />
         ))}
       </div>
     </div>
