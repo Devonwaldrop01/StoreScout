@@ -22,9 +22,10 @@ from .celery_app import celery
 from app.core.config import get_settings
 from app.core.database import get_supabase
 from app.services.lead_engine import (
+    assess_fit_ai,
     generate_outreach,
-    qualify_and_score,
     research_prospect,
+    score_lead_fit,
 )
 
 logger = logging.getLogger(__name__)
@@ -64,13 +65,20 @@ def discover_leads_daily(limit_override: Optional[int] = None, force: bool = Fal
 
     # Candidate pool: freshest verified stores not yet prospected
     try:
-        pool_res = db.table("shopify_store_index")\
-            .select("domain, brand_name, category, subcategory, country, language, business_stage, "
-                    "pricing_tier, product_count, median_price, promo_rate, verification_confidence, description")\
-            .eq("status", "verified")\
-            .order("last_verified_at", desc=True)\
-            .limit(target * _POOL_MULTIPLIER + len(existing))\
-            .execute()
+        _cols = ("domain, brand_name, category, subcategory, country, language, business_stage, "
+                 "pricing_tier, product_count, median_price, promo_rate, verification_confidence, description, "
+                 "tech_signals, contact_email, contact_source, sells_wholesale, multi_market")
+        try:
+            pool_res = db.table("shopify_store_index").select(_cols)\
+                .eq("status", "verified").order("last_verified_at", desc=True)\
+                .limit(target * _POOL_MULTIPLIER + len(existing)).execute()
+        except Exception:
+            # Pre-migration-018 fallback (no commercial-signal columns yet).
+            pool_res = db.table("shopify_store_index")\
+                .select("domain, brand_name, category, subcategory, country, language, business_stage, "
+                        "pricing_tier, product_count, median_price, promo_rate, verification_confidence, description")\
+                .eq("status", "verified").order("last_verified_at", desc=True)\
+                .limit(target * _POOL_MULTIPLIER + len(existing)).execute()
         pool = [s for s in (pool_res.data or []) if s["domain"] not in existing][: target * _POOL_MULTIPLIER]
     except Exception as exc:
         logger.error("lead engine: store index pool fetch failed: %s", exc)
@@ -87,9 +95,27 @@ def discover_leads_daily(limit_override: Optional[int] = None, force: bool = Fal
         examined += 1
 
         research = research_prospect(db, store)
-        scored = qualify_and_score(db, store, research)
+        scored = score_lead_fit(db, store, research)
 
-        if scored["qualification_score"] < min_qual:
+        # Cheap heuristic gate first — only spend an AI call on plausible fits.
+        if scored["fit_tier"] == "not_a_fit":
+            below_threshold += 1
+            continue
+
+        # Individualized AI verdict: fold sophistication into the score and let
+        # the model veto a clear non-fit the heuristics missed.
+        verdict = assess_fit_ai(store, research)
+        fit_score = min(100, scored["fit_score"] + verdict["sophistication_points"])
+        tier = scored["fit_tier"]
+        if verdict["disqualify"]:
+            tier, fit_score = "not_a_fit", min(fit_score, 30)
+            scored["disqualifiers"].append("AI verdict: clear non-fit for StoreScout")
+        elif fit_score >= 75 and store.get("contact_email"):
+            tier = "hot"
+        elif fit_score >= 55:
+            tier = "warm" if tier != "hot" else "hot"
+
+        if tier == "not_a_fit":
             below_threshold += 1
             continue
 
@@ -106,8 +132,14 @@ def discover_leads_daily(limit_override: Optional[int] = None, force: bool = Fal
             "country": store.get("country"),
             "business_stage": store.get("business_stage"),
             "pricing_tier": store.get("pricing_tier"),
-            "lead_score": scored["lead_score"],
-            "qualification_score": scored["qualification_score"],
+            "lead_score": fit_score,
+            "qualification_score": fit_score,
+            "fit_tier": tier,
+            "fit_reasoning": verdict["reasoning"],
+            "contact_email": store.get("contact_email"),
+            "contact_source": store.get("contact_source"),
+            "tech_signals": store.get("tech_signals"),
+            "score_breakdown": scored["score_breakdown"],
             "score_reasons": scored["score_reasons"],
             "disqualifiers": scored["disqualifiers"],
             "outreach_status": "ready" if outreach else "research_complete",
@@ -125,11 +157,19 @@ def discover_leads_daily(limit_override: Optional[int] = None, force: bool = Fal
             "created_at": now,
             "updated_at": now,
         }
+        # Insert with graceful fallback if migration 018 columns aren't applied.
         try:
             db.table("lead_prospects").insert(row).execute()
             created += 1
         except Exception as exc:
-            logger.warning("lead engine: insert failed for %s: %s", store["domain"], exc)
+            _new = ("fit_tier", "fit_reasoning", "contact_email", "contact_source",
+                    "tech_signals", "score_breakdown")
+            slim = {k: v for k, v in row.items() if k not in _new}
+            try:
+                db.table("lead_prospects").insert(slim).execute()
+                created += 1
+            except Exception as exc2:
+                logger.warning("lead engine: insert failed for %s: %s", store["domain"], exc2)
 
     summary = {
         "status": "ok",

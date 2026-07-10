@@ -25,11 +25,15 @@ PIPELINE_STAGES = [
     "replied", "demo_scheduled", "trial_started", "customer", "lost", "never_contact",
 ]
 
-_LIST_FIELDS = (
+_BASE_FIELDS = (
     "id, domain, brand_name, category, subcategory, business_stage, pricing_tier, "
     "lead_score, qualification_score, score_reasons, disqualifiers, outreach_status, "
     "research_status, competitors_found, generated_insights, recommended_angle, "
     "suggested_subject, suggested_email, notes, assigned_to, created_at, updated_at"
+)
+# Fit-model fields (migration 018) — appended when present.
+_LIST_FIELDS = _BASE_FIELDS + (
+    ", fit_tier, fit_reasoning, contact_email, contact_source, tech_signals, score_breakdown"
 )
 
 
@@ -43,6 +47,7 @@ def _require_admin(token: Optional[str]) -> None:
 def list_leads(
     status: str = "",
     category: str = "",
+    fit_tier: str = "",
     q: str = "",
     limit: int = 100,
     x_admin_token: Optional[str] = Header(default=None),
@@ -51,37 +56,50 @@ def list_leads(
     db = get_supabase()
     limit = max(1, min(limit, 200))
 
-    rows = []
-    try:
-        query = db.table("lead_prospects")\
-            .select(_LIST_FIELDS)\
-            .order("lead_score", desc=True)\
-            .order("created_at", desc=True)\
-            .limit(limit)
+    def _run(fields: str, tier: str = ""):
+        query = db.table("lead_prospects").select(fields)\
+            .order("lead_score", desc=True).order("created_at", desc=True).limit(limit)
         if status:
             query = query.eq("outreach_status", status)
         if category:
             query = query.eq("category", category)
+        if tier:
+            query = query.eq("fit_tier", tier)
         if q:
             query = query.or_(f"domain.ilike.%{q}%,brand_name.ilike.%{q}%")
-        rows = query.execute().data or []
-    except Exception as exc:
-        logger.warning("leads list failed (migration 009 applied?): %s", exc)
+        return query.execute().data or []
 
-    # Pipeline summary + today's count
+    rows = []
+    try:
+        rows = _run(_LIST_FIELDS, fit_tier)
+    except Exception:
+        # Pre-migration-018: no fit columns — fall back to the base field set.
+        try:
+            rows = _run(_BASE_FIELDS)
+        except Exception as exc:
+            logger.warning("leads list failed (migration 009 applied?): %s", exc)
+
+    # Pipeline summary + today's count + fit-tier breakdown
     counts: dict = {}
+    tiers: dict = {}
     new_today = 0
     try:
         today = datetime.now(timezone.utc).strftime("%Y-%m-%dT00:00:00+00:00")
-        agg = db.table("lead_prospects").select("outreach_status, created_at").limit(5000).execute()
+        try:
+            agg = db.table("lead_prospects").select("outreach_status, fit_tier, created_at").limit(5000).execute()
+        except Exception:
+            agg = db.table("lead_prospects").select("outreach_status, created_at").limit(5000).execute()
         for r in agg.data or []:
             counts[r["outreach_status"]] = counts.get(r["outreach_status"], 0) + 1
+            if r.get("fit_tier"):
+                tiers[r["fit_tier"]] = tiers.get(r["fit_tier"], 0) + 1
             if (r.get("created_at") or "") >= today:
                 new_today += 1
     except Exception:
         pass
 
-    return {"data": {"rows": rows, "counts": counts, "new_today": new_today, "stages": PIPELINE_STAGES}}
+    return {"data": {"rows": rows, "counts": counts, "tiers": tiers,
+                     "new_today": new_today, "stages": PIPELINE_STAGES}}
 
 
 class LeadUpdate(BaseModel):
