@@ -61,6 +61,16 @@ export function clearApiCache() {
 }
 
 // ── Competitors ───────────────────────────────────────────────
+export type ScanLifecycle = "idle" | "queued" | "running" | "completed" | "failed" | "timed_out";
+export interface ScanState {
+  state: ScanLifecycle;
+  scan_status: string | null;
+  since: string | null;
+  last_scanned_at: string | null;
+  running_seconds: number | null;
+  timed_out: boolean;
+}
+
 export const competitors = {
   list: async () => {
     const res = await apiFetch<{ data: Competitor[] }>("/competitors");
@@ -77,6 +87,8 @@ export const competitors = {
     apiFetch<void>(`/competitors/${id}`, { method: "DELETE" }),
   rescan: (id: string) =>
     apiFetch<{ status: string }>(`/competitors/${id}/rescan`, { method: "POST" }),
+  scanStatus: (id: string) =>
+    apiFetch<{ data: ScanState }>(`/competitors/${id}/scan-status`),
   latestSnapshot: (id: string) =>
     apiFetch<{ data: Snapshot }>(`/competitors/${id}/snapshots/latest`),
   snapshots: (id: string, limit = 30) =>

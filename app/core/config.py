@@ -70,6 +70,10 @@ class Settings(BaseSettings):
     ai_max_question_len: int = 500            # Ask StoreScout question hard cap
     ai_max_signals: int = 8                   # market-signal interpretation list cap
 
+    # A scan stuck in 'scanning' longer than this is treated as timed_out by the
+    # scan-status lifecycle endpoint (the worker recycles well under this).
+    scan_timeout_minutes: int = 15
+
     # Launch-time memory guard: hard cap on products a single scan processes.
     # Bounds peak memory of fetch → normalize → analyze → detect for huge
     # catalogs so the 512MB worker/web dynos don't OOM. Raise once on bigger

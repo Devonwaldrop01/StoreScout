@@ -981,6 +981,29 @@ def manual_rescan(competitor_id: str, user_id: str = Depends(get_effective_user_
     return {"status": "queued"}
 
 
+@router.get("/{competitor_id}/scan-status")
+@safe_read("GET /scan-status", {"data": {"state": "idle", "scan_status": None, "since": None,
+                                         "last_scanned_at": None, "running_seconds": None, "timed_out": False}})
+def get_scan_status(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
+    """
+    Normalized, pollable scan lifecycle for a competitor: idle | queued | running
+    | completed | failed | timed_out — derived from the real scan_status + how
+    long it has been running (genuine timeout detection, no fake progress).
+    The rescan POST itself returns already_in_progress (409) / rate_limited (429)
+    / unavailable (503). @safe_read: degrades, ownership 404 preserved.
+    """
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    from app.services.scan_state import derive_scan_state
+    row = db.table("competitors").select("scan_status, updated_at, last_scanned_at")\
+        .eq("id", competitor_id).limit(1).execute()
+    r = (row.data or [{}])[0]
+    return {"data": derive_scan_state(
+        r.get("scan_status"), r.get("updated_at"), r.get("last_scanned_at"),
+        timeout_minutes=get_settings().scan_timeout_minutes,
+    )}
+
+
 @router.get("/{competitor_id}/snapshots/latest")
 def get_latest_snapshot(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
