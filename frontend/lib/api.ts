@@ -249,6 +249,8 @@ export const user = {
   subscription: () => apiFetch<{ data: UserSubscription }>("/user/subscription"),
   actionItems: () => apiFetch<{ data: ActionItem[]; locked?: boolean; locked_count?: number }>("/action-items"),
   playbook: () => apiFetch<PlaybookResponse>("/playbook"),
+  regeneratePlaybook: () =>
+    apiFetch<{ status: string; ai_state: string }>("/playbook/regenerate", { method: "POST" }),
   prefs: () => apiFetch<{ data: NotificationPrefs }>("/user/notification-prefs"),
   updatePrefs: (prefs: Partial<NotificationPrefs>) =>
     apiFetch<{ status: string }>("/user/notification-prefs", {
@@ -625,6 +627,7 @@ export interface PlaybookResponse {
   locked_count?: number;
   ai_source?: boolean;
   ai_generating?: boolean;
+  ai_state?: "not_requested" | "queued" | "generating" | "ready" | "failed" | "timed_out" | "unavailable";
 }
 
 export interface ActionItem {

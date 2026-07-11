@@ -1128,21 +1128,40 @@ export default function PlaybookPage() {
           </button>
         </div>
 
-        {/* ── AI generating banner ────────────────────────────────────────── */}
-        {data.ai_generating && !data.ai_source && (
+        {/* ── AI analysis: FINITE states only ─────────────────────────────── */}
+        {/* Generating — a real job is in flight. Never shown indefinitely: the
+            backend resolves to timed_out after a real timeout. */}
+        {!data.ai_source && (data.ai_state === "generating" || data.ai_state === "queued"
+          || (data.ai_state == null && data.ai_generating)) && (
           <div
             className="flex items-center gap-2.5 px-4 py-3 rounded-md text-xs"
-            style={{
-              background: "var(--bg3)",
-              border: "1px solid var(--border)",
-              color: "var(--text-2)",
-            }}
+            style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text-2)" }}
           >
             <RefreshCw className="w-3.5 h-3.5 animate-spin shrink-0" />
             <span>
               <span className="font-bold">AI analysis in progress</span>
-              <span style={{ color: "var(--muted)" }}> — Claude is reviewing your competitors. Refresh in ~30 seconds for AI-powered plays.</span>
+              <span style={{ color: "var(--muted)" }}> — Claude is reviewing your competitors. These deterministic plays are ready now; AI-tailored plays will replace them shortly.</span>
             </span>
+          </div>
+        )}
+        {/* Failed / timed out / unavailable — a finite terminal state with Retry.
+            The deterministic plays below remain fully usable. */}
+        {!data.ai_source && (data.ai_state === "timed_out" || data.ai_state === "failed" || data.ai_state === "unavailable") && (
+          <div
+            className="flex items-center justify-between gap-2.5 px-4 py-3 rounded-md text-xs"
+            style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text-2)" }}
+          >
+            <span>
+              <span className="font-bold">AI-tailored plays aren&apos;t available right now</span>
+              <span style={{ color: "var(--muted)" }}> — the plays below are ready to use. You can retry the AI pass.</span>
+            </span>
+            <button
+              onClick={async () => { try { await userApi.regeneratePlaybook(); load(); } catch { /* noop */ } }}
+              className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-md"
+              style={{ background: "var(--accent)", color: "var(--ink)" }}
+            >
+              Retry
+            </button>
           </div>
         )}
 

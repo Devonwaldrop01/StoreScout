@@ -73,6 +73,9 @@ class Settings(BaseSettings):
     # A scan stuck in 'scanning' longer than this is treated as timed_out by the
     # scan-status lifecycle endpoint (the worker recycles well under this).
     scan_timeout_minutes: int = 15
+    # A background Playbook AI generation stuck longer than this reports
+    # 'timed_out' (finite state + Retry) instead of an indefinite "in progress".
+    playbook_ai_timeout_s: int = 180
 
     # Launch-time memory guard: hard cap on products a single scan processes.
     # Bounds peak memory of fetch → normalize → analyze → detect for huge

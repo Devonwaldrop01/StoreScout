@@ -7,6 +7,7 @@ from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends
 
 from app.core.auth import get_effective_user_id
+from app.core.config import get_settings
 from app.core.database import get_supabase
 from app.services.playbook_intelligence import snapshot_intelligence, change_event_play
 
@@ -92,6 +93,7 @@ def _build_playbook(user_id: str) -> dict:
                         "locked_count": locked_count,
                         "ai_source": True,
                         "ai_generating": False,
+                        "ai_state": "ready",
                     }
                 return {
                     "plays": ai_plays_sorted,
@@ -100,18 +102,31 @@ def _build_playbook(user_id: str) -> dict:
                     "locked_count": 0,
                     "ai_source": True,
                     "ai_generating": False,
+                    "ai_state": "ready",
                 }
         except Exception:
             pass  # fall through to template plays
 
-    # No fresh AI plays — trigger background generation and serve templates
-    ai_generating = False
-    try:
-        from app.tasks.playbook_ai import generate_ai_playbook
-        generate_ai_playbook.delay(user_id)
-        ai_generating = True
-    except Exception as exc:
-        logger.warning("Could not enqueue generate_ai_playbook for %s: %s", user_id, exc)
+    # No fresh AI plays — resolve a FINITE job state instead of re-dispatching on
+    # every poll (which caused the indefinite "AI analysis in progress"). Dedup
+    # concurrent generations and time a stuck job out.
+    from app.services.ai_job import decide_ai_action, get_job, start_job
+    settings = get_settings()
+    job_active, job_age = get_job("playbook", user_id)
+    ai_state, should_dispatch = decide_ai_action(
+        has_fresh_result=False, job_active=job_active, job_age_s=job_age,
+        timeout_s=settings.playbook_ai_timeout_s,
+    )
+    if should_dispatch:
+        try:
+            from app.tasks.playbook_ai import generate_ai_playbook
+            generate_ai_playbook.delay(user_id)
+            start_job("playbook", user_id, ttl_s=settings.playbook_ai_timeout_s + 60)
+        except Exception as exc:
+            logger.warning("Could not enqueue generate_ai_playbook for %s: %s", user_id, exc)
+            ai_state = "unavailable"
+    # Only claim "generating" when a job is genuinely in flight.
+    ai_generating = ai_state == "generating"
 
     # ── Fetch latest snapshot per competitor ──────────────────────────────────
     competitors_data: list[dict] = []
@@ -182,6 +197,7 @@ def _build_playbook(user_id: str) -> dict:
             "locked_count": locked_count,
             "ai_source": False,
             "ai_generating": ai_generating,
+            "ai_state": ai_state,
         }
 
     return {
@@ -191,4 +207,23 @@ def _build_playbook(user_id: str) -> dict:
         "locked_count": 0,
         "ai_source": False,
         "ai_generating": ai_generating,
+        "ai_state": ai_state,
     }
+
+
+@router.post("/regenerate")
+def regenerate_playbook(user_id: str = Depends(get_effective_user_id)):
+    """Retry AI Playbook generation after a failed/timed-out attempt. Clears the
+    single-flight job marker so the next GET dispatches a fresh generation, and
+    kicks one off now. Idempotent; safe to call repeatedly."""
+    from app.services.ai_job import clear_job, start_job
+    settings = get_settings()
+    clear_job("playbook", user_id)
+    try:
+        from app.tasks.playbook_ai import generate_ai_playbook
+        generate_ai_playbook.delay(user_id)
+        start_job("playbook", user_id, ttl_s=settings.playbook_ai_timeout_s + 60)
+        return {"status": "queued", "ai_state": "generating"}
+    except Exception as exc:
+        logger.warning("regenerate_playbook enqueue failed for %s: %s", user_id, exc)
+        return {"status": "unavailable", "ai_state": "unavailable"}
