@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from app.core.auth import get_current_user_id
 from app.core.config import get_settings
 from app.core.database import get_supabase
-from app.core.obs import safe_read, report_error
+from app.core.obs import safe_read, report_error, guarded_required
 
 router = APIRouter(prefix="/user", tags=["user"])
 
@@ -73,6 +73,7 @@ class UpdatePrefsRequest(BaseModel):
 
 
 @router.get("/subscription")
+@guarded_required("GET /subscription")
 def get_subscription(user_id: str = Depends(get_current_user_id)):
     db = get_supabase()
     settings = get_settings()

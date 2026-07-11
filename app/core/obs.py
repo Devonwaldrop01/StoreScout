@@ -176,3 +176,42 @@ def safe_read(route: str, default: Callable[[], Dict[str, Any]] | Dict[str, Any]
                 return {**d, "error": True, "ref": ref}
         return wrapper
     return decorator
+
+
+_SCHEMA_MISS_RE = re.compile(r"(?i)does not exist|could not find the")
+
+
+def guarded_required(route: str):
+    """
+    Decorator for REQUIRED endpoints (core data the page can't render without).
+    Unlike @safe_read (which degrades to an empty 200), this preserves the
+    endpoint's intentional 4xx (404/402/…) but converts any UNEXPECTED exception
+    into a clean, structured error the frontend can retry — never a raw 500 with
+    a leaked traceback. Distinguishes a schema/migration mismatch (503
+    schema_mismatch) from an upstream dependency failure (503 upstream_unavailable),
+    and logs both via report_error.
+    """
+    from fastapi import HTTPException
+
+    def decorator(fn: Callable) -> Callable:
+        @functools.wraps(fn)
+        def wrapper(*args: Any, **kwargs: Any):
+            try:
+                return fn(*args, **kwargs)
+            except HTTPException:
+                raise
+            except Exception as exc:
+                is_schema = bool(_SCHEMA_MISS_RE.search(str(exc)))
+                code = "schema_mismatch" if is_schema else "upstream_unavailable"
+                ref = report_error(
+                    route, exc,
+                    user_id=kwargs.get("user_id"),
+                    entity=kwargs.get("competitor_id") or kwargs.get("domain"),
+                    degraded=False, failure=code,
+                )
+                raise HTTPException(status_code=503, detail={
+                    "code": code, "ref": ref,
+                    "message": "This data is temporarily unavailable. Please retry in a moment.",
+                })
+        return wrapper
+    return decorator

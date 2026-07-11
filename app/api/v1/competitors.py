@@ -17,7 +17,7 @@ from pydantic import BaseModel, field_validator
 from app.core.auth import get_current_user_id, get_effective_user_id
 from app.core.config import get_settings
 from app.core.database import get_supabase
-from app.core.obs import safe_read
+from app.core.obs import safe_read, guarded_required
 from app.core.ratelimit import check_rate_limit, dedupe_key, single_flight
 from app.services.ai import UNTRUSTED_DATA_NOTE, call_claude, parse_json
 
@@ -911,6 +911,7 @@ def discovery_feedback(body: DiscoveryFeedbackRequest, user_id: str = Depends(ge
 
 
 @router.get("/{competitor_id}")
+@guarded_required("GET /competitor")
 def get_competitor(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """Fetch a single competitor record (no snapshot data)."""
     db = get_supabase()
@@ -952,8 +953,8 @@ def manual_rescan(competitor_id: str, user_id: str = Depends(get_effective_user_
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
 
-    competitor = db.table("competitors").select("scan_status").eq("id", competitor_id).single().execute()
-    if (competitor.data or {}).get("scan_status") == "scanning":
+    competitor = db.table("competitors").select("scan_status").eq("id", competitor_id).limit(1).execute()
+    if ((competitor.data or [{}])[0]).get("scan_status") == "scanning":
         raise HTTPException(status_code=409, detail="Scan already in progress")
 
     # Redis-based cooldown — 60s between rescans per competitor (non-fatal if Redis unavailable)
@@ -1005,6 +1006,7 @@ def get_scan_status(competitor_id: str, user_id: str = Depends(get_effective_use
 
 
 @router.get("/{competitor_id}/snapshots/latest")
+@guarded_required("GET /snapshots/latest")
 def get_latest_snapshot(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
@@ -1020,6 +1022,7 @@ def get_latest_snapshot(competitor_id: str, user_id: str = Depends(get_effective
 
 
 @router.get("/{competitor_id}/snapshots")
+@guarded_required("GET /snapshots")
 def list_snapshots(
     competitor_id: str,
     limit: int = 30,
@@ -1073,6 +1076,7 @@ def get_changes(
 
 
 @router.get("/{competitor_id}/ai-summary")
+@guarded_required("GET /ai-summary")
 def get_ai_summary(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
@@ -1514,6 +1518,7 @@ def get_market_context(competitor_id: str, user_id: str = Depends(get_effective_
 
 
 @router.get("/{competitor_id}/brief")
+@guarded_required("GET /brief")
 def get_brief(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """Latest Intelligence Brief for this competitor (available to all tiers)."""
     db = get_supabase()
