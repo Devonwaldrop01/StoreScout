@@ -79,3 +79,49 @@ def test_probe_other_error_is_db_error():
 
 def test_probe_present():
     assert probe(_DB(_OkQuery()), "competitors", None) == "present"
+
+
+# ── Regression: migration-014 false positive ──────────────────────────────────
+# business_profiles is keyed by user_id (migration 014) and has NO `id` column.
+# The old probe selected `id` for table-existence checks, so an applied 014
+# reported as "missing". The probe must test existence via `select("*")`.
+
+class _ColumnAwareQuery:
+    """Mimics PostgREST: selecting a non-existent column raises 'does not exist',
+    but `select("*")` on an existing table succeeds."""
+    def __init__(self, existing_columns):
+        self._existing = set(existing_columns)
+        self._sel = "*"
+
+    def select(self, sel="*", *a, **k):
+        self._sel = sel
+        return self
+
+    def limit(self, *a, **k):
+        return self
+
+    def execute(self):
+        if self._sel != "*" and self._sel not in self._existing:
+            raise Exception(f'column business_profiles.{self._sel} does not exist')
+        return type("R", (), {"data": []})()
+
+
+def test_probe_table_without_id_column_is_present():
+    # business_profiles: PK user_id, columns user_id/category/... but NO `id`.
+    db = _DB(_ColumnAwareQuery({"user_id", "category", "sells"}))
+    # table-existence check (column=None) must recognize it as present
+    assert probe(db, "business_profiles", None) == "present"
+    # a real column check still works
+    assert probe(db, "business_profiles", "sells") == "present"
+    # a genuinely missing column is still detected
+    assert probe(db, "business_profiles", "does_not_exist") == "missing"
+
+
+def test_migration_014_recognized_on_evolved_schema():
+    # Full check-row for migration 014 as summarized after the fixed probe runs.
+    from app.services.schema_health import summarize
+    results = [{"migration": "014", "feature": "Business profiles",
+                "table": "business_profiles", "column": None,
+                "required": False, "state": "present"}]
+    assert summarize(results)["status"] == "healthy"
+    assert summarize(results)["missing_optional"] == []

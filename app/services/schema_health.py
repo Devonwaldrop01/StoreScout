@@ -63,7 +63,11 @@ def probe(db, table: str, column: Optional[str]) -> str:
     """Return 'present' | 'missing' | 'db_error' for a table/column existence
     probe. Never raises."""
     try:
-        db.table(table).select(column or "id").limit(1).execute()
+        # Column checks select that column. Table-existence checks must NOT
+        # assume an `id` column — some tables are keyed by something else (e.g.
+        # business_profiles has user_id as its PK and no `id`), so `select("*")`
+        # tests existence without a false "column id does not exist" negative.
+        db.table(table).select(column or "*").limit(1).execute()
         return "present"
     except Exception as exc:  # noqa: BLE001
         if _looks_missing(str(exc)):
