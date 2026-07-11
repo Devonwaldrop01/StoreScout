@@ -240,6 +240,30 @@ def store_index_stats(
 
 # ── Index Operations dashboard — the three-stage pipeline at a glance ────────
 
+@router.get("/admin/migration-health")
+def migration_health(x_admin_token: Optional[str] = Header(default=None)):
+    """
+    Operational check that the live schema has the columns/tables the current
+    code needs — especially recent feature migrations (Brand Decode, business-
+    profile enrichment, Store DNA, intent signals). Returns a structured verdict
+    (healthy | degraded | unhealthy | db_unavailable) naming the newest expected
+    migration and any missing feature/table/column. Exposes only schema
+    metadata, never row data.
+    """
+    _require_admin(x_admin_token)
+    from app.services.schema_health import check_schema_health, LATEST_EXPECTED_MIGRATION
+    try:
+        db = get_supabase()
+        return {"data": check_schema_health(db)}
+    except Exception as exc:
+        logger.warning("migration-health probe failed: %s", exc)
+        return {"data": {
+            "status": "db_unavailable",
+            "latest_expected_migration": LATEST_EXPECTED_MIGRATION,
+            "checks": [], "missing_required": [], "missing_optional": [],
+        }}
+
+
 @router.get("/admin/index-ops")
 def index_ops(x_admin_token: Optional[str] = Header(default=None)):
     """

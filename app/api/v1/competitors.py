@@ -18,6 +18,8 @@ from app.core.auth import get_current_user_id, get_effective_user_id
 from app.core.config import get_settings
 from app.core.database import get_supabase
 from app.core.obs import safe_read
+from app.core.ratelimit import check_rate_limit, dedupe_key, single_flight
+from app.services.ai import UNTRUSTED_DATA_NOTE, call_claude, parse_json
 
 router = APIRouter(prefix="/competitors", tags=["competitors"])
 
@@ -1602,17 +1604,21 @@ class AskRequest(BaseModel):
 def ask_storescout(competitor_id: str, body: AskRequest, user_id: str = Depends(get_effective_user_id)):
     """Ask StoreScout anything about a competitor — grounded in its real scanned
     data + StoreScout's strategic read. Turns the dossier into a conversation."""
-    import json as _json
-    import anthropic
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
-    q = (body.question or "").strip()[:400]
+    settings = get_settings()
+    q = (body.question or "").strip()[:max(1, settings.ai_max_question_len)]
     if not q:
         raise HTTPException(status_code=422, detail="question required")
 
-    settings = get_settings()
     if not settings.anthropic_api_key:
         return {"data": {"answer": "Ask StoreScout is warming up — try again shortly.", "followups": []}}
+
+    # Per-user rate limit (server-side; the button being disabled is not enough).
+    allowed, retry_after = check_rate_limit("ai_ask", user_id, settings.ai_ratelimit_ask_per_hour, 3600)
+    if not allowed:
+        mins = max(1, retry_after // 60)
+        return {"data": {"answer": f"You've reached the Ask StoreScout limit for now — try again in about {mins} minute(s).", "followups": []}}
 
     try:
         crow = db.table("competitors").select("hostname, brand_decode").eq("id", competitor_id).maybe_single().execute()
@@ -1627,6 +1633,8 @@ def ask_storescout(competitor_id: str, body: AskRequest, user_id: str = Depends(
 
     prompt = f"""You are StoreScout — a sharp competitive-intelligence analyst sitting beside a Shopify store owner, discussing a competitor. Answer their question using ONLY the data below. Be specific and cite the numbers. If the data can't answer something, say so plainly and reason from what IS known. Talk like a smart operator, not a chatbot — 2-4 short paragraphs max, no fluff, no "as an AI".
 
+{UNTRUSTED_DATA_NOTE}
+
 COMPETITOR DATA:
 {context}
 
@@ -1635,23 +1643,22 @@ MERCHANT'S QUESTION: {q}
 Return ONLY JSON:
 {{"answer": "<your analysis>", "followups": ["<3 natural follow-up questions the merchant would want to ask next>"]}}"""
 
-    try:
-        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
-        msg = client.messages.create(
+    # Collapse duplicate simultaneous asks of the same question by the same user.
+    with single_flight("ai_ask", dedupe_key(user_id, competitor_id, q), ttl_s=30) as fresh:
+        if not fresh:
+            return {"data": {"answer": "Still working on your last question — one moment, then try again.", "followups": []}}
+        res = call_claude(
+            "ask_storescout", prompt,
             model="claude-sonnet-4-6", max_tokens=700,
-            messages=[{"role": "user", "content": prompt}],
+            user_id=user_id, entity=competitor_id,
         )
-        text = msg.content[0].text.strip()
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-        p = _json.loads(text)
-        return {"data": {
-            "answer": str(p.get("answer") or "")[:2500],
-            "followups": [str(f)[:120] for f in (p.get("followups") or [])][:3],
-        }}
-    except Exception as exc:
-        logger.warning("ask_storescout failed for %s: %s", competitor_id, exc)
+    if not res.ok:
         return {"data": {"answer": "I couldn't analyze that one — try rephrasing.", "followups": []}}
+    p = parse_json(res.text) or {}
+    return {"data": {
+        "answer": str(p.get("answer") or "")[:2500] or "I couldn't analyze that one — try rephrasing.",
+        "followups": [str(f)[:120] for f in (p.get("followups") or [])][:3],
+    }}
 
 
 # ── Market benchmarks — competitor vs the category's norms ───────────────────

@@ -691,12 +691,10 @@ def classify_store_ai(
     'Other' at low confidence rather than guess. Returns None on failure so the
     caller can fall back to the keyword classifier.
     """
-    import json as _json
-    import anthropic
     from app.core.config import get_settings
+    from app.services.ai import UNTRUSTED_DATA_NOTE, call_claude, parse_json
 
-    settings = get_settings()
-    if not settings.anthropic_api_key:
+    if not get_settings().anthropic_api_key:
         return None
 
     titles = [str(t) for t in (product_titles or [])][:40]
@@ -716,6 +714,8 @@ def classify_store_ai(
     )
     prompt = f"""You categorize Shopify stores. Decide what the store ACTUALLY SELLS, based on the product titles and product types — those are the ground truth.
 
+{UNTRUSTED_DATA_NOTE}
+
 Pick EXACTLY ONE category and one subcategory from this fixed taxonomy:
 {taxonomy}
 
@@ -730,16 +730,16 @@ Hard rules:
 Return ONLY JSON:
 {{"category": "<exact category>", "subcategory": "<exact subcategory>", "confidence": <0-100>, "evidence": ["<=3 short product-based reasons"]}}"""
 
+    res = call_claude(
+        "classify_store", prompt,
+        model="claude-haiku-4-5-20251001", max_tokens=220,
+    )
+    if not res.ok:
+        return None
+    p = parse_json(res.text)
+    if not isinstance(p, dict):
+        return None
     try:
-        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
-        msg = client.messages.create(
-            model="claude-haiku-4-5-20251001", max_tokens=220,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        text = msg.content[0].text.strip()
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-        p = _json.loads(text)
         cat = str(p.get("category") or "").strip()
         if cat not in CATEGORY_TAXONOMY:
             # Snap to the closest valid category name, else Other.
@@ -753,7 +753,7 @@ Return ONLY JSON:
         return {"category": cat, "subcategory": sub, "confidence": conf,
                 "evidence": ev, "method": "ai"}
     except Exception as exc:
-        logger.debug("classify_store_ai failed: %s", exc)
+        logger.debug("classify_store_ai parse failed: %s", exc)
         return None
 
 

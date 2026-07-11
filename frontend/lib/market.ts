@@ -29,9 +29,10 @@ export interface MarketSignal {
   id: string;
   type: SignalType;
   kind: InsightKind;          // drives the shared insight color/vocabulary
-  headline: string;           // "Category-wide inventory pressure"
-  whatHappened: string;       // "Three competitors are running low on stock at once."
-  whyItMatters: string;       // the interpretation — what this condition means
+  headline: string;           // "Multiple competitors low on stock"
+  whatHappened: string;       // the OBSERVED FACT — measured, high confidence
+  whyItMatters: string;       // the INTERPRETATION — an inference, explicitly hedged
+  confidence: Confidence;     // confidence in the interpretation (not the fact)
   yourMove: string;           // the strategic call
   members: MarketSignalMember[];
   groups: SignalGroup[];      // underlying per-competitor groups (details live here)
@@ -60,65 +61,74 @@ function countWord(n: number): string {
   return n === 2 ? "Two" : n === 3 ? "Three" : n === 4 ? "Four" : `${n}`;
 }
 
+export type Confidence = "high" | "medium" | "low";
+
+// Narratives separate the OBSERVED FACT (whatHappened — measured, high
+// confidence) from the INTERPRETATION (whyItMatters — an inference from a
+// correlation, so it is explicitly hedged and carries a confidence level). We
+// only observe that several competitors moved together; we do NOT observe
+// demand, supply constraints, margin pressure, or intent — so those are named
+// as likely/possible, never as proven fact.
 function narrate(themeKey: string, n: number): {
-  headline: string; kind: InsightKind; whatHappened: string; whyItMatters: string; yourMove: string; type: SignalType;
+  headline: string; kind: InsightKind; whatHappened: string; whyItMatters: string;
+  yourMove: string; type: SignalType; confidence: Confidence;
 } {
   const word = countWord(n);
   switch (themeKey) {
     case "inventory":
       return {
-        type: "availability_shift", kind: "opportunity",
-        headline: "Category-wide inventory pressure",
-        whatHappened: `${word} competitors are running low or out of stock at the same time.`,
-        whyItMatters: "When several sellers in a category run dry together, it's demand outrunning supply — a spike, not isolated operations problems. Their stockouts are unmet demand sitting in the market right now.",
-        yourMove: "Lead with availability. Push “in stock, ships today” messaging and lift paid spend on the overlapping products while competitors physically can’t fulfill — you’re capturing demand they created but can’t serve.",
+        type: "availability_shift", kind: "opportunity", confidence: "medium",
+        headline: "Multiple competitors low on stock",
+        whatHappened: `${word} competitors went low or out of stock within the same window.`,
+        whyItMatters: "Several sellers running dry at once often means demand is outpacing supply in the category — though it can also be a shared supplier delay or seasonal gap. Either reading points the same way: their empty shelves are demand you may be able to serve right now.",
+        yourMove: "Lead with availability. Push “in stock, ships today” messaging and lift paid spend on the overlapping products while competitors can’t fulfill — you capture the demand whatever its cause.",
       };
     case "promotion":
       return {
-        type: "discount_wave", kind: "signal",
-        headline: "A promotional wave is sweeping the category",
+        type: "discount_wave", kind: "signal", confidence: "medium",
+        headline: "Simultaneous discounting across the category",
         whatHappened: `${word} competitors started discounting within the same window.`,
-        whyItMatters: "Simultaneous promotions signal a category-wide event — seasonal pressure or softening demand pushing everyone to buy volume with margin. The whole category is training its customers to wait for a deal.",
-        yourMove: "Don’t race to the bottom. Hold price and run a full-price quality angle this week — the discount-fatigued buyers these sales create are your cheapest acquisition target once the promotions end.",
+        whyItMatters: "Promotions clustering like this usually points to a category-wide event — a seasonal push or softening demand — rather than coincidence. The likely effect either way: shoppers get trained to wait for a deal.",
+        yourMove: "Don’t reflexively race to the bottom. Hold price and run a full-price quality angle this week — the discount-fatigued buyers these sales create are a cheap acquisition target once the promotions end.",
       };
     case "expansion":
       return {
-        type: "launch_burst", kind: "signal",
-        headline: "Competitors are expanding catalogs in unison",
-        whatHappened: `${word} competitors are pushing new products at once.`,
-        whyItMatters: "Coordinated launches mean the category is heating up ahead of peak demand — rivals are placing inventory bets now to own the season before ad costs climb.",
-        yourMove: "Get your hero products into ads before their campaigns peak. If they’re all entering a lane you cover, claim the search and social real estate first — being early is cheaper than being loud later.",
+        type: "launch_burst", kind: "signal", confidence: "medium",
+        headline: "Competitors launching in unison",
+        whatHappened: `${word} competitors pushed new products within the same window.`,
+        whyItMatters: "Coordinated launches often mean rivals expect rising demand and are placing bets before peak — though some may just be routine drops. Worth treating as a category that could be heating up.",
+        yourMove: "Get your hero products into ads before their campaigns peak. If they’re entering a lane you cover, claim the search and social real estate early — it’s cheaper than catching up later.",
       };
     case "price_drop":
       return {
-        type: "price_wave", kind: "signal",
-        headline: "Downward price pressure is building",
-        whatHappened: `${word} competitors cut prices across their catalogs together.`,
-        whyItMatters: "Clustered price drops point to margin pressure or an emerging price war. Once one anchor moves, the rest follow — and customers recalibrate what “normal” costs.",
-        yourMove: "Don’t reflexively match. Hold your price, reinforce quality and service where your catalog overlaps theirs, and only move on the specific SKUs where you’ll actually lose the sale.",
+        type: "price_wave", kind: "signal", confidence: "medium",
+        headline: "Clustered price cuts",
+        whatHappened: `${word} competitors cut prices across their catalogs within the same window.`,
+        whyItMatters: "Price cuts landing together often signal margin pressure or the opening of a price war — but a single shared sale can look the same. If it spreads, customers recalibrate what “normal” costs, so it’s worth watching whether more follow.",
+        yourMove: "Don’t reflexively match. Hold your price, reinforce quality where your catalog overlaps theirs, and move only on the specific SKUs where you’d actually lose the sale.",
       };
     case "price_up":
       return {
-        type: "price_increase", kind: "opportunity",
-        headline: "The category is repricing upward",
-        whatHappened: `${word} competitors raised prices at the same time.`,
-        whyItMatters: "When several rivals lift prices together, the category’s price ceiling just rose — either input costs are climbing or demand is strong enough to test. Either way, headroom opened above you.",
-        yourMove: "You have room to raise prices without losing your value position — or to hold and capture their newly price-sensitive switchers with Shopping ads on the products they just made more expensive.",
+        type: "price_increase", kind: "opportunity", confidence: "medium",
+        headline: "Competitors raising prices together",
+        whatHappened: `${word} competitors raised prices within the same window.`,
+        whyItMatters: "Several rivals lifting prices at once likely means the category’s price ceiling is rising — possibly from input costs, possibly from confident demand. Either way, headroom may have opened above you.",
+        yourMove: "Consider testing a price increase without losing your value position — or hold and capture their newly price-sensitive switchers with Shopping ads on the products they just made more expensive.",
       };
     case "contraction":
       return {
-        type: "product_removals", kind: "watch",
-        headline: "Competitors are trimming catalogs together",
-        whatHappened: `${word} competitors delisted products in the same window.`,
-        whyItMatters: "Synchronized delisting is usually a seasonal reset or a shared supply constraint — either way, competition just thinned for those specific searches.",
-        yourMove: "If you carry anything similar, refresh your Google Shopping feed and ad copy now — there’s less direct competition for those queries until they restock.",
+        type: "product_removals", kind: "watch", confidence: "low",
+        headline: "Competitors trimming catalogs together",
+        whatHappened: `${word} competitors delisted products within the same window.`,
+        whyItMatters: "Synchronized delisting is most likely a seasonal reset or a shared supply constraint — the cause is hard to pin down from the outside. Whatever it is, competition has thinned for those specific searches for now.",
+        yourMove: "If you carry anything similar, refresh your Google Shopping feed and ad copy now — there may be less direct competition for those queries until they restock.",
       };
     default:
       return {
-        type: "single", kind: "watch",
+        type: "single", kind: "watch", confidence: "low",
         headline: "Coordinated market movement",
-        whatHappened: `${word} competitors made similar moves at once.`,
-        whyItMatters: "Several rivals acting together usually signals a shared market condition rather than individual decisions.",
+        whatHappened: `${word} competitors made similar moves within the same window.`,
+        whyItMatters: "Several rivals acting together more often than not reflects a shared market condition rather than coincidence — but the specific cause isn’t observable from here.",
         yourMove: "Open the details below to see who moved and decide whether it touches your catalog.",
       };
   }
@@ -163,7 +173,8 @@ export function deriveMarketSignals(groups: SignalGroup[]): MarketSignal[] {
     signals.push({
       id: `ms-${key}`,
       type: n.type, kind: n.kind, headline: n.headline,
-      whatHappened: n.whatHappened, whyItMatters: n.whyItMatters, yourMove: n.yourMove,
+      whatHappened: n.whatHappened, whyItMatters: n.whyItMatters,
+      confidence: n.confidence, yourMove: n.yourMove,
       members, groups: themeGroups,
       competitorCount: byComp.size, totalCount: total,
     });

@@ -39,11 +39,7 @@ def generate_brand_decode(ctx: Dict[str, Any]) -> Optional[Dict[str, Any]]:
           has_best_sellers}, blog_count, article_titles[], content_score}
     Returns a structured decode or None on failure.
     """
-    import anthropic
-    from app.core.config import get_settings
-    settings = get_settings()
-    if not settings.anthropic_api_key:
-        return None
+    from app.services.ai import UNTRUSTED_DATA_NOTE, call_claude, parse_json
 
     flags = ctx.get("flags") or {}
     active = [k.replace("has_", "").replace("_", " ") for k, v in flags.items() if v]
@@ -58,6 +54,8 @@ def generate_brand_decode(ctx: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         money.append(f"~{ctx['product_count']} products")
 
     prompt = f"""You are a DTC ecommerce strategist decoding a competitor for a Shopify store owner. Explain what is ACTUALLY going on behind this business in plain English — no jargon, no app names, no generic filler. Base everything ONLY on the signals below; never invent capabilities or numbers.
+
+{UNTRUSTED_DATA_NOTE}
 
 COMPETITOR: {ctx.get('hostname')}
 Category: {ctx.get('category') or 'unknown'} · pricing tier: {ctx.get('pricing_tier') or 'unknown'}
@@ -77,28 +75,23 @@ Write a decode. Return ONLY JSON:
   "one_move": "<the single highest-leverage move to make against them, specific>"
 }}"""
 
-    try:
-        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
-        msg = client.messages.create(
-            model="claude-sonnet-4-6", max_tokens=800,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        text = msg.content[0].text.strip()
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-        p = json.loads(text)
-        # Minimal shape guard.
-        if not p.get("headline") or not p.get("one_move"):
-            return None
-        return {
-            "headline": str(p["headline"])[:300],
-            "positioning": str(p.get("positioning") or "")[:600],
-            "merchandising": str(p.get("merchandising") or "")[:600],
-            "marketing_engine": str(p.get("marketing_engine") or "")[:600],
-            "vulnerabilities": [str(x)[:200] for x in (p.get("vulnerabilities") or [])][:4],
-            "openings": [str(x)[:200] for x in (p.get("openings") or [])][:4],
-            "one_move": str(p["one_move"])[:300],
-        }
-    except Exception as exc:
-        logger.warning("brand decode failed for %s: %s", ctx.get("hostname"), exc)
+    res = call_claude(
+        "brand_decode", prompt,
+        model="claude-sonnet-4-6", max_tokens=800,
+        entity=ctx.get("hostname"),
+    )
+    if not res.ok:
         return None
+    p = parse_json(res.text)
+    # Minimal shape guard.
+    if not isinstance(p, dict) or not p.get("headline") or not p.get("one_move"):
+        return None
+    return {
+        "headline": str(p["headline"])[:300],
+        "positioning": str(p.get("positioning") or "")[:600],
+        "merchandising": str(p.get("merchandising") or "")[:600],
+        "marketing_engine": str(p.get("marketing_engine") or "")[:600],
+        "vulnerabilities": [str(x)[:200] for x in (p.get("vulnerabilities") or [])][:4],
+        "openings": [str(x)[:200] for x in (p.get("openings") or [])][:4],
+        "one_move": str(p["one_move"])[:300],
+    }

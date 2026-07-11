@@ -127,10 +127,9 @@ def generate_store_dna(ctx: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     if not (titles or ptypes or colls or msg):
         return None  # nothing to profile
 
-    import anthropic
     from app.core.config import get_settings
-    settings = get_settings()
-    if not settings.anthropic_api_key:
+    from app.services.ai import UNTRUSTED_DATA_NOTE, call_claude, parse_json
+    if not get_settings().anthropic_api_key:
         return _fallback_dna(ctx)
 
     money = []
@@ -155,6 +154,8 @@ def generate_store_dna(ctx: Dict[str, Any]) -> Optional[Dict[str, Any]]:
 
     prompt = f"""You profile Shopify stores so a store owner can tell whether a business is a REAL direct competitor. Base everything ONLY on the signals below — never invent products, numbers, or claims. Judge by the actual product titles and types.
 
+{UNTRUSTED_DATA_NOTE}
+
 {payload}
 
 Write a tight Store DNA. Return ONLY JSON:
@@ -168,37 +169,32 @@ Write a tight Store DNA. Return ONLY JSON:
   "keywords": ["<8-14 lowercase tags a matcher can use to find direct competitors: product nouns, style/material, niche, audience — NOT generic words like 'shop' or 'quality'>"]
 }}"""
 
-    try:
-        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
-        m = client.messages.create(
-            model="claude-haiku-4-5-20251001", max_tokens=500,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        text = m.content[0].text.strip()
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-        p = json.loads(text)
-        if not p.get("summary"):
-            return _fallback_dna(ctx)
-        # AI keywords are the primary matching layer; enrich with the store's own
-        # product types so overlap never depends on the model alone.
-        kws = normalize_keywords([
-            p.get("keywords"), ctx.get("product_types"),
-            ctx.get("subcategory"), ctx.get("brand_keywords"),
-        ])
-        return {
-            "summary": str(p["summary"])[:280],
-            "sells": str(p.get("sells") or "")[:160],
-            "audience": str(p.get("audience") or "")[:160],
-            "price_positioning": str(p.get("price_positioning") or "")[:120],
-            "personality": [str(x)[:40].lower() for x in (p.get("personality") or [])][:5],
-            "differentiators": [str(x)[:160] for x in (p.get("differentiators") or [])][:4],
-            "keywords": kws,
-            "method": "ai",
-        }
-    except Exception as exc:
-        logger.warning("store DNA generation failed for %s: %s", ctx.get("domain"), exc)
+    res = call_claude(
+        "store_dna", prompt,
+        model="claude-haiku-4-5-20251001", max_tokens=500,
+        entity=ctx.get("domain"),
+    )
+    if not res.ok:
         return _fallback_dna(ctx)
+    p = parse_json(res.text)
+    if not isinstance(p, dict) or not p.get("summary"):
+        return _fallback_dna(ctx)
+    # AI keywords are the primary matching layer; enrich with the store's own
+    # product types so overlap never depends on the model alone.
+    kws = normalize_keywords([
+        p.get("keywords"), ctx.get("product_types"),
+        ctx.get("subcategory"), ctx.get("brand_keywords"),
+    ])
+    return {
+        "summary": str(p["summary"])[:280],
+        "sells": str(p.get("sells") or "")[:160],
+        "audience": str(p.get("audience") or "")[:160],
+        "price_positioning": str(p.get("price_positioning") or "")[:120],
+        "personality": [str(x)[:40].lower() for x in (p.get("personality") or [])][:5],
+        "differentiators": [str(x)[:160] for x in (p.get("differentiators") or [])][:4],
+        "keywords": kws,
+        "method": "ai",
+    }
 
 
 # ── Direct-competitor matching ─────────────────────────────────────────────

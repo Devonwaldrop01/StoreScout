@@ -109,9 +109,53 @@ async function adminFetch<T>(path: string, token: string, init?: RequestInit): P
   return res.json();
 }
 
+interface SchemaHealth {
+  status: "healthy" | "degraded" | "unhealthy" | "db_unavailable";
+  latest_expected_migration: string;
+  missing_required: { migration: string; feature: string; table: string; column: string | null }[];
+  missing_optional: { migration: string; feature: string; table: string; column: string | null }[];
+}
+
+const SCHEMA_STATUS_META: Record<SchemaHealth["status"], { label: string; color: string }> = {
+  healthy: { label: "Healthy", color: "#4CC38A" },
+  degraded: { label: "Degraded — optional migration missing", color: "#FFB224" },
+  unhealthy: { label: "Unhealthy — required schema missing", color: "#F2555A" },
+  db_unavailable: { label: "Database unavailable", color: "#F2555A" },
+};
+
+function SchemaHealthPanel({ health }: { health: SchemaHealth | null }) {
+  if (!health) return null;
+  const meta = SCHEMA_STATUS_META[health.status] ?? SCHEMA_STATUS_META.db_unavailable;
+  const missing = [...health.missing_required, ...health.missing_optional];
+  return (
+    <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <div className="flex items-center justify-between mb-2">
+        <p className="label-caps">Schema health · migrations</p>
+        <span className="text-[11px]" style={{ color: "var(--muted)" }}>expects ≥ migration {health.latest_expected_migration}</span>
+      </div>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="w-2 h-2 rounded-full" style={{ background: meta.color }} />
+        <span className="text-sm font-semibold" style={{ color: meta.color }}>{meta.label}</span>
+      </div>
+      {missing.length === 0 ? (
+        <p className="text-[12px]" style={{ color: "var(--muted)" }}>All expected feature migrations are applied.</p>
+      ) : (
+        <ul className="space-y-1">
+          {missing.map((m, i) => (
+            <li key={i} className="text-[12px]" style={{ color: health.missing_required.includes(m) ? "#F2555A" : "#FFB224" }}>
+              Migration {m.migration} — {m.feature}: missing <code>{m.table}{m.column ? `.${m.column}` : ""}</code>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export default function StoreIndexAdminPage() {
   const [token, setToken] = useState<string>("");
   const [tokenInput, setTokenInput] = useState("");
+  const [schema, setSchema] = useState<SchemaHealth | null>(null);
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState("");
 
@@ -155,6 +199,15 @@ export default function StoreIndexAdminPage() {
         const o = await adminFetch<{ data: Ops }>("/admin/index-ops", tok);
         setOps(o.data);
       } catch { /* pre-migration or transient — pipeline panel just hides */ }
+      // Migration/schema health — best-effort. Only on explicit loads, not the
+      // silent auto-refresh poll: the schema doesn't change between polls, so
+      // there's no need to re-run the probe queries every cycle.
+      if (!silent) {
+        try {
+          const h = await adminFetch<{ data: SchemaHealth }>("/admin/migration-health", tok);
+          setSchema(h.data);
+        } catch { /* transient — schema panel just hides */ }
+      }
     } catch (e: unknown) {
       const status403 = (e as { status?: number })?.status === 403;
       // Only bounce to the login gate on an auth failure. A transient network
@@ -407,6 +460,9 @@ export default function StoreIndexAdminPage() {
             </div>
           </div>
         )}
+
+        {/* ── Schema health — did the deploy's migrations land? ───────────── */}
+        <SchemaHealthPanel health={schema} />
 
         {/* ── Index Operations — the three-stage pipeline at a glance ──────── */}
         {ops && (
