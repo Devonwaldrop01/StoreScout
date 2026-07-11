@@ -2,10 +2,11 @@
 #
 # Every version below was resolved together and verified to import the full app
 # (`python -c "import app.main"`) and pass the test suite on Python 3.12 — the
-# Railway/Dockerfile runtime (playwright base image is Ubuntu 24.04 / py3.12) —
+# Render/Dockerfile runtime (playwright base image is Ubuntu 24.04 / py3.12) —
 # and also on 3.11.
-# The same file drives local, Railway API, worker, and scheduler installs
-# (Dockerfile: `pip install -r requirements.txt`), so all four stay identical.
+# The same file drives local dev and all three Render services (API, worker,
+# scheduler) via the shared Dockerfile (`pip install -r requirements.txt`), so
+# they stay identical.
 #
 # playwright is pinned to the exact version baked into the Dockerfile base image
 # (mcr.microsoft.com/playwright/python:v1.58.0-noble) — the pre-installed

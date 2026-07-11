@@ -1,9 +1,9 @@
 # Managing backend Python dependencies
 
 StoreScout's backend dependencies are **pinned to exact versions** in
-`requirements.txt`. This makes every build reproducible: local dev, the Railway
+`requirements.txt`. This makes every build reproducible: local dev, the Render
 API service, the Celery worker, and the Celery Beat scheduler all install the
-same `requirements.txt` (via the `Dockerfile`, which every Railway target
+same `requirements.txt` (via the `Dockerfile`, which every Render service
 shares), so a fresh deploy can never silently pull a new — possibly
 breaking — version.
 
