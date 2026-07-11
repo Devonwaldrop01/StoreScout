@@ -23,7 +23,7 @@ jobs:
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"   # matches the Railway/Dockerfile base image
+          python-version: "3.12"   # matches the Render/Dockerfile base image
           cache: pip
 
       - name: Install pinned dependencies
