@@ -152,16 +152,6 @@ const PLANS = [
   },
 ] as const;
 
-const SCAN_PHASES: [number, string][] = [
-  [0, "Connecting to store..."],
-  [12, "Fetching product catalog..."],
-  [30, "Normalizing products..."],
-  [52, "Analyzing pricing patterns..."],
-  [70, "Computing launch velocity..."],
-  [84, "Building intelligence report..."],
-  [94, "Almost done..."],
-];
-
 const STEP_LABELS: Record<Step, string> = {
   1: "About you",
   2: "Find competitors",
@@ -256,14 +246,12 @@ function OnboardingContent() {
   // Step 3 — plan
   const [selectedPlan, setSelectedPlan] = useState<"free" | "pro" | "agency">("pro");
 
-  // Step 4 — scan polling
+  // Step 4 — scan polling. Real, evidence-based stages (no fake percentage).
   const [scanDone, setScanDone] = useState(false);
-  const [scanProgress, setScanProgress] = useState(0);
-  const [scanPhase, setScanPhase] = useState("Connecting to store...");
+  const [scanStage, setScanStage] = useState<"queued" | "scanning" | "analyzing" | "complete" | "failed" | "timed_out">("queued");
   const [scanTimedOut, setScanTimedOut] = useState(false);
 
   const checkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const progressRef = useRef(0);
   const pollCountRef = useRef(0);
 
   // Auth guard
@@ -317,51 +305,68 @@ function OnboardingContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, supabase, retryNonce]);
 
-  // Fake scan progress animation — runs whenever a competitor has been added
-  useEffect(() => {
-    if (!newCompetitorId || scanDone) return;
-    progressRef.current = 0;
-    const timer = setInterval(() => {
-      const inc =
-        progressRef.current < 40
-          ? Math.random() * 4 + 2
-          : progressRef.current < 75
-          ? Math.random() * 2 + 0.8
-          : Math.random() * 0.6 + 0.2;
-      progressRef.current = Math.min(progressRef.current + inc, 96);
-      const p = Math.floor(progressRef.current);
-      setScanProgress(p);
-      const phase = [...SCAN_PHASES].reverse().find(([min]) => p >= min);
-      if (phase) setScanPhase(phase[1]);
-    }, 600);
-    return () => clearInterval(timer);
-  }, [newCompetitorId, scanDone]);
-
-  // Real scan polling — stops after 40 polls (~2 min), shows escape hatch after 40s
+  // Real scan lifecycle — drives evidence-based stages from the normalized
+  // scan-status endpoint (queued → scanning → analyzing → complete), never a
+  // simulated percentage. Bounded (~3 min) and cleaned up on unmount. An escape
+  // hatch to the dashboard appears after 40s so the scan is never a dead-end.
   useEffect(() => {
     if (!newCompetitorId || scanDone) return;
     pollCountRef.current = 0;
     setScanTimedOut(false);
-    const timeoutTimer = setTimeout(() => setScanTimedOut(true), 40000);
+    setScanStage("queued");
+    let cancelled = false;
+    const escape = setTimeout(() => setScanTimedOut(true), 40000);
     const poll = setInterval(async () => {
       pollCountRef.current += 1;
-      if (pollCountRef.current > 40) {
+      if (pollCountRef.current > 60) {   // ~3 min ceiling — no infinite loading
         clearInterval(poll);
+        setScanStage("timed_out");
+        setScanTimedOut(true);
         return;
       }
       try {
-        await competitorsApi.latestSnapshot(newCompetitorId);
-        setScanDone(true);
-        setScanProgress(100);
-        setScanPhase("Scan complete!");
-        track("first_scan_completed", { competitor_id: newCompetitorId });
-        clearTimeout(timeoutTimer);
-      } catch {
-        // 404 = still pending
-      }
+        const st = await competitorsApi.scanStatus(newCompetitorId);
+        if (cancelled) return;
+        const s = st.data.state;
+        if (s === "failed") { setScanStage("failed"); clearInterval(poll); return; }
+        if (s === "timed_out") { setScanStage("timed_out"); setScanTimedOut(true); clearInterval(poll); return; }
+        if (s === "queued") { setScanStage("queued"); return; }
+        if (s === "running") { setScanStage("scanning"); return; }
+        // scan_status is done → confirm the analysis (snapshot) is actually written
+        try {
+          await competitorsApi.latestSnapshot(newCompetitorId);
+          if (cancelled) return;
+          setScanStage("complete");
+          setScanDone(true);
+          track("first_scan_completed", { competitor_id: newCompetitorId });
+          clearInterval(poll);
+          clearTimeout(escape);
+        } catch {
+          if (!cancelled) setScanStage("analyzing"); // scan done, analysis still writing
+        }
+      } catch { /* transient — keep polling up to the ceiling */ }
     }, 3000);
-    return () => { clearInterval(poll); clearTimeout(timeoutTimer); };
+    return () => { cancelled = true; clearInterval(poll); clearTimeout(escape); };
   }, [newCompetitorId, scanDone]);
+
+  // Retry a failed / timed-out first scan — preserves the selected competitor.
+  async function retryFirstScan() {
+    if (!newCompetitorId) return;
+    setScanTimedOut(false);
+    setScanDone(false);
+    setScanStage("queued");
+    pollCountRef.current = 0;
+    try { await competitorsApi.rescan(newCompetitorId); } catch { /* the poll reflects real state */ }
+  }
+
+  const SCAN_STAGE_LABEL: Record<typeof scanStage, string> = {
+    queued: "Queued — waiting for a worker…",
+    scanning: "Scanning the store…",
+    analyzing: "Analyzing catalog, pricing & launches…",
+    complete: "Intelligence ready",
+    failed: "Scan failed",
+    timed_out: "Scan is taking longer than usual",
+  };
 
   function normalizeUrl(raw: string): string {
     const s = raw.trim();
@@ -891,9 +896,8 @@ function OnboardingContent() {
                 >
                   <div className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ background: scanDone ? "var(--emerald)" : "var(--green)" }} />
                   <p className="text-xs font-medium" style={{ color: "var(--green)" }}>
-                    {scanDone ? `Scan complete — ${trackedHostname}` : `Scan running — ${trackedHostname}`}
+                    {scanDone ? `Scan complete — ${trackedHostname}` : `${SCAN_STAGE_LABEL[scanStage]} — ${trackedHostname}`}
                   </p>
-                  <span className="text-xs ml-auto" style={{ color: "var(--muted)" }}>{scanProgress}%</span>
                 </div>
               )}
 
@@ -1063,18 +1067,29 @@ function OnboardingContent() {
                         <p className="num text-sm font-semibold" style={{ color: scanDone ? "var(--emerald)" : "var(--text)" }}>
                           {scanDone ? "Scan complete!" : trackedHostname}
                         </p>
-                        <p className="text-xs" style={{ color: "var(--muted)" }}>{scanPhase}</p>
+                        <p className="text-xs" style={{ color: "var(--muted)" }}>{SCAN_STAGE_LABEL[scanStage]}</p>
                       </div>
-                      <span className="num ml-auto text-sm font-semibold" style={{ color: "var(--accent)" }}>
-                        {scanProgress}%
-                      </span>
                     </div>
+                    {/* Real stage indicator — indeterminate while working, solid
+                        green when complete. No fabricated percentage. */}
                     <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,.07)" }}>
-                      <div
-                        className="h-full rounded-full transition-all duration-700"
-                        style={{ width: `${scanProgress}%`, background: scanDone ? "var(--emerald)" : "var(--accent)" }}
-                      />
+                      {scanDone ? (
+                        <div className="h-full rounded-full" style={{ width: "100%", background: "var(--emerald)" }} />
+                      ) : scanStage === "failed" || scanStage === "timed_out" ? (
+                        <div className="h-full rounded-full" style={{ width: "100%", background: "#F2555A", opacity: .5 }} />
+                      ) : (
+                        <div className="h-full rounded-full scan-shimmer" style={{ width: "100%", background: "var(--accent)", opacity: .5 }} />
+                      )}
                     </div>
+                    {(scanStage === "failed" || scanStage === "timed_out") && (
+                      <button
+                        onClick={retryFirstScan}
+                        className="mt-3 text-xs font-semibold px-3 py-1.5 rounded-md"
+                        style={{ background: "var(--accent)", color: "var(--ink)" }}
+                      >
+                        Retry scan
+                      </button>
+                    )}
                   </div>
 
                   {/* Checklist */}
@@ -1085,11 +1100,11 @@ function OnboardingContent() {
                       </p>
                       <div className="space-y-2">
                         {[
-                          { Icon: TrendingDown, label: "Price distribution & median price", doneAt: 52 },
-                          { Icon: Package, label: "New product launch velocity", doneAt: 70 },
-                          { Icon: Bell, label: "Active discounts & promo rate", doneAt: 84 },
-                        ].map(({ Icon, label, doneAt }) => {
-                          const done = scanProgress >= doneAt;
+                          { Icon: TrendingDown, label: "Price distribution & median price" },
+                          { Icon: Package, label: "New product launch velocity" },
+                          { Icon: Bell, label: "Active discounts & promo rate" },
+                        ].map(({ Icon, label }) => {
+                          const done = scanStage === "complete";
                           return (
                             <div key={label} className="flex items-center gap-3 py-1.5">
                               <div

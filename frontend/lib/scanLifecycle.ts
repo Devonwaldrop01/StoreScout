@@ -64,6 +64,45 @@ export function scanLabel(s: ScanUiState): string {
   }
 }
 
+// ── Aggregate (Rescan All) ──────────────────────────────────────────────────
+// Rescan All creates one job PER competitor (no single aggregate job), so the UI
+// must show truthful per-store counts — never one fake percentage.
+
+export interface ScanCounts {
+  total: number;
+  queued: number;
+  running: number;
+  completed: number;
+  failed: number;      // failed + timed_out + unavailable (all terminal failures)
+  active: number;      // queued + running (still in flight)
+}
+
+export function aggregateScanStates(states: ScanUiState[]): { counts: ScanCounts; allTerminal: boolean } {
+  const counts: ScanCounts = { total: states.length, queued: 0, running: 0, completed: 0, failed: 0, active: 0 };
+  for (const s of states) {
+    if (s === "queued") counts.queued += 1;
+    else if (s === "running" || s === "already_in_progress") counts.running += 1;
+    else if (s === "completed") counts.completed += 1;
+    else if (s === "failed" || s === "timed_out" || s === "unavailable" || s === "rate_limited") counts.failed += 1;
+  }
+  counts.active = counts.queued + counts.running;
+  return { counts, allTerminal: counts.active === 0 && states.length > 0 };
+}
+
+export function aggregateLabel(counts: ScanCounts): string {
+  if (counts.total === 0) return "Rescan all";
+  if (counts.active > 0) {
+    const parts: string[] = [];
+    if (counts.queued) parts.push(`${counts.queued} queued`);
+    if (counts.running) parts.push(`${counts.running} running`);
+    if (counts.completed) parts.push(`${counts.completed} done`);
+    return parts.join(" · ") || "Starting…";
+  }
+  // all terminal — honest partial-success summary
+  if (counts.failed) return `${counts.completed} done · ${counts.failed} failed`;
+  return `${counts.completed} rescanned`;
+}
+
 interface Options {
   onCompleted?: (lastScannedAt: string | null) => void;
   pollMs?: number;
@@ -128,4 +167,74 @@ export function useScanLifecycle(competitorId: string, opts: Options = {}) {
   }, [state, competitorId, startPolling]);
 
   return { state, completedAt, busy: isBusy(state), trigger, reset: () => setState("idle") };
+}
+
+/**
+ * Rescan-all lifecycle across N competitors: fires one job each (truthful — no
+ * single aggregate job exists), then polls every not-yet-terminal competitor and
+ * reports honest counts (queued / running / completed / failed incl. partial
+ * success). Bounded polling, cleanup on unmount, refresh callback when all
+ * terminal.
+ */
+export function useRescanAll(ids: string[], opts: { onAllDone?: () => void; pollMs?: number; maxPolls?: number } = {}) {
+  const { onAllDone, pollMs = 4000, maxPolls = 150 } = opts;
+  const [active, setActive] = useState(false);
+  const [counts, setCounts] = useState<ScanCounts>({ total: 0, queued: 0, running: 0, completed: 0, failed: 0, active: 0 });
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countRef = useRef(0);
+  const statesRef = useRef<Map<string, ScanUiState>>(new Map());
+  const doneRef = useRef(opts.onAllDone);
+  doneRef.current = onAllDone;
+
+  const clearPoll = useCallback(() => {
+    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+  }, []);
+  useEffect(() => clearPoll, [clearPoll]);
+
+  const trigger = useCallback(async () => {
+    if (active || ids.length === 0) return;
+    setActive(true);
+    countRef.current = 0;
+    statesRef.current = new Map(ids.map((id) => [id, "queued" as ScanUiState]));
+    setCounts(aggregateScanStates([...statesRef.current.values()]).counts);
+
+    // Fire each rescan (staggered), recording its start outcome.
+    for (const id of ids) {
+      try {
+        await api.rescan(id);
+        statesRef.current.set(id, "queued");
+      } catch (e) {
+        statesRef.current.set(id, mapRescanStart((e as { status?: number })?.status ?? 0));
+      }
+      await new Promise<void>((r) => setTimeout(r, 150));
+    }
+    setCounts(aggregateScanStates([...statesRef.current.values()]).counts);
+
+    clearPoll();
+    pollRef.current = setInterval(async () => {
+      countRef.current += 1;
+      // Poll only the ones still in flight.
+      const inflight = ids.filter((id) => isBusy(statesRef.current.get(id) ?? "idle"));
+      await Promise.all(inflight.map(async (id) => {
+        try {
+          const r = await api.scanStatus(id);
+          statesRef.current.set(id, mapScanPoll(r.data.state));
+        } catch { /* keep prior state */ }
+      }));
+      const agg = aggregateScanStates([...statesRef.current.values()]);
+      setCounts(agg.counts);
+      if (agg.allTerminal || countRef.current > maxPolls) {
+        // Any still-busy after the cap are shown as timed out (bounded, honest).
+        if (countRef.current > maxPolls) {
+          for (const id of ids) if (isBusy(statesRef.current.get(id) ?? "idle")) statesRef.current.set(id, "timed_out");
+          setCounts(aggregateScanStates([...statesRef.current.values()]).counts);
+        }
+        clearPoll();
+        setActive(false);
+        doneRef.current?.();
+      }
+    }, pollMs);
+  }, [active, ids, clearPoll, maxPolls, pollMs]);
+
+  return { active, counts, trigger };
 }

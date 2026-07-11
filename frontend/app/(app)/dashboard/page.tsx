@@ -15,6 +15,7 @@ import {
 } from "@/lib/api";
 import { cn, formatPrice, formatRelativeTime } from "@/lib/utils";
 import { groupAlertEvents, type SignalGroup, SIGNAL_CONFIG } from "@/lib/signals";
+import { useRescanAll, aggregateLabel } from "@/lib/scanLifecycle";
 import { watchIndicators } from "@/lib/market";
 import { SignalFeed } from "@/components/signals/SignalFeed";
 import { ActionPlaybook } from "@/components/competitors/ActionPlaybook";
@@ -749,22 +750,14 @@ function DashboardContent() {
   const [trackingHostname, setTrackingHostname] = useState<string | null>(null);
   const [maxCompetitors, setMaxCompetitors] = useState<number | null>(null);
   const [userTier, setUserTier] = useState<string>("free");
-  const [scanningAll, setScanningAll] = useState(false);
   const [firstName, setFirstName] = useState<string | null>(null);
 
-  const scanAllStartRef = useRef<number>(0);
-
-  async function handleScanAll() {
-    if (scanningAll) return;
-    setScanningAll(true);
-    scanAllStartRef.current = Date.now();
-    // Stagger requests 150ms apart to avoid concurrent DB issues
-    for (const c of competitorList) {
-      await api.rescan(c.id).catch(() => {});
-      await new Promise<void>((r) => setTimeout(r, 150));
-    }
-    load();
-  }
+  // Rescan All: one job per competitor, polled for a truthful aggregate (no fake
+  // percentage). Refreshes dashboard metrics + watchlist when all terminal.
+  const rescanAll = useRescanAll(competitorList.map((c) => c.id), {
+    onAllDone: () => { load(); loadAlerts(); },
+  });
+  const handleScanAll = () => rescanAll.trigger();
 
   // Resolve first name from OAuth metadata for the greeting
   useEffect(() => {
@@ -776,14 +769,6 @@ function DashboardContent() {
     }).catch(() => {});
   }, []);
 
-  // Clear scanningAll once no competitors are actively scanning and a
-  // minimum window has elapsed (so Celery has time to pick up the tasks)
-  useEffect(() => {
-    if (!scanningAll) return;
-    const elapsed = Date.now() - scanAllStartRef.current;
-    const anyScanning = competitorList.some((c) => c.scan_status === "scanning");
-    if (elapsed > 15_000 && !anyScanning) setScanningAll(false);
-  }, [competitorList, scanningAll]);
 
   // Auto-open upgrade modal when onboarding sends ?upgrade=pro or ?upgrade=agency
   useEffect(() => {
@@ -933,7 +918,8 @@ function DashboardContent() {
           changesThisWeek={changesThisWeek}
           requireAction={requireAction}
           onRefresh={handleScanAll}
-          refreshing={scanningAll || competitorList.some((c) => c.scan_status === "scanning")}
+          refreshing={rescanAll.active || competitorList.some((c) => c.scan_status === "scanning")}
+          refreshLabel={rescanAll.active ? aggregateLabel(rescanAll.counts) : undefined}
         />
       )}
 

@@ -9,6 +9,7 @@ import {
   type Competitor, type UserSubscription, type ShopifyConnection, type AIDiscoverySuggestion,
 } from "@/lib/api";
 import { cn, formatPrice } from "@/lib/utils";
+import { useScanLifecycle, scanLabel } from "@/lib/scanLifecycle";
 import { AddCompetitorModal } from "@/components/competitors/AddCompetitorModal";
 import UpgradeModal from "@/components/UpgradeModal";
 import {
@@ -120,11 +121,10 @@ function StatCell({ label, value }: { label: string; value: string }) {
 // ── Competitor card ──────────────────────────────────────────────────────────
 
 function CompetitorCard({
-  c, rescanning, onRescan, onRemove, statusColor, statusLabel, lastScanned,
+  c, onScanComplete, onRemove, statusColor, statusLabel, lastScanned,
 }: {
   c: Competitor;
-  rescanning: boolean;
-  onRescan: () => void;
+  onScanComplete: () => void;
   onRemove: () => void;
   statusColor: string;
   statusLabel: string;
@@ -132,6 +132,9 @@ function CompetitorCard({
 }) {
   const promoHigh = c.promo_rate != null && c.promo_rate >= 20;
   const showNew = c.new_30d != null && c.new_30d > 0;
+  // Real rescan lifecycle owned by the card (shared with every other surface).
+  const scan = useScanLifecycle(c.id, { onCompleted: onScanComplete });
+  const scanBusy = scan.busy || c.scan_status === "scanning";
 
   const statusBg =
     c.scan_status === "error"
@@ -225,16 +228,32 @@ function CompetitorCard({
           View details <ArrowRight className="w-3.5 h-3.5" />
         </Link>
         <button
-          onClick={onRescan}
-          disabled={rescanning || c.scan_status === "scanning"}
-          title="Trigger manual rescan"
+          onClick={scan.trigger}
+          disabled={scanBusy}
+          title={scan.state === "rate_limited" ? "Rescan cooldown — try again shortly"
+            : scan.state === "unavailable" ? "Scan queue temporarily unavailable" : "Trigger a manual rescan"}
           className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg transition-colors hover:bg-white/5 disabled:opacity-40"
           style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
         >
-          <RefreshCw className={cn("w-3.5 h-3.5", rescanning && "animate-spin")} />
-          Rescan
+          <RefreshCw className={cn("w-3.5 h-3.5", scanBusy && "animate-spin")} />
+          {scanBusy ? scanLabel(scan.busy ? scan.state : "running")
+            : scan.state === "failed" || scan.state === "timed_out" ? "Retry"
+            : scan.state === "rate_limited" ? "Cooldown"
+            : scan.state === "unavailable" ? "Unavailable"
+            : "Rescan"}
         </button>
       </div>
+      {/* Live lifecycle line — the active state shown on the card itself. */}
+      {scan.state !== "idle" && (
+        <p className="text-[11px] mt-2" style={{
+          color: scan.state === "failed" || scan.state === "timed_out" || scan.state === "unavailable" ? "#F2555A"
+            : scan.state === "completed" ? "#4CC38A" : "var(--muted)",
+        }}>
+          {scan.state === "completed" && scan.completedAt
+            ? `Scan complete · ${new Date(scan.completedAt).toLocaleTimeString()}`
+            : scanLabel(scan.state)}
+        </p>
+      )}
     </div>
   );
 }
@@ -249,7 +268,6 @@ function CompetitorsContent() {
   // render off a failed fetch (loading state ≠ empty state).
   const [confirmedLoad, setConfirmedLoad] = useState(() => getCachedCompetitors() !== null);
   const [listError, setListError] = useState(false);
-  const [rescanning, setRescanning] = useState<Set<string>>(new Set());
   const [addCompetitorOpen, setAddCompetitorOpen] = useState(false);
   const [addCompetitorInitialUrl, setAddCompetitorInitialUrl] = useState("");
   const [loading, setLoading] = useState(true);
@@ -288,18 +306,12 @@ function CompetitorsContent() {
     }
   }, [searchParams]);
 
-  async function handleRescanCompetitor(id: string) {
-    setRescanning((prev) => new Set(prev).add(id));
+  // Refresh the card list after a scan reaches a terminal state (metrics update).
+  async function refreshList() {
     try {
-      await competitorsApi.rescan(id);
-      setTimeout(async () => {
-        const { data } = await competitorsApi.list();
-        setMyCompetitors(data || []);
-        setRescanning((prev) => { const s = new Set(prev); s.delete(id); return s; });
-      }, 2000);
-    } catch {
-      setRescanning((prev) => { const s = new Set(prev); s.delete(id); return s; });
-    }
+      const { data } = await competitorsApi.list();
+      setMyCompetitors(data || []);
+    } catch { /* transient — cards keep their last-good data */ }
   }
 
   async function handleRemoveCompetitor(id: string) {
@@ -565,8 +577,7 @@ function CompetitorsContent() {
               <CompetitorCard
                 key={c.id}
                 c={c}
-                rescanning={rescanning.has(c.id)}
-                onRescan={() => handleRescanCompetitor(c.id)}
+                onScanComplete={refreshList}
                 onRemove={() => handleRemoveCompetitor(c.id)}
                 statusColor={scanStatusColor(c.scan_status)}
                 statusLabel={scanStatusLabel(c.scan_status)}
