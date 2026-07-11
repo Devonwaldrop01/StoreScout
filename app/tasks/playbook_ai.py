@@ -10,6 +10,7 @@ from .celery_app import celery
 from app.core.config import get_settings
 from app.core.database import get_supabase
 from app.services.ai import call_claude
+from app.services.ai_job import mark_failed as _aijob_failed, clear_job as _aijob_clear
 
 logger = logging.getLogger(__name__)
 
@@ -446,6 +447,7 @@ Rules:
             timeout=120.0,
         )
         if not res.ok:
+            _aijob_failed("playbook", user_id)
             return {"status": "error", "reason": "ai_unavailable"}
         raw_text = res.text
         if res.truncated:
@@ -455,6 +457,7 @@ Rules:
             parsed = _extract_json(raw_text)
         except (ValueError, json.JSONDecodeError) as exc:
             logger.error("generate_ai_playbook: bad JSON from Claude for %s: %s — raw: %r", user_id, exc, raw_text[:500])
+            _aijob_failed("playbook", user_id)
             return {"status": "error", "reason": "invalid_json"}
 
         recs = parsed.get("recommendations") or parsed.get("plays") or []
@@ -527,8 +530,10 @@ Rules:
             "output_tokens": message.usage.output_tokens,
         }).execute()
 
+        _aijob_clear("playbook", user_id)
         return {"status": "ok", "play_count": len(normalised)}
 
     except Exception as exc:
         logger.error("generate_ai_playbook failed for user %s: %s", user_id, exc)
+        _aijob_failed("playbook", user_id)
         return {"status": "error", "reason": str(exc)}

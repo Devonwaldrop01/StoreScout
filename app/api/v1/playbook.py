@@ -110,21 +110,26 @@ def _build_playbook(user_id: str) -> dict:
     # No fresh AI plays — resolve a FINITE job state instead of re-dispatching on
     # every poll (which caused the indefinite "AI analysis in progress"). Dedup
     # concurrent generations and time a stuck job out.
-    from app.services.ai_job import decide_ai_action, get_job, start_job
+    from app.services.ai_job import decide_ai_action, read_phase, mark_started, mark_failed
     settings = get_settings()
-    job_active, job_age = get_job("playbook", user_id)
-    ai_state, should_dispatch = decide_ai_action(
-        has_fresh_result=False, job_active=job_active, job_age_s=job_age,
+    phase, age = read_phase("playbook", user_id)
+    ai_state, action = decide_ai_action(
+        has_fresh_result=False, phase=phase, age_s=age,
         timeout_s=settings.playbook_ai_timeout_s,
     )
-    if should_dispatch:
+    if action == "dispatch":
         try:
             from app.tasks.playbook_ai import generate_ai_playbook
             generate_ai_playbook.delay(user_id)
-            start_job("playbook", user_id, ttl_s=settings.playbook_ai_timeout_s + 60)
+            mark_started("playbook", user_id, ttl_s=settings.playbook_ai_timeout_s + 60)
         except Exception as exc:
             logger.warning("Could not enqueue generate_ai_playbook for %s: %s", user_id, exc)
+            mark_failed("playbook", user_id)   # not generating forever — a finite failure
             ai_state = "unavailable"
+    elif action == "mark_failed":
+        # A job exceeded the timeout without persisting — persist the terminal
+        # state so reloads stay finite and GET never re-dispatches.
+        mark_failed("playbook", user_id)
     # Only claim "generating" when a job is genuinely in flight.
     ai_generating = ai_state == "generating"
 
@@ -216,14 +221,15 @@ def regenerate_playbook(user_id: str = Depends(get_effective_user_id)):
     """Retry AI Playbook generation after a failed/timed-out attempt. Clears the
     single-flight job marker so the next GET dispatches a fresh generation, and
     kicks one off now. Idempotent; safe to call repeatedly."""
-    from app.services.ai_job import clear_job, start_job
+    from app.services.ai_job import clear_job, mark_started, mark_failed
     settings = get_settings()
     clear_job("playbook", user_id)
     try:
         from app.tasks.playbook_ai import generate_ai_playbook
         generate_ai_playbook.delay(user_id)
-        start_job("playbook", user_id, ttl_s=settings.playbook_ai_timeout_s + 60)
+        mark_started("playbook", user_id, ttl_s=settings.playbook_ai_timeout_s + 60)
         return {"status": "queued", "ai_state": "generating"}
     except Exception as exc:
         logger.warning("regenerate_playbook enqueue failed for %s: %s", user_id, exc)
+        mark_failed("playbook", user_id)
         return {"status": "unavailable", "ai_state": "unavailable"}
