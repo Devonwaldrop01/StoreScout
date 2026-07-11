@@ -1361,10 +1361,14 @@ def get_comparison(competitor_id: str, user_id: str = Depends(get_effective_user
 
 
 @router.get("/{competitor_id}/quick-wins")
+@safe_read("GET /quick-wins", {"data": {"wins": [], "locked": False, "locked_count": 0, "tier": "free"}})
 def get_quick_wins(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """
     Rule-based action cards from the latest snapshot.
     Free tier: 1 card visible + locked_count.  Pro/Agency: all cards.
+    Optional intelligence — @safe_read degrades an unexpected failure (e.g. a
+    non-dict snapshot payload) to a typed-empty result + logged error, while the
+    ownership 404 is preserved (safe_read re-raises HTTPException).
     """
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
