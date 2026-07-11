@@ -255,8 +255,27 @@ export const user = {
       body: JSON.stringify({ type }),
     }),
   provision: () =>
-    apiFetch<{ status: string }>("/user/provision", { method: "POST" }),
+    apiFetch<{ status: string; provisioned?: boolean }>("/user/provision", { method: "POST" }),
 };
+
+/**
+ * Provision the account, blocking until it genuinely succeeds. Idempotent and
+ * concurrency-safe server-side, so retrying is free. Returns true only when the
+ * account is confirmed provisioned; callers must NOT proceed into onboarding on
+ * a false return. Retries transient failures a couple of times before giving up.
+ */
+export async function ensureProvisioned(retries = 2): Promise<boolean> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await user.provision();
+      if (res?.provisioned || res?.status === "created" || res?.status === "exists") return true;
+    } catch {
+      // fall through to retry
+    }
+    if (attempt < retries) await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+  }
+  return false;
+}
 
 // ── Types ─────────────────────────────────────────────────────
 export interface Competitor {

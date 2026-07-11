@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Zap, Eye, EyeOff, CheckCircle2, AlertCircle, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { user as userApi } from "@/lib/api";
+import { user as userApi, ensureProvisioned } from "@/lib/api";
 
 function GoogleIcon() {
   return (
@@ -106,7 +106,14 @@ function SignupContent() {
     }
 
     if (data.session) {
-      await userApi.provision().catch(() => {});
+      // Provisioning is REQUIRED — do not enter onboarding with an unknown
+      // account state. Idempotent server-side, so retrying is safe.
+      const ok = await ensureProvisioned();
+      if (!ok) {
+        setError("We couldn't finish setting up your account. Please try again.");
+        setLoading(false);
+        return;
+      }
       router.push(onboardingPath);
     } else {
       setDone(true);

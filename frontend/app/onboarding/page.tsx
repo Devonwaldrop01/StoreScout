@@ -7,7 +7,7 @@ import {
   Search, TrendingDown, Bell, Package, Sparkles,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { competitors as competitorsApi, user as userApi, type AIDiscoverySuggestion } from "@/lib/api";
+import { competitors as competitorsApi, user as userApi, ensureProvisioned, type AIDiscoverySuggestion } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 
@@ -175,6 +175,8 @@ function OnboardingContent() {
   const supabase = createClient();
 
   const [authChecked, setAuthChecked] = useState(false);
+  const [provisionFailed, setProvisionFailed] = useState(false);
+  const [retryNonce, setRetryNonce] = useState(0);
   const [step, setStep] = useState<Step>(1);
 
   // Step 1 — competitor URL
@@ -273,7 +275,15 @@ function OnboardingContent() {
       const meta = session.user.user_metadata ?? {};
       const existingName = (meta.display_name || meta.full_name || meta.name) as string | undefined;
       if (existingName) setName(existingName);
-      await userApi.provision().catch(() => {});
+      // Provisioning is REQUIRED — never continue onboarding with an unknown
+      // account state. Idempotent + concurrency-safe server-side. On failure,
+      // block with a retry panel instead of silently proceeding.
+      const provisioned = await ensureProvisioned();
+      if (!provisioned) {
+        setProvisionFailed(true);
+        setAuthChecked(true);
+        return;
+      }
       try {
         const result = await competitorsApi.list();
         if ((result.data || []).length > 0) { router.replace("/dashboard"); return; }
@@ -304,7 +314,8 @@ function OnboardingContent() {
       setAuthChecked(true);
     }
     check();
-  }, [router, supabase]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router, supabase, retryNonce]);
 
   // Fake scan progress animation — runs whenever a competitor has been added
   useEffect(() => {
@@ -460,6 +471,28 @@ function OnboardingContent() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
         <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--green)" }} />
+      </div>
+    );
+  }
+
+  // Required provisioning failed — block here with a retry instead of entering
+  // onboarding with a half-initialized account.
+  if (provisionFailed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6" style={{ background: "var(--bg)" }}>
+        <div className="max-w-sm text-center rounded-lg p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <p className="text-sm font-semibold mb-2" style={{ color: "var(--text)" }}>We couldn&apos;t finish setting up your account</p>
+          <p className="text-[13px] leading-relaxed mb-4" style={{ color: "var(--text-2)" }}>
+            This is usually temporary. Retry to complete setup — your progress is safe.
+          </p>
+          <button
+            onClick={() => { setProvisionFailed(false); setAuthChecked(false); setRetryNonce((n) => n + 1); }}
+            className="text-sm font-semibold px-4 py-2 rounded-md"
+            style={{ background: "var(--accent)", color: "var(--ink)" }}
+          >
+            Retry setup
+          </button>
+        </div>
       </div>
     );
   }
