@@ -31,6 +31,7 @@ import { AskStoreScout } from "@/components/competitors/AskStoreScout";
 import { ResearchProgress } from "@/components/competitors/ResearchProgress";
 import { MarketBenchmarks } from "@/components/competitors/MarketBenchmarks";
 import { positioning as derivePositioning, promotionFrequency, launchVelocity, assortmentBreadth, type StrategicMetric } from "@/lib/market";
+import { useScanLifecycle, scanLabel } from "@/lib/scanLifecycle";
 import { ProAnalysis, type ProAnalysisData } from "@/components/competitors/ProAnalysis";
 import { QuickWins } from "@/components/competitors/QuickWins";
 import UpgradeModal from "@/components/UpgradeModal";
@@ -565,7 +566,6 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
   const [tab,            setTab]            = useState<Tab>(resolveInitialTab);
   const [catalogSub,     setCatalogSub]     = useState<CatalogSub>(resolveInitialCatalogSub);
   const [intelSub,       setIntelSub]       = useState<IntelSub>(resolveInitialIntelSub);
-  const [rescanning,     setRescanning]     = useState(false);
   const [scanPending,    setScanPending]    = useState(true);
   const [brief,          setBrief]          = useState<BriefData | null | false>(null);
   const [aiRefreshing,   setAiRefreshing]   = useState(false);
@@ -687,15 +687,15 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
 
   const isScanning = competitor?.scan_status === "scanning" || competitor?.scan_status === "pending";
 
-  // Clear queued state once the scan actually picks up
-  useEffect(() => {
-    if (isScanning) setRescanning(false);
-  }, [isScanning]);
-
-  async function handleRescan() {
-    setRescanning(true);
-    await api.rescan(id).catch(() => { setRescanning(false); });
-  }
+  // Real rescan lifecycle: immediate ack, polling, timeout, terminal + retry,
+  // metric refresh on completion. (Shared with every other Rescan surface.)
+  const scan = useScanLifecycle(id, {
+    onCompleted: () => {
+      api.get(id).then((r) => setCompetitor(r.data)).catch(() => {});
+      setScanPending(true); // re-fetch the latest snapshot/metrics
+    },
+  });
+  const handleRescan = () => scan.trigger();
 
 
   function handleShare() {
@@ -862,12 +862,18 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
             </button>
             <button
               onClick={handleRescan}
-              disabled={rescanning || isScanning}
+              disabled={scan.busy || isScanning}
+              title={scan.state === "rate_limited" ? "Rescan cooldown — try again shortly"
+                : scan.state === "unavailable" ? "Scan queue temporarily unavailable" : "Trigger a manual rescan"}
               className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-md transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.2)" }}
             >
-              <RefreshCw className={cn("w-3.5 h-3.5", (rescanning || isScanning) && "animate-spin")} />
-              {isScanning ? "Scanning…" : rescanning ? "Queued…" : "Rescan"}
+              <RefreshCw className={cn("w-3.5 h-3.5", (scan.busy || isScanning) && "animate-spin")} />
+              {(scan.busy || isScanning) ? scanLabel(scan.busy ? scan.state : "running")
+                : scan.state === "failed" || scan.state === "timed_out" ? "Retry scan"
+                : scan.state === "rate_limited" ? "Cooldown…"
+                : scan.state === "unavailable" ? "Unavailable"
+                : scan.state === "completed" ? "Rescan" : "Rescan"}
             </button>
             <button
               onClick={handleDelete}
@@ -893,11 +899,11 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
             </p>
             <button
               onClick={handleRescan}
-              disabled={rescanning || isScanning}
+              disabled={scan.busy || isScanning}
               className="text-xs font-bold px-4 py-2 rounded-md transition-all hover:brightness-110 disabled:opacity-50"
               style={{ background: "rgba(255,178,36,.1)", color: "var(--accent)", border: "1px solid rgba(255,178,36,.2)" }}
             >
-              {rescanning ? "Queued…" : "Try again"}
+              {(scan.busy || isScanning) ? scanLabel(scan.busy ? scan.state : "running") : "Try again"}
             </button>
           </div>
         ) : (
