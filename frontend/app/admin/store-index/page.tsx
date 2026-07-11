@@ -199,11 +199,15 @@ export default function StoreIndexAdminPage() {
         const o = await adminFetch<{ data: Ops }>("/admin/index-ops", tok);
         setOps(o.data);
       } catch { /* pre-migration or transient — pipeline panel just hides */ }
-      // Migration/schema health — best-effort, never blocks the console.
-      try {
-        const h = await adminFetch<{ data: SchemaHealth }>("/admin/migration-health", tok);
-        setSchema(h.data);
-      } catch { /* transient — schema panel just hides */ }
+      // Migration/schema health — best-effort. Only on explicit loads, not the
+      // silent auto-refresh poll: the schema doesn't change between polls, so
+      // there's no need to re-run the probe queries every cycle.
+      if (!silent) {
+        try {
+          const h = await adminFetch<{ data: SchemaHealth }>("/admin/migration-health", tok);
+          setSchema(h.data);
+        } catch { /* transient — schema panel just hides */ }
+      }
     } catch (e: unknown) {
       const status403 = (e as { status?: number })?.status === 403;
       // Only bounce to the login gate on an auth failure. A transient network

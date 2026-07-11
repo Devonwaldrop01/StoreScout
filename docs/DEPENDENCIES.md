@@ -16,7 +16,9 @@ freezes a known-good set; upgrades become deliberate, reviewable events.
 
 ## Hard constraints
 
-- **Python 3.11** — the Dockerfile base image. Don't assume 3.12+ features.
+- **Python 3.12** — the Dockerfile base image
+  (`mcr.microsoft.com/playwright/python:v1.58.0-noble` = Ubuntu 24.04). The pins
+  are verified on 3.12 and 3.11; CI runs 3.12 to match production.
 - **`playwright==1.58.0`** must match the Dockerfile base image
   (`mcr.microsoft.com/playwright/python:v1.58.0-noble`). The browsers are
   pre-baked into that image; a different playwright version won't match them.

@@ -1,7 +1,9 @@
 # StoreScout backend — pinned direct dependencies.
 #
 # Every version below was resolved together and verified to import the full app
-# (`python -c "import app.main"`) on Python 3.11 (the Railway/Dockerfile runtime).
+# (`python -c "import app.main"`) and pass the test suite on Python 3.12 — the
+# Railway/Dockerfile runtime (playwright base image is Ubuntu 24.04 / py3.12) —
+# and also on 3.11.
 # The same file drives local, Railway API, worker, and scheduler installs
 # (Dockerfile: `pip install -r requirements.txt`), so all four stay identical.
 #

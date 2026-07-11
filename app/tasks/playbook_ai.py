@@ -441,6 +441,9 @@ Rules:
             "playbook", prompt,
             model="claude-sonnet-4-6", max_tokens=3000,
             system=_SYSTEM_PROMPT, user_id=user_id,
+            # Generating up to 3000 Sonnet tokens routinely takes longer than the
+            # 30s interactive default; this runs in a background task, so allow more.
+            timeout=120.0,
         )
         if not res.ok:
             return {"status": "error", "reason": "ai_unavailable"}
