@@ -403,9 +403,9 @@ def analyze_gaps(analysis: Dict[str, Any], products: List[Dict[str, Any]], store
             "type": "availability",
             "title": f"{oos_pct}% of their catalog is out of stock",
             "detail": (
-                f"{oos_count} products ({oos_pct}%) are currently unavailable. Out-of-stock items "
-                f"are demand they can't fulfill right now. A reliably-stocked alternative in those "
-                f"categories captures shoppers who'd otherwise wait or bounce."
+                f"{oos_count} products ({oos_pct}%) are currently unavailable. Whether that's a demand "
+                f"spike or a supply gap on their end, it's a likely opening: a reliably-stocked "
+                f"alternative in those categories can capture shoppers who'd otherwise wait or bounce."
             ),
             "opportunity": round(_clamp01(oos_pct / 40.0), 2),
             "metric": {"out_of_stock_pct": oos_pct, "count": oos_count},
@@ -924,8 +924,8 @@ def compute_quick_wins(snapshot_data: dict) -> list:
             "headline": f"{oos_pct:.0f}% of their catalog is out of stock",
             "detail": (
                 f"About {oos_count} products are unavailable. "
-                "That's demand they can't fulfil right now. "
-                "If you carry overlap categories, push visibility while they're stocked out."
+                "That's a likely opening while they're out of stock. "
+                "If you carry comparable products, push visibility while they can't fulfil."
             ),
         })
 

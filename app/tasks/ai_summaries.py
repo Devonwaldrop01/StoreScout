@@ -8,6 +8,7 @@ import anthropic
 from .celery_app import celery
 from app.core.config import get_settings
 from app.core.database import get_supabase
+from app.services.ai import CLAIMS_DISCIPLINE
 
 logger = logging.getLogger(__name__)
 
@@ -145,7 +146,7 @@ CHANGES THIS {"WEEK" if summary_type == "weekly" else "SCAN"}:
         message = client.messages.create(
             model=model,
             max_tokens=400 if summary_type == "onboarding" else 500,
-            system=_SYSTEM_PROMPT,
+            system=_SYSTEM_PROMPT + "\n\n" + CLAIMS_DISCIPLINE,
             messages=[{"role": "user", "content": prompt}],
         )
         summary_text = message.content[0].text
@@ -216,7 +217,9 @@ def generate_brief(competitor_id: str, snapshot_id: str) -> dict:
     # first-scan email and shared reports. The deep strategist analysis lives
     # in generate_pro_analysis (summary_type="pro"), NOT here — free and pro
     # must answer different questions, not the same question at two lengths.
-    prompt = f"""Analyze this Shopify competitor store and return ONLY valid JSON — no markdown, no preamble, no explanation.
+    prompt = f"""{CLAIMS_DISCIPLINE}
+
+Analyze this Shopify competitor store and return ONLY valid JSON — no markdown, no preamble, no explanation.
 
 Output this exact structure:
 {{
@@ -462,7 +465,7 @@ Rules:
         message = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=1600,
-            system=_PRO_SYSTEM_PROMPT,
+            system=_PRO_SYSTEM_PROMPT + "\n\n" + CLAIMS_DISCIPLINE,
             messages=[{"role": "user", "content": prompt}],
         )
         raw_text = message.content[0].text.strip()

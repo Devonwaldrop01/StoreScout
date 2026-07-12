@@ -19,7 +19,7 @@ from app.core.config import get_settings
 from app.core.database import get_supabase
 from app.core.obs import safe_read, guarded_required
 from app.core.ratelimit import check_rate_limit, dedupe_key, single_flight
-from app.services.ai import UNTRUSTED_DATA_NOTE, call_claude, parse_json
+from app.services.ai import UNTRUSTED_DATA_NOTE, CLAIMS_DISCIPLINE, call_claude, parse_json
 
 router = APIRouter(prefix="/competitors", tags=["competitors"])
 
@@ -1666,6 +1666,8 @@ def ask_storescout(competitor_id: str, body: AskRequest, user_id: str = Depends(
     prompt = f"""You are StoreScout — a sharp competitive-intelligence analyst sitting beside a Shopify store owner, discussing a competitor. Answer their question using ONLY the data below. Be specific and cite the numbers. If the data can't answer something, say so plainly and reason from what IS known. Talk like a smart operator, not a chatbot — 2-4 short paragraphs max, no fluff, no "as an AI".
 
 {UNTRUSTED_DATA_NOTE}
+
+{CLAIMS_DISCIPLINE}
 
 COMPETITOR DATA:
 {context}

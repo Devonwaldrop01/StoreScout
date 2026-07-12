@@ -9,7 +9,7 @@ import redis as _redis_lib
 from .celery_app import celery
 from app.core.config import get_settings
 from app.core.database import get_supabase
-from app.services.ai import call_claude
+from app.services.ai import call_claude, CLAIMS_DISCIPLINE
 from app.services.ai_job import mark_failed as _aijob_failed, clear_job as _aijob_clear
 
 logger = logging.getLogger(__name__)
@@ -441,7 +441,7 @@ Rules:
         res = call_claude(
             "playbook", prompt,
             model="claude-sonnet-4-6", max_tokens=3000,
-            system=_SYSTEM_PROMPT, user_id=user_id,
+            system=_SYSTEM_PROMPT + "\n\n" + CLAIMS_DISCIPLINE, user_id=user_id,
             # Generating up to 3000 Sonnet tokens routinely takes longer than the
             # 30s interactive default; this runs in a background task, so allow more.
             timeout=120.0,
