@@ -778,11 +778,9 @@ function OnboardingContent() {
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
                             <p className="text-sm font-mono font-semibold truncate" style={{ color: "var(--text)" }}>{sug.domain}</p>
-                            {typeof sug.confidence === "number" && (
-                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0" style={{ background: "rgba(76,195,138,.1)", color: "#4CC38A", border: "1px solid rgba(76,195,138,.2)" }}>
-                                {sug.confidence}% Shopify
-                              </span>
-                            )}
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0" style={{ background: "rgba(76,195,138,.1)", color: "#4CC38A", border: "1px solid rgba(76,195,138,.2)" }}>
+                              Verified Shopify
+                            </span>
                           </div>
                           <p className="text-xs truncate mt-0.5" style={{ color: "var(--muted)" }}>{sug.reason}</p>
                         </div>

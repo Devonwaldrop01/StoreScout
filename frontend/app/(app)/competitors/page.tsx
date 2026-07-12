@@ -692,15 +692,13 @@ function CompetitorsContent() {
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <p className="text-sm font-semibold truncate" style={{ color: "var(--text)" }}>{s.domain}</p>
-                              {typeof s.confidence === "number" && (
-                                <span
-                                  className="num text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0"
-                                  style={{ background: "rgba(76,195,138,.1)", color: "var(--emerald)", border: "1px solid rgba(76,195,138,.2)" }}
-                                  title={s.signals?.length ? `Verification signals: ${s.signals.join(" · ")}` : undefined}
-                                >
-                                  {s.confidence}% Shopify
-                                </span>
-                              )}
+                              <span
+                                className="text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 flex items-center gap-1"
+                                style={{ background: "rgba(76,195,138,.1)", color: "var(--emerald)", border: "1px solid rgba(76,195,138,.2)" }}
+                                title={s.signals?.length ? `Verification signals: ${s.signals.join(" · ")}` : "Confirmed on Shopify — trackable"}
+                              >
+                                <Check className="w-2.5 h-2.5" /> Verified Shopify
+                              </span>
                             </div>
                             <p className="text-xs truncate" style={{ color: "var(--muted)" }}>{s.reason}</p>
                           </div>

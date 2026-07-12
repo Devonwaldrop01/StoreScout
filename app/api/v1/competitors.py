@@ -732,6 +732,21 @@ Rules:
                     score += 12 if tier == user_price_tier else 0
                 if stage == "enterprise" and user_stage in (None, "startup", "growing"):
                     score -= 30  # underdogs first — Nike shouldn't crowd out peers
+                # Hard category contradiction (e.g. a furniture store surfacing
+                # on an apparel search via incidental keyword overlap): only when
+                # the row's classification is confident enough to trust. Adjacent
+                # categories are untouched; this just keeps the wrong market out
+                # of the top of the list.
+                if user_category and not row.get("_by_category"):
+                    rc = row.get("category")
+                    cc2 = row.get("category_confidence")
+                    if rc and (cc2 is None or cc2 >= cat_floor):
+                        try:
+                            from app.services.store_dna import category_relation
+                            if category_relation(rc, user_category) == "contradiction":
+                                score -= 50
+                        except Exception:
+                            pass
                 return score
 
             ranked = sorted(idx_res.data or [], key=_relevance, reverse=True)
@@ -879,20 +894,39 @@ Rules:
 
 class DiscoveryFeedbackRequest(BaseModel):
     domain: str
-    correct: bool
+    # Legacy binary signal (Track ✓ / Not-a-competitor ✕). Kept for
+    # backward compatibility with existing clients.
+    correct: Optional[bool] = None
+    # Richer three-way relevance the weighted-edge graph already supports:
+    # "direct" (a true rival), "related" (adjacent — a softer positive), or
+    # "not_relevant" (pin negative so it never resurfaces). Optional; when
+    # omitted the endpoint falls back to `correct`.
+    relation: Optional[str] = None
 
 
 @router.post("/discovery-feedback")
 def discovery_feedback(body: DiscoveryFeedbackRequest, user_id: str = Depends(get_current_user_id)):
-    """✓ correct competitor / ✕ not a competitor — writes straight into the
-    knowledge graph. A confirmation strengthens the edge; a rejection pins it
-    negative so that domain never surfaces for this user (or store) again."""
+    """Discovery relevance feedback → the competitor knowledge graph.
+
+    Three persisted states (the edge model stores a signed weight, so all
+    three are representable without a schema change):
+      · direct       → strengthen the edge (+3) — a confirmed rival
+      · related      → gentle positive (+1) — adjacent, still worth surfacing
+      · not_relevant → pin negative (−5) — never surface for this user/store again
+    A legacy `correct` boolean maps to direct / not_relevant."""
     db = get_supabase()
     from app.services.store_index import record_competitor_edge, normalize_domain
 
     domain = normalize_domain(body.domain)
     if not domain or "." not in domain:
         raise HTTPException(status_code=422, detail="valid domain required")
+
+    # Resolve the relation: explicit `relation` wins; else derive from `correct`.
+    relation = (body.relation or "").strip().lower()
+    if relation not in ("direct", "related", "not_relevant"):
+        if body.correct is None:
+            raise HTTPException(status_code=422, detail="relation or correct required")
+        relation = "direct" if body.correct else "not_relevant"
 
     source_key = f"user:{user_id}"
     try:
@@ -903,11 +937,13 @@ def discovery_feedback(body: DiscoveryFeedbackRequest, user_id: str = Depends(ge
     except Exception:
         pass
 
-    if body.correct:
+    if relation == "direct":
         record_competitor_edge(db, source_key, domain, "feedback", delta=3)
-    else:
+    elif relation == "related":
+        record_competitor_edge(db, source_key, domain, "feedback", delta=1)
+    else:  # not_relevant
         record_competitor_edge(db, source_key, domain, "feedback", set_weight=-5)
-    return {"status": "ok", "domain": domain, "correct": body.correct}
+    return {"status": "ok", "domain": domain, "relation": relation}
 
 
 @router.get("/{competitor_id}")
