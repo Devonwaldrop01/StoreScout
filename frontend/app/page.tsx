@@ -17,7 +17,7 @@ const PLANS = [
     sub: "forever",
     annualNote: null,
     highlight: false,
-    features: ["1 competitor", "Weekly manual scan", "Current snapshot only", "In-app change history", "No credit card required"],
+    features: ["1 competitor", "Weekly auto-scan", "Current snapshot only", "In-app change history", "No credit card required"],
     cta: "Start free",
     href: "/auth/signup",
   },

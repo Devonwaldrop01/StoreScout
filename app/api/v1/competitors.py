@@ -47,12 +47,9 @@ class UpdateCompetitorRequest(BaseModel):
 
 
 def _tier_limits(tier: str) -> dict:
-    s = get_settings()
-    return {
-        "free": {"max_competitors": s.free_max_competitors, "scan_hours": s.free_scan_interval_hours},
-        "pro": {"max_competitors": s.pro_max_competitors, "scan_hours": s.pro_scan_interval_hours},
-        "agency": {"max_competitors": s.agency_max_competitors, "scan_hours": s.agency_scan_interval_hours},
-    }.get(tier, {"max_competitors": 1, "scan_hours": 168})
+    # Canonical limits — see app/services/entitlements.py (single source of truth).
+    from app.services.entitlements import limits_for
+    return limits_for(tier)
 
 
 @router.get("")

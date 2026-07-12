@@ -117,7 +117,7 @@ const PLANS = [
     price: "$0",
     per: "",
     accent: "rgba(255,255,255,.35)",
-    features: ["1 competitor", "Manual scans", "Current snapshot only"],
+    features: ["1 competitor", "Weekly auto-scan", "Current snapshot only"],
     recommended: false,
   },
   {

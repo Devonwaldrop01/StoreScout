@@ -693,7 +693,14 @@ export interface UserSubscription {
     scan_hours: number;
     history_days: number;
     ai_digest: boolean;
+    // Additive (canonical entitlements). Optional so older cached responses
+    // still type-check.
+    watch_cap?: number;
+    automatic_scans?: boolean;
   };
+  // Canonical feature gates + normalized subscription state (additive).
+  features?: Record<string, boolean>;
+  subscription_state?: "active" | "trialing" | "past_due" | "canceled" | "inactive" | "none";
 }
 
 export interface BusinessProfile {

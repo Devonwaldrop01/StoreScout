@@ -76,23 +76,21 @@ class UpdatePrefsRequest(BaseModel):
 @guarded_required("GET /subscription")
 def get_subscription(user_id: str = Depends(get_current_user_id)):
     db = get_supabase()
-    settings = get_settings()
     user = db.table("user_profiles").select("*").eq("id", user_id).maybe_single().execute()
     if not user or not user.data:
         raise HTTPException(404, "User not found")
 
-    tier = user.data.get("tier", "free")
-    limits = {
-        "free": {"max_competitors": settings.free_max_competitors, "scan_hours": settings.free_scan_interval_hours, "history_days": 0, "ai_digest": False},
-        "pro": {"max_competitors": settings.pro_max_competitors, "scan_hours": settings.pro_scan_interval_hours, "history_days": 90, "ai_digest": True},
-        "agency": {"max_competitors": settings.agency_max_competitors, "scan_hours": settings.agency_scan_interval_hours, "history_days": 3650, "ai_digest": True},
-        "developer": {"max_competitors": 50, "scan_hours": 12, "history_days": 3650, "ai_digest": True},
-    }.get(tier, {"max_competitors": 1, "scan_hours": 168, "history_days": 0, "ai_digest": False})
+    from app.services.entitlements import limits_for, features_for, resolve_tier, subscription_state
+    tier = resolve_tier(user.data)
 
     return {
         "data": {
             **user.data,
-            "limits": limits,
+            # Canonical entitlements (see app/services/entitlements.py) — the one
+            # source the API, workers, webhook and frontend all read from.
+            "limits": limits_for(tier),
+            "features": features_for(tier),
+            "subscription_state": subscription_state(user.data),
         }
     }
 
