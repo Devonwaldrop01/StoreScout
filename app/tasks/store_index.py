@@ -295,14 +295,17 @@ def stage_verification(limit_override: Optional[int] = None, force: bool = False
     concurrency = max(1, min(settings.shopify_index_concurrency, 4))
 
     try:
+        # Drain BOTH shop.app-resolved rows ('discovered') AND niche/related/
+        # demand-generated candidates ('candidate') — otherwise the breadth
+        # sources never get verified and the index can't cover diverse niches.
         res = db.table("shopify_store_index")\
             .select("domain, source, source_query")\
-            .eq("status", "discovered")\
-            .order("discovered_at")\
+            .in_("status", ["discovered", "candidate"])\
+            .order("created_at")\
             .limit(batch).execute()
         rows = res.data or []
     except Exception as exc:
-        logger.error("stage_verification: discovered fetch failed: %s", exc)
+        logger.error("stage_verification: discovered/candidate fetch failed: %s", exc)
         return {"status": "error", "verified": 0}
 
     if not rows:
@@ -557,6 +560,64 @@ Rules:
 
     logger.info("related expansion for %s: %d new candidates", domain, inserted)
     return {"status": "ok", "inserted": inserted}
+
+
+@celery.task(name="app.tasks.store_index.generate_candidates_rotating")
+@scheduled_index_task("stage_candidates")
+def generate_candidates_rotating(limit_override: Optional[int] = None, force: bool = False) -> dict:
+    """Proactively grow index BREADTH so it can cover almost any niche a user
+    describes. Each run advances a cursor through the full niche list (≈90
+    taxonomy niches + seeds) and generates candidates for the next few, plus a
+    couple of graph expansions off recently-verified stores. Candidates land as
+    'candidate' and are drained by stage_verification. Gated + single-flight
+    (via the decorator); no-ops unless the pipeline is enabled."""
+    from app.services.runtime_config import get_config
+    from app.services.store_index import niche_queries
+    settings = get_settings()
+    if not get_config("shopify_index_enabled", settings.shopify_index_enabled) and not force:
+        return {"status": "disabled"}
+
+    per_run = max(1, min(limit_override or get_config(
+        "shopify_index_niche_per_run", settings.shopify_index_niche_per_run), 10))
+    queries = niche_queries()
+    inserted = 0
+    used: list = []
+
+    # Cursor rotates through EVERY niche over time (persisted in Redis; falls
+    # back to a stable slice if Redis is down).
+    start = 0
+    try:
+        import redis as _redis
+        _r = _redis.from_url(settings.redis_url, socket_connect_timeout=2)
+        start = int(_r.incrby("store_index:niche_cursor", per_run)) - per_run
+    except Exception:
+        pass
+    for i in range(per_run):
+        q = queries[(start + i) % len(queries)]
+        try:
+            out = generate_niche_candidates(q)
+            inserted += int(out.get("inserted") or 0)
+            used.append(q)
+        except Exception as exc:
+            logger.warning("generate_candidates_rotating: %r failed: %s", q, exc)
+
+    # A little graph expansion too — peers of the freshest verified stores.
+    try:
+        db = get_supabase()
+        recent = db.table("shopify_store_index")\
+            .select("domain, brand_name, category, description")\
+            .eq("status", "verified").is_("expanded_at", "null")\
+            .order("verified_at", desc=True).limit(2).execute().data or []
+        for r in recent:
+            out = generate_related_candidates(
+                r["domain"], r.get("brand_name") or "", r.get("category") or "", r.get("description") or "")
+            inserted += int(out.get("inserted") or 0)
+    except Exception as exc:
+        logger.debug("generate_candidates_rotating: graph expansion skipped: %s", exc)
+
+    logger.info("generate_candidates_rotating: %d candidates from %d niches %s", inserted, len(used), used)
+    # 'processed' = candidates added, so it shows in the Worker Runs panel.
+    return {"status": "ok", "processed": inserted, "discovered": inserted, "niches": used}
 
 
 @celery.task(name="app.tasks.store_index.discover_shopify_stores_daily")

@@ -896,6 +896,30 @@ Rules:
     except Exception as edge_exc:
         logger.debug("discover-ai edge write-back skipped: %s", edge_exc)
 
+    # ── Demand-driven supply: this user's niche came back thin, which usually
+    # means the index doesn't cover it yet. Seed it in the background so the
+    # NEXT person searching this niche gets real matches. Fire-and-forget, gated,
+    # and de-duped by a 24h per-niche cooldown so we never spam the generator.
+    try:
+        if len(verified) < 4 and settings.anthropic_api_key:
+            import re as _re2, hashlib as _hl
+            niche = " ".join(_re2.findall(r"[a-z0-9]+", body.description.lower()))[:120].strip()
+            if len(niche) >= 4:
+                seed = True
+                try:
+                    import redis as _redis2
+                    _rr = _redis2.from_url(settings.redis_url, socket_connect_timeout=1)
+                    key = "idx:niche_seed:" + _hl.sha256(niche.encode()).hexdigest()[:16]
+                    seed = bool(_rr.set(key, "1", nx=True, ex=86400))  # once/24h/niche
+                except Exception:
+                    pass
+                if seed:
+                    from app.tasks.store_index import generate_niche_candidates
+                    generate_niche_candidates.delay(niche)
+                    logger.info("discover-ai: seeded index for thin niche %r", niche)
+    except Exception as seed_exc:
+        logger.debug("discover-ai niche seed skipped: %s", seed_exc)
+
     return {
         "data": {
             "suggestions": verified[:10],

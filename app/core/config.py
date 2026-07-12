@@ -113,6 +113,7 @@ class Settings(BaseSettings):
     shopify_index_resolve_batch: int = 60     # queued refs resolved → real domains per run
     shopify_index_verify_batch: int = 100     # discovered → verified/rejected per verify run
     shopify_index_knowledge_batch: int = 100  # verified → classified per knowledge run
+    shopify_index_niche_per_run: int = 3      # niches generated per rotating candidate run (breadth)
     # Only recommend a store when its category is at least this confident —
     # this is the guard against "Everlane for pet accessories" weak guesses.
     shopify_index_category_min_confidence: int = 55
