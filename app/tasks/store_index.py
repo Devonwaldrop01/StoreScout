@@ -306,7 +306,8 @@ def stage_verification(limit_override: Optional[int] = None, force: bool = False
         return {"status": "error", "verified": 0}
 
     if not rows:
-        return {"status": "ok", "verified": 0, "rejected": 0, "failed": 0, "note": "queue_empty"}
+        return {"status": "ok", "processed": 0, "verified": 0, "rejected": 0,
+                "failed": 0, "reverified": 0, "note": "queue_empty"}
 
     work = [{**r, "domain": normalize_domain(r["domain"])} for r in rows]
     counts = {"verified": 0, "rejected": 0, "failed": 0}
@@ -326,9 +327,13 @@ def stage_verification(limit_override: Optional[int] = None, force: bool = False
             if outcome == "rejected" and r.get("reason"):
                 reasons[r["reason"]] = reasons.get(r["reason"], 0) + 1
 
-    logger.info("stage_verification: %d verified, %d rejected, %d failed %s",
-                counts["verified"], counts["rejected"], counts["failed"], reasons)
-    return {"status": "ok", **counts, "rejection_reasons": reasons}
+    logger.info("stage_verification: %d attempted → %d verified, %d rejected, %d failed %s",
+                len(work), counts["verified"], counts["rejected"], counts["failed"], reasons)
+    # processed = unique candidates ATTEMPTED (every 'discovered' row gets exactly
+    # one terminal outcome). reverified is 0: this stage only reads 'discovered',
+    # so every verify here is a first-time verification.
+    return {"status": "ok", "processed": len(work), "reverified": 0,
+            **counts, "rejection_reasons": reasons}
 
 
 # ── Stage 3: KNOWLEDGE ──────────────────────────────────────────────────────
@@ -374,7 +379,7 @@ def stage_knowledge(limit_override: Optional[int] = None, force: bool = False) -
             return {"status": "error", "classified": 0}
 
     if not rows:
-        return {"status": "ok", "classified": 0, "note": "queue_empty"}
+        return {"status": "ok", "processed": 0, "classified": 0, "note": "queue_empty"}
 
     classified = 0
     low_conf = 0
@@ -388,8 +393,11 @@ def stage_knowledge(limit_override: Optional[int] = None, force: bool = False) -
         except Exception as exc:
             logger.warning("stage_knowledge: %s failed: %s", row.get("domain"), exc)
 
-    logger.info("stage_knowledge: %d classified (%d below category threshold)", classified, low_conf)
-    return {"status": "ok", "classified": classified, "below_threshold": low_conf}
+    logger.info("stage_knowledge: %d attempted → %d classified (%d below category threshold)",
+                len(rows), classified, low_conf)
+    # processed = rows attempted; classified = those that produced a category.
+    return {"status": "ok", "processed": len(rows), "classified": classified,
+            "below_threshold": low_conf}
 
 
 @celery.task(name="app.tasks.store_index.generate_niche_candidates")

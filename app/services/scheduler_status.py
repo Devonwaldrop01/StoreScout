@@ -55,9 +55,24 @@ def record_dispatch(stage: str) -> None:
         logger.debug("dispatch heartbeat skipped (%s): %s", stage, exc)
 
 
-def record_run(stage: str, result: Dict[str, Any]) -> None:
-    """Insert a durable run record for a scheduled staged task. Maps the task's
-    result dict onto the store_index_runs columns. Guarded."""
+def record_run(stage: str, result: Dict[str, Any], *,
+               trigger: str = "scheduled", task_id: Optional[str] = None) -> None:
+    """Insert exactly ONE durable run record for a staged task execution.
+
+    Column semantics (one run = one execution of `stage`):
+      · processed  — UNIQUE candidates ATTEMPTED this run. Equals the sum of the
+                     terminal outcomes (verified + rejected + failed [+ reverified]).
+                     Never 0 while any outcome is > 0.
+      · verified   — candidates moved discovered → verified this run (NEW; the
+                     stages only ever read the 'discovered' queue, so a staged
+                     `verified` is always a first-time verification).
+      · reverified — an already-verified store re-checked (staged pipeline: 0;
+                     only the Store Inspector / legacy daily task re-verify).
+      · rejected / failed — terminal negative outcomes.
+      · duplicates — candidates skipped as already-present.
+    `trigger` is 'scheduled:<stage>' or 'manual:<stage>'; the Celery task id is
+    stored in notes for provenance. Guarded — visibility never breaks the task.
+    """
     try:
         from app.core.database import get_supabase
         db = get_supabase()
@@ -69,36 +84,122 @@ def record_run(stage: str, result: Dict[str, Any]) -> None:
                     return int(v)
             return 0
 
+        verified = _n("verified")
+        rejected = _n("rejected")
+        failed = _n("failed")
+        reverified = _n("reverified", "re_verified")
+        duplicates = _n("duplicates")
+        # processed = unique attempts. Prefer an explicit count from the task;
+        # otherwise derive it from the outcomes so it can never be 0 while
+        # outcomes exist (the historical "processed=0, verified=37" bug).
+        explicit = _n("processed", "attempted", "resolved", "queued", "classified", "discovered")
+        derived = verified + rejected + failed + reverified
+        processed = max(explicit, derived)
+
+        note = str(result.get("note") or result.get("status") or "ok")[:160]
+        if task_id:
+            note = f"{note} · task={task_id[:12]}"
+
         row = {
-            "trigger": f"scheduled:{stage}",
-            "processed": _n("processed", "resolved", "queued", "classified", "discovered"),
-            "verified": _n("verified"),
-            "rejected": _n("rejected"),
-            "failed": _n("failed"),
-            "duplicates": _n("duplicates"),
+            "trigger": f"{trigger}:{stage}",
+            "processed": processed,
+            "verified": verified,
+            "rejected": rejected,
+            "failed": failed,
+            "reverified": reverified,
+            "duplicates": duplicates,
             "source_counts": result.get("by_source") if isinstance(result.get("by_source"), dict) else None,
-            "notes": str(result.get("note") or result.get("status") or "ok")[:200],
+            "notes": note,
         }
-        db.table("store_index_runs").insert(row).execute()
+        try:
+            db.table("store_index_runs").insert(row).execute()
+        except Exception as col_exc:
+            # `reverified` shipped in migration 008; if an older schema lacks it,
+            # retry without it rather than lose the whole record.
+            if "reverified" in str(col_exc).lower():
+                row.pop("reverified", None)
+                db.table("store_index_runs").insert(row).execute()
+            else:
+                raise
     except Exception as exc:
         logger.debug("run record skipped (%s): %s", stage, exc)
 
 
+def _acquire_single_flight(stage: str, ttl_s: int) -> Optional[Any]:
+    """Best-effort Redis single-flight lock for a staged task. Returns a redis
+    client holding the lock (release via _release_single_flight), or None if the
+    lock is already held (another run in progress). If Redis is unavailable we
+    fail OPEN (return a sentinel) so the pipeline still runs — the worker is
+    concurrency-1 today, the lock is defense-in-depth for when it scales."""
+    try:
+        import redis as _redis
+        from app.core.config import get_settings
+        r = _redis.from_url(get_settings().redis_url, socket_connect_timeout=2)
+        if r.set(f"lock:index:{stage}", "1", nx=True, ex=ttl_s):
+            return r
+        return None  # held → skip
+    except Exception as exc:
+        logger.warning("single-flight lock unavailable for %s (%s) — running without lock", stage, exc)
+        return _NO_REDIS  # fail open
+
+
+_NO_REDIS = object()
+
+
+def _release_single_flight(stage: str, holder: Any) -> None:
+    if holder is None or holder is _NO_REDIS:
+        return
+    try:
+        holder.delete(f"lock:index:{stage}")
+    except Exception:
+        pass
+
+
+# Per-stage lock TTL (safety net if the worker dies mid-run); released in
+# `finally` so back-to-back scheduled runs are never blocked by a stale lock.
+_LOCK_TTL_S = {"stage_verification": 1500, "stage_resolution": 900,
+               "stage_knowledge": 900, "stage_discovery": 1200}
+
+
 def scheduled_index_task(stage: str) -> Callable:
-    """Decorator (apply UNDER @celery.task) that records a dispatch heartbeat
-    before the task runs and a run record after it actually processes work
-    (status == 'ok'). Preserves the task's signature and return value."""
+    """Decorator (apply UNDER @celery.task) that:
+      1. records a dispatch heartbeat before the task runs,
+      2. holds a single-flight lock so a manual and a scheduled run (or two
+         dispatches) of the same stage can never process concurrently, and
+      3. writes exactly one run record after the task actually processes work
+         (status == 'ok'). A skipped (lock-held) run writes NO record.
+    Preserves the task's signature and return value."""
     def deco(fn: Callable) -> Callable:
         @functools.wraps(fn)
         def wrapper(*args: Any, **kwargs: Any):
             record_dispatch(stage)
-            result = fn(*args, **kwargs)
+            holder = _acquire_single_flight(stage, _LOCK_TTL_S.get(stage, 900))
+            if holder is None:
+                logger.info("%s: single-flight lock held — skipping overlapping run", stage)
+                return {"status": "skipped_lock", "note": "another run in progress"}
+            # Provenance: a forced run is a manual/admin invocation; a plain Beat
+            # dispatch runs with force=False.
+            force = kwargs.get("force")
+            if force is None and len(args) >= 2:
+                force = args[1]
+            trigger = "manual" if force else "scheduled"
+            task_id = None
             try:
-                if isinstance(result, dict) and result.get("status") == "ok":
-                    record_run(stage, result)
+                from app.tasks.celery_app import celery as _celery
+                req = getattr(_celery, "current_task", None)
+                task_id = getattr(getattr(req, "request", None), "id", None)
             except Exception:
                 pass
-            return result
+            try:
+                result = fn(*args, **kwargs)
+                try:
+                    if isinstance(result, dict) and result.get("status") == "ok":
+                        record_run(stage, result, trigger=trigger, task_id=task_id)
+                except Exception:
+                    pass
+                return result
+            finally:
+                _release_single_flight(stage, holder)
         return wrapper
     return deco
 
