@@ -15,14 +15,11 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/watchlist", tags=["watchlist"])
 
-# How many products each tier can pin
-_WATCH_CAPS = {"free": 3, "pro": 25, "agency": 25, "developer": 25}
-
-
 def _cap_for(db, user_id: str) -> int:
+    # How many products each tier can pin — canonical source in entitlements.
+    from app.services.entitlements import watch_cap_for, resolve_tier
     user = db.table("user_profiles").select("tier").eq("id", user_id).maybe_single().execute()
-    tier = (user.data or {}).get("tier", "free") if user else "free"
-    return _WATCH_CAPS.get(tier, 3)
+    return watch_cap_for(resolve_tier(user.data if user else None))
 
 
 def _latest_index(db, competitor_id: str) -> dict:

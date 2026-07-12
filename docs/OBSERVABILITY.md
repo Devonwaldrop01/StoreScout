@@ -34,8 +34,10 @@ schema-health / scheduler fallbacks.
 **Admin error summary — `GET /admin/error-summary`** (admin-token gated) and the
 panel on the admin Store Index page: recent failures grouped by
 `operation × exception` with a count, last-seen, latest `ref`, and a redacted
-sample. **In-process only** (a `deque`, no new dependency): it reflects the API
-process it runs in and is cleared on restart. Worker/scheduler failures appear
+sample. **In-process only** (a `deque`, no new dependency): it is **non-durable
+and instance-local** — it reflects only the single API process it runs in, is
+not shared across instances, and is cleared on restart/redeploy. It is a live
+triage aid, not a system of record (Sentry, if enabled, is that). Worker/scheduler failures appear
 in that process's own logs (and, for scans, in the competitor row's
 `error_message`), not in this API-process summary.
 

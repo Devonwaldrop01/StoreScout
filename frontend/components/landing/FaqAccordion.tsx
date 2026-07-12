@@ -18,7 +18,7 @@ const FAQS = [
   },
   {
     q: "How current is the data?",
-    a: "Free tier: manual scan on demand (max once per week). Pro and Agency: daily automatic scans with change detection running after every scan. Price changes and new products are detected within hours of the next scheduled scan — usually same-day.",
+    a: "Free tier: one automatic scan per week, plus on-demand rescans whenever you want. Pro and Agency: daily automatic scans (Agency twice daily) with change detection running after every scan. Price changes and new products are detected at the next scan — same-day on paid plans.",
   },
   {
     q: "What does the AI digest actually tell me?",

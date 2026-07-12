@@ -183,7 +183,7 @@ export default function ApiDocsPage() {
             100 requests per minute per user. Exceeding this returns{" "}
             <code className="font-mono text-xs">429 Too Many Requests</code> with a{" "}
             <code className="font-mono text-xs">Retry-After</code> header.
-            Manual rescans are additionally rate-limited based on your plan&apos;s scan interval.
+            Manual rescans have a short per-competitor cooldown (about a minute) between requests.
           </p>
         </div>
       </Section>
@@ -245,7 +245,7 @@ export default function ApiDocsPage() {
         <Endpoint
           method="POST"
           path="/api/v1/competitors/{id}/rescan"
-          desc="Trigger an immediate manual rescan. Rate-limited by your plan's scan interval."
+          desc="Trigger an immediate manual rescan. Short per-competitor cooldown (~1 min) between requests."
           example={`curl -X POST ${BASE}/api/v1/competitors/uuid/rescan \\
   -H "Authorization: Bearer sk_live_xxxx"`}
           response={`{ "status": "queued" }`}

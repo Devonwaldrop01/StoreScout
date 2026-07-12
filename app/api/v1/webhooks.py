@@ -25,12 +25,9 @@ def _get_tier_for_price(price_id: str) -> str:
 
 
 def _tier_limits(tier: str):
-    settings = get_settings()
-    return {
-        "pro": (settings.pro_max_competitors, settings.pro_scan_interval_hours),
-        "agency": (settings.agency_max_competitors, settings.agency_scan_interval_hours),
-        "developer": (50, 12),
-    }.get(tier, (settings.free_max_competitors, settings.free_scan_interval_hours))
+    # Canonical limits — see app/services/entitlements.py (single source of truth).
+    from app.services.entitlements import webhook_limits
+    return webhook_limits(tier)
 
 
 def _apply_tier(db, *, user_id: str | None = None, customer_id: str | None = None,

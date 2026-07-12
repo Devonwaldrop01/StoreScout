@@ -9,6 +9,7 @@ import {
   type Competitor, type UserSubscription, type ShopifyConnection, type AIDiscoverySuggestion,
 } from "@/lib/api";
 import { cn, formatPrice } from "@/lib/utils";
+import { scanCadenceLabel, historyLabel } from "@/lib/entitlements";
 import { useScanLifecycle, scanLabel } from "@/lib/scanLifecycle";
 import { AddCompetitorModal } from "@/components/competitors/AddCompetitorModal";
 import UpgradeModal from "@/components/UpgradeModal";
@@ -463,13 +464,13 @@ function CompetitorsContent() {
               highlight: atCompetitorLimit,
             },
             {
-              label: "Rescan",
-              value: subscription.tier === "free" ? "Manual" : `Every ${subscription.limits.scan_hours}h`,
+              label: "Auto-scan",
+              value: scanCadenceLabel(subscription.limits.scan_hours),
               highlight: false,
             },
             {
               label: "History",
-              value: subscription.limits.history_days === 0 ? "Current only" : `${subscription.limits.history_days}d`,
+              value: historyLabel(subscription.limits.history_days),
               highlight: false,
             },
           ].map(({ label, value, highlight }) => (

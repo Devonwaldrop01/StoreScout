@@ -13,6 +13,7 @@ import UpgradeModal from "@/components/UpgradeModal";
 import { IntelligenceSources } from "@/components/settings/IntelligenceSources";
 import { IntegrationHub } from "@/components/integrations/IntegrationHub";
 import { track } from "@/lib/analytics";
+import { scanCadenceLabel, historyLabel, subscriptionNotice } from "@/lib/entitlements";
 import { createClient } from "@/lib/supabase/client";
 import {
   Hash, Globe, Users, X, Loader2, Key, Copy, Check, Terminal,
@@ -25,7 +26,7 @@ const PLANS = [
     label: "Free",
     price: "$0",
     popular: false,
-    features: ["1 competitor", "Manual rescan (weekly)", "Current state only", "No alerts"],
+    features: ["1 competitor", "Weekly auto-scan + on-demand", "Current state only", "No real-time alerts"],
   },
   {
     tier: "pro",
@@ -524,21 +525,28 @@ function SettingsContent() {
                       </span>
                     )}
                   </div>
+                  {(() => {
+                    const notice = subscriptionNotice(subscription.subscription_state);
+                    if (!notice) return null;
+                    const warn = notice.tone === "warn";
+                    return (
+                      <div
+                        className="text-xs rounded-md px-3 py-2 mb-4"
+                        style={{
+                          background: warn ? "rgba(242,85,90,.08)" : "var(--bg3)",
+                          border: `1px solid ${warn ? "rgba(242,85,90,.2)" : "var(--border)"}`,
+                          color: warn ? "#F2555A" : "var(--text-2)",
+                        }}
+                      >
+                        {notice.text}
+                      </div>
+                    );
+                  })()}
                   <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-5">
                     {[
                       { label: "Competitors", value: `Up to ${subscription.limits.max_competitors}` },
-                      {
-                        label: "Rescan",
-                        value: subscription.tier === "free"
-                          ? "Manual (weekly)"
-                          : `Every ${subscription.limits.scan_hours}h`,
-                      },
-                      {
-                        label: "History",
-                        value: subscription.limits.history_days === 0
-                          ? "Current only"
-                          : `${subscription.limits.history_days}d`,
-                      },
+                      { label: "Auto-scan", value: scanCadenceLabel(subscription.limits.scan_hours) },
+                      { label: "History", value: historyLabel(subscription.limits.history_days) },
                       { label: "AI digest", value: subscription.limits.ai_digest ? "Weekly" : "—" },
                     ].map(({ label, value }) => (
                       <div key={label}>
