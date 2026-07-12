@@ -49,6 +49,18 @@ interface RunRow {
   notes?: string | null;
 }
 
+interface Coverage {
+  verified_total: number;
+  unclassified_verified: number;
+  categories: { category: string; verified: number }[];
+  niches_total: number;
+  niches_generated: number;
+  niches_pending_sample: string[];
+  ad_hoc_niches_sample: string[];
+  ad_hoc_count: number;
+  rotation_cursor: number | null;
+}
+
 interface Stats {
   total: number;
   verified: number;
@@ -254,6 +266,7 @@ export default function StoreIndexAdminPage() {
   const [authError, setAuthError] = useState("");
 
   const [stats, setStats] = useState<Stats | null>(null);
+  const [coverage, setCoverage] = useState<Coverage | null>(null);
   const [ops, setOps] = useState<Ops | null>(null);
   const [inspect, setInspect] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -312,6 +325,10 @@ export default function StoreIndexAdminPage() {
         const e = await adminFetch<{ data: { groups: ErrorGroup[] } }>("/admin/error-summary", tok);
         setErrGroups(e.data.groups);
       } catch { /* transient — error panel just hides */ }
+      try {
+        const c = await adminFetch<{ data: Coverage }>("/admin/store-index/coverage", tok);
+        setCoverage(c.data);
+      } catch { /* pre-migration or transient — coverage panel just hides */ }
     } catch (e: unknown) {
       const status403 = (e as { status?: number })?.status === 403;
       // Only bounce to the login gate on an auth failure. A transient network
@@ -864,6 +881,63 @@ export default function StoreIndexAdminPage() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Coverage — verified depth per category + niche generation progress */}
+        {coverage && (
+          <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <div className="flex items-baseline justify-between flex-wrap gap-2">
+              <p className="label-caps">Coverage</p>
+              <p className="text-[11px]" style={{ color: "var(--muted)" }}>
+                Niches generated: <span className="num font-bold" style={{ color: "var(--text)" }}>{coverage.niches_generated}</span> / {coverage.niches_total}
+                {coverage.rotation_cursor != null && <> · rotation at #{coverage.rotation_cursor}</>}
+                {coverage.ad_hoc_count > 0 && <> · {coverage.ad_hoc_count} on-demand</>}
+                {coverage.unclassified_verified > 0 && <> · {coverage.unclassified_verified.toLocaleString()} awaiting classification</>}
+              </p>
+            </div>
+
+            {/* niche generation progress bar */}
+            <div className="mt-2 h-1.5 rounded-full overflow-hidden" style={{ background: "var(--bg3)" }}>
+              <div className="h-full rounded-full" style={{
+                width: `${coverage.niches_total ? Math.round((coverage.niches_generated / coverage.niches_total) * 100) : 0}%`,
+                background: "var(--accent)",
+              }} />
+            </div>
+
+            {/* verified depth per category */}
+            {coverage.categories.length > 0 ? (
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
+                {coverage.categories.map((c) => {
+                  const max = coverage.categories[0]?.verified || 1;
+                  return (
+                    <div key={c.category} className="flex items-center gap-2">
+                      <span className="text-xs w-40 shrink-0 truncate" style={{ color: "var(--text-2)" }}>{c.category}</span>
+                      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "var(--bg3)" }}>
+                        <div className="h-full rounded-full" style={{ width: `${Math.max(3, Math.round((c.verified / max) * 100))}%`, background: STATUS_COLOR.verified }} />
+                      </div>
+                      <span className="num text-xs w-12 text-right" style={{ color: "var(--text)" }}>{c.verified.toLocaleString()}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-xs mt-3" style={{ color: "var(--muted)" }}>
+                No verified stores are classified into a category yet. Enable the pipeline (and top up Anthropic credit) — verified depth by category will fill in as the knowledge stage runs.
+              </p>
+            )}
+
+            {/* pending niches — what the generator hasn't reached yet */}
+            {coverage.niches_pending_sample.length > 0 && (
+              <div className="mt-4">
+                <p className="label-caps mb-1">Not generated yet · {coverage.niches_pending_sample.length}{coverage.niches_generated + coverage.niches_pending_sample.length < coverage.niches_total ? "+" : ""}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {coverage.niches_pending_sample.slice(0, 40).map((q) => (
+                    <span key={q} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "var(--bg3)", color: "var(--muted)", border: "1px solid var(--border)" }}>{q}</span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
