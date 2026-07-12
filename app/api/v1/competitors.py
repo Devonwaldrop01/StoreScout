@@ -634,6 +634,7 @@ Rules:
                     "confidence": row.get("verification_confidence"),
                     "signals": row.get("verification_signals") or [],
                     "source": "graph",
+                    "category": row.get("category"),
                 })
             if verified:
                 logger.info("discover-ai: %d matches from the competitor graph", len(verified))
@@ -772,6 +773,7 @@ Rules:
                     "confidence": row.get("verification_confidence"),
                     "signals": row.get("verification_signals") or [],
                     "source": "index",
+                    "category": row.get("category"),
                 })
             if verified:
                 logger.info("discover-ai: %d instant matches from store index", len(verified))
@@ -871,6 +873,18 @@ Rules:
         if isinstance(loop_error, _anthropic.RateLimitError):
             raise HTTPException(status_code=429, detail="AI service is busy — please try again in a moment.")
         raise HTTPException(status_code=500, detail="Failed to generate suggestions — please try again.")
+
+    # ── Final relevance guard: index rows are already contradiction-ranked, but
+    # the Claude batches are appended in the model's own order and can float a
+    # hard product-type contradiction (sneakers/apparel/nail products for a
+    # Home & Living store) to the top. Demote confident contradictions below
+    # plausible/adjacent picks — deterministic, stable, no network.
+    try:
+        from app.services.store_index import rank_discovery_candidates
+        verified = rank_discovery_candidates(verified, user_category)
+        relevant_other = rank_discovery_candidates(relevant_other, user_category)
+    except Exception as rank_exc:
+        logger.debug("discover-ai final re-rank skipped: %s", rank_exc)
 
     # ── Feed the graph: every verified suggestion strengthens the map, so
     # the next search (by this user or a similar store) needs less AI.
@@ -991,15 +1005,23 @@ def manual_rescan(competitor_id: str, user_id: str = Depends(get_effective_user_
 
     competitor = db.table("competitors").select("scan_status").eq("id", competitor_id).limit(1).execute()
     if ((competitor.data or [{}])[0]).get("scan_status") == "scanning":
-        raise HTTPException(status_code=409, detail="Scan already in progress")
+        raise HTTPException(status_code=409, detail="A scan is already in progress for this competitor.")
 
-    # Redis-based cooldown — 60s between rescans per competitor (non-fatal if Redis unavailable)
+    # Redis-based cooldown — 60s between rescans per competitor (non-fatal if Redis unavailable).
+    # This is a real rate limit; surface the remaining wait so the client can show
+    # an accurate cooldown message and Retry-After, not a generic failure.
     try:
         import redis as redis_lib
         r = redis_lib.from_url(get_settings().redis_url, socket_connect_timeout=1)
         rl_key = f"ratelimit:rescan:{competitor_id}"
         if r.exists(rl_key):
-            raise HTTPException(status_code=429, detail="Rescan cooldown active — please wait 60 seconds")
+            ttl = r.ttl(rl_key)
+            wait = ttl if isinstance(ttl, int) and ttl > 0 else 60
+            raise HTTPException(
+                status_code=429,
+                detail=f"Rescan cooldown active — please wait {wait}s before rescanning this competitor.",
+                headers={"Retry-After": str(wait)},
+            )
         r.set(rl_key, "1", ex=60)
     except HTTPException:
         raise

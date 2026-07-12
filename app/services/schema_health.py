@@ -36,6 +36,8 @@ LATEST_EXPECTED_MIGRATION = "022"
 CHECKS: List[Dict[str, Any]] = [
     {"migration": "001", "feature": "Core competitors",         "table": "competitors",          "column": None,           "required": True},
     {"migration": "001", "feature": "Scan snapshots",           "table": "scan_snapshots",       "column": None,           "required": True},
+    {"migration": "001", "feature": "Change events (alerts)",   "table": "change_events",        "column": None,           "required": True},
+    {"migration": "006", "feature": "Product watchlist",        "table": "product_watches",      "column": None,           "required": False},
     {"migration": "014", "feature": "Business profiles",        "table": "business_profiles",    "column": None,           "required": False},
     {"migration": "019", "feature": "Intent signals",           "table": "intent_signals",       "column": None,           "required": False},
     {"migration": "020", "feature": "Brand Decode",             "table": "competitors",          "column": "brand_decode", "required": False},

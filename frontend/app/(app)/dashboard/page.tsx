@@ -312,6 +312,7 @@ function CompetitorMonitor({
   onToggle: () => void;
 }) {
   const [rescanning, setRescanning] = useState(false);
+  const [rescanNote, setRescanNote] = useState<string | null>(null);
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const recentSignals = signalGroups.filter(
     (g) => g.competitor_id === competitor.id && new Date(g.detected_at).getTime() > weekAgo
@@ -333,7 +334,23 @@ function CompetitorMonitor({
     e.preventDefault();
     e.stopPropagation();
     setRescanning(true);
-    await api.rescan(competitor.id).catch(() => { setRescanning(false); });
+    setRescanNote(null);
+    try {
+      await api.rescan(competitor.id);
+    } catch (err) {
+      setRescanning(false);
+      const status = (err as { status?: number })?.status;
+      const detail = (err as { data?: { detail?: unknown } })?.data?.detail;
+      // A 429 cooldown / 409 in-progress is a valid rate limit, not a failure.
+      if (status === 429) {
+        setRescanNote(typeof detail === "string" ? detail : "On cooldown — try again shortly.");
+      } else if (status === 409) {
+        setRescanNote("A scan is already running for this competitor.");
+      } else {
+        setRescanNote("Couldn't start the rescan. Please try again.");
+      }
+      setTimeout(() => setRescanNote(null), 6000);
+    }
   }
 
   const topStrategic = recentSignals.find((g) => g.tier === "strategic");
@@ -416,7 +433,11 @@ function CompetitorMonitor({
       {/* Right side: signal pill or last-scan time + rescan */}
       {!selectMode && (
         <div className="flex items-center gap-2 shrink-0">
-          {isScanning ? (
+          {rescanNote ? (
+            <span className="text-[10px] font-medium px-2 py-1 rounded-md whitespace-nowrap" style={{ background: "var(--bg3)", color: "var(--amber)", border: "1px solid var(--border)" }}>
+              {rescanNote}
+            </span>
+          ) : isScanning ? (
             <span className="text-[11px]" style={{ color: "var(--accent)" }}>Scanning…</span>
           ) : rescanning ? (
             <span className="text-[11px]" style={{ color: "var(--muted)" }}>Queued…</span>
