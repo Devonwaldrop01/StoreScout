@@ -138,7 +138,65 @@ _RULE_KEYWORDS: List[tuple] = [
     ("speaker",           ("Electronics & Gadgets", "Audio")),
     ("smart home",        ("Electronics & Gadgets", "Smart Home")),
     ("phone case",        ("Electronics & Gadgets", "Accessories")),
+    # Generic product-type terms — broaden deterministic classification of
+    # free-text discovery reasons (not tied to any single query).
+    ("nail",              ("Beauty", "Nails")),
+    ("manicure",          ("Beauty", "Nails")),
+    ("perfume",           ("Beauty", "Fragrance")),
+    ("fragrance",         ("Beauty", "Fragrance")),
+    ("cologne",           ("Beauty", "Fragrance")),
+    ("apparel",           ("Fashion", "Womenswear")),
+    ("clothing",          ("Fashion", "Womenswear")),
+    ("t-shirt",           ("Fashion", "Streetwear")),
+    ("dress",             ("Fashion", "Womenswear")),
+    ("boots",             ("Footwear", "Boots")),
+    ("sandals",           ("Footwear", "Sandals")),
+    ("sneakers",          ("Footwear", "Sneakers")),
+    ("ceramic",           ("Home & Living", "Home Decor")),
+    ("pottery",           ("Home & Living", "Home Decor")),
+    ("homeware",          ("Home & Living", "Home Decor")),
+    ("home decor",        ("Home & Living", "Home Decor")),
+    ("trinket",           ("Home & Living", "Home Decor")),
+    ("vase",              ("Home & Living", "Home Decor")),
+    ("mug",               ("Home & Living", "Kitchen")),
 ]
+
+
+def classify_text_rules(text: str) -> Optional[str]:
+    """Deterministic top-level category from the keyword rules — NO AI, NO
+    network. Longest keyword wins ('pet food' beats 'food'). Returns None when
+    nothing fires, so callers can treat it as 'unknown' (never a guess)."""
+    t = (text or "").lower()
+    for kw, (cat, _sub) in sorted(_RULE_KEYWORDS, key=lambda x: -len(x[0])):
+        if kw in t:
+            return cat
+    return None
+
+
+def rank_discovery_candidates(candidates: List[dict], user_category: Optional[str]) -> List[dict]:
+    """Stable re-rank of discovery suggestions so a HARD category contradiction
+    with the user's store (e.g. sneakers/apparel/nail products for a Home &
+    Living store) can never outrank a plausible or adjacent candidate.
+
+    Deterministic and network-free: each candidate's category is taken from its
+    row if classified, else inferred from its reason/domain via the keyword
+    rules; only a *confident* cross-cluster contradiction is demoted. Candidates
+    that stay in place keep their original relative order (Python sort is
+    stable), so graph/index/plausible picks are untouched.
+    """
+    if not user_category:
+        return list(candidates)
+    from app.services.store_dna import category_relation
+
+    def _demote(c: dict) -> int:
+        cat = c.get("category") or classify_text_rules(
+            f"{c.get('reason', '')} {c.get('domain', '')}"
+        )
+        if cat and category_relation(cat, user_category) == "contradiction":
+            return 1
+        return 0
+
+    return sorted(candidates, key=_demote)
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────
