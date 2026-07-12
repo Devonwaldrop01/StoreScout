@@ -98,17 +98,21 @@ class Settings(BaseSettings):
     # The worker optimizes for NEW VERIFIED stores per day, not candidates
     # processed. candidate_limit stays as the hard request budget.
     # Dev 25–50 / early prod 50–100 / scaled 100–250.
-    shopify_index_daily_verified_target: int = 25
-    shopify_index_daily_candidate_limit: int = 150
+    # Scaled up to drain the discovered backlog into verified stores (the index
+    # is too small to cover niche competitor searches). Safe post single-flight
+    # lock; verification fetches run on the WEB process, not the worker, so batch
+    # size is memory-safe. All runtime-overridable via app_config (admin panel).
+    shopify_index_daily_verified_target: int = 150
+    shopify_index_daily_candidate_limit: int = 300
     shopify_index_min_confidence: int = 60
-    shopify_index_concurrency: int = 2
+    shopify_index_concurrency: int = 3
     # Three-stage pipeline knobs (discovery → verification → knowledge). Each
     # stage is chunked so it fits the shared worker's memory and can resume.
-    shopify_index_discovery_batch: int = 60   # candidate domains surfaced per discovery run
+    shopify_index_discovery_batch: int = 80   # candidate domains surfaced per discovery run
     shopify_index_harvest_batch: int = 1000   # raw refs bulk-harvested into the queue per run
-    shopify_index_resolve_batch: int = 40     # queued refs resolved → real domains per run
-    shopify_index_verify_batch: int = 40      # discovered → verified/rejected per verify run
-    shopify_index_knowledge_batch: int = 60   # verified → classified per knowledge run
+    shopify_index_resolve_batch: int = 60     # queued refs resolved → real domains per run
+    shopify_index_verify_batch: int = 100     # discovered → verified/rejected per verify run
+    shopify_index_knowledge_batch: int = 100  # verified → classified per knowledge run
     # Only recommend a store when its category is at least this confident —
     # this is the guard against "Everlane for pet accessories" weak guesses.
     shopify_index_category_min_confidence: int = 55

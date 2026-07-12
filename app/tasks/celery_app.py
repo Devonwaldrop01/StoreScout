@@ -83,9 +83,14 @@ celery.conf.update(
         # day. RESOLUTION drains the queue into real domains (rate-limited).
         # VERIFICATION and KNOWLEDGE finish the funnel. All staggered on the one
         # worker; each no-ops unless SHOPIFY_INDEX_ENABLED.
+        # Cadence raised to drain the discovered→verified backlog faster (index
+        # coverage). Safe: @scheduled_index_task holds a single-flight lock, so a
+        # run that overruns its slot is skipped (never overlaps). Each stage
+        # no-ops cheaply on an empty queue, so higher frequency idles safely once
+        # the backlog is drained.
         "index-stage-discovery": {
             "task": "app.tasks.store_index.stage_discovery",
-            "schedule": crontab(minute=10, hour="*/6"),
+            "schedule": crontab(minute=10, hour="*/4"),
         },
         # Resolution is the rate-limited bottleneck — run it often so it keeps a
         # steady stream flowing (each run self-throttles with backoff).
@@ -95,11 +100,11 @@ celery.conf.update(
         },
         "index-stage-verification": {
             "task": "app.tasks.store_index.stage_verification",
-            "schedule": crontab(minute="15,45"),
+            "schedule": crontab(minute="*/15"),
         },
         "index-stage-knowledge": {
             "task": "app.tasks.store_index.stage_knowledge",
-            "schedule": crontab(minute="25,55"),
+            "schedule": crontab(minute="*/20"),
         },
         # Legacy combined discovery pass — kept for admin manual test runs but
         # no longer scheduled (superseded by the three staged tasks above).
