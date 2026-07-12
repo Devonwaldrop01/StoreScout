@@ -763,6 +763,82 @@ def get_admin_config(x_admin_token: Optional[str] = Header(default=None)):
     return {"data": effective}
 
 
+@router.get("/admin/store-index/coverage")
+def store_index_coverage(x_admin_token: Optional[str] = Header(default=None)):
+    """Index coverage at a glance: verified depth per category, and which niches
+    the candidate generator has reached vs still pending — so you can tell
+    whether a niche is covered before test-searching it. Guarded; degrades to
+    partials on any read error."""
+    _require_admin(x_admin_token)
+    db = get_supabase()
+    from app.services.store_index import niche_queries, CATEGORY_TAXONOMY
+
+    def _count(**filters) -> int:
+        try:
+            q = db.table("shopify_store_index").select("id", count="exact")
+            for k, v in filters.items():
+                q = q.eq(k, v)
+            return q.execute().count or 0
+        except Exception:
+            return 0
+
+    # Verified depth per taxonomy category (exact counts — 20-ish cheap queries).
+    categories = []
+    for cat in CATEGORY_TAXONOMY:
+        if cat in ("Other", "Adult"):
+            continue
+        n = _count(status="verified", category=cat)
+        if n:
+            categories.append({"category": cat, "verified": n})
+    categories.sort(key=lambda c: -c["verified"])
+    verified_total = _count(status="verified")
+    # verified but not yet classified into a category (knowledge backlog)
+    try:
+        unclassified = db.table("shopify_store_index").select("id", count="exact")\
+            .eq("status", "verified").is_("category", "null").execute().count or 0
+    except Exception:
+        unclassified = 0
+
+    # Niche-generation coverage: distinct source_query the generator has produced.
+    generated: set = set()
+    try:
+        rows = db.table("shopify_store_index").select("source_query")\
+            .eq("source", "ai_niche_query").limit(20000).execute().data or []
+        generated = {(r.get("source_query") or "").strip().lower() for r in rows if r.get("source_query")}
+    except Exception:
+        pass
+    niches = niche_queries()
+    niche_set = {q.lower() for q in niches}
+    covered_planned = [q for q in niches if q.lower() in generated]
+    pending = [q for q in niches if q.lower() not in generated]
+    # niches generated on demand (user searches) that aren't in the planned list
+    ad_hoc = sorted(g for g in generated if g and g not in niche_set)
+
+    cursor = None
+    try:
+        import redis as _redis
+        _r = _redis.from_url(get_settings().redis_url, socket_connect_timeout=1)
+        raw = _r.get("store_index:niche_cursor")
+        if raw is not None:
+            cursor = int(raw) % max(1, len(niches))
+    except Exception:
+        pass
+
+    return {
+        "data": {
+            "verified_total": verified_total,
+            "unclassified_verified": unclassified,
+            "categories": categories,
+            "niches_total": len(niches),
+            "niches_generated": len(covered_planned),
+            "niches_pending_sample": pending[:50],
+            "ad_hoc_niches_sample": ad_hoc[:30],
+            "ad_hoc_count": len(ad_hoc),
+            "rotation_cursor": cursor,
+        }
+    }
+
+
 class ConfigBody(BaseModel):
     # All optional — only sent keys are updated; unknown keys are ignored.
     shopify_index_enabled: Optional[bool] = None
