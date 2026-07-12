@@ -46,6 +46,7 @@ interface RunRow {
   duplicates: number;
   reverified: number;
   source_counts: Record<string, number> | null;
+  notes?: string | null;
 }
 
 interface Stats {
@@ -869,30 +870,46 @@ export default function StoreIndexAdminPage() {
         {/* Worker run history */}
         {(stats?.runs?.length ?? 0) > 0 && (
           <div className="rounded-md overflow-x-auto" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-            <p className="label-caps px-4 pt-3 pb-1">Worker runs · last {stats!.runs!.length}</p>
+            <div className="px-4 pt-3 pb-1">
+              <p className="label-caps">Worker runs · last {stats!.runs!.length}</p>
+              <p className="text-[11px] mt-0.5" style={{ color: "var(--muted)" }}>
+                One row per task execution. <b>Attempted</b> = unique candidates this run (= verified + re-verified + rejected + failed).
+                <b> New</b> = first-time verifications. Overlapping runs are skipped (single-flight lock), so counts don&apos;t double-count.
+              </p>
+            </div>
             <table className="w-full text-left">
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                  {["When", "Trigger", "Processed", "Verified", "Rejected", "Failed", "Re-verified", "Sources"].map((h) => (
+                  {["When", "Stage", "Source", "Attempted", "New", "Re-verified", "Rejected", "Failed"].map((h) => (
                     <th key={h} className="label-caps px-4 py-2 whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {stats!.runs!.map((r, i) => (
-                  <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
-                    <td className="px-4 py-2 num text-xs" style={{ color: "var(--text-2)" }}>{new Date(r.ran_at).toLocaleString()}</td>
-                    <td className="px-4 py-2 text-xs" style={{ color: "var(--muted)" }}>{r.trigger ?? "—"}</td>
-                    <td className="px-4 py-2 num text-xs" style={{ color: "var(--text-2)" }}>{r.processed}</td>
-                    <td className="px-4 py-2 num text-xs font-bold" style={{ color: STATUS_COLOR.verified }}>{r.verified}</td>
-                    <td className="px-4 py-2 num text-xs" style={{ color: STATUS_COLOR.rejected }}>{r.rejected}</td>
-                    <td className="px-4 py-2 num text-xs" style={{ color: STATUS_COLOR.failed }}>{r.failed}</td>
-                    <td className="px-4 py-2 num text-xs" style={{ color: "var(--muted)" }}>{r.reverified}</td>
-                    <td className="px-4 py-2 num text-[11px]" style={{ color: "var(--muted)" }}>
-                      {r.source_counts ? Object.entries(r.source_counts).map(([k, v]) => `${k}:${v}`).join(" · ") : "—"}
-                    </td>
-                  </tr>
-                ))}
+                {stats!.runs!.map((r, i) => {
+                  const [kind, stage] = String(r.trigger ?? "").split(":");
+                  const stageLabel = (stage || kind || "—").replace(/^stage_/, "");
+                  const manual = kind === "manual";
+                  const taskId = /task=([0-9a-f]+)/i.exec(r.notes ?? "")?.[1];
+                  return (
+                    <tr key={i} style={{ borderBottom: "1px solid var(--border)" }} title={taskId ? `celery task ${taskId}` : undefined}>
+                      <td className="px-4 py-2 num text-xs" style={{ color: "var(--text-2)" }}>{new Date(r.ran_at).toLocaleString()}</td>
+                      <td className="px-4 py-2 text-xs whitespace-nowrap" style={{ color: "var(--text-2)" }}>{stageLabel}</td>
+                      <td className="px-4 py-2">
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{
+                          background: manual ? "rgba(255,178,36,.12)" : "var(--bg3)",
+                          color: manual ? "var(--amber)" : "var(--muted)",
+                          border: "1px solid var(--border)",
+                        }}>{manual ? "manual" : "scheduled"}</span>
+                      </td>
+                      <td className="px-4 py-2 num text-xs" style={{ color: "var(--text-2)" }}>{r.processed}</td>
+                      <td className="px-4 py-2 num text-xs font-bold" style={{ color: STATUS_COLOR.verified }}>{r.verified}</td>
+                      <td className="px-4 py-2 num text-xs" style={{ color: (r.reverified ?? 0) > 0 ? "var(--text-2)" : "var(--muted)" }}>{r.reverified}</td>
+                      <td className="px-4 py-2 num text-xs" style={{ color: STATUS_COLOR.rejected }}>{r.rejected}</td>
+                      <td className="px-4 py-2 num text-xs" style={{ color: (r.failed ?? 0) > 0 ? STATUS_COLOR.failed : "var(--muted)" }}>{r.failed}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -903,9 +920,21 @@ export default function StoreIndexAdminPage() {
           token={token}
           title="Daily discovery worker"
           knobs={[
-            { key: "shopify_index_enabled", label: "Run the pipeline automatically", type: "toggle", help: "Enables all three stages on the shared worker (discovery 4h · verification 30m · knowledge 30m). Manual test runs below always work regardless." },
-            { key: "shopify_index_daily_verified_target", label: "New verified stores / day", type: "number", min: 1, max: 250, help: "Dev 25–50 · early prod 50–100 · scaled 100–250" },
-            { key: "shopify_index_daily_candidate_limit", label: "Request budget / day", type: "number", min: 1, max: 500, help: "Hard cap on domains processed" },
+            { key: "shopify_index_enabled", label: "Run the pipeline automatically", type: "toggle", help: "Enables all stages on the shared worker (discovery 4h · resolution 12m · verification 15m · knowledge 20m). Manual test runs below always work regardless." },
+            { key: "shopify_index_daily_verified_target", label: "New verified stores / day", type: "number", min: 1, max: 500, help: "Dev 25–50 · early prod 50–150 · scaled 150–400" },
+            { key: "shopify_index_daily_candidate_limit", label: "Request budget / day", type: "number", min: 1, max: 1000, help: "Hard cap on domains processed" },
+          ]}
+        />
+
+        {/* Per-run throughput — tune how fast the backlog drains, live (no redeploy) */}
+        <EngineControls
+          token={token}
+          title="Throughput (per run)"
+          knobs={[
+            { key: "shopify_index_verify_batch", label: "Verify batch", type: "number", min: 1, max: 200, help: "Discovered → verified per verification run (fetches run on the web process). Higher = drains the backlog faster." },
+            { key: "shopify_index_resolve_batch", label: "Resolve batch", type: "number", min: 1, max: 60, help: "Queued refs → real domains per resolution run (rate-limited)." },
+            { key: "shopify_index_knowledge_batch", label: "Classify batch", type: "number", min: 1, max: 300, help: "Verified → classified per knowledge run (one Haiku call each; AI cost)." },
+            { key: "shopify_index_concurrency", label: "Verify concurrency", type: "number", min: 1, max: 4, help: "Parallel storefront fetches within a verification run (1–4)." },
           ]}
         />
 
