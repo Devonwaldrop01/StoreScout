@@ -211,7 +211,7 @@ def snapshot_intelligence(competitors_data: list[dict]) -> list[dict]:
                 {"surface": "Email", "action": "Tell your list plainly why you don't chase discounts — consistent pricing signals confidence and quality."},
                 {"surface": "Product Pages", "action": "Add trust signals (materials, warranty, reviews) so the price feels earned next to their markdowns."},
             ],
-            expected_outcome="You protect margin and premium perception while competitors erode theirs.",
+            expected_outcome="Aims to protect your margin and premium perception while rivals lean on discounts.",
             evidence=[f"{len(heavy_discounters)} competitors ≥45% of catalog on sale", f"avg {avg_promo}% on sale"],
             confidence="verified", priority="high", effort="half day", timeframe="this week",
         ))
@@ -223,15 +223,15 @@ def snapshot_intelligence(competitors_data: list[dict]) -> list[dict]:
             category="Pricing",
             title=f"Use {d['hostname'].split('.')[0].title()}'s heavy discounting to look like the confident choice",
             what_happened=f"{d['hostname']} has {d['promo_pct']}% of its catalog on sale (avg {d['avg_disc']:.0f}% off).",
-            why_it_matters="A near-permanent sale teaches their buyers to never pay full price — quietly training away their own margin and brand equity.",
-            interpretation="This is a demand or inventory problem they're solving with price. Their discount is your opening to own the quality position.",
+            why_it_matters="A high, sustained discount rate can condition shoppers to wait for markdowns and tends to pressure margins — though only their own numbers would confirm the effect. It can leave room for a steady-pricing position.",
+            interpretation="Heavy discounting often points to demand or inventory pressure, but the cause isn't visible from outside. Either way, it can open a quality-led position for you.",
             objective="Win the full-price lane in your category",
             execution_paths=[
-                {"surface": "Product Pages", "action": "On products you both carry, hold price and strengthen the value story instead of matching."},
+                {"surface": "Product Pages", "action": "On your core products, hold price and strengthen the value story instead of matching their markdowns."},
                 {"surface": "Homepage", "action": "Make 'always fair pricing, never a fake sale' a visible promise."},
                 {"surface": "Email", "action": "Contrast your steady pricing with the discount treadmill — without naming them."},
             ],
-            expected_outcome="You capture price-shoppers who've stopped trusting their 'sales' while keeping margin intact.",
+            expected_outcome="Aims to hold your margin and appeal to shoppers who value steady pricing over chasing sales.",
             evidence=[f"{d['promo_pct']}% on sale", f"avg {d['avg_disc']:.0f}% off"],
             confidence="verified", priority="medium", effort="1 hour", timeframe="this week",
         ))

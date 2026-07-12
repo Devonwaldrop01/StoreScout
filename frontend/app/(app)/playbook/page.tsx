@@ -12,6 +12,7 @@ import {
   type PlaybookPlay, type PlaybookResponse, type DraftAsset, type PlaybookItem,
 } from "@/lib/api";
 import UpgradeModal from "@/components/UpgradeModal";
+import { countDoneSteps } from "@/lib/playbookSteps";
 import { EmptyStateCard, LockedValueCard } from "@/components/ui";
 import { RecommendationCard } from "@/components/playbook/RecommendationCard";
 
@@ -503,7 +504,10 @@ function StepChecklist({ steps, checked, onToggle }: {
   onToggle: (idx: number) => void;
 }) {
   if (steps.length === 0) return null;
-  const doneCount = checked.filter(Boolean).length;
+  // Count only checks that map to a CURRENT step — a persisted `checked` array
+  // can outlive a play whose step list later shrank (regenerated playbook),
+  // which otherwise shows an impossible count like "8/3".
+  const doneCount = countDoneSteps(checked, steps.length);
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
@@ -634,7 +638,9 @@ function PlayCard({ play, done, onDone, onOpen, isLast, stepsChecked, onToggleSt
   const sectionMeta = SECTION_META[play.section as keyof typeof SECTION_META];
   const sectionColor = sectionMeta?.color ?? "#A8AC9E";
   const steps = play.detail?.steps ?? [];
-  const startedCount = stepsChecked.filter(Boolean).length;
+  // Only count checks that map to a current step (stale persisted arrays can be
+  // longer than the play's step list — see StepChecklist).
+  const startedCount = countDoneSteps(stepsChecked, steps.length);
   const why = play.detail?.why;
   const dl = deadlineStyle(play.deadline);
 
