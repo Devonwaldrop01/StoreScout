@@ -51,6 +51,24 @@ SEED_QUERIES = [
     "beauty store",
 ]
 
+
+def niche_queries() -> "list[str]":
+    """The full set of niche queries the candidate generator rotates through so
+    the index grows broad enough to cover almost any store a user describes.
+    Built from every taxonomy subcategory (≈90 niches) plus the hand seeds —
+    deterministic, deduped, order-stable. No AI, no network."""
+    out: list = list(SEED_QUERIES)
+    seen = {q.lower() for q in out}
+    for cat, subs in CATEGORY_TAXONOMY.items():
+        if cat in ("Other", "Adult"):
+            continue
+        for sub in subs:
+            for q in (f"{sub.lower()} brand", f"{sub.lower()} {cat.split(' ')[0].lower()} store"):
+                if q not in seen:
+                    seen.add(q)
+                    out.append(q)
+    return out
+
 # ── Taxonomy ───────────────────────────────────────────────────────────────
 # Fixed list keeps index search consistent — classification must map into
 # these, never invent new categories.

@@ -106,6 +106,13 @@ celery.conf.update(
             "task": "app.tasks.store_index.stage_knowledge",
             "schedule": crontab(minute="*/20"),
         },
+        # BREADTH: rotate through the full niche list generating candidates so the
+        # index can cover almost any store a user describes. A few niches per run,
+        # a few times a day — cheap (Haiku) and gated by SHOPIFY_INDEX_ENABLED.
+        "index-generate-candidates": {
+            "task": "app.tasks.store_index.generate_candidates_rotating",
+            "schedule": crontab(minute=40, hour="*/6"),
+        },
         # Legacy combined discovery pass — kept for admin manual test runs but
         # no longer scheduled (superseded by the three staged tasks above).
         # Lead discovery runs after the index refresh so it sees the freshest

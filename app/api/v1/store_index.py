@@ -754,6 +754,7 @@ def get_admin_config(x_admin_token: Optional[str] = Header(default=None)):
         "shopify_index_resolve_batch": s.shopify_index_resolve_batch,
         "shopify_index_knowledge_batch": s.shopify_index_knowledge_batch,
         "shopify_index_concurrency": s.shopify_index_concurrency,
+        "shopify_index_niche_per_run": s.shopify_index_niche_per_run,
         "lead_engine_enabled": s.lead_engine_enabled,
         "lead_engine_daily_target": s.lead_engine_daily_target,
         "lead_engine_min_qualification": s.lead_engine_min_qualification,
@@ -772,6 +773,7 @@ class ConfigBody(BaseModel):
     shopify_index_resolve_batch: Optional[int] = None
     shopify_index_knowledge_batch: Optional[int] = None
     shopify_index_concurrency: Optional[int] = None
+    shopify_index_niche_per_run: Optional[int] = None
     lead_engine_enabled: Optional[bool] = None
     lead_engine_daily_target: Optional[int] = None
     lead_engine_min_qualification: Optional[int] = None

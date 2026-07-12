@@ -935,6 +935,7 @@ export default function StoreIndexAdminPage() {
             { key: "shopify_index_resolve_batch", label: "Resolve batch", type: "number", min: 1, max: 60, help: "Queued refs → real domains per resolution run (rate-limited)." },
             { key: "shopify_index_knowledge_batch", label: "Classify batch", type: "number", min: 1, max: 300, help: "Verified → classified per knowledge run (one Haiku call each; AI cost)." },
             { key: "shopify_index_concurrency", label: "Verify concurrency", type: "number", min: 1, max: 4, help: "Parallel storefront fetches within a verification run (1–4)." },
+            { key: "shopify_index_niche_per_run", label: "Niches / candidate run", type: "number", min: 1, max: 10, help: "Niches generated per rotating candidate run (breadth — covers ~212 niches over time). Each is one Haiku call." },
           ]}
         />
 
