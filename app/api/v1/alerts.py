@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.auth import get_current_user_id, get_effective_user_id
 from app.core.database import get_supabase
+from app.core.obs import safe_read
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
 
@@ -25,6 +26,7 @@ def _user_competitor_ids(db, user_id: str) -> tuple[list[str], dict[str, str]]:
 
 
 @router.get("")
+@safe_read("GET /alerts", {"data": []})
 def list_alerts(
     limit: int = 50,
     change_type: Optional[str] = None,

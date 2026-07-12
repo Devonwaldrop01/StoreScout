@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from app.core.auth import get_effective_user_id
 from app.core.database import get_supabase
-from app.core.obs import safe_read
+from app.core.obs import safe_read, guarded_required
 from app.tasks.detect_changes import _product_index
 
 logger = logging.getLogger(__name__)
@@ -99,6 +99,7 @@ def list_watches(user_id: str = Depends(get_effective_user_id)):
 
 
 @router.post("")
+@guarded_required("POST /watchlist")
 def add_watch(body: AddWatchRequest, user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
 
@@ -136,6 +137,7 @@ def add_watch(body: AddWatchRequest, user_id: str = Depends(get_effective_user_i
 
 
 @router.delete("/{watch_id}", status_code=204)
+@guarded_required("DELETE /watchlist")
 def remove_watch(watch_id: str, user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
     db.table("product_watches").delete().eq("id", watch_id).eq("user_id", user_id).execute()
