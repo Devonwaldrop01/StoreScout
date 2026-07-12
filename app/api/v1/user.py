@@ -172,7 +172,9 @@ def test_webhook(body: dict, user_id: str = Depends(get_current_user_id)):
             return {"status": "ok", "http_status": resp.status_code}
         return {"status": "error", "http_status": resp.status_code, "detail": resp.text[:200]}
     except Exception as exc:
-        raise HTTPException(502, f"Webhook request failed: {exc}")
+        ref = report_error("user.test_webhook", exc, user_id=user_id, degraded=False)
+        raise HTTPException(502, detail={"code": "webhook_unreachable", "ref": ref,
+                                         "message": "Couldn't reach the webhook URL. Check it and try again."})
 
 
 def _is_duplicate_key(exc: Exception) -> bool:

@@ -264,6 +264,22 @@ def migration_health(x_admin_token: Optional[str] = Header(default=None)):
         }}
 
 
+@router.get("/admin/error-summary")
+def error_summary(x_admin_token: Optional[str] = Header(default=None)):
+    """Recent grouped in-process failures (operation × exception) with counts,
+    last-seen, latest correlation ref, and a redacted sample. A launch-time
+    convenience over the structured logs — per-process and cleared on restart,
+    never row data or secrets. Full history + aggregation needs external
+    monitoring (see docs/OBSERVABILITY.md)."""
+    _require_admin(x_admin_token)
+    from app.core.obs import recent_error_summary
+    try:
+        return {"data": {"groups": recent_error_summary(limit=60), "note": "in-process, cleared on restart"}}
+    except Exception as exc:
+        logger.warning("error-summary failed: %s", exc)
+        return {"data": {"groups": [], "note": "unavailable"}}
+
+
 @router.get("/admin/scheduler-status")
 def scheduler_status_endpoint(x_admin_token: Optional[str] = Header(default=None)):
     """

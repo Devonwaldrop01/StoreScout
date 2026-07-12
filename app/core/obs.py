@@ -26,9 +26,17 @@ import os
 import re
 import time
 import uuid
-from typing import Any, Callable, Dict, Optional
+from collections import deque
+from typing import Any, Callable, Deque, Dict, List, Optional
 
 logger = logging.getLogger("storescout.api")
+
+# In-process ring buffer of recent failures for the admin error summary. This is
+# a launch-time convenience (no new paid dependency), NOT a replacement for
+# external monitoring: it is per-process and cleared on restart. See the
+# observability docs for wiring Sentry.
+_RECENT_MAX = 300
+_recent_errors: Deque[Dict[str, Any]] = deque(maxlen=_RECENT_MAX)
 
 # ── Redaction ───────────────────────────────────────────────────────────────
 # Belt-and-suspenders: even though we only ever pass concise messages here, scrub
@@ -143,7 +151,48 @@ def report_error(
 
     log_event(effective_level, f"[{operation}] {exc_class}", **fields)
     _maybe_sentry(exc, {k: v for k, v in fields.items() if v is not None})
+    try:
+        _recent_errors.append({
+            "operation": operation, "exc_class": exc_class, "message": msg,
+            "degraded": degraded, "ref": ref, "ts": time.time(),
+        })
+    except Exception:
+        pass
     return ref
+
+
+def recent_error_summary(limit: int = 50) -> List[Dict[str, Any]]:
+    """Grouped view of recent in-process failures for the admin summary. Groups
+    by (operation, exc_class) with a count, last-seen time, latest ref, and a
+    redacted sample message — never row data or secrets. Newest first."""
+    groups: Dict[tuple, Dict[str, Any]] = {}
+    for r in list(_recent_errors):
+        key = (r["operation"], r["exc_class"])
+        g = groups.get(key)
+        if g is None:
+            g = groups[key] = {
+                "operation": r["operation"], "exc_class": r["exc_class"],
+                "count": 0, "last_seen": 0.0, "last_ref": None,
+                "sample": r["message"], "degraded": bool(r["degraded"]),
+            }
+        g["count"] += 1
+        if r["ts"] >= g["last_seen"]:
+            g["last_seen"] = r["ts"]
+            g["last_ref"] = r["ref"]
+            g["sample"] = r["message"]
+            g["degraded"] = bool(r["degraded"])
+    out = sorted(groups.values(), key=lambda x: x["last_seen"], reverse=True)
+    for g in out:
+        g["last_seen_iso"] = _iso(g.pop("last_seen"))
+    return out[:limit]
+
+
+def _iso(ts: float) -> str:
+    from datetime import datetime, timezone
+    try:
+        return datetime.fromtimestamp(ts, tz=timezone.utc).isoformat()
+    except Exception:
+        return ""
 
 
 def safe_read(route: str, default: Callable[[], Dict[str, Any]] | Dict[str, Any]):

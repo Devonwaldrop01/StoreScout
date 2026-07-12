@@ -208,11 +208,47 @@ function SchedulerStatusPanel({ status }: { status: SchedulerStatus | null }) {
   );
 }
 
+interface ErrorGroup {
+  operation: string; exc_class: string; count: number;
+  last_seen_iso: string; last_ref: string | null; sample: string; degraded: boolean;
+}
+
+function ErrorSummaryPanel({ groups }: { groups: ErrorGroup[] | null }) {
+  if (!groups) return null;
+  return (
+    <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <div className="flex items-center justify-between mb-2">
+        <p className="label-caps">Recent failures · this API process</p>
+        <span className="text-[11px]" style={{ color: "var(--muted)" }}>in-process · cleared on restart</span>
+      </div>
+      {groups.length === 0 ? (
+        <p className="text-[12px]" style={{ color: "#4CC38A" }}>No failures recorded since the last restart.</p>
+      ) : (
+        <div className="space-y-1.5">
+          {groups.slice(0, 20).map((g, i) => (
+            <div key={i} className="text-[12px] flex items-start gap-2">
+              <span className="num font-semibold px-1.5 rounded" style={{ background: "var(--bg3)", color: g.degraded ? "#FFB224" : "#F2555A" }}>×{g.count}</span>
+              <div className="min-w-0">
+                <span style={{ color: "var(--text-2)" }}>{g.operation}</span>
+                <span style={{ color: "var(--muted)" }}> · {g.exc_class}{g.degraded ? " · degraded" : ""}</span>
+                <p className="truncate" style={{ color: "var(--muted)" }} title={g.sample}>
+                  {new Date(g.last_seen_iso).toLocaleTimeString()} · ref {g.last_ref} · {g.sample}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function StoreIndexAdminPage() {
   const [token, setToken] = useState<string>("");
   const [tokenInput, setTokenInput] = useState("");
   const [schema, setSchema] = useState<SchemaHealth | null>(null);
   const [sched, setSched] = useState<SchedulerStatus | null>(null);
+  const [errGroups, setErrGroups] = useState<ErrorGroup[] | null>(null);
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState("");
 
@@ -271,6 +307,10 @@ export default function StoreIndexAdminPage() {
         const s = await adminFetch<{ data: SchedulerStatus }>("/admin/scheduler-status", tok);
         setSched(s.data);
       } catch { /* transient — scheduler panel just hides */ }
+      try {
+        const e = await adminFetch<{ data: { groups: ErrorGroup[] } }>("/admin/error-summary", tok);
+        setErrGroups(e.data.groups);
+      } catch { /* transient — error panel just hides */ }
     } catch (e: unknown) {
       const status403 = (e as { status?: number })?.status === 403;
       // Only bounce to the login gate on an auth failure. A transient network
@@ -529,6 +569,9 @@ export default function StoreIndexAdminPage() {
 
         {/* ── Scheduler / Beat health — evidence-only ─────────────────────── */}
         <SchedulerStatusPanel status={sched} />
+
+        {/* ── Recent failures (this API process) ──────────────────────────── */}
+        <ErrorSummaryPanel groups={errGroups} />
 
         {/* ── Index Operations — the three-stage pipeline at a glance ──────── */}
         {ops && (
