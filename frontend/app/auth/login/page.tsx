@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Zap, Eye, EyeOff, AlertCircle, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { resolvePostAuthDestination } from "@/lib/api";
 
 function GoogleIcon() {
   return (
@@ -72,12 +73,14 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  // Already signed in? Route to the app once auth has RESOLVED — never on a
-  // null-session first paint, and via client navigation (no reload).
+  // Already signed in? Validate account state, then route to the CORRECT place
+  // (dashboard if onboarding is done, else onboarding) — never a blind /dashboard.
   useEffect(() => {
     let cancelled = false;
-    supabase.auth.getSession().then(({ data }) => {
-      if (!cancelled && data.session) router.replace("/dashboard");
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (cancelled || !data.session) return;
+      const dest = await resolvePostAuthDestination(null);
+      if (!cancelled && dest) router.replace(dest);
     });
     return () => { cancelled = true; };
   }, [router, supabase]);
@@ -90,9 +93,16 @@ export default function LoginPage() {
     if (err) {
       setError(err.message);
       setLoading(false);
-    } else {
-      router.push("/dashboard");
+      return;
     }
+    // Validate provisioning + resolve destination (new users → onboarding).
+    const dest = await resolvePostAuthDestination(null);
+    if (!dest) {
+      setError("We couldn't verify your account. Please try again.");
+      setLoading(false);
+      return;
+    }
+    router.push(dest);
   }
 
   async function handleGoogleLogin() {

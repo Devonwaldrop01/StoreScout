@@ -291,6 +291,40 @@ export async function ensureProvisioned(retries = 2): Promise<boolean> {
   return false;
 }
 
+/**
+ * Pure post-auth routing decision (unit-tested). A completed user (>=1 tracked
+ * competitor) goes to the dashboard; a new user goes to onboarding. An explicit,
+ * safe internal `next` is honored — but never an /auth path (loop guard), and a
+ * default /onboarding `next` is ignored for a completed user.
+ */
+export function postAuthDestination(hasCompetitor: boolean, next?: string | null): string {
+  const safeNext = !!next && next.startsWith("/") && !next.startsWith("/auth");
+  if (hasCompetitor) {
+    if (safeNext && !next!.startsWith("/onboarding")) return next!;   // deep link honored
+    return "/dashboard";
+  }
+  if (safeNext && next!.startsWith("/onboarding")) return next!;      // preserve plan-carrying onboarding
+  return "/onboarding";
+}
+
+/**
+ * Validate account state after auth, then resolve where to send the user.
+ * Ensures provisioning first (repairs a partial account); returns null if
+ * provisioning genuinely fails so the caller can show a retry WITHOUT looping
+ * back through auth. Never creates duplicate users (provision is idempotent).
+ */
+export async function resolvePostAuthDestination(next?: string | null): Promise<string | null> {
+  const ok = await ensureProvisioned();
+  if (!ok) return null;
+  let hasCompetitor = false;
+  try {
+    hasCompetitor = ((await competitors.list()).data || []).length > 0;
+  } catch {
+    // Unknown account state → onboarding is the safe default (never dashboard).
+  }
+  return postAuthDestination(hasCompetitor, next);
+}
+
 // ── Types ─────────────────────────────────────────────────────
 export interface Competitor {
   id: string;
