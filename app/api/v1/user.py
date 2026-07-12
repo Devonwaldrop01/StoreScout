@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from app.core.auth import get_current_user_id
 from app.core.config import get_settings
 from app.core.database import get_supabase
-from app.core.obs import safe_read
+from app.core.obs import safe_read, report_error, guarded_required
 
 router = APIRouter(prefix="/user", tags=["user"])
 
@@ -73,6 +73,7 @@ class UpdatePrefsRequest(BaseModel):
 
 
 @router.get("/subscription")
+@guarded_required("GET /subscription")
 def get_subscription(user_id: str = Depends(get_current_user_id)):
     db = get_supabase()
     settings = get_settings()
@@ -171,35 +172,22 @@ def test_webhook(body: dict, user_id: str = Depends(get_current_user_id)):
             return {"status": "ok", "http_status": resp.status_code}
         return {"status": "error", "http_status": resp.status_code, "detail": resp.text[:200]}
     except Exception as exc:
-        raise HTTPException(502, f"Webhook request failed: {exc}")
+        ref = report_error("user.test_webhook", exc, user_id=user_id, degraded=False)
+        raise HTTPException(502, detail={"code": "webhook_unreachable", "ref": ref,
+                                         "message": "Couldn't reach the webhook URL. Check it and try again."})
 
 
-@router.post("/provision")
-def provision_user(user_id: str = Depends(get_current_user_id)):
-    """Called by the frontend after Supabase auth signup to create user_profiles row."""
-    db = get_supabase()
-    settings = get_settings()
+def _is_duplicate_key(exc: Exception) -> bool:
+    """True when a DB error is a unique/primary-key violation — i.e. a concurrent
+    provision already created the row. That's success for an idempotent op."""
+    s = str(exc).lower()
+    return "duplicate key" in s or "23505" in s or "already exists" in s
 
-    # Get email from Supabase Auth admin API
-    try:
-        auth_user = db.auth.admin.get_user_by_id(user_id)
-        email = auth_user.user.email if auth_user.user else ""
-    except Exception:
-        email = ""
 
-    existing = db.table("user_profiles").select("id").eq("id", user_id).maybe_single().execute()
-    if existing.data:
-        return {"status": "exists"}
-
-    db.table("user_profiles").insert({
-        "id": user_id,
-        "email": email,
-        "tier": "free",
-        "max_competitors": settings.free_max_competitors,
-        "scan_interval_hours": settings.free_scan_interval_hours,
-        "subscription_status": "inactive",
-    }).execute()
-
+def _ensure_notification_prefs(db, user_id: str) -> None:
+    """Create the default notification prefs if absent. Idempotent: a duplicate
+    (from a prior partial provision or a concurrent call) is fine. Non-fatal —
+    the table may not be migrated yet."""
     try:
         db.table("notification_prefs").insert({
             "user_id": user_id,
@@ -209,7 +197,75 @@ def provision_user(user_id: str = Depends(get_current_user_id)):
             "email_weekly_digest": True,
             "digest_day": "monday",
         }).execute()
-    except Exception:
-        pass  # table may not have been migrated yet; non-fatal
+    except Exception as exc:
+        if not _is_duplicate_key(exc):
+            # Missing table / transient — log, but never block provisioning on it.
+            report_error("user.provision.notif_prefs", exc, user_id=user_id, degraded=True)
 
-    return {"status": "created"}
+
+@router.post("/provision")
+def provision_user(user_id: str = Depends(get_current_user_id)):
+    """
+    Idempotent, concurrency-safe account provisioning. Called after Supabase auth
+    signup (and again from onboarding) to guarantee a complete application
+    account exists — a `user_profiles` row + default notification prefs.
+
+    Safe to call repeatedly and from concurrent duplicate requests: an existing
+    row short-circuits (preserving the user's real tier/subscription), and a
+    duplicate-key race is treated as success. On a genuine DB failure it returns
+    a structured 500 (never leaks internals) so the frontend can block/retry
+    instead of proceeding with an unknown account state.
+    """
+    db = get_supabase()
+    settings = get_settings()
+
+    # Email is best-effort context, never a reason to fail provisioning.
+    email = ""
+    try:
+        auth_user = db.auth.admin.get_user_by_id(user_id)
+        email = (auth_user.user.email if auth_user and auth_user.user else "") or ""
+    except Exception as exc:
+        report_error("user.provision.email", exc, user_id=user_id, degraded=True)
+
+    # Existence check — 0 rows must NOT raise. `.maybe_single()` can 500 on an
+    # empty result in this client, and a brand-new user is exactly the 0-row
+    # case, so use `.limit(1)` and read `.data or []`.
+    try:
+        res = db.table("user_profiles").select("id, tier").eq("id", user_id).limit(1).execute()
+        rows = (res.data or []) if res else []
+    except Exception as exc:
+        ref = report_error("user.provision.lookup", exc, user_id=user_id, degraded=False)
+        raise HTTPException(status_code=500, detail={
+            "code": "provision_failed", "ref": ref,
+            "message": "Couldn't verify your account state. Please try again.",
+        })
+
+    if rows:
+        # Already provisioned (any tier). Repair a partial provision by ensuring
+        # prefs exist, then report success without touching the existing row.
+        _ensure_notification_prefs(db, user_id)
+        return {"status": "exists", "provisioned": True}
+
+    # Create the profile. A concurrent provision may insert between our check and
+    # here — a duplicate-key error then means the account IS provisioned.
+    try:
+        db.table("user_profiles").insert({
+            "id": user_id,
+            "email": email,
+            "tier": "free",
+            "max_competitors": settings.free_max_competitors,
+            "scan_interval_hours": settings.free_scan_interval_hours,
+            "subscription_status": "inactive",
+        }).execute()
+    except Exception as exc:
+        if _is_duplicate_key(exc):
+            _ensure_notification_prefs(db, user_id)
+            return {"status": "exists", "provisioned": True}
+        ref = report_error("user.provision.insert", exc, user_id=user_id, degraded=False)
+        raise HTTPException(status_code=500, detail={
+            "code": "provision_failed", "ref": ref,
+            "message": "Couldn't finish setting up your account. Please try again.",
+        })
+
+    _ensure_notification_prefs(db, user_id)
+    return {"status": "created", "provisioned": True}

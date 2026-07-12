@@ -201,6 +201,43 @@ Write a tight Store DNA. Return ONLY JSON:
 
 _TIER_ORDER = ["budget", "mid-market", "premium", "luxury"]
 
+# Adjacency clusters over the store-index taxonomy. Two stores in the SAME
+# category are direct rivals; different categories in the SAME cluster are
+# adjacent (a shopper might cross-shop — no penalty, but not a direct match);
+# different clusters are a HARD contradiction (furniture vs. apparel) and get
+# penalized so incidental keyword overlap can't float an unrelated store into
+# the results. "Other"/unknown never triggers a contradiction — we only
+# penalize when BOTH sides carry a confident category.
+_CATEGORY_CLUSTER: Dict[str, str] = {
+    "fitness apparel": "apparel", "fashion": "apparel", "footwear": "apparel",
+    "accessories": "apparel", "jewelry": "apparel",
+    "beauty": "beauty_health", "health & personal care": "beauty_health",
+    "supplements": "beauty_health",
+    "food & beverage": "food",
+    "pets": "pets",
+    "home & living": "home", "home improvement": "home",
+    "kids & baby": "kids", "toys & games": "kids",
+    "outdoors": "outdoor_sport", "sporting goods": "outdoor_sport",
+    "electronics & gadgets": "electronics", "tech accessories": "electronics",
+    "automotive": "electronics",
+    "arts & crafts": "crafts_media", "books & media": "crafts_media",
+}
+
+
+def category_relation(cat_a: Optional[str], cat_b: Optional[str]) -> str:
+    """'same' | 'adjacent' | 'contradiction' | 'unknown' for two category
+    labels. Deterministic and grounded in the taxonomy — no AI, no network."""
+    a = (cat_a or "").strip().lower()
+    b = (cat_b or "").strip().lower()
+    if not a or not b or a == "other" or b == "other":
+        return "unknown"
+    if a == b:
+        return "same"
+    ca, cb = _CATEGORY_CLUSTER.get(a), _CATEGORY_CLUSTER.get(b)
+    if ca is None or cb is None:
+        return "unknown"          # an unmapped label — don't guess a contradiction
+    return "adjacent" if ca == cb else "contradiction"
+
 
 def _keywords_of(row: Dict[str, Any]) -> List[str]:
     """Best available keyword set for a row — prefers stored dna_keywords, then
@@ -236,14 +273,19 @@ def dna_match_score(a: Dict[str, Any], b: Dict[str, Any]) -> int:
         score += min(40.0, (inter / union) * 80.0)   # proportion
         score += min(15.0, inter * 3.0)               # absolute shared tags
 
-    # Same classified category is the backbone of "direct" — up to 25.
-    ca, cb = (a.get("category") or "").lower(), (b.get("category") or "").lower()
-    if ca and ca == cb:
+    # Category agreement is the backbone of "direct" (up to +25); a hard
+    # cross-cluster contradiction (furniture vs. apparel) is penalized so
+    # incidental keyword overlap can't float an unrelated store up (−22);
+    # adjacent categories are neutral, which keeps them below direct rivals.
+    rel = category_relation(a.get("category"), b.get("category"))
+    if rel == "same":
         score += 18
         sa = (a.get("subcategory") or "").lower()
         sb = (b.get("subcategory") or "").lower()
         if sa and sa == sb:
             score += 7
+    elif rel == "contradiction":
+        score -= 22
 
     # Price-tier proximity — competitors usually play in the same price lane. ±.
     ta, tb = a.get("pricing_tier"), b.get("pricing_tier")

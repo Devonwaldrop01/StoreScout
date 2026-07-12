@@ -152,10 +152,103 @@ function SchemaHealthPanel({ health }: { health: SchemaHealth | null }) {
   );
 }
 
+interface SchedulerStatus {
+  pipeline_enabled: boolean;
+  scheduler_configured: boolean;
+  scheduled_tasks: { name: string; task: string; schedule: string }[];
+  last_dispatch: string | null;
+  last_dispatch_age_seconds?: number | null;
+  dispatch_looks_stale: boolean;
+  last_run: string | null;
+  last_scheduled_run: string | null;
+  last_failed_run: string | null;
+  queue: string;
+  worker_consumes: string[];
+}
+
+function fmtWhen(iso: string | null): string {
+  return iso ? new Date(iso).toLocaleString() : "never recorded";
+}
+
+function SchedulerStatusPanel({ status }: { status: SchedulerStatus | null }) {
+  if (!status) return null;
+  // Evidence-only verdict: never "healthy" from deployment. Dispatch heartbeat
+  // is the live signal; the pipeline being enabled is separate.
+  const dispatchColor = status.last_dispatch == null ? "var(--muted)"
+    : status.dispatch_looks_stale ? "#F2555A" : "#4CC38A";
+  const dispatchLabel = status.last_dispatch == null ? "No dispatch recorded yet"
+    : status.dispatch_looks_stale ? "Scheduler may be down (no recent dispatch)" : "Scheduler dispatching";
+  return (
+    <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <div className="flex items-center justify-between mb-2">
+        <p className="label-caps">Scheduler · Celery Beat</p>
+        <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: "var(--bg3)", color: status.pipeline_enabled ? "#4CC38A" : "#FFB224" }}>
+          index pipeline {status.pipeline_enabled ? "ENABLED" : "gated OFF"}
+        </span>
+      </div>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="w-2 h-2 rounded-full" style={{ background: dispatchColor }} />
+        <span className="text-sm font-semibold" style={{ color: dispatchColor }}>{dispatchLabel}</span>
+      </div>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[12px]" style={{ color: "var(--muted)" }}>
+        <p>Last dispatch: <span style={{ color: "var(--text-2)" }}>{fmtWhen(status.last_dispatch)}</span></p>
+        <p>Last scheduled run: <span style={{ color: "var(--text-2)" }}>{fmtWhen(status.last_scheduled_run)}</span></p>
+        <p>Last run (any): <span style={{ color: "var(--text-2)" }}>{fmtWhen(status.last_run)}</span></p>
+        <p>Last failed run: <span style={{ color: status.last_failed_run ? "#F2555A" : "var(--text-2)" }}>{fmtWhen(status.last_failed_run)}</span></p>
+        <p>Tasks scheduled: <span style={{ color: "var(--text-2)" }}>{status.scheduled_tasks.length}</span></p>
+        <p>Queue → worker: <span style={{ color: "var(--text-2)" }}>{status.queue} → {status.worker_consumes.join(",")}</span></p>
+      </div>
+      {!status.pipeline_enabled && (
+        <p className="text-[11px] mt-2" style={{ color: "var(--muted)" }}>
+          Beat dispatches on schedule, but staged index tasks no-op while gated off. Enable via the
+          engine controls (runtime config) or set <code>SHOPIFY_INDEX_ENABLED=true</code> on the Render worker + scheduler.
+        </p>
+      )}
+    </div>
+  );
+}
+
+interface ErrorGroup {
+  operation: string; exc_class: string; count: number;
+  last_seen_iso: string; last_ref: string | null; sample: string; degraded: boolean;
+}
+
+function ErrorSummaryPanel({ groups }: { groups: ErrorGroup[] | null }) {
+  if (!groups) return null;
+  return (
+    <div className="rounded-md p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <div className="flex items-center justify-between mb-2">
+        <p className="label-caps">Recent failures · this API process</p>
+        <span className="text-[11px]" style={{ color: "var(--muted)" }}>in-process · cleared on restart</span>
+      </div>
+      {groups.length === 0 ? (
+        <p className="text-[12px]" style={{ color: "#4CC38A" }}>No failures recorded since the last restart.</p>
+      ) : (
+        <div className="space-y-1.5">
+          {groups.slice(0, 20).map((g, i) => (
+            <div key={i} className="text-[12px] flex items-start gap-2">
+              <span className="num font-semibold px-1.5 rounded" style={{ background: "var(--bg3)", color: g.degraded ? "#FFB224" : "#F2555A" }}>×{g.count}</span>
+              <div className="min-w-0">
+                <span style={{ color: "var(--text-2)" }}>{g.operation}</span>
+                <span style={{ color: "var(--muted)" }}> · {g.exc_class}{g.degraded ? " · degraded" : ""}</span>
+                <p className="truncate" style={{ color: "var(--muted)" }} title={g.sample}>
+                  {new Date(g.last_seen_iso).toLocaleTimeString()} · ref {g.last_ref} · {g.sample}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function StoreIndexAdminPage() {
   const [token, setToken] = useState<string>("");
   const [tokenInput, setTokenInput] = useState("");
   const [schema, setSchema] = useState<SchemaHealth | null>(null);
+  const [sched, setSched] = useState<SchedulerStatus | null>(null);
+  const [errGroups, setErrGroups] = useState<ErrorGroup[] | null>(null);
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState("");
 
@@ -208,6 +301,16 @@ export default function StoreIndexAdminPage() {
           setSchema(h.data);
         } catch { /* transient — schema panel just hides */ }
       }
+      // Scheduler status — cheap, evidence-only; refresh every load so the
+      // dispatch heartbeat freshness is current.
+      try {
+        const s = await adminFetch<{ data: SchedulerStatus }>("/admin/scheduler-status", tok);
+        setSched(s.data);
+      } catch { /* transient — scheduler panel just hides */ }
+      try {
+        const e = await adminFetch<{ data: { groups: ErrorGroup[] } }>("/admin/error-summary", tok);
+        setErrGroups(e.data.groups);
+      } catch { /* transient — error panel just hides */ }
     } catch (e: unknown) {
       const status403 = (e as { status?: number })?.status === 403;
       // Only bounce to the login gate on an auth failure. A transient network
@@ -463,6 +566,12 @@ export default function StoreIndexAdminPage() {
 
         {/* ── Schema health — did the deploy's migrations land? ───────────── */}
         <SchemaHealthPanel health={schema} />
+
+        {/* ── Scheduler / Beat health — evidence-only ─────────────────────── */}
+        <SchedulerStatusPanel status={sched} />
+
+        {/* ── Recent failures (this API process) ──────────────────────────── */}
+        <ErrorSummaryPanel groups={errGroups} />
 
         {/* ── Index Operations — the three-stage pipeline at a glance ──────── */}
         {ops && (

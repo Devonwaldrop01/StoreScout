@@ -81,7 +81,7 @@ function narrate(themeKey: string, n: number): {
         headline: "Multiple competitors low on stock",
         whatHappened: `${word} competitors went low or out of stock within the same window.`,
         whyItMatters: "Several sellers running dry at once often means demand is outpacing supply in the category — though it can also be a shared supplier delay or seasonal gap. Either reading points the same way: their empty shelves are demand you may be able to serve right now.",
-        yourMove: "Lead with availability. Push “in stock, ships today” messaging and lift paid spend on the overlapping products while competitors can’t fulfill — you capture the demand whatever its cause.",
+        yourMove: "Lead with availability. Push “in stock, ships today” messaging and lift paid spend on any products you both sell while competitors can’t fulfill — you capture the demand whatever its cause.",
       };
     case "promotion":
       return {

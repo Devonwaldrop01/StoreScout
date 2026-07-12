@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Zap, Eye, EyeOff, CheckCircle2, AlertCircle, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { user as userApi } from "@/lib/api";
+import { user as userApi, ensureProvisioned, resolvePostAuthDestination } from "@/lib/api";
 
 function GoogleIcon() {
   return (
@@ -75,16 +75,38 @@ function SignupContent() {
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [warmEmail, setWarmEmail] = useState<string | null>(null);
+  const [continuing, setContinuing] = useState(false);
 
-  // Already signed in? Send them straight into onboarding/app — resolved
-  // session only, client navigation, no reload.
+  // Warm session? Don't silently drop them into onboarding. Show an explicit
+  // "Continue as …" action; only after validating account state do we route to
+  // the CORRECT place (dashboard if onboarding is done, else onboarding).
   useEffect(() => {
     let cancelled = false;
     supabase.auth.getSession().then(({ data }) => {
-      if (!cancelled && data.session) router.replace("/onboarding");
+      if (!cancelled && data.session) setWarmEmail(data.session.user.email ?? "your account");
     });
     return () => { cancelled = true; };
-  }, [router, supabase]);
+  }, [supabase]);
+
+  async function continueWarmSession() {
+    setContinuing(true);
+    setError("");
+    const plan = searchParams.get("plan");
+    const next = searchParams.get("next") || (plan ? `/onboarding?plan=${encodeURIComponent(plan)}` : null);
+    const dest = await resolvePostAuthDestination(next);
+    if (!dest) {   // provisioning failed — retry, never loop back to auth
+      setError("We couldn't verify your account. Please try again.");
+      setContinuing(false);
+      return;
+    }
+    router.replace(dest);
+  }
+
+  async function switchAccount() {
+    await supabase.auth.signOut().catch(() => {});
+    setWarmEmail(null);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -106,7 +128,14 @@ function SignupContent() {
     }
 
     if (data.session) {
-      await userApi.provision().catch(() => {});
+      // Provisioning is REQUIRED — do not enter onboarding with an unknown
+      // account state. Idempotent server-side, so retrying is safe.
+      const ok = await ensureProvisioned();
+      if (!ok) {
+        setError("We couldn't finish setting up your account. Please try again.");
+        setLoading(false);
+        return;
+      }
       router.push(onboardingPath);
     } else {
       setDone(true);
@@ -137,6 +166,34 @@ function SignupContent() {
     outline: "none",
     transition: "border-color 0.15s, box-shadow 0.15s",
   });
+
+  // Warm session — explicit Continue, no silent drop into onboarding.
+  if (warmEmail) {
+    return (
+      <div className="min-h-screen flex" style={{ background: "var(--bg)" }}>
+        <BrandPanel />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-sm text-center p-10 rounded-md"
+               style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <p className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>You&apos;re already signed in</p>
+            <p className="text-[13px] mb-5" style={{ color: "var(--muted)" }}>{warmEmail}</p>
+            {error && <p className="text-xs mb-3" style={{ color: "#F2555A" }}>{error}</p>}
+            <button
+              onClick={continueWarmSession}
+              disabled={continuing}
+              className="w-full font-bold px-4 py-2.5 rounded-md mb-3 disabled:opacity-50"
+              style={{ background: "var(--accent)", color: "var(--ink)" }}
+            >
+              {continuing ? "Checking your account…" : `Continue as ${warmEmail}`}
+            </button>
+            <button onClick={switchAccount} disabled={continuing} className="text-xs" style={{ color: "var(--muted)" }}>
+              Not you? Sign in with a different account
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (done) {
     return (

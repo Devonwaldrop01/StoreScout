@@ -61,6 +61,16 @@ export function clearApiCache() {
 }
 
 // ── Competitors ───────────────────────────────────────────────
+export type ScanLifecycle = "idle" | "queued" | "running" | "completed" | "failed" | "timed_out";
+export interface ScanState {
+  state: ScanLifecycle;
+  scan_status: string | null;
+  since: string | null;
+  last_scanned_at: string | null;
+  running_seconds: number | null;
+  timed_out: boolean;
+}
+
 export const competitors = {
   list: async () => {
     const res = await apiFetch<{ data: Competitor[] }>("/competitors");
@@ -77,6 +87,8 @@ export const competitors = {
     apiFetch<void>(`/competitors/${id}`, { method: "DELETE" }),
   rescan: (id: string) =>
     apiFetch<{ status: string }>(`/competitors/${id}/rescan`, { method: "POST" }),
+  scanStatus: (id: string) =>
+    apiFetch<{ data: ScanState }>(`/competitors/${id}/scan-status`),
   latestSnapshot: (id: string) =>
     apiFetch<{ data: Snapshot }>(`/competitors/${id}/snapshots/latest`),
   snapshots: (id: string, limit = 30) =>
@@ -237,6 +249,8 @@ export const user = {
   subscription: () => apiFetch<{ data: UserSubscription }>("/user/subscription"),
   actionItems: () => apiFetch<{ data: ActionItem[]; locked?: boolean; locked_count?: number }>("/action-items"),
   playbook: () => apiFetch<PlaybookResponse>("/playbook"),
+  regeneratePlaybook: () =>
+    apiFetch<{ status: string; ai_state: string }>("/playbook/regenerate", { method: "POST" }),
   prefs: () => apiFetch<{ data: NotificationPrefs }>("/user/notification-prefs"),
   updatePrefs: (prefs: Partial<NotificationPrefs>) =>
     apiFetch<{ status: string }>("/user/notification-prefs", {
@@ -255,8 +269,61 @@ export const user = {
       body: JSON.stringify({ type }),
     }),
   provision: () =>
-    apiFetch<{ status: string }>("/user/provision", { method: "POST" }),
+    apiFetch<{ status: string; provisioned?: boolean }>("/user/provision", { method: "POST" }),
 };
+
+/**
+ * Provision the account, blocking until it genuinely succeeds. Idempotent and
+ * concurrency-safe server-side, so retrying is free. Returns true only when the
+ * account is confirmed provisioned; callers must NOT proceed into onboarding on
+ * a false return. Retries transient failures a couple of times before giving up.
+ */
+export async function ensureProvisioned(retries = 2): Promise<boolean> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await user.provision();
+      if (res?.provisioned || res?.status === "created" || res?.status === "exists") return true;
+    } catch {
+      // fall through to retry
+    }
+    if (attempt < retries) await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+  }
+  return false;
+}
+
+/**
+ * Pure post-auth routing decision (unit-tested). A completed user (>=1 tracked
+ * competitor) goes to the dashboard; a new user goes to onboarding. An explicit,
+ * safe internal `next` is honored — but never an /auth path (loop guard), and a
+ * default /onboarding `next` is ignored for a completed user.
+ */
+export function postAuthDestination(hasCompetitor: boolean, next?: string | null): string {
+  const safeNext = !!next && next.startsWith("/") && !next.startsWith("/auth");
+  if (hasCompetitor) {
+    if (safeNext && !next!.startsWith("/onboarding")) return next!;   // deep link honored
+    return "/dashboard";
+  }
+  if (safeNext && next!.startsWith("/onboarding")) return next!;      // preserve plan-carrying onboarding
+  return "/onboarding";
+}
+
+/**
+ * Validate account state after auth, then resolve where to send the user.
+ * Ensures provisioning first (repairs a partial account); returns null if
+ * provisioning genuinely fails so the caller can show a retry WITHOUT looping
+ * back through auth. Never creates duplicate users (provision is idempotent).
+ */
+export async function resolvePostAuthDestination(next?: string | null): Promise<string | null> {
+  const ok = await ensureProvisioned();
+  if (!ok) return null;
+  let hasCompetitor = false;
+  try {
+    hasCompetitor = ((await competitors.list()).data || []).length > 0;
+  } catch {
+    // Unknown account state → onboarding is the safe default (never dashboard).
+  }
+  return postAuthDestination(hasCompetitor, next);
+}
 
 // ── Types ─────────────────────────────────────────────────────
 export interface Competitor {
@@ -594,6 +661,7 @@ export interface PlaybookResponse {
   locked_count?: number;
   ai_source?: boolean;
   ai_generating?: boolean;
+  ai_state?: "not_requested" | "queued" | "generating" | "ready" | "failed" | "timed_out" | "unavailable";
 }
 
 export interface ActionItem {

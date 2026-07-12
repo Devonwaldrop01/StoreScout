@@ -72,7 +72,9 @@ def scan_competitor(self, competitor_id: str) -> dict:
         return data
 
     except Exception as exc:
-        logger.error("Scan failed for %s: %s", competitor_id, exc)
+        from app.core.obs import report_error
+        report_error("task.scan_competitor", exc, entity=competitor_id, degraded=False,
+                     retries=self.request.retries)
         err_str = str(exc)
         retry_count = self.request.retries
         if retry_count >= self.max_retries:

@@ -28,6 +28,7 @@ import httpx
 from .celery_app import celery
 from app.core.config import get_settings
 from app.core.database import get_supabase
+from app.services.scheduler_status import scheduled_index_task
 from app.services.store_index import SEED_QUERIES, normalize_domain, run_knowledge
 
 logger = logging.getLogger(__name__)
@@ -82,6 +83,7 @@ def _verify_via_web(domain: str, source: str, source_query: Optional[str]) -> di
 # the crawl continues over time and never rediscovers the same store.
 
 @celery.task(name="app.tasks.store_index.stage_discovery")
+@scheduled_index_task("stage_discovery")
 def stage_discovery(limit_override: Optional[int] = None, force: bool = False) -> dict:
     """
     Stage 1. Cheap + bulk. For sources that yield raw refs needing resolution
@@ -185,6 +187,7 @@ def stage_discovery(limit_override: Optional[int] = None, force: bool = False) -
 # isolated from cheap discovery and paced so it never bursts.
 
 @celery.task(name="app.tasks.store_index.stage_resolution")
+@scheduled_index_task("stage_resolution")
 def stage_resolution(limit_override: Optional[int] = None, force: bool = False) -> dict:
     from app.services.runtime_config import get_config
     settings = get_settings()
@@ -279,6 +282,7 @@ def stage_resolution(limit_override: Optional[int] = None, force: bool = False) 
 # run on the web process. Chunked so the shared worker stays within memory.
 
 @celery.task(name="app.tasks.store_index.stage_verification")
+@scheduled_index_task("stage_verification")
 def stage_verification(limit_override: Optional[int] = None, force: bool = False) -> dict:
     from app.services.runtime_config import get_config
     settings = get_settings()
@@ -332,6 +336,7 @@ def stage_verification(limit_override: Optional[int] = None, force: bool = False
 # Because there is no storefront fetch, it runs directly in the worker.
 
 @celery.task(name="app.tasks.store_index.stage_knowledge")
+@scheduled_index_task("stage_knowledge")
 def stage_knowledge(limit_override: Optional[int] = None, force: bool = False) -> dict:
     from app.services.runtime_config import get_config
     settings = get_settings()

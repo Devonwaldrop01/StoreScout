@@ -17,9 +17,9 @@ from pydantic import BaseModel, field_validator
 from app.core.auth import get_current_user_id, get_effective_user_id
 from app.core.config import get_settings
 from app.core.database import get_supabase
-from app.core.obs import safe_read
+from app.core.obs import safe_read, guarded_required
 from app.core.ratelimit import check_rate_limit, dedupe_key, single_flight
-from app.services.ai import UNTRUSTED_DATA_NOTE, call_claude, parse_json
+from app.services.ai import UNTRUSTED_DATA_NOTE, CLAIMS_DISCIPLINE, call_claude, parse_json
 
 router = APIRouter(prefix="/competitors", tags=["competitors"])
 
@@ -732,6 +732,21 @@ Rules:
                     score += 12 if tier == user_price_tier else 0
                 if stage == "enterprise" and user_stage in (None, "startup", "growing"):
                     score -= 30  # underdogs first — Nike shouldn't crowd out peers
+                # Hard category contradiction (e.g. a furniture store surfacing
+                # on an apparel search via incidental keyword overlap): only when
+                # the row's classification is confident enough to trust. Adjacent
+                # categories are untouched; this just keeps the wrong market out
+                # of the top of the list.
+                if user_category and not row.get("_by_category"):
+                    rc = row.get("category")
+                    cc2 = row.get("category_confidence")
+                    if rc and (cc2 is None or cc2 >= cat_floor):
+                        try:
+                            from app.services.store_dna import category_relation
+                            if category_relation(rc, user_category) == "contradiction":
+                                score -= 50
+                        except Exception:
+                            pass
                 return score
 
             ranked = sorted(idx_res.data or [], key=_relevance, reverse=True)
@@ -879,20 +894,39 @@ Rules:
 
 class DiscoveryFeedbackRequest(BaseModel):
     domain: str
-    correct: bool
+    # Legacy binary signal (Track ✓ / Not-a-competitor ✕). Kept for
+    # backward compatibility with existing clients.
+    correct: Optional[bool] = None
+    # Richer three-way relevance the weighted-edge graph already supports:
+    # "direct" (a true rival), "related" (adjacent — a softer positive), or
+    # "not_relevant" (pin negative so it never resurfaces). Optional; when
+    # omitted the endpoint falls back to `correct`.
+    relation: Optional[str] = None
 
 
 @router.post("/discovery-feedback")
 def discovery_feedback(body: DiscoveryFeedbackRequest, user_id: str = Depends(get_current_user_id)):
-    """✓ correct competitor / ✕ not a competitor — writes straight into the
-    knowledge graph. A confirmation strengthens the edge; a rejection pins it
-    negative so that domain never surfaces for this user (or store) again."""
+    """Discovery relevance feedback → the competitor knowledge graph.
+
+    Three persisted states (the edge model stores a signed weight, so all
+    three are representable without a schema change):
+      · direct       → strengthen the edge (+3) — a confirmed rival
+      · related      → gentle positive (+1) — adjacent, still worth surfacing
+      · not_relevant → pin negative (−5) — never surface for this user/store again
+    A legacy `correct` boolean maps to direct / not_relevant."""
     db = get_supabase()
     from app.services.store_index import record_competitor_edge, normalize_domain
 
     domain = normalize_domain(body.domain)
     if not domain or "." not in domain:
         raise HTTPException(status_code=422, detail="valid domain required")
+
+    # Resolve the relation: explicit `relation` wins; else derive from `correct`.
+    relation = (body.relation or "").strip().lower()
+    if relation not in ("direct", "related", "not_relevant"):
+        if body.correct is None:
+            raise HTTPException(status_code=422, detail="relation or correct required")
+        relation = "direct" if body.correct else "not_relevant"
 
     source_key = f"user:{user_id}"
     try:
@@ -903,14 +937,17 @@ def discovery_feedback(body: DiscoveryFeedbackRequest, user_id: str = Depends(ge
     except Exception:
         pass
 
-    if body.correct:
+    if relation == "direct":
         record_competitor_edge(db, source_key, domain, "feedback", delta=3)
-    else:
+    elif relation == "related":
+        record_competitor_edge(db, source_key, domain, "feedback", delta=1)
+    else:  # not_relevant
         record_competitor_edge(db, source_key, domain, "feedback", set_weight=-5)
-    return {"status": "ok", "domain": domain, "correct": body.correct}
+    return {"status": "ok", "domain": domain, "relation": relation}
 
 
 @router.get("/{competitor_id}")
+@guarded_required("GET /competitor")
 def get_competitor(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """Fetch a single competitor record (no snapshot data)."""
     db = get_supabase()
@@ -952,8 +989,8 @@ def manual_rescan(competitor_id: str, user_id: str = Depends(get_effective_user_
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
 
-    competitor = db.table("competitors").select("scan_status").eq("id", competitor_id).single().execute()
-    if (competitor.data or {}).get("scan_status") == "scanning":
+    competitor = db.table("competitors").select("scan_status").eq("id", competitor_id).limit(1).execute()
+    if ((competitor.data or [{}])[0]).get("scan_status") == "scanning":
         raise HTTPException(status_code=409, detail="Scan already in progress")
 
     # Redis-based cooldown — 60s between rescans per competitor (non-fatal if Redis unavailable)
@@ -981,7 +1018,31 @@ def manual_rescan(competitor_id: str, user_id: str = Depends(get_effective_user_
     return {"status": "queued"}
 
 
+@router.get("/{competitor_id}/scan-status")
+@safe_read("GET /scan-status", {"data": {"state": "idle", "scan_status": None, "since": None,
+                                         "last_scanned_at": None, "running_seconds": None, "timed_out": False}})
+def get_scan_status(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
+    """
+    Normalized, pollable scan lifecycle for a competitor: idle | queued | running
+    | completed | failed | timed_out — derived from the real scan_status + how
+    long it has been running (genuine timeout detection, no fake progress).
+    The rescan POST itself returns already_in_progress (409) / rate_limited (429)
+    / unavailable (503). @safe_read: degrades, ownership 404 preserved.
+    """
+    db = get_supabase()
+    _assert_owner(db, competitor_id, user_id)
+    from app.services.scan_state import derive_scan_state
+    row = db.table("competitors").select("scan_status, updated_at, last_scanned_at")\
+        .eq("id", competitor_id).limit(1).execute()
+    r = (row.data or [{}])[0]
+    return {"data": derive_scan_state(
+        r.get("scan_status"), r.get("updated_at"), r.get("last_scanned_at"),
+        timeout_minutes=get_settings().scan_timeout_minutes,
+    )}
+
+
 @router.get("/{competitor_id}/snapshots/latest")
+@guarded_required("GET /snapshots/latest")
 def get_latest_snapshot(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
@@ -997,6 +1058,7 @@ def get_latest_snapshot(competitor_id: str, user_id: str = Depends(get_effective
 
 
 @router.get("/{competitor_id}/snapshots")
+@guarded_required("GET /snapshots")
 def list_snapshots(
     competitor_id: str,
     limit: int = 30,
@@ -1050,6 +1112,7 @@ def get_changes(
 
 
 @router.get("/{competitor_id}/ai-summary")
+@guarded_required("GET /ai-summary")
 def get_ai_summary(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
@@ -1361,10 +1424,14 @@ def get_comparison(competitor_id: str, user_id: str = Depends(get_effective_user
 
 
 @router.get("/{competitor_id}/quick-wins")
+@safe_read("GET /quick-wins", {"data": {"wins": [], "locked": False, "locked_count": 0, "tier": "free"}})
 def get_quick_wins(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """
     Rule-based action cards from the latest snapshot.
     Free tier: 1 card visible + locked_count.  Pro/Agency: all cards.
+    Optional intelligence — @safe_read degrades an unexpected failure (e.g. a
+    non-dict snapshot payload) to a typed-empty result + logged error, while the
+    ownership 404 is preserved (safe_read re-raises HTTPException).
     """
     db = get_supabase()
     _assert_owner(db, competitor_id, user_id)
@@ -1487,6 +1554,7 @@ def get_market_context(competitor_id: str, user_id: str = Depends(get_effective_
 
 
 @router.get("/{competitor_id}/brief")
+@guarded_required("GET /brief")
 def get_brief(competitor_id: str, user_id: str = Depends(get_effective_user_id)):
     """Latest Intelligence Brief for this competitor (available to all tiers)."""
     db = get_supabase()
@@ -1634,6 +1702,8 @@ def ask_storescout(competitor_id: str, body: AskRequest, user_id: str = Depends(
     prompt = f"""You are StoreScout — a sharp competitive-intelligence analyst sitting beside a Shopify store owner, discussing a competitor. Answer their question using ONLY the data below. Be specific and cite the numbers. If the data can't answer something, say so plainly and reason from what IS known. Talk like a smart operator, not a chatbot — 2-4 short paragraphs max, no fluff, no "as an AI".
 
 {UNTRUSTED_DATA_NOTE}
+
+{CLAIMS_DISCIPLINE}
 
 COMPETITOR DATA:
 {context}

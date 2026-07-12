@@ -609,9 +609,9 @@ function PricingDiscountMock() {
 
 function DiscoveryMock() {
   const verified = [
-    { domain: "ryderwear.com", conf: 94, reason: "gym apparel, similar $40-70 price point" },
-    { domain: "youngla.com", conf: 91, reason: "same audience, aggressive launch cadence" },
-    { domain: "rawgear.com", conf: 88, reason: "emerging lifter brand, overlapping fits" },
+    { domain: "ryderwear.com", reason: "gym apparel, similar $40-70 price point" },
+    { domain: "youngla.com", reason: "same audience, aggressive launch cadence" },
+    { domain: "rawgear.com", reason: "emerging lifter brand, overlapping fits" },
   ];
   return (
     <div className="rounded-md overflow-hidden shadow-2xl" style={{ background: "#0B0C0A", border: "1px solid #262A22" }}>
@@ -630,7 +630,7 @@ function DiscoveryMock() {
               <div className="flex items-center gap-2">
                 <p className="text-xs font-mono font-semibold" style={{ color: "#ECEEE6" }}>{v.domain}</p>
                 <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: "rgba(76,195,138,.1)", color: "#4CC38A", border: "1px solid rgba(76,195,138,.2)" }}>
-                  {v.conf}% Shopify
+                  Verified Shopify
                 </span>
               </div>
               <p className="text-[10px] truncate mt-0.5" style={{ color: "#6C7164" }}>{v.reason}</p>

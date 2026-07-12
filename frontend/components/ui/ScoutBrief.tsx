@@ -19,9 +19,10 @@ interface ScoutBriefProps {
   requireAction: number;
   onRefresh?: () => void;
   refreshing?: boolean;
+  refreshLabel?: string;   // truthful aggregate ("2 running · 1 done"), no fake %
 }
 
-export function ScoutBrief({ firstName, competitorCount, lastScan, nextScan, changesThisWeek, requireAction, onRefresh, refreshing }: ScoutBriefProps) {
+export function ScoutBrief({ firstName, competitorCount, lastScan, nextScan, changesThisWeek, requireAction, onRefresh, refreshing, refreshLabel }: ScoutBriefProps) {
   const greeting = firstName ? `${getGreeting()}, ${firstName}` : getGreeting();
 
   const metaLine = (
@@ -96,7 +97,7 @@ export function ScoutBrief({ firstName, competitorCount, lastScan, nextScan, cha
           style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
         >
           <RefreshCw className={cn("w-3.5 h-3.5", refreshing && "animate-spin")} />
-          {refreshing ? "Scanning…" : "Rescan all"}
+          {refreshing ? (refreshLabel || "Scanning…") : "Rescan all"}
         </button>
       )}
     </div>

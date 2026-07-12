@@ -202,8 +202,8 @@ def snapshot_intelligence(competitors_data: list[dict]) -> list[dict]:
             category="Competitive Defense",
             title="Hold the full-price lane while rivals train their customers to wait for discounts",
             what_happened=f"{len(heavy_discounters)} competitors ({names}) are discounting at once — averaging {avg_promo}% of catalog on sale.",
-            why_it_matters="When a whole niche discounts simultaneously, shoppers develop deal fatigue and margin erodes across the market. Full price becomes a differentiator, not a disadvantage.",
-            interpretation="They're competing on price — a race that conditions their own customers to wait for markdowns and compresses everyone's margin. It's a weakness you can exploit, not match.",
+            why_it_matters="When a whole niche discounts at once, shoppers can develop deal fatigue and margins tend to erode across the market. Full price can become a differentiator rather than a disadvantage.",
+            interpretation="It looks like a price-led race — the kind that tends to condition customers to wait for markdowns and squeeze margins. That's a lane you may be able to exploit rather than match.",
             objective="Reduce discount dependence and protect margin",
             execution_paths=[
                 {"surface": "Homepage", "action": "Lead with quality, guarantee, and craftsmanship messaging that justifies full price instead of matching their sale."},
@@ -373,8 +373,8 @@ def change_event_play(change: dict, hostname: str, comp_id: str) -> Optional[dic
         return mk("flash", "Competitive Defense",
             f"{brand} just cut prices {abs(delta):.0f}% — meet the moment without joining the race",
             f"{hostname} dropped price {abs(delta):.0f}%" + (f" on {prod}" if prod else "") + " — likely a short flash window.",
-            "Their shoppers are in a high-intent, comparing mindset right now. This is the moment to be visible with a confident answer, not to panic-discount.",
-            "A short, deep cut usually signals inventory pressure — a reason to hold your position, not mirror it.",
+            "A cut this deep often puts shoppers in a comparing mindset — a moment to be visible with a confident answer, not to panic-discount.",
+            "A short, deep cut can point to inventory pressure or a limited-time promo — either way, a reason to hold your position rather than mirror it.",
             "Capture their comparison shoppers while protecting your margin",
             [
                 {"surface": "Email", "action": "Send a timely note to your list — steady pricing, in stock, no games. You don't need a sale to win the comparison."},

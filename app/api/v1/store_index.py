@@ -264,6 +264,48 @@ def migration_health(x_admin_token: Optional[str] = Header(default=None)):
         }}
 
 
+@router.get("/admin/error-summary")
+def error_summary(x_admin_token: Optional[str] = Header(default=None)):
+    """Recent grouped in-process failures (operation × exception) with counts,
+    last-seen, latest correlation ref, and a redacted sample. A launch-time
+    convenience over the structured logs — per-process and cleared on restart,
+    never row data or secrets. Full history + aggregation needs external
+    monitoring (see docs/OBSERVABILITY.md)."""
+    _require_admin(x_admin_token)
+    from app.core.obs import recent_error_summary
+    try:
+        return {"data": {"groups": recent_error_summary(limit=60), "note": "in-process, cleared on restart"}}
+    except Exception as exc:
+        logger.warning("error-summary failed: %s", exc)
+        return {"data": {"groups": [], "note": "unavailable"}}
+
+
+@router.get("/admin/scheduler-status")
+def scheduler_status_endpoint(x_admin_token: Optional[str] = Header(default=None)):
+    """
+    Evidence-only scheduler health for the staged index pipeline: the configured
+    beat schedule, the last recorded dispatch heartbeat (global + per task), the
+    last/last-scheduled/last-failed run from store_index_runs, whether the
+    pipeline is enabled, and the consuming queue/worker. NEVER reports health from
+    process deployment — 'dispatch_looks_stale' is derived from the age of a real
+    recorded heartbeat. Degrades to a safe shape (no crash) if the DB is down.
+    """
+    _require_admin(x_admin_token)
+    from app.services.scheduler_status import scheduler_status
+    try:
+        return {"data": scheduler_status(get_supabase())}
+    except Exception as exc:
+        logger.warning("scheduler-status failed: %s", exc)
+        return {"data": {
+            "pipeline_enabled": False, "scheduler_configured": False, "scheduled_tasks": [],
+            "last_dispatch": None, "dispatch_looks_stale": True,
+            "per_task_last_dispatch": {}, "last_run": None,
+            "last_scheduled_run": None, "last_failed_run": None,
+            "queue": "default", "worker_consumes": ["default", "priority"],
+            "error": True,
+        }}
+
+
 @router.get("/admin/index-ops")
 def index_ops(x_admin_token: Optional[str] = Header(default=None)):
     """
