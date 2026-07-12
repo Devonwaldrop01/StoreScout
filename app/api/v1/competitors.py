@@ -1005,15 +1005,23 @@ def manual_rescan(competitor_id: str, user_id: str = Depends(get_effective_user_
 
     competitor = db.table("competitors").select("scan_status").eq("id", competitor_id).limit(1).execute()
     if ((competitor.data or [{}])[0]).get("scan_status") == "scanning":
-        raise HTTPException(status_code=409, detail="Scan already in progress")
+        raise HTTPException(status_code=409, detail="A scan is already in progress for this competitor.")
 
-    # Redis-based cooldown — 60s between rescans per competitor (non-fatal if Redis unavailable)
+    # Redis-based cooldown — 60s between rescans per competitor (non-fatal if Redis unavailable).
+    # This is a real rate limit; surface the remaining wait so the client can show
+    # an accurate cooldown message and Retry-After, not a generic failure.
     try:
         import redis as redis_lib
         r = redis_lib.from_url(get_settings().redis_url, socket_connect_timeout=1)
         rl_key = f"ratelimit:rescan:{competitor_id}"
         if r.exists(rl_key):
-            raise HTTPException(status_code=429, detail="Rescan cooldown active — please wait 60 seconds")
+            ttl = r.ttl(rl_key)
+            wait = ttl if isinstance(ttl, int) and ttl > 0 else 60
+            raise HTTPException(
+                status_code=429,
+                detail=f"Rescan cooldown active — please wait {wait}s before rescanning this competitor.",
+                headers={"Retry-After": str(wait)},
+            )
         r.set(rl_key, "1", ex=60)
     except HTTPException:
         raise

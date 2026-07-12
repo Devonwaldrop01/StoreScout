@@ -66,9 +66,23 @@ describe("aggregateScanStates — Rescan All truthful counts", () => {
     expect(aggregateLabel(counts)).toContain("failed");
   });
 
+  it("a 429 cooldown is counted as rateLimited, NOT failed", () => {
+    const { counts } = aggregateScanStates(["completed", "rate_limited", "rate_limited", "failed"]);
+    expect(counts.completed).toBe(1);
+    expect(counts.rateLimited).toBe(2);
+    expect(counts.failed).toBe(1);
+    const label = aggregateLabel(counts);
+    expect(label).toContain("2 on cooldown");
+    expect(label).toContain("1 failed");
+    // a pure-cooldown batch must never read as a failure
+    const cooldownOnly = aggregateScanStates(["completed", "rate_limited"]).counts;
+    expect(aggregateLabel(cooldownOnly)).not.toContain("failed");
+    expect(aggregateLabel(cooldownOnly)).toContain("on cooldown");
+  });
+
   it("aggregateLabel shows live counts while active and a summary when done", () => {
-    expect(aggregateLabel({ total: 3, queued: 1, running: 1, completed: 1, failed: 0, active: 2 })).toMatch(/queued|running|done/);
-    expect(aggregateLabel({ total: 2, queued: 0, running: 0, completed: 2, failed: 0, active: 0 })).toContain("rescanned");
+    expect(aggregateLabel({ total: 3, queued: 1, running: 1, completed: 1, failed: 0, rateLimited: 0, active: 2 })).toMatch(/queued|running|done/);
+    expect(aggregateLabel({ total: 2, queued: 0, running: 0, completed: 2, failed: 0, rateLimited: 0, active: 0 })).toContain("rescanned");
   });
 });
 

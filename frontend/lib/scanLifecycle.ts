@@ -73,17 +73,19 @@ export interface ScanCounts {
   queued: number;
   running: number;
   completed: number;
-  failed: number;      // failed + timed_out + unavailable (all terminal failures)
+  failed: number;      // genuine terminal failures (failed + timed_out + unavailable)
+  rateLimited: number; // on cooldown — a valid rate limit, NOT a failure
   active: number;      // queued + running (still in flight)
 }
 
 export function aggregateScanStates(states: ScanUiState[]): { counts: ScanCounts; allTerminal: boolean } {
-  const counts: ScanCounts = { total: states.length, queued: 0, running: 0, completed: 0, failed: 0, active: 0 };
+  const counts: ScanCounts = { total: states.length, queued: 0, running: 0, completed: 0, failed: 0, rateLimited: 0, active: 0 };
   for (const s of states) {
     if (s === "queued") counts.queued += 1;
     else if (s === "running" || s === "already_in_progress") counts.running += 1;
     else if (s === "completed") counts.completed += 1;
-    else if (s === "failed" || s === "timed_out" || s === "unavailable" || s === "rate_limited") counts.failed += 1;
+    else if (s === "rate_limited") counts.rateLimited += 1;   // cooldown ≠ failure
+    else if (s === "failed" || s === "timed_out" || s === "unavailable") counts.failed += 1;
   }
   counts.active = counts.queued + counts.running;
   return { counts, allTerminal: counts.active === 0 && states.length > 0 };
@@ -98,9 +100,13 @@ export function aggregateLabel(counts: ScanCounts): string {
     if (counts.completed) parts.push(`${counts.completed} done`);
     return parts.join(" · ") || "Starting…";
   }
-  // all terminal — honest partial-success summary
-  if (counts.failed) return `${counts.completed} done · ${counts.failed} failed`;
-  return `${counts.completed} rescanned`;
+  // all terminal — honest partial summary; cooldowns are reported distinctly
+  // from failures so a rate limit never reads as "failed".
+  const parts: string[] = [];
+  if (counts.completed) parts.push(`${counts.completed} rescanned`);
+  if (counts.rateLimited) parts.push(`${counts.rateLimited} on cooldown`);
+  if (counts.failed) parts.push(`${counts.failed} failed`);
+  return parts.join(" · ") || "Done";
 }
 
 interface Options {
@@ -179,7 +185,7 @@ export function useScanLifecycle(competitorId: string, opts: Options = {}) {
 export function useRescanAll(ids: string[], opts: { onAllDone?: () => void; pollMs?: number; maxPolls?: number } = {}) {
   const { onAllDone, pollMs = 4000, maxPolls = 150 } = opts;
   const [active, setActive] = useState(false);
-  const [counts, setCounts] = useState<ScanCounts>({ total: 0, queued: 0, running: 0, completed: 0, failed: 0, active: 0 });
+  const [counts, setCounts] = useState<ScanCounts>({ total: 0, queued: 0, running: 0, completed: 0, failed: 0, rateLimited: 0, active: 0 });
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countRef = useRef(0);
   const statesRef = useRef<Map<string, ScanUiState>>(new Map());
