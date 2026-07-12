@@ -207,6 +207,14 @@ def store_index_stats(
     failed_n = _count(status="failed")
     attempted = verified_n + rejected_n + failed_n
 
+    # Exact count (not the capped 5000-row sample above, which undercounts once
+    # the index grows past the cap) of stores verified since UTC midnight.
+    try:
+        verified_today = db.table("shopify_store_index").select("id", count="exact")\
+            .eq("status", "verified").gte("last_verified_at", today).execute().count or 0
+    except Exception:
+        pass  # keep the sample-derived value as a fallback
+
     runs: List[dict] = []
     try:
         runs = db.table("store_index_runs")\

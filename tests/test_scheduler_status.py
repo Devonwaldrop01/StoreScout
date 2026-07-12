@@ -75,7 +75,7 @@ def test_record_dispatch_writes_heartbeat_keys(monkeypatch):
 def test_scheduled_index_task_records_dispatch_and_run(monkeypatch):
     events = []
     monkeypatch.setattr(sched, "record_dispatch", lambda stage: events.append(("dispatch", stage)))
-    monkeypatch.setattr(sched, "record_run", lambda stage, result: events.append(("run", stage, result.get("status"))))
+    monkeypatch.setattr(sched, "record_run", lambda stage, result, **kw: events.append(("run", stage, result.get("status"))))
 
     @sched.scheduled_index_task("stage_discovery")
     def task(force=False):
