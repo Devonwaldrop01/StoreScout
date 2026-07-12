@@ -623,7 +623,7 @@ function CompetitorsContent() {
               placeholder={
                 shopifyConnection
                   ? "Your connected store data is used automatically. Add any extra context — target customer, product focus, price range, brand positioning…"
-                  : "Describe your store — what do you sell, who's your customer, what's your price range? e.g. \"Women's activewear, $40-80, targeting fitness enthusiasts\""
+                  : "Describe your store — what do you sell and your price range? e.g. \"Women's activewear, $40-80\""
               }
               className="w-full text-sm rounded-md px-4 py-3 resize-none outline-none transition-all"
               style={{

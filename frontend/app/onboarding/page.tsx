@@ -184,7 +184,6 @@ function OnboardingContent() {
   const [category, setCategory] = useState<Category>("");
   const [goalId, setGoalId] = useState<GoalId>("");
   const [priceRange, setPriceRange] = useState<"" | "budget" | "mid" | "premium" | "luxury">("");
-  const [customer, setCustomer] = useState("");
   const [sells, setSells] = useState("");
   const [brandTraits, setBrandTraits] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
@@ -204,7 +203,6 @@ function OnboardingContent() {
       sells.trim() ? sells.trim() : (category && `Sells ${category}`),
       brandTraits.length > 0 && `${brandTraits.join(", ")} brand`,
       priceRange && `${priceRange} pricing`,
-      customer.trim() && `Sells to: ${customer.trim()}`,
       notes.trim() && notes.trim(),
     ].filter(Boolean).join(". ");
   }
@@ -630,19 +628,6 @@ function OnboardingContent() {
 
                 <div>
                   <p className="text-sm font-semibold mb-2" style={{ color: "var(--text)" }}>
-                    Who&apos;s your customer? <span className="font-normal" style={{ color: "var(--muted)" }}>(optional, sharpens matches)</span>
-                  </p>
-                  <input
-                    value={customer}
-                    onChange={(e) => setCustomer(e.target.value)}
-                    placeholder="e.g. small dog owners, new parents, golf enthusiasts, outdoor adventurers"
-                    className="w-full px-4 py-2.5 rounded-md text-sm outline-none"
-                    style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text)" }}
-                  />
-                </div>
-
-                <div>
-                  <p className="text-sm font-semibold mb-2" style={{ color: "var(--text)" }}>
                     How would you describe your brand? <span className="font-normal" style={{ color: "var(--muted)" }}>(pick any)</span>
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -733,7 +718,6 @@ function OnboardingContent() {
                   userApi.saveBusinessProfile({
                     category: category || undefined,
                     price_range: priceRange || undefined,
-                    target_customer: customer.trim() || undefined,
                     primary_goal: goalId || undefined,
                     sells: sells.trim() || undefined,
                     brand_traits: brandTraits.length ? brandTraits : undefined,
