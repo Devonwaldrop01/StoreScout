@@ -92,7 +92,8 @@ def list_watches(user_id: str = Depends(get_effective_user_id)):
             "pinned_price": pinned,
             "current_price": current_price,
             "available": prod.get("available"),
-            "removed": not prod,  # not found in latest snapshot = delisted
+            "removed": False,  # Absence in a sampled snapshot does not prove delisting.
+            "not_observed": not prod,
             "delta_pct": delta_pct,
         })
     return {"data": out, "cap": _cap_for(db, user_id)}

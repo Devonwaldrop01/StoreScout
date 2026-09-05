@@ -347,7 +347,7 @@ def verify_shopify(domain: str) -> Dict[str, Any]:
     confidence = min(100, confidence)
     return {
         "verified": confidence >= 50,
-        "monitorable": products_ok or products_restricted,
+        "monitorable": products_ok,
         "confidence": confidence,
         "signals": signals,
         "base_url": base_url,

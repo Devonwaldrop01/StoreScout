@@ -21,7 +21,7 @@ def decode_signature(ctx: Dict[str, Any]) -> str:
     """Stable hash of the inputs — regenerate only when the picture changes."""
     keys = [
         ctx.get("category"), ctx.get("pricing_tier"), ctx.get("product_count"),
-        round(ctx.get("median_price") or 0), round((ctx.get("promo_rate") or 0) * 100),
+        round(ctx.get("median_price") or 0), round(ctx.get("promo_rate") or 0),
         sorted((ctx.get("collection_names") or [])[:40]),
         {k: bool(v) for k, v in (ctx.get("flags") or {}).items()},
         ctx.get("blog_count"), ctx.get("content_score"),
@@ -49,7 +49,7 @@ def generate_brand_decode(ctx: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     if ctx.get("median_price"):
         money.append(f"median price ${ctx['median_price']:.0f}")
     if ctx.get("promo_rate") is not None:
-        money.append(f"{(ctx['promo_rate'] * 100):.0f}% of catalog discounted")
+        money.append(f"{ctx['promo_rate']:.0f}% of catalog discounted")
     if ctx.get("product_count"):
         money.append(f"~{ctx['product_count']} products")
 

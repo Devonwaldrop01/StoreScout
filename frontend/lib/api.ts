@@ -645,6 +645,10 @@ export interface PlaybookPlay {
   what_happened?: string;
   why_it_matters?: string;
   interpretation?: string;
+  decision?: string;
+  avoid?: string;
+  additional_data?: string[];
+  observed_at?: string;
   objective?: string;
   execution_paths?: { surface: string; action: string }[];
   expected_outcome?: string;
@@ -656,6 +660,7 @@ export interface PlaybookPlay {
 }
 
 export interface PlaybookResponse {
+  error?: string;
   plays: PlaybookPlay[];
   competitor_count: number;
   locked: boolean;
@@ -842,6 +847,7 @@ export interface WatchedProduct {
   current_price: number | null;
   available: boolean | null;
   removed: boolean;
+  not_observed?: boolean;
   delta_pct: number | null;
 }
 

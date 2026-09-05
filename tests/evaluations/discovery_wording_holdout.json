@@ -1,0 +1,76 @@
+{
+  "method": "synthetic held-out wording challenges; intended substitution labels are supplied assumptions",
+  "results": [
+    {
+      "case": "skin_wording",
+      "input": "unscented skin repair balm",
+      "human_substitute": "fragrance-free eczema moisturizer",
+      "weak_candidate": "skin repair cleansing brush",
+      "direct_score": {
+        "score": 5.0,
+        "matched_terms": [],
+        "product_evidence": true,
+        "query_coverage": 0.0,
+        "assessment": "insufficient product evidence"
+      },
+      "weak_score": {
+        "score": 45.0,
+        "matched_terms": [
+          "repair",
+          "skin"
+        ],
+        "product_evidence": true,
+        "query_coverage": 0.5,
+        "assessment": "candidate for review"
+      },
+      "direct_ranks_first": false
+    },
+    {
+      "case": "shelter_wording",
+      "input": "hiking shelter",
+      "human_substitute": "ultralight backpacking tent",
+      "weak_candidate": "hiking backpack",
+      "direct_score": {
+        "score": 5.0,
+        "matched_terms": [],
+        "product_evidence": true,
+        "query_coverage": 0.0,
+        "assessment": "insufficient product evidence"
+      },
+      "weak_score": {
+        "score": 45.0,
+        "matched_terms": [
+          "hiking"
+        ],
+        "product_evidence": true,
+        "query_coverage": 0.5,
+        "assessment": "candidate for review"
+      },
+      "direct_ranks_first": false
+    },
+    {
+      "case": "pet_wording",
+      "input": "raw dog treats",
+      "human_substitute": "freeze dried chicken reward bites",
+      "weak_candidate": "dog treat storage jar",
+      "direct_score": {
+        "score": 5.0,
+        "matched_terms": [],
+        "product_evidence": true,
+        "query_coverage": 0.0,
+        "assessment": "insufficient product evidence"
+      },
+      "weak_score": {
+        "score": 55.83,
+        "matched_terms": [
+          "dog",
+          "treat"
+        ],
+        "product_evidence": true,
+        "query_coverage": 0.667,
+        "assessment": "candidate for review"
+      },
+      "direct_ranks_first": false
+    }
+  ]
+}

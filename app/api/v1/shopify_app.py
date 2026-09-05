@@ -345,6 +345,8 @@ async def _verify_webhook_hmac(request: Request, secret: str) -> bool:
 @router.post("/webhooks/customers/data_request")
 async def customers_data_request(request: Request):
     settings = get_settings()
+    if not settings.shopify_api_secret:
+        raise HTTPException(503, "Shopify webhook verification is unavailable")
     if settings.shopify_api_secret:
         if not await _verify_webhook_hmac(request, settings.shopify_api_secret):
             raise HTTPException(401, "Invalid webhook HMAC")
@@ -354,6 +356,8 @@ async def customers_data_request(request: Request):
 @router.post("/webhooks/customers/redact")
 async def customers_redact(request: Request):
     settings = get_settings()
+    if not settings.shopify_api_secret:
+        raise HTTPException(503, "Shopify webhook verification is unavailable")
     if settings.shopify_api_secret:
         if not await _verify_webhook_hmac(request, settings.shopify_api_secret):
             raise HTTPException(401, "Invalid webhook HMAC")
@@ -363,6 +367,8 @@ async def customers_redact(request: Request):
 @router.post("/webhooks/shop/redact")
 async def shop_redact(request: Request):
     settings = get_settings()
+    if not settings.shopify_api_secret:
+        raise HTTPException(503, "Shopify webhook verification is unavailable")
     if settings.shopify_api_secret:
         if not await _verify_webhook_hmac(request, settings.shopify_api_secret):
             raise HTTPException(401, "Invalid webhook HMAC")

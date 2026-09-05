@@ -30,8 +30,10 @@ def normalize_product(p: dict, base_url: str) -> dict:
         if price is not None and compare is not None and compare > price:
             discounts.append(round((compare - price) / compare * 100, 2))
 
-    available = any(v.get("available") for v in variants)
+    observed_availability = [v["available"] for v in variants if isinstance(v.get("available"), bool)]
+    available = True if True in observed_availability else (False if variants and len(observed_availability) == len(variants) else None)
 
+    minimum_price = min(prices) if prices else None
     out = {
         "id": p.get("id"),
         "title": p.get("title"),
@@ -43,8 +45,10 @@ def normalize_product(p: dict, base_url: str) -> dict:
         "vendor": p.get("vendor"),
         "tags": p.get("tags", []),
         "variants_count": len(variants),
-        "available": bool(available),
-        "price_min": min(prices) if prices else None,
+        "available": available,
+        "price_min": minimum_price,
+        "price_min_variant_ids": [str(v["id"]) for v in variants if v.get("id") is not None
+                                  and prices and to_float(v.get("price")) == minimum_price],
         "price_max": max(prices) if prices else None,
         "compare_at_min": min(compare_prices) if compare_prices else None,
         "compare_at_max": max(compare_prices) if compare_prices else None,

@@ -120,6 +120,8 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
     # Keyed by handle; stores only the fields needed for change detection.
     insights["_product_index"] = {
         p["handle"]: {
+            "id": p.get("id"),
+            "price_min_variant_ids": p.get("price_min_variant_ids") or [],
             "title": p.get("title"),
             "product_url": p.get("product_url"),
             "price_min": p.get("price_min"),

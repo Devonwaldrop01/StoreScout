@@ -359,7 +359,7 @@ function SettingsContent() {
   async function handleResetPassword() {
     if (!userEmail) return;
     await supabase.auth.resetPasswordForEmail(userEmail, {
-      redirectTo: `${window.location.origin}/auth/update-password`,
+      redirectTo: `${window.location.origin}/auth/reset-password`,
     });
     setPasswordResetSent(true);
     setTimeout(() => setPasswordResetSent(false), 5000);
@@ -917,7 +917,7 @@ function SettingsContent() {
                   </p>
                   {klaviyoTestResult && (
                     <p className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>
-                      {klaviyoTestResult.total_profiles.toLocaleString()} subscribers
+                      {klaviyoTestResult.total_profiles.toLocaleString()} list memberships (may overlap)
                       {" · "}{klaviyoTestResult.list_count} list{klaviyoTestResult.list_count !== 1 ? "s" : ""}
                     </p>
                   )}

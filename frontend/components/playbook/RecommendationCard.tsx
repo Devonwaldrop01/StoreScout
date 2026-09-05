@@ -36,8 +36,9 @@ export function RecommendationCard({ play, done, onDone }: { play: PlaybookPlay;
   return (
     <div className="rounded-md overflow-hidden transition-opacity" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: `3px solid ${prioColor}`, opacity: done ? 0.55 : 1 }}>
       {/* Header — category + confidence + the strategy title */}
-      <button onClick={() => setOpen((v) => !v)} className="w-full text-left px-4 sm:px-5 py-4 transition-colors hover:bg-white/[.015]">
+      <button aria-expanded={open} onClick={() => setOpen((v) => !v)} className="w-full text-left px-4 sm:px-5 py-4 transition-colors hover:bg-white/[.015]">
         <div className="flex items-center gap-2 flex-wrap mb-2">
+          {play.decision && <span className="text-xs font-semibold">{play.decision}</span>}
           {play.category && (
             <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded" style={{ background: "var(--bg3)", color: "var(--text-2)" }}>{play.category}</span>
           )}
@@ -120,6 +121,8 @@ export function RecommendationCard({ play, done, onDone }: { play: PlaybookPlay;
             </div>
           )}
 
+          {play.avoid && <p className="text-xs"><strong>Avoid:</strong> {play.avoid}</p>}
+          {!!play.additional_data?.length && <p className="text-xs"><strong>Would improve this review:</strong> {play.additional_data.join(", ")}.</p>}
           {/* Actions */}
           <div className="flex items-center gap-2 pt-1">
             <button onClick={onDone} className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md transition-all hover:brightness-110"

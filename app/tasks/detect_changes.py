@@ -39,8 +39,14 @@ def _product_index(snapshot_data: dict) -> Dict[str, dict]:
 
 
 def _detect(old_snap: dict, new_snap: dict) -> List[dict]:
-    old_products = _product_index(old_snap)
+    old_products = dict(_product_index(old_snap))
     new_products = _product_index(new_snap)
+    # A renamed handle is still the same Shopify product when both IDs are known.
+    old_by_id = {str(p["id"]): h for h,p in old_products.items() if p.get("id") is not None}
+    for handle, product in new_products.items():
+        previous = old_by_id.get(str(product.get("id"))) if product.get("id") is not None else None
+        if previous and previous != handle and handle not in old_products:
+            old_products[handle] = old_products.pop(previous)
     changes: List[dict] = []
     # Absence from a partial (or legacy top-N) snapshot is not evidence of
     # addition/removal. Comparable products can still have observed changes.
@@ -85,6 +91,13 @@ def _detect(old_snap: dict, new_snap: dict) -> List[dict]:
         old_prod = old_products.get(handle)
         if not old_prod:
             continue
+        # Future snapshots identify the variant(s) supplying the minimum price.
+        # Without a shared identity a changed minimum may be assortment, not repricing.
+        # Mixed old/new formats also wait for a second comparable observation.
+        if "price_min_variant_ids" in old_prod or "price_min_variant_ids" in new_prod:
+            shared = set(old_prod.get("price_min_variant_ids") or []) & set(new_prod.get("price_min_variant_ids") or [])
+            if not shared:
+                continue
         old_price = old_prod.get("price_min")
         new_price = new_prod.get("price_min")
         if old_price is None or new_price is None or old_price == 0:

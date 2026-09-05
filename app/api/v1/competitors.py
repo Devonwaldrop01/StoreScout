@@ -12,7 +12,7 @@ import anthropic as _anthropic
 logger = logging.getLogger(__name__)
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from app.core.auth import get_current_user_id, get_effective_user_id
 from app.core.config import get_settings
@@ -376,7 +376,7 @@ def _discover_similar_inner(user_id: str) -> dict:
 # ── AI-powered competitor discovery ──────────────────────────────────────────
 
 class DiscoverAIRequest(BaseModel):
-    description: str
+    description: str = Field(min_length=10, max_length=2000)
 
 
 @router.post("/discover-ai")
@@ -387,9 +387,7 @@ async def discover_ai(
     db = get_supabase()
     settings = get_settings()
 
-    if not settings.anthropic_api_key:
-        logger.error("discover-ai: ANTHROPIC_API_KEY is not configured")
-        raise HTTPException(status_code=500, detail="AI service not configured — contact support.")
+    from app.services.discovery_quality import relevance, is_recent_verified
 
     FREE_LIMIT = 1
 
@@ -503,13 +501,16 @@ async def discover_ai(
         from app.services.store_dna import normalize_keywords
         from app.services.store_index import normalize_domain as _nd2
         kw_sources: list = [body.description, user_category]
+        profile = {}
         try:
-            bp = db.table("business_profiles").select("sells, brand_traits, description")\
+            bp = db.table("business_profiles").select("*")\
                 .eq("user_id", user_id).maybe_single().execute()
             if bp and bp.data:
-                kw_sources += [bp.data.get("sells"), bp.data.get("brand_traits"), bp.data.get("description")]
+                profile = bp.data
+                kw_sources += [bp.data.get("sells"), bp.data.get("brand_traits"), bp.data.get("notes")]
         except Exception:
             pass
+        audience = profile.get("target_customer")
         own_dna_kw = None
         if my_store_hostname:
             try:
@@ -520,11 +521,11 @@ async def discover_ai(
                     kw_sources.append(r2.data.get("subcategory"))
             except Exception:
                 pass
-        user_kw = normalize_keywords([own_dna_kw, kw_sources])
+        user_kw = normalize_keywords([kw_sources, own_dna_kw])
         if user_kw or user_category:
             user_match_ctx = {
-                "category": user_category, "pricing_tier": user_price_tier,
-                "dna_keywords": user_kw,
+                "category": user_category, "pricing_tier": {"mid": "mid-market"}.get(profile.get("price_range"), profile.get("price_range")),
+                "dna_keywords": user_kw, "target_customer": audience,
             }
     except Exception as umc_exc:
         logger.debug("discover-ai user match context skipped: %s", umc_exc)
@@ -609,6 +610,7 @@ Rules:
     # ── Stage 0a: the competitor knowledge graph — StoreScout's own
     # accumulated who-competes-with-whom map. Queried BEFORE any AI call;
     # confirmed non-competitors (negative weight) are excluded everywhere.
+    positive: list = []
     graph_keys = [k for k in [my_store_hostname, f"user:{user_id}"] if k]
     try:
         from app.services.store_index import graph_neighbors
@@ -616,29 +618,7 @@ Rules:
         blocked = {d for d, w in neighbors.items() if w < 0}
         positive = [d for d, w in sorted(neighbors.items(), key=lambda kv: -kv[1])
                     if w > 0 and d not in seen]
-        if positive:
-            g_res = db.table("shopify_store_index")\
-                .select("domain, brand_name, category, subcategory, description, verification_confidence, verification_signals")\
-                .eq("status", "verified")\
-                .gte("verification_confidence", settings.shopify_index_min_confidence)\
-                .in_("domain", positive[:12])\
-                .execute()
-            g_rows = {r["domain"]: r for r in (g_res.data or [])}
-            for d in positive:
-                row = g_rows.get(d)
-                if not row or d in seen or len(verified) >= 4:
-                    continue
-                seen.add(d)
-                verified.append({
-                    "domain": d,
-                    "reason": (row.get("description") or "in your competitive neighborhood")[:90],
-                    "confidence": row.get("verification_confidence"),
-                    "signals": row.get("verification_signals") or [],
-                    "source": "graph",
-                    "category": row.get("category"),
-                })
-            if verified:
-                logger.info("discover-ai: %d matches from the competitor graph", len(verified))
+        # Positive edges join the same evidence-based ranking as index candidates.
     except Exception as g_exc:
         logger.debug("discover-ai graph lookup skipped: %s", g_exc)
 
@@ -646,8 +626,7 @@ Rules:
     # asking Claude. Every hit here is pre-verified, instant, and free.
     # Guarded end-to-end so discovery works identically before migration 007.
     try:
-        import re as _re
-        terms = [t for t in _re.split(r"[^a-z0-9]+", body.description.lower()) if len(t) >= 4][:6]
+        terms = normalize_keywords(body.description, limit=8)
         if terms:
             ors = ",".join(
                 f"{col}.ilike.%{t}%"
@@ -656,11 +635,11 @@ Rules:
             )
             def _idx_query(with_cat_conf: bool, by_category: bool):
                 cols = ("domain, brand_name, category, subcategory, description, "
-                        "verification_confidence, verification_signals, business_stage, pricing_tier")
+                        "verification_confidence, verification_signals, business_stage, pricing_tier, status, last_verified_at")
                 if with_cat_conf:
                     # DNA columns (022) ride with the richer select — a missing
                     # column here just drops us to the leaner variant below.
-                    cols += ", category_confidence, category_evidence, dna_keywords, store_dna, target_customer"
+                    cols += ", category_confidence, category_evidence, dna_keywords, store_dna, target_customer, product_titles, product_types"
                 q = db.table("shopify_store_index")\
                     .select(cols)\
                     .eq("status", "verified")\
@@ -668,8 +647,7 @@ Rules:
                 # Direct-competitor match: same classified category. Otherwise
                 # fall back to keyword overlap on the description.
                 q = q.eq("category", user_category) if by_category else q.or_(ors)
-                return q.order("verification_confidence", desc=True)\
-                        .limit(TARGET_VERIFIED * 3).execute()
+                return q.order("last_verified_at", desc=True).limit(200).execute()
 
             # Category-exact matches first (true direct competitors), then keyword
             # matches to broaden. Prefer the 015 columns; fall back cleanly.
@@ -685,6 +663,15 @@ Rules:
                 for r in (res.data or []):
                     r["_by_category"] = by_cat
                     idx_rows.append(r)
+            try:
+                extra = db.table("shopify_store_index").select("*").eq("status", "verified")
+                extra = extra.overlaps("dna_keywords", terms).order("last_verified_at", desc=True).limit(200).execute()
+                idx_rows.extend(extra.data or [])
+                if positive:
+                    graph_rows = db.table("shopify_store_index").select("*").in_("domain", positive[:12]).execute()
+                    idx_rows.extend(graph_rows.data or [])
+            except Exception as retrieval_exc:
+                logger.debug("Additional discovery retrieval unavailable: %s", retrieval_exc)
             # Dedupe by domain, keeping the category-exact hit if present.
             _by_domain: dict = {}
             for r in idx_rows:
@@ -699,65 +686,15 @@ Rules:
             # knowledge-processed) are allowed through on verification confidence.
             cat_floor = settings.shopify_index_category_min_confidence
 
-            # Relevance ranking: prefer stores the user actually competes
-            # against. A startup fitness brand should see growing peers first —
-            # giants may still appear, but they never dominate the list.
-            def _relevance(row: dict) -> float:
-                score = float(row.get("verification_confidence") or 0)
-                stage = row.get("business_stage")
-                tier = row.get("pricing_tier")
-                # Same classified category = a genuine direct competitor: rank it
-                # decisively above loose keyword matches.
-                if row.get("_by_category"):
-                    score += 60
-                    cc = row.get("category_confidence")
-                    if cc:
-                        score += min(20, cc / 5)  # more confident classification ranks higher
-                # Store-DNA overlap — the difference between a same-category store
-                # and one that ACTUALLY sells what the user competes on. Up to +45,
-                # so a strong DNA match can lift a keyword hit above a weak
-                # category hit and reorders same-category rivals by real similarity.
-                if user_match_ctx is not None:
-                    try:
-                        from app.services.store_dna import dna_match_score
-                        score += dna_match_score(row, user_match_ctx) * 0.45
-                    except Exception:
-                        pass
-                if user_stage and stage:
-                    order = ["startup", "growing", "established", "enterprise"]
-                    try:
-                        gap = abs(order.index(stage) - order.index(user_stage))
-                        score += (3 - gap) * 8   # same stage +24, one apart +16…
-                    except ValueError:
-                        pass
-                if user_price_tier and tier:
-                    score += 12 if tier == user_price_tier else 0
-                if stage == "enterprise" and user_stage in (None, "startup", "growing"):
-                    score -= 30  # underdogs first — Nike shouldn't crowd out peers
-                # Hard category contradiction (e.g. a furniture store surfacing
-                # on an apparel search via incidental keyword overlap): only when
-                # the row's classification is confident enough to trust. Adjacent
-                # categories are untouched; this just keeps the wrong market out
-                # of the top of the list.
-                if user_category and not row.get("_by_category"):
-                    rc = row.get("category")
-                    cc2 = row.get("category_confidence")
-                    if rc and (cc2 is None or cc2 >= cat_floor):
-                        try:
-                            from app.services.store_dna import category_relation
-                            if category_relation(rc, user_category) == "contradiction":
-                                score -= 50
-                        except Exception:
-                            pass
-                return score
+            # Compare product evidence; inferred company size is not relevance.
+            ranked = sorted(idx_res.data or [], key=lambda r: relevance(r, user_match_ctx)["score"], reverse=True)
 
-            ranked = sorted(idx_res.data or [], key=_relevance, reverse=True)
-
-            # Cap index hits at 5 of the 8 slots — keyword matching is crude,
-            # so Claude always gets room to add description-tailored picks.
             for row in ranked:
                 d = row["domain"]
-                if d in seen or d in blocked or len(verified) >= 5:
+                if d in seen or d in blocked or len(verified) >= TARGET_VERIFIED:
+                    continue
+                match = relevance(row, user_match_ctx)
+                if not is_recent_verified(row, settings.shopify_index_min_confidence) or not match["matched_terms"]:
                     continue
                 # Withhold low-confidence classifications — quality over padding.
                 cc = row.get("category_confidence")
@@ -774,7 +711,7 @@ Rules:
                     "confidence": row.get("verification_confidence"),
                     "signals": row.get("verification_signals") or [],
                     "source": "index",
-                    "category": row.get("category"),
+                    "category": row.get("category"), "relevance": match,
                 })
             if verified:
                 logger.info("discover-ai: %d instant matches from store index", len(verified))
@@ -782,7 +719,7 @@ Rules:
         logger.debug("discover-ai index-first lookup skipped: %s", idx_exc)
 
     loop_error: Exception | None = None
-    for batch in range(MAX_BATCHES):
+    for batch in range(MAX_BATCHES if settings.anthropic_api_key and len(verified) < TARGET_VERIFIED else 0):
         try:
             suggestions = await asyncio.get_event_loop().run_in_executor(
                 None, _call_claude, _discovery_prompt(sorted(seen))
@@ -817,7 +754,7 @@ Rules:
         to_probe = []
         for s in fresh:
             row = cached_rows.get(s["domain"])
-            if row and row.get("status") == "verified" and (row.get("verification_confidence") or 0) >= settings.shopify_index_min_confidence:
+            if row and is_recent_verified(row, settings.shopify_index_min_confidence):
                 verified.append({
                     **s,
                     "confidence": row.get("verification_confidence"),
@@ -825,7 +762,7 @@ Rules:
                     "source": "index",
                 })
             elif row and row.get("status") in ("rejected", "failed") and (row.get("last_verified_at") or "") >= recent_cutoff:
-                relevant_other.append({**s, "note": "Not a Shopify store — we can't monitor it yet"})
+                relevant_other.append({**s, "note": "Catalog access could not be verified; platform and relevance need review"})
             else:
                 to_probe.append(s)
 
@@ -837,9 +774,9 @@ Rules:
                 verified.append({**s, "confidence": v["confidence"], "signals": v["signals"]})
             elif v["verified"]:
                 # Real Shopify store with a locked catalog — show it honestly
-                relevant_other.append({**s, "note": "Shopify store, but its catalog is private — we can't scan it yet"})
+                relevant_other.append({**s, "note": "Shopify signals found, but catalog access could not be verified"})
             else:
-                relevant_other.append({**s, "note": "Not a Shopify store — we can't monitor it yet"})
+                relevant_other.append({**s, "note": "Catalog access could not be verified; platform and relevance need review"})
             # Write every probe back into the index — discovery compounds it for free
             writeback_rows.append({
                 "domain": s["domain"],
@@ -887,15 +824,7 @@ Rules:
     except Exception as rank_exc:
         logger.debug("discover-ai final re-rank skipped: %s", rank_exc)
 
-    # ── Feed the graph: every verified suggestion strengthens the map, so
-    # the next search (by this user or a similar store) needs less AI.
-    try:
-        from app.services.store_index import record_competitor_edge
-        primary_key = my_store_hostname or f"user:{user_id}"
-        for v in verified[:10]:
-            record_competitor_edge(db, primary_key, v["domain"], "discovery")
-    except Exception as edge_exc:
-        logger.debug("discover-ai edge write-back skipped: %s", edge_exc)
+    # Merely showing a suggestion is not evidence that two stores compete.
 
     # ── Demand-driven supply: this user's niche came back thin, which usually
     # means the index doesn't cover it yet. Seed it in the background so the
@@ -925,6 +854,7 @@ Rules:
         "data": {
             "suggestions": verified[:10],
             "relevant_non_shopify": relevant_other[:8],
+            "quality_note": "Candidates need product, audience and price review. Platform verification does not establish competitive relevance.",
             "searches_used": searches_used if is_free else None,
             "searches_limit": FREE_LIMIT if is_free else None,
         }

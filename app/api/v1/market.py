@@ -70,13 +70,13 @@ def _user_market_context(db, user_id: str) -> str:
     # Business profile (from onboarding) — what they sell, in their words.
     if not parts:
         try:
-            bp = db.table("business_profiles").select("sells, description")\
+            bp = db.table("business_profiles").select("sells, notes")\
                 .eq("user_id", user_id).maybe_single().execute()
             d = (bp.data if bp else {}) or {}
             if d.get("sells"):
                 parts.append(f"sells: {d['sells']}")
-            elif d.get("description"):
-                parts.append(str(d["description"])[:160])
+            elif d.get("notes"):
+                parts.append(str(d["notes"])[:160])
         except Exception:
             pass
     return " · ".join(parts) if parts else "a Shopify DTC store (category unknown)"

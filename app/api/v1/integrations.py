@@ -85,9 +85,9 @@ def get_integration_hub(user_id: str = Depends(get_current_user_id)):
         row = {}
     if row.get("klaviyo_api_key"):
         connected.append("klaviyo")
-    if row.get("ga4_property_id"):
+    if row.get("google_ga4_property_id"):
         connected.append("ga4")
-    if row.get("gsc_site_url"):
+    if row.get("google_gsc_site_url"):
         connected.append("gsc")
     try:
         sc = db.table("shopify_connections").select("shop, access_token")\
@@ -96,19 +96,16 @@ def get_integration_hub(user_id: str = Depends(get_current_user_id)):
             connected.append("shopify")
     except Exception:
         pass
-    # Fallback: if they've added their own store as a tracked competitor, treat
-    # business-level data as partially present even without the Admin app.
-    if "shopify" not in connected:
-        try:
-            ms = db.table("competitors").select("id").eq("user_id", user_id)\
-                .eq("is_my_store", True).limit(1).execute()
-            if ms and ms.data:
-                connected.append("shopify")
-        except Exception:
-            pass
+    # Public storefront tracking is not an authenticated Shopify Admin connection.
+    competitor_count = 0
+    try:
+        res = db.table("competitors").select("id", count="exact").eq("user_id", user_id).eq("is_active", True).eq("is_my_store", False).execute()
+        competitor_count = res.count or 0
+    except Exception:
+        pass
 
     try:
-        return {"data": build_hub(connected)}
+        return {"data": build_hub(connected, competitor_count=competitor_count)}
     except Exception as exc:
         logger.warning("integration hub build failed: %s", exc)
         return {"data": build_hub([])}
@@ -223,9 +220,9 @@ def get_klaviyo_context(user_id: str) -> Optional[str]:
         largest_name = largest.get("attributes", {}).get("name", "")
         largest_count = largest.get("attributes", {}).get("profile_count") or 0
 
-        parts = [f"Email list: {total_profiles:,} subscribers across {list_count} list{'s' if list_count != 1 else ''}"]
+        parts = [f"Email sample: {total_profiles:,} list memberships (not unique subscribers) across {list_count} list{'s' if list_count != 1 else ''}"]
         if largest_name and list_count > 1:
-            parts.append(f"largest list: \"{largest_name}\" ({largest_count:,} subscribers)")
+            parts.append(f"largest list: \"{largest_name}\" ({largest_count:,} profiles)")
 
         # Recent email campaign cadence — tells the AI how active their email program is
         # and when they last sent, so it can recommend timing realistically.
@@ -244,12 +241,16 @@ def get_klaviyo_context(user_id: str) -> Optional[str]:
                 last_send: Optional[datetime] = None
                 for c in camps:
                     attrs = c.get("attributes", {})
-                    raw = attrs.get("send_time") or attrs.get("scheduled_at") or attrs.get("created_at")
+                    if str(attrs.get("status") or "").lower() != "sent":
+                        continue
+                    raw = attrs.get("send_time")
                     if not raw:
                         continue
                     try:
                         sent = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
                     except Exception:
+                        continue
+                    if sent > datetime.now(timezone.utc):
                         continue
                     if sent >= cutoff:
                         recent += 1
@@ -257,7 +258,7 @@ def get_klaviyo_context(user_id: str) -> Optional[str]:
                         last_send = sent
                 if last_send:
                     days_ago = max(0, (datetime.now(timezone.utc) - last_send).days)
-                    parts.append(f"email cadence: {recent} campaign{'s' if recent != 1 else ''} in last 30d, last sent {days_ago}d ago")
+                    parts.append(f"sample of up to 20 recent campaign records: {recent} campaign{'s' if recent != 1 else ''} in last 30d, last sent {days_ago}d ago")
         except Exception as _ce:
             logger.debug("Klaviyo campaign cadence fetch failed for user %s: %s", user_id, _ce)
 
@@ -649,11 +650,11 @@ def get_shopify_context(user_id: str) -> Optional[str]:
         )
         if resp.status_code == 200:
             variants = [v for p in resp.json().get("products", []) for v in (p.get("variants") or [])]
-            tracked = [v for v in variants if v.get("inventory_management")]
+            tracked = [v for v in variants if v.get("inventory_management") and isinstance(v.get("inventory_quantity"), (int, float))]
             oos = sum(1 for v in tracked if (v.get("inventory_quantity") or 0) <= 0)
             if tracked:
                 parts.append(
-                    f"Your store inventory (Shopify Admin): {oos} of {len(tracked)} tracked variants out of stock"
+                    f"Your inventory sample (first 250 products; Shopify Admin): {oos} of {len(tracked)} tracked variants out of stock"
                 )
     except Exception as exc:
         logger.debug("Shopify inventory context failed for user %s: %s", user_id, exc)

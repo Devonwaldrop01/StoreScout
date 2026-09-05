@@ -1,0 +1,69 @@
+{
+  "source": "https://www.allbirds.com/products.json?limit=10",
+  "observed_at": "2026-09-05T18:03:29.938449+00:00",
+  "evaluation": "Replay of existing real ten-product sample at observation time, not a new fetch",
+  "plays": [
+    {
+      "id": "baseline-sample-allbirds",
+      "section": "watch",
+      "priority": 35,
+      "competitor_id": "sample-allbirds",
+      "hostname": "allbirds.com",
+      "source": "snapshot",
+      "category": "Pricing",
+      "title": "Establish product comparability with allbirds.com",
+      "what_happened": "allbirds.com: 10 products in the observed catalog sample on 2026-09-05. 0% of sampled products have a same-variant compare-at discount. Examples: Free Returns Coverage, Men's Strider Explore - Natural Black (Dark Grey Sole), Women's Dasher NZ - Blizzard/Deep Navy (Blizzard Sole).",
+      "why_it_matters": "Your product focus is not yet recorded. This is a tracked competitor; commercial overlap still needs confirmation.",
+      "interpretation": "A catalog observation is a review starting point, not evidence that a response is needed.",
+      "objective": "Decide whether there is a comparable offer worth monitoring.",
+      "execution_paths": [
+        {
+          "surface": "Product Pages",
+          "action": "Select the closest comparable product from this sample and your catalog; compare size, materials, variant, delivery cost and currency. Record whether it serves the same buyer before responding."
+        }
+      ],
+      "expected_outcome": "A documented comparison may prevent an unnecessary promotion; no sales lift is predicted.",
+      "evidence": [
+        "allbirds.com: 10 products in the observed catalog sample on 2026-09-05. 0% of sampled products have a same-variant compare-at discount. Examples: Free Returns Coverage, Men's Strider Explore - Natural Black (Dark Grey Sole), Women's Dasher NZ - Blizzard/Deep Navy (Blizzard Sole).",
+        "Coverage: partial or unknown; not a whole-market conclusion"
+      ],
+      "confidence": "estimated",
+      "priority_label": "low",
+      "effort": "1 hour",
+      "timeframe": "this week",
+      "headline": "Establish product comparability with allbirds.com",
+      "action": "Select the closest comparable product from this sample and your catalog; compare size, materials, variant, delivery cost and currency. Record whether it serves the same buyer before responding.",
+      "deadline": "this week",
+      "type": "pricing",
+      "tab": "overview",
+      "detail": {
+        "steps": [
+          "Product Pages: Select the closest comparable product from this sample and your catalog; compare size, materials, variant, delivery cost and currency. Record whether it serves the same buyer before responding."
+        ],
+        "why": "Your product focus is not yet recorded. This is a tracked competitor; commercial overlap still needs confirmation.",
+        "outcome": "A documented comparison may prevent an unnecessary promotion; no sales lift is predicted.",
+        "competitors": [
+          {
+            "hostname": "allbirds.com",
+            "metric": "allbirds.com: 10 products in the observed catalog sample on 2026-09-05. 0% of sampled products have a same-variant compare-at discount. Examples: Free Returns Coverage, Men's Strider Explore - Natural Black (Dark Grey Sole), Women's Dasher NZ - Blizzard/Deep Navy (Blizzard Sole)."
+          }
+        ]
+      },
+      "draft_asset": null,
+      "decision": "Watch",
+      "avoid": "Do not infer competitor sales, intent or customer response. Do not change a price from a catalog-wide average or a single observation.",
+      "additional_data": [
+        "confirmed equivalent products",
+        "unit economics and margin",
+        "current inventory",
+        "sales and conversion performance"
+      ],
+      "observed_at": "2026-09-05T18:03:29.938449+00:00",
+      "fact_ids": [
+        "snapshot:sample-allbirds:2026-09-05T18:03:29.938449+00:00"
+      ],
+      "engine_version": 1,
+      "fact_confidence": "observed"
+    }
+  ]
+}
