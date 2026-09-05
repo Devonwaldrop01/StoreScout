@@ -36,7 +36,8 @@ def safe_float(x) -> Optional[float]:
     if x is None:
         return None
     try:
-        return float(x)
+        value = float(x)
+        return value if math.isfinite(value) and value >= 0 else None
     except Exception:
         return None
 
@@ -219,7 +220,7 @@ def compute_new_vs_old_and_updates(products: List[Dict[str, Any]]) -> Dict[str, 
 def compute_discounted_vs_full_price(products: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Builds comparisons.discounted_vs_full_price
-    Uses compare_at_min vs price_min to determine a valid discount.
+    Uses markdowns calculated within the same variant.
     """
     total = len(products)
     if total == 0:
@@ -232,7 +233,7 @@ def compute_discounted_vs_full_price(products: List[Dict[str, Any]]) -> Dict[str
     for p in products:
         pr = safe_float(p.get("price_min"))
         ca = safe_float(p.get("compare_at_min"))
-        d = compute_discount_pct(pr, ca)
+        d = product_discount_pct(p)
 
         if d is not None:
             discounted_count += 1
@@ -298,6 +299,16 @@ def compute_discount_pct(price_min: Optional[float], compare_at_min: Optional[fl
     if compare_at_min > price_min and compare_at_min > 0:
         return round((compare_at_min - price_min) / compare_at_min * 100.0, 2)
     return None
+
+
+def product_discount_pct(product: dict) -> Optional[float]:
+    """Use paired variant evidence; preserve legacy normalized-input support."""
+    if product.get("discount_method") == "same_variant":
+        return safe_float(product.get("discount_pct_min"))
+    return compute_discount_pct(safe_float(product.get("price_min")),
+                                safe_float(product.get("compare_at_min")))
+
+
 def compute_tag_analysis(products: List[Dict[str, Any]]) -> Dict[str, Any]:
     total = len(products)
     if not total:
@@ -386,7 +397,8 @@ def analyze_launch_timeline(products: List[Dict[str, Any]]) -> Dict[str, Any]:
         if x is None:
             return None
         try:
-            return float(x)
+            value = float(x)
+            return value if math.isfinite(value) and value >= 0 else None
         except Exception:
             return None
     
@@ -655,9 +667,9 @@ def analyze_products(products: List[Dict[str, Any]]) -> Dict[str, Any]:
     for p in products:
         pr = safe_float(p.get("price_min"))
         ca = safe_float(p.get("compare_at_min"))
-        if pr is None or pr <= 0:
+        if pr is None:
             continue
-        d = compute_discount_pct(pr, ca)
+        d = product_discount_pct(p)
         if d is not None:
             discounts.append(d)
 
@@ -665,10 +677,10 @@ def analyze_products(products: List[Dict[str, Any]]) -> Dict[str, Any]:
 
     # lists
     def newest_dt(p):
-        return parse_dt(p.get("created_at")) or parse_dt(p.get("published_at")) or datetime.min
+        return parse_dt(p.get("created_at")) or parse_dt(p.get("published_at")) or datetime.min.replace(tzinfo=timezone.utc)
 
     def updated_dt(p):
-        return parse_dt(p.get("updated_at")) or datetime.min
+        return parse_dt(p.get("updated_at")) or datetime.min.replace(tzinfo=timezone.utc)
 
     def expensive_key(p):
         v = safe_float(p.get("price_min"))
@@ -677,7 +689,7 @@ def analyze_products(products: List[Dict[str, Any]]) -> Dict[str, Any]:
     def discount_key(p):
         pr = safe_float(p.get("price_min"))
         ca = safe_float(p.get("compare_at_min"))
-        d = compute_discount_pct(pr, ca)
+        d = product_discount_pct(p)
         return (d is not None, d or -1)
 
     top_expensive = sorted(products, key=expensive_key, reverse=True)[:10]
@@ -712,7 +724,7 @@ def analyze_products(products: List[Dict[str, Any]]) -> Dict[str, Any]:
         ca = safe_float(p.get("compare_at_min"))
         if pr is None:
             continue
-        d = compute_discount_pct(pr, ca)
+        d = product_discount_pct(p)
         if d is not None:
             discounted_prices.append(pr)
             discount_pcts.append(d)
@@ -959,7 +971,7 @@ def analyze_products(products: List[Dict[str, Any]]) -> Dict[str, Any]:
             "compare_at_min": ca,
             "available": bool(p.get("available")),
             "vendor": p.get("vendor"),
-            "discount_pct": compute_discount_pct(pr, ca),
+            "discount_pct": product_discount_pct(p),
             "created_at": p.get("created_at"),
             "updated_at": p.get("updated_at"),
             "images": (p.get("images") or [])[:1],
@@ -1006,7 +1018,7 @@ def analyze_products(products: List[Dict[str, Any]]) -> Dict[str, Any]:
             "avg_discount_pct": round(sum(discounts) / len(discounts), 2) if discounts else None,
             "median_discount_pct": round(median(discounts), 2) if discounts else None,
             "max_discount_pct": round(max(discounts), 2) if discounts else None,
-            "note": "A product is only counted as discounted when compare_at_min > price_min.",
+            "note": "A product is discounted when at least one variant has a compare-at price above its own price. Discount depth is the smallest valid markdown among its discounted variants.",
         },
         "content_signals": {
             "avg_images_per_product": avg_images,

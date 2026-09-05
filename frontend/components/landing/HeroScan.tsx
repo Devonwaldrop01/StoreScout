@@ -17,7 +17,7 @@ const STAGES = [
   { label: "Scanning storefront…", ms: 1100 },
   { label: "847 products found", ms: 900, stat: true },
   { label: "Analyzing pricing…", ms: 850 },
-  { label: "Analyzing inventory…", ms: 850 },
+  { label: "Checking public availability…", ms: 850 },
   { label: "Analyzing brand & collections…", ms: 850 },
   { label: "Finding opportunities…", ms: 1000 },
 ];
@@ -68,7 +68,7 @@ export function HeroScan() {
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#28c840" }} />
           </div>
           <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#6C7164" }}>
-            StoreScout · first scan
+            StoreScout · example scan
           </span>
           {done && (
             <button
@@ -124,7 +124,7 @@ export function HeroScan() {
                   <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#4CC38A" }}>Opportunity found</span>
                 </div>
                 <p className="text-xs leading-relaxed font-sans" style={{ color: "#A8AC9E" }}>
-                  31% of their catalog is discounted — heavy markdown pressure. Their full-price lane is wide open.
+                  In this example, 31% of products have a compare-at markdown. Review the products to understand which categories are affected.
                 </p>
               </div>
               <div
@@ -135,7 +135,7 @@ export function HeroScan() {
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#FFB224" }}>Your move</span>
                   <p className="text-xs leading-relaxed mt-0.5 font-sans" style={{ color: "#ECEEE6" }}>
-                    Hold full price. Lead with quality signals while they train customers to wait for sales.
+                    Compare equivalent products and your own margins before changing a promotion. The catalog does not reveal why a competitor changed prices.
                   </p>
                 </div>
               </div>
@@ -144,7 +144,7 @@ export function HeroScan() {
         </div>
       </div>
       <p className="text-center text-xs mt-3" style={{ color: "var(--muted)", opacity: 0.55 }}>
-        This is a real first scan — yours takes about 60 seconds.
+        Illustrative scan animation · example figures, not a live result.
       </p>
     </div>
   );

@@ -43,6 +43,7 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
     const err = await res.json().catch(() => ({ detail: res.statusText }));
     throw Object.assign(new Error(err.detail || "API error"), { status: res.status, data: err });
   }
+  if (res.status === 204) return undefined as T;
   return res.json();
 }
 
@@ -723,6 +724,8 @@ export interface NotificationPrefs {
 }
 
 export interface PublicReport {
+  catalog_complete?: boolean;
+  catalog_coverage_reason?: string;
   snapshot_id: string;
   scanned_at: string;
   hostname: string;

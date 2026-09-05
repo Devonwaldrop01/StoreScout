@@ -52,6 +52,7 @@ def _tier_limits(tier: str) -> dict:
         "free": {"max_competitors": s.free_max_competitors, "scan_hours": s.free_scan_interval_hours},
         "pro": {"max_competitors": s.pro_max_competitors, "scan_hours": s.pro_scan_interval_hours},
         "agency": {"max_competitors": s.agency_max_competitors, "scan_hours": s.agency_scan_interval_hours},
+        "developer": {"max_competitors": 50, "scan_hours": 12},
     }.get(tier, {"max_competitors": 1, "scan_hours": 168})
 
 
@@ -124,7 +125,7 @@ def add_competitor(body: AddCompetitorRequest, user_id: str = Depends(get_effect
                 "code": "competitor_limit_reached",
                 "tier": tier,
                 "limit": limits["max_competitors"],
-                "upgrade_url": f"{settings.public_base_url}/settings/billing",
+                "upgrade_url": f"{settings.public_base_url}/settings?tab=billing",
             },
         )
 

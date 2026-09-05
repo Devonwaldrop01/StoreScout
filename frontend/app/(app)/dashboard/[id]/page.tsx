@@ -877,6 +877,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
             </button>
             <button
               onClick={handleDelete}
+              aria-label="Delete competitor"
               className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-md transition-all hover:bg-red-500/10"
               style={{ color: "var(--red)", border: "1px solid rgba(242,85,90,.25)" }}
             >
@@ -885,6 +886,14 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
           </div>
         </div>
       </div>
+
+      {snapshot && data?.catalog_complete !== true && (
+        <div role="status" className="rounded-md px-4 py-3 mb-5 text-sm"
+          style={{ color: "var(--text-2)", border: "1px solid var(--border)" }}>
+          {data?.catalog_truncated ? "Partial catalog" : "Catalog coverage unverified"}: these figures describe the products observed in this scan.
+          Catalog additions, removals and promotion-share changes require complete scans.
+        </div>
+      )}
 
       {/* ── No snapshot yet ───────────────────────────────────────────────── */}
       {!snapshot ? (
@@ -925,7 +934,7 @@ export default function CompetitorDetailPage({ params }: { params: Promise<{ id:
                 Scanning {hostname}…
               </p>
               <p className="text-xs" style={{ color: "var(--muted)" }}>
-                We&apos;re pulling their full catalog. Usually takes 20–60 seconds.
+                We&apos;re checking the accessible catalog. Scan time depends on catalog size and access.
               </p>
             </div>
           </div>

@@ -24,7 +24,7 @@ def _product_index(snapshot_data: dict) -> Dict[str, dict]:
     the _product_index field was added.
     """
     idx = snapshot_data.get("_product_index")
-    if idx and isinstance(idx, dict):
+    if isinstance(idx, dict):
         return idx
 
     # Legacy fallback: rebuild from the top-N lists stored in snapshot_data
@@ -42,10 +42,18 @@ def _detect(old_snap: dict, new_snap: dict) -> List[dict]:
     old_products = _product_index(old_snap)
     new_products = _product_index(new_snap)
     changes: List[dict] = []
+    # Absence from a partial (or legacy top-N) snapshot is not evidence of
+    # addition/removal. Comparable products can still have observed changes.
+    complete_pair = all(
+        snap.get("catalog_complete") is True
+        and not snap.get("catalog_truncated")
+        and isinstance(snap.get("_product_index"), dict)
+        for snap in (old_snap, new_snap)
+    )
 
     # ── New products ────────────────────────────────────────────────────────
     for handle, prod in new_products.items():
-        if handle not in old_products:
+        if complete_pair and handle not in old_products:
             changes.append({
                 "change_type": "new_product",
                 "product_handle": handle,
@@ -59,7 +67,7 @@ def _detect(old_snap: dict, new_snap: dict) -> List[dict]:
 
     # ── Removed products ────────────────────────────────────────────────────
     for handle, prod in old_products.items():
-        if handle not in new_products:
+        if complete_pair and handle not in new_products:
             changes.append({
                 "change_type": "product_removed",
                 "product_handle": handle,
@@ -132,7 +140,7 @@ def _detect(old_snap: dict, new_snap: dict) -> List[dict]:
     old_disc_pct = (old_snap.get("discounts") or {}).get("discounted_pct", 0) or 0
     new_disc_pct = (new_snap.get("discounts") or {}).get("discounted_pct", 0) or 0
     delta_disc = new_disc_pct - old_disc_pct
-    if abs(delta_disc) >= DISCOUNT_RATE_SWING_PCT:
+    if complete_pair and abs(delta_disc) >= DISCOUNT_RATE_SWING_PCT:
         changes.append({
             "change_type": "discount_start" if delta_disc > 0 else "discount_end",
             "product_handle": None,

@@ -1,5 +1,6 @@
 from __future__ import annotations
 import logging
+from typing import Literal
 
 import stripe
 from fastapi import APIRouter, Depends, HTTPException
@@ -14,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 class CheckoutRequest(BaseModel):
-    plan: str  # "pro" | "agency" | "developer"
-    billing: str = "monthly"  # "monthly" | "annual"
+    plan: Literal["pro", "agency", "developer"]
+    billing: Literal["monthly", "annual"] = "monthly"
 
 
 def _price_id_for_plan(plan: str, billing: str, settings) -> str:
@@ -40,6 +41,7 @@ def _get_or_create_stripe_customer(db, user_id: str, email: str, settings) -> st
     customer = stripe.Customer.create(
         email=email,
         metadata={"supabase_user_id": user_id},
+        idempotency_key=f"storescout-customer-{user_id}",
     )
     db.table("user_profiles").update({"stripe_customer_id": customer["id"]}).eq("id", user_id).execute()
     return customer["id"]
@@ -69,6 +71,18 @@ def create_checkout(body: CheckoutRequest, user_id: str = Depends(get_current_us
     db = get_supabase()
     email = _get_user_email(db, user_id)
     customer_id = _get_or_create_stripe_customer(db, user_id, email, settings)
+
+    # Existing subscribers manage their subscription in the portal. Consult
+    # Stripe as well as local state so delayed webhooks cannot invite rebilling.
+    try:
+        subscriptions = stripe.Subscription.list(customer=customer_id, status="all", limit=100)
+        if subscriptions.get("has_more") or any(
+            sub.get("status") not in {"canceled", "incomplete_expired"}
+            for sub in subscriptions.get("data", [])
+        ):
+            raise HTTPException(409, "A subscription already exists. Use Manage billing in Settings.")
+    except stripe.StripeError as exc:
+        raise HTTPException(503, "Could not verify your billing account. Please try again.") from exc
 
     frontend_base = settings.public_base_url
     try:

@@ -263,3 +263,10 @@ html, body {
 }
 .legal-prose li { margin-bottom: 0.375rem; }
 .legal-prose strong { color: var(--text); font-weight: 600; }
+
+/* Readable secondary text and visible keyboard navigation on the landing page. */
+.landing-page { --muted: #969d8e; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}

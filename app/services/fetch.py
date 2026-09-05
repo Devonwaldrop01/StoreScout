@@ -65,8 +65,20 @@ def _classify_failure(status: int, content_type: str, body_preview: str) -> str:
     return "UNKNOWN"
 
 
+class CatalogProducts(list):
+    """List-compatible fetch output with explicit coverage for scan consumers."""
+    def __init__(self):
+        super().__init__()
+        self.complete = False
+        self.reason = "page_limit"
+
+
+class CatalogFetchError(RuntimeError):
+    """A failed fetch must not replace a successful monitoring baseline."""
+
+
 def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -> List[Dict[str, Any]]:
-    products: List[Dict[str, Any]] = []
+    products = CatalogProducts()
     hostname = urlparse(store_url).netloc
 
     logger.info("[FETCH START] store_url=%r max_products=%r backend=%s ua=%r",
@@ -94,7 +106,7 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
                         "[FETCH TRUNCATED] store_url=%r hit %ds wall limit after %d products on page %d",
                         store_url, FETCH_WALL_LIMIT, len(products), page,
                     )
-                    break
+                    raise CatalogFetchError("Catalog fetch timed out")
                 url = f"{store_url.rstrip('/')}/products.json?limit={page_limit}&page={page}"
                 logger.info("[FETCH REQUEST] page=%d url=%r", page, url)
 
@@ -113,7 +125,7 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
                         "[FETCH %s] page=%d url=%r elapsed_ms=%d exc=%s\n%s",
                         category, page, url, elapsed_ms, exc, traceback.format_exc(),
                     )
-                    break
+                    raise CatalogFetchError("Catalog request failed") from exc
 
                 status = r.status_code
                 ct = r.headers.get("content-type", "")
@@ -132,11 +144,7 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
                         "final_url=%r body_preview=%r",
                         page, category, status, ct, final_url, body_preview,
                     )
-                    if status == 429:
-                        retry_after = int(r.headers.get("retry-after", "10"))
-                        logger.info("[FETCH RATE_LIMIT] retry-after=%ds", retry_after)
-                        time.sleep(min(retry_after, 30))
-                    break
+                    raise CatalogFetchError(f"Catalog endpoint returned HTTP {status}")
 
                 # JSON parsing
                 try:
@@ -146,27 +154,34 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
                         "[FETCH JSON_PARSE_ERROR] page=%d url=%r body_preview=%r exc=%s\n%s",
                         page, url, body_preview, exc, traceback.format_exc(),
                     )
-                    break
+                    raise CatalogFetchError("Catalog returned invalid JSON") from exc
 
-                batch = data.get("products", [])
+                if not isinstance(data, dict) or "products" not in data:
+                    raise CatalogFetchError("Catalog response is missing products")
+                batch = data["products"]
                 if not isinstance(batch, list):
                     logger.error(
                         "[FETCH BAD_SHAPE] page=%d url=%r 'products' is %s not list, body=%r",
                         page, url, type(batch).__name__, body_preview,
                     )
-                    break
+                    raise CatalogFetchError("Catalog products must be a list")
+                if any(not isinstance(p, dict) for p in batch):
+                    raise CatalogFetchError("Invalid product record")
 
                 logger.info("[FETCH PAGE_OK] page=%d products_on_page=%d total_so_far=%d",
                             page, len(batch), len(products) + len(batch))
 
                 if not batch:
                     logger.info("[FETCH DONE] no more products at page=%d", page)
+                    products.complete = True
+                    products.reason = "exhausted"
                     break
 
                 products.extend(batch)
 
                 if max_products is not None and len(products) >= max_products:
-                    products = products[:max_products]
+                    del products[max_products:]
+                    products.reason = "product_limit"
                     break
 
     except Exception as exc:
@@ -174,6 +189,7 @@ def fetch_products_shopify(store_url: str, max_products: Optional[int] = None) -
             "[FETCH OUTER_EXCEPTION] store_url=%r exc=%s\n%s",
             store_url, exc, traceback.format_exc(),
         )
+        raise CatalogFetchError("Could not complete the catalog fetch; please retry") from exc
 
     logger.info("[FETCH COMPLETE] store_url=%r total_products=%d", store_url, len(products))
     return products

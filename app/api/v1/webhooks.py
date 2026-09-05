@@ -71,9 +71,10 @@ async def stripe_subscription_webhook(request: Request):
     try:
         _handle_event(db, etype, data)
     except Exception as exc:
-        # Log and swallow — always ACK to Stripe so it stops retrying.
-        # Individual handler bugs should not cause aggressive retry storms.
-        logger.exception("Unhandled error processing Stripe event %s: %s", etype, exc)
+        # A 2xx would permanently acknowledge a payment whose entitlement was
+        # not saved. Let Stripe retry; never return database details to callers.
+        logger.exception("Unhandled error processing Stripe event %s", etype)
+        raise HTTPException(503, "Payment processing temporarily unavailable") from exc
 
     return {"received": True}
 

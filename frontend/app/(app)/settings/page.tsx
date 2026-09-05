@@ -100,7 +100,6 @@ function SettingsContent() {
   // Account
   const [userEmail, setUserEmail] = useState("");
   const [passwordResetSent, setPasswordResetSent] = useState(false);
-  const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
     if (searchParams.get("upgrade") === "1") setUpgradeOpen(true);
@@ -366,16 +365,6 @@ function SettingsContent() {
     setTimeout(() => setPasswordResetSent(false), 5000);
   }
 
-  async function handleDeleteAccount() {
-    const confirmed = confirm(
-      "Delete your account permanently?\n\nThis will remove all your tracked competitors, scan history, and billing data. This cannot be undone."
-    );
-    if (!confirmed) return;
-    setDeletingAccount(true);
-    await supabase.auth.signOut().catch(() => {});
-    window.location.href = "/";
-  }
-
   // ── UI helpers ─────────────────────────────────────────────────────────────
 
   const tierBadgeStyle: Record<string, { background: string; color: string }> = {
@@ -482,16 +471,15 @@ function SettingsContent() {
               <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#F2555A" }}>
                 Danger zone
               </p>
-              <button
-                onClick={handleDeleteAccount}
-                disabled={deletingAccount}
-                className="text-sm font-semibold px-4 py-2.5 rounded-md transition-all hover:opacity-80 disabled:opacity-60"
-                style={{ background: "rgba(242,85,90,.1)", color: "#F2555A", border: "1px solid rgba(242,85,90,.25)" }}
+              <a
+                href="mailto:hello@getstorescout.com?subject=StoreScout%20account%20deletion%20request"
+                className="inline-block text-sm font-semibold px-4 py-2.5 rounded-md"
+                style={{ color: "var(--red)", border: "1px solid var(--border)" }}
               >
-                {deletingAccount ? "Deleting…" : "Delete account"}
-              </button>
+                Request account deletion
+              </a>
               <p className="text-xs mt-2" style={{ color: "var(--muted)" }}>
-                Permanently deletes your account, all tracked competitors, and scan history. This cannot be undone.
+                Contact support from your account email to request deletion. Opening this email link does not delete your data or cancel your subscription. Manage your subscription in Billing.
               </p>
             </div>
           </section>

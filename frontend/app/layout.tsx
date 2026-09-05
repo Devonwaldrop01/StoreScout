@@ -18,9 +18,9 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "StoreScout — Track Any Shopify Competitor",
+  title: "StoreScout — Shopify Competitor Monitoring",
   description:
-    "Monitor prices, launches, and discounts across any Shopify store. Get alerted the moment your competitors make a move.",
+    "Review public prices, product additions and compare-at discounts across supported Shopify stores. Daily checks on Pro, with source-linked results.",
   openGraph: {
     title: "StoreScout — Shopify Competitor Intelligence",
     description: "Always know what your Shopify competitors are doing.",

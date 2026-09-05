@@ -1,102 +1,107 @@
 # StoreScout
-StoreScout is a lightweight competitor analysis tool that generates clean, actionable reports from Shopify stores.
 
-Give it a store URL → it fetches public product data → normalizes it → produces a structured report you can use to understand pricing, product focus, and store strategy.
+StoreScout is an existing Shopify competitor-monitoring SaaS. Users sign in,
+add a public Shopify storefront, review a catalog snapshot, and return for
+scheduled price, availability, and catalog-change observations.
 
-No accounts. No dashboards. Just results.
+The repository also contains an older one-time PDF-report flow. It has not
+been removed because its production use has not yet been established.
 
-⸻
+## System
 
-What StoreScout Does (v0)
-	•	Fetches products from public Shopify storefront endpoints
-	•	Handles pagination automatically
-	•	Normalizes raw product data into a clean schema
-	•	Prepares data for PDF competitor reports
+| Component | Implementation |
+| --- | --- |
+| Frontend | Next.js App Router, React, Tailwind, Supabase SSR authentication |
+| API | FastAPI under `app/`, including versioned SaaS routes and legacy routes |
+| Data/auth | Supabase Postgres and Auth; trusted server uses service-role credentials |
+| Background work | Celery worker, Celery Beat scheduler, Redis broker/cache |
+| Catalog collection | Public Shopify JSON endpoints; `curl_cffi` with HTTP fallback |
+| Reports | Python normalization/analysis; Playwright/Chromium for PDF rendering |
+| Billing | Stripe Checkout, subscription webhooks, billing portal; legacy one-time flow |
+| Optional services | Anthropic summaries, Resend email, configured GA4/Meta analytics |
 
-This project is focused on speed, clarity, and usefulness — not hype.
+Scheduled scan tasks call the API's protected internal scan endpoint. The API
+performs the expensive catalog fetch and analysis. Worker memory recycling
+therefore does not by itself bound API memory usage.
 
-Current Pipeline
+## Local development
 
-Fetch → Normalize → Analyze → Report (PDF)
+Use `.env.example` as a list of backend configuration names. Supply your own
+development values locally; never commit credentials. Frontend configuration
+includes `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and
+server-side `API_URL`, which points the Next.js API proxy at the backend.
 
-1. Fetch
-	•	Uses Shopify public endpoints (/products.json)
-	•	No API keys required
-	•	Supports pagination with safety caps
+```sh
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt pytest
+.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 10000
+```
 
-2. Normalize
-	•	Converts prices to numbers
-	•	Computes min/max price per product
-	•	Extracts availability and discount signals
-	•	Limits images to essential assets
-	•	Outputs a consistent internal JSON format
+In `frontend/`:
 
-3. Analyze (WIP)
-	•	Pricing strategy summary
-	•	Discount usage
-	•	Product freshness (new vs older products)
-	•	Product prioritization signals
+```sh
+npm ci
+npm run dev
+```
 
-4. Report (Planned)
-	•	HTML → PDF competitor report
-	•	Shareable and printable
-	•	Focused on decision-making, not raw dumps
+Full authenticated jobs additionally require a development Supabase project,
+Redis, and a Celery worker. Run only one Beat scheduler for a given queue.
+`API_INTERNAL_URL` must reach the API from the worker. Set the same strong
+`INTERNAL_SECRET` on both API and worker; empty and former default values are
+rejected. Do not substitute production credentials into test environments.
 
-⸻
+## Verification
 
-Tech Stack
-	•	Python
-	•	httpx (HTTP requests)
-	•	Playwright (fallback scraping + PDF generation)
-	•	FastAPI (planned API layer)
+From the repository root:
 
-⸻
+```sh
+.venv/bin/python -m pytest -q
+```
 
-Project Structure (early)
+From `frontend/`:
 
-storescout/
-├── scraper/
-│   ├── fetch_products.py
-│   ├── normalize_products.py
-│   └── analyze_products.py
-├── reports/
-│   └── templates/
-├── data/
-│   ├── raw/
-│   └── normalized/
-├── main.py
-└── README.md
-Why This Exists
+```sh
+npm test
+npx tsc --noEmit
+npm run build
+```
 
-Most competitor research is:
-	•	manual
-	•	slow
-	•	inconsistent
+These checks do not certify deployed authentication, payments, email delivery,
+queue scheduling, mobile layouts, or memory behavior under concurrent load.
 
-StoreScout compresses hours of research into minutes by extracting what stores are actually doing, not just what they look like.
+## Deployment and launch status
 
-⸻
+`render.yaml` declares an API, a worker, and a scheduler. It references Redis
+and Supabase but does not provision them, and it does not declare the Next.js
+frontend. Inspect the actual hosting account before restoring or creating any
+service. A blueprint is not a record of what is currently deployed.
 
-What This Is NOT
-	•	Not an ad spy tool
-	•	Not revenue estimation
-	•	Not an AI guessing engine
-	•	Not a Shopify Admin API client
+As checked September 5, 2026, `https://getstorescout.com/` returns HTTP 503 with
+`Service Suspended`. The account-level reason and affected service are not yet
+confirmed. No restoration or paid infrastructure change has been performed.
 
-Everything is based on publicly accessible storefront data.
+The launch-readiness branch includes conservative catalog coverage handling,
+paired-variant discounts, safer payment retries, proxy corrections, internal
+endpoint protection, and corrections to misleading UI claims. It is not a
+production sign-off. Remaining gates include:
 
-⸻
+- Confirm actual services, suspension reason, environment wiring and schema.
+- Apply reviewed entitlement/RLS restrictions in staging before production.
+- Close outbound-request SSRF exposure, including redirects and DNS changes.
+- Reconcile Stripe events safely and test payment/cancellation lifecycles.
+- Enforce quotas atomically; settle manual-rescan versus advertised cadence.
+- Verify snapshot-specific diff execution, retries and concurrent scan budgets.
+- Exercise signup, confirmation, reset, logout, reports and billing end to end.
+- Verify support/deletion fulfillment and privacy/marketing settings.
 
-Status
+`supabase/migrations/023_protect_entitlements.sql` is prepared for review only.
+Inspect the deployed schema, existing grants and migration history before
+applying it. Multiple migration directories and missing table definitions in
+source mean migrations must not be applied blindly.
 
-🚧 In active development
-Current focus: reliable scraping + clean data
+## Data boundaries
 
-Features will only be added if they directly improve decision-making.
-
-⸻
-
-Disclaimer
-
-StoreScout only accesses publicly available data exposed by Shopify storefronts.
-Users are responsible for complying with applicable laws and platform terms.
+Public catalog data does not establish revenue, units sold, exact inventory,
+actual customer demand, or cart-level promotions. Catalog caps and failed pages
+must remain visible; partial observations cannot establish whole-catalog
+additions/removals. Historical observations start when monitoring begins.

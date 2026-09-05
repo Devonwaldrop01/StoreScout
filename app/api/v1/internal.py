@@ -1,6 +1,7 @@
 from __future__ import annotations
 import logging
 import traceback
+import secrets
 from datetime import datetime, timezone, timedelta
 from urllib.parse import urlparse
 
@@ -17,7 +18,8 @@ logger = logging.getLogger(__name__)
 
 
 def _require_internal(token: str) -> None:
-    if token != get_settings().internal_secret:
+    secret = get_settings().internal_secret
+    if not secret or secret == "dev-internal-secret" or not secrets.compare_digest(token, secret):
         raise HTTPException(status_code=403, detail="Forbidden")
 
 
@@ -54,38 +56,8 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
     display_name = competitor.get("display_name") or hostname
     logger.info("[SCAN %s] store_url=%r tier=%r", competitor_id, store_url, tier)
 
-    # ── 2. Skip-if-unchanged probe (only when a previous snapshot exists) ───
-    try:
-        last_snap = db.table("scan_snapshots")\
-            .select("snapshot_data")\
-            .eq("competitor_id", competitor_id)\
-            .order("scanned_at", desc=True)\
-            .limit(1)\
-            .execute()
-
-        if last_snap.data:
-            logger.info("[SCAN %s] previous snapshot exists, probing for changes", competitor_id)
-            probe = fetch_products_shopify(store_url, max_products=1)
-            if probe:
-                latest_updated = probe[0].get("updated_at", "")
-                prev_newest = (last_snap.data[0]["snapshot_data"].get("lists") or {}).get("recently_updated", [])
-                if prev_newest and prev_newest[0].get("updated_at") == latest_updated:
-                    logger.info("[SCAN %s] skip-if-unchanged: no change detected", competitor_id)
-                    interval_h = _interval_for_tier(tier, settings)
-                    next_scan = datetime.now(timezone.utc) + timedelta(hours=interval_h)
-                    db.table("competitors").update({
-                        "scan_status": "done",
-                        "last_scanned_at": datetime.now(timezone.utc).isoformat(),
-                        "next_scan_at": next_scan.isoformat(),
-                    }).eq("id", competitor_id).execute()
-                    return {"status": "unchanged"}
-            else:
-                logger.warning("[SCAN %s] probe returned 0 products — proceeding with full scan anyway", competitor_id)
-        else:
-            logger.info("[SCAN %s] no previous snapshot — skipping probe, going straight to full scan", competitor_id)
-    except Exception as exc:
-        logger.warning("[SCAN %s] skip-if-unchanged probe failed (non-fatal): %s\n%s",
-                       competitor_id, exc, traceback.format_exc())
+    # Every scheduled check needs a catalog fetch: one product's updated_at
+    # cannot tell us whether another product changed.
 
     # ── 3. Full fetch (memory-capped) ────────────────────────────────────────
     # Bound the catalog size so peak memory across fetch/normalize/analyze/
@@ -133,11 +105,16 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
         _mark_error(db, competitor_id, f"analyze exception: {exc}")
         return {"status": "error", "reason": f"analyze exception: {exc}"}
 
-    # Transparency: note when a huge catalog was capped for memory safety.
-    if cap and len(raw) >= cap:
-        insights["catalog_truncated"] = True
-        insights["catalog_scanned"] = len(raw)
-        logger.info("[SCAN %s] catalog capped at %d products (memory guard)", competitor_id, cap)
+    # Unknown/legacy fetch results are conservatively treated as incomplete.
+    insights["catalog_complete"] = getattr(raw, "complete", False)
+    insights["catalog_coverage_reason"] = getattr(raw, "reason", "unknown")
+    insights["catalog_scanned"] = len(raw)
+    insights["catalog_truncated"] = not insights["catalog_complete"]
+    if not insights["catalog_complete"]:
+        insights.setdefault("confidence_notes", []).append(
+            "Partial catalog: analysis covers only the products fetched. "
+            "Catalog additions, removals and promotion-share changes are not confirmed."
+        )
 
     # Compact per-product index so detect_changes can diff the full catalog.
     # Keyed by handle; stores only the fields needed for change detection.
