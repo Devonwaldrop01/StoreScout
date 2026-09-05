@@ -1,0 +1,71 @@
+# Proposed audit file tree before commit
+
+Repository root: `/workspace/scratch/afcda1e6eea5/StoreScout`
+
+All paths below are relative to `docs/quality-audit/`. Listed before staging/commit. No files outside this directory are changed.
+
+- `ARTIFACT-INVENTORY.csv`
+- `ARTIFACT-INVENTORY.md`
+- `PROPOSED-FILE-TREE.md`
+- `README.md`
+- `discovery-synthetic/README.md`
+- `discovery-synthetic/discovery_after.json`
+- `discovery-synthetic/discovery_baseline.json`
+- `discovery-synthetic/discovery_cases.py`
+- `discovery-synthetic/discovery_wording_holdout.json`
+- `feature-route-inventory.json`
+- `index-health-readonly.sql`
+- `product/CORE-PRODUCT-LOGIC.md`
+- `product/FULL-FEATURE-AND-ACTIONABILITY-AUDIT.md`
+- `product/PLAYBOOK-INTELLIGENCE-AND-ACTIONABILITY.md`
+- `product/StoreScout-Public-Catalog-Sample.md`
+- `product/evidence/actual_catalog_playbook.json`
+- `product/evidence/allbirds-public-catalog-sample.json`
+- `prospects/PROSPECT-RESEARCH-AND-OUTREACH-DRAFTS.md`
+- `prospects/StoreScout-First-Sales-Kit.md`
+- `real-world/EVALUATION-PROTOCOL.md`
+- `real-world/IMPLEMENTATION-SPECS.md`
+- `real-world/MEASURED-RESUME.md`
+- `real-world/StoreScout-Codex-Discovery-Priorities.md`
+- `real-world/StoreScout-Discovery-Evidence.zip`
+- `real-world/StoreScout-Discovery-Real-World-Benchmark.md`
+- `real-world/StoreScout-Real-Index-and-Discovery-Results.md`
+- `real-world/baseline-manifest.json`
+- `real-world/evidence/ARCHIVE-MEMBER-SHA256.json`
+- `real-world/evidence/HANDOFF-SHA256.json`
+- `real-world/evidence/README.md`
+- `real-world/evidence/analyze_census.py`
+- `real-world/evidence/benchmark-metrics.json`
+- `real-world/evidence/case-metrics.csv`
+- `real-world/evidence/census-analysis.json`
+- `real-world/evidence/census-initial.json`
+- `real-world/evidence/classification-review.json`
+- `real-world/evidence/classification_review.py`
+- `real-world/evidence/export-end.json`
+- `real-world/evidence/export-projection.txt`
+- `real-world/evidence/health-sample.json`
+- `real-world/evidence/index-snapshot.json`
+- `real-world/evidence/label_results.py`
+- `real-world/evidence/measure.py`
+- `real-world/evidence/measured-manifest.json`
+- `real-world/evidence/prepare_replay.py`
+- `real-world/evidence/public-evidence-compact.json`
+- `real-world/evidence/public-health-summary.json`
+- `real-world/evidence/public_checks.py`
+- `real-world/evidence/public_checks_supplemental.py`
+- `real-world/evidence/relevance-labels.json`
+- `real-world/evidence/replay-plan.json`
+- `real-world/evidence/replay-results.json`
+- `real-world/evidence/replay.py`
+- `real-world/evidence/retrieval-postgres.json`
+- `real-world/evidence/retrieval-readonly.sql`
+- `real-world/evidence/summarize_health.py`
+- `real-world/feature-audit-coverage.json`
+- `real-world/index-export-readonly.sql`
+- `real-world/reference-panel.json`
+- `restoration/RESTORATION-STATUS.md`
+- `resume/StoreScout-State-and-First-Customer-Plan.md`
+- `source-audit/CORE-QUALITY-CHECKPOINT.md`
+- `source-audit/StoreScout-Audit-Reproductions.py`
+- `source-audit/StoreScout-Readiness-Review.md`
+- `source-audit/reproduction-results.json`

@@ -1,0 +1,17 @@
+> **Measured resume update — 5 September 2026:** Supabase read/query access now works; the index census and 25-business real-data replay are completed. Earlier blocked-access statements below are historical. Discovery remains **Weak**. Commit `ff555bb` and the original reference panel are preserved. No application or production records/configuration were changed.
+
+
+
+## Real-data measurement completed, 5 September 2026
+
+The index contains 38,221 records: 36,088 discovered, 1,323 candidate, 426 verified, 323 rejected and 61 failed. At the frozen clock, 403 pass the default freshness/catalog gate, or 392 with category confidence ≥55. The 240-domain stratified public sample found readable catalogs for 156/177 discovered stores. A backlog-processing and evidence-lifecycle problem is now demonstrated; unknown/unprocessed is not equivalent to dead.
+
+The untouched local `ff555bb` release candidate was replayed through the original endpoint against real PostgreSQL candidate captures, with production writes and paid calls prohibited. The primary 24-case result excludes the prepared Stewart control: P@5 28.3%, P@10 15.8%, known-reference recall 2/48, useful/returned 38/148 (25.7%), wrong/returned 57/148 (38.5%), unknown 3/148, and three-useful top-five coverage 7/24 (29.2%). Structured notes leave core P@5 and three-useful coverage unchanged. These are source-default local release-candidate measurements, not a live production or AI-assisted benchmark. Relevance is single-analyst, not independently blinded; geographic and price equivalence remain unestablished.
+
+Of 50 original reference relationships including the control, 30 are absent, 16 unverified, two catalog-gated and two returned. Stronger candidates also disappear in retrieval/filtering: HyperX product fields are not searched; the JSONB DNA-overlap query fails; Babysprouts and Terra Moons lose meaningful product evidence. Shared modifiers produce wrong matches. No measured query hits the 200-candidate or first-eight-term cap. Classification and semantic freshness errors are real.
+
+Measured priority order: (1) existing supply verification, renewal and catalog evidence parity; (2) product-based retrieval and substitute/meaning checks; (3) semantic freshness, classification and evidence-based canonical identity; (4) explicit product focus/identity and recoverable sparse-result flows. Numeric weight tuning, larger candidate caps and new explanation UI do not lead this plan.
+
+Complete measurements and all 25 individual case results: `StoreScout-Real-Index-and-Discovery-Results.md`. Codex-ready root causes, components, desired behavior, regression risks, tests, cases and acceptance criteria: `StoreScout-Codex-Discovery-Priorities.md`. Reproducible snapshots, query captures, labels, traces and census data: `StoreScout-Discovery-Evidence.zip`. These measured deliverables supersede earlier null benchmark numbers. The original public catalog sample, prospect work, outreach drafts, source audit and existing tests were not repeated.
+
+The next task is implementation in an isolated local branch, preserving the frozen comparison. No production processing, deployment, paid AI, outreach or configuration changes were authorized. The original panel is now inspected and cannot be described as an untouched blind holdout. Independent adjudication and the existing release gates remain necessary before declaring Acceptable.

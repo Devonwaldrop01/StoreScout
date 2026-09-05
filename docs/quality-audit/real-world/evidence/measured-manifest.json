@@ -1,0 +1,38 @@
+{
+  "measurement_date": "2026-09-05",
+  "baseline_commit": "ff555bb2842a05f55dcc83403bfef80bc7eb17cf",
+  "repository_head_at_resume": "11c1205",
+  "source_sha256": {
+    "app/api/v1/competitors.py": "a4ea76e39bc83f4053c050440b02a37e54432a0575b123c8b9b47cdc88ee1fe7",
+    "app/services/discovery_quality.py": "06e5bfc773b9ee910f45a80ff6724f3d16246809e08c6d5282aca248d2517db4",
+    "app/services/store_dna.py": "49b900002520bdfc8c5ecf0437951042ea518804a882a143393c91bbf9be79b3",
+    "app/services/store_index.py": "47d9d38ee7b66035e8a7132b09865eaa1d0fc74928d6bf29c34bcf77cf9ac276",
+    "app/tasks/store_index.py": "5eb090e501b64804323e96424decb3f873e066334ec7c1de233b7421f465d8e3"
+  },
+  "reference_panel_sha256": "56f9c0a10beef5e2f0d8f588c6a480f489ff1f68c05c1f0b36cfcac98e2f1e2a",
+  "snapshot_sha256": "661b34722ab431c63b3f458660cc154a1e0352e9585fee2b994c1a311476f136",
+  "snapshot_rows": 38221,
+  "ordered_domain_timestamp_md5": "2f56a53de54cde8c97f359c6b437cd42",
+  "frozen_clock": "2026-09-05T20:44:23.705755+00:00",
+  "benchmark_executed": true,
+  "modes": [
+    "description_only",
+    "structured_profile"
+  ],
+  "case_count_per_mode": 25,
+  "core_case_count": 24,
+  "schema_query_channel": "real PostgreSQL captures",
+  "live_endpoint_called": false,
+  "production_mutations": 0,
+  "paid_model_calls": 0,
+  "review": "single analyst, not fully blinded second review",
+  "threshold_source": "local defaults 60 verification, 55 category; production environment overrides uninspected",
+  "remaining_unmeasured": [
+    "paid AI",
+    "live deployed endpoint",
+    "alternate wording/focus variants",
+    "authenticated graph/tracked histories",
+    "legacy schema fallback",
+    "independent blind adjudication"
+  ]
+}

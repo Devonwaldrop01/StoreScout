@@ -1,0 +1,125 @@
+{
+  "method": "synthetic adversarial candidates; not live index precision",
+  "results": [
+    {
+      "case": "ceramics",
+      "top3": [
+        "ceramics-0.test",
+        "ceramics-1.test",
+        "ceramics-3.test"
+      ],
+      "labels": [
+        3,
+        3,
+        1
+      ],
+      "direct_precision_at_3": 0.667,
+      "missed_direct": []
+    },
+    {
+      "case": "running",
+      "top3": [
+        "running-0.test",
+        "running-1.test",
+        "running-2.test"
+      ],
+      "labels": [
+        3,
+        3,
+        1
+      ],
+      "direct_precision_at_3": 0.667,
+      "missed_direct": []
+    },
+    {
+      "case": "pets",
+      "top3": [
+        "pets-0.test",
+        "pets-1.test",
+        "pets-4.test"
+      ],
+      "labels": [
+        3,
+        3,
+        1
+      ],
+      "direct_precision_at_3": 0.667,
+      "missed_direct": []
+    },
+    {
+      "case": "baby",
+      "top3": [
+        "baby-0.test",
+        "baby-1.test",
+        "baby-2.test"
+      ],
+      "labels": [
+        3,
+        3,
+        1
+      ],
+      "direct_precision_at_3": 0.667,
+      "missed_direct": []
+    },
+    {
+      "case": "coffee",
+      "top3": [
+        "coffee-0.test",
+        "coffee-1.test",
+        "coffee-2.test"
+      ],
+      "labels": [
+        3,
+        3,
+        1
+      ],
+      "direct_precision_at_3": 0.667,
+      "missed_direct": []
+    },
+    {
+      "case": "skincare",
+      "top3": [
+        "skincare-0.test",
+        "skincare-1.test",
+        "skincare-3.test"
+      ],
+      "labels": [
+        3,
+        3,
+        1
+      ],
+      "direct_precision_at_3": 0.667,
+      "missed_direct": []
+    },
+    {
+      "case": "broad_store",
+      "top3": [
+        "broad_store-0.test",
+        "broad_store-1.test",
+        "broad_store-3.test"
+      ],
+      "labels": [
+        3,
+        3,
+        1
+      ],
+      "direct_precision_at_3": 0.667,
+      "missed_direct": []
+    },
+    {
+      "case": "weak_metadata",
+      "top3": [
+        "weak_metadata-0.test",
+        "weak_metadata-1.test",
+        "weak_metadata-3.test"
+      ],
+      "labels": [
+        3,
+        3,
+        1
+      ],
+      "direct_precision_at_3": 0.667,
+      "missed_direct": []
+    }
+  ]
+}

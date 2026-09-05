@@ -1,0 +1,1169 @@
+{
+  "observed_at": "2026-09-05T18:03:29.938449+00:00",
+  "source": "https://www.allbirds.com/products.json?limit=10",
+  "method": "StoreScout fetch_products_shopify",
+  "catalog_complete": false,
+  "coverage": "10-product capped sample, not the whole catalog",
+  "currency": "USD",
+  "products": [
+    {
+      "id": 7369944137808,
+      "title": "Free Returns Coverage",
+      "handle": "free-returns-coverage",
+      "product_url": "https://www.allbirds.com/products/free-returns-coverage",
+      "created_at": "2026-06-05T07:14:57-07:00",
+      "published_at": "2026-09-02T11:33:11-07:00",
+      "updated_at": "2026-09-05T11:02:39-07:00",
+      "vendor": "re:do",
+      "tags": [
+        "ATTV_GLOBAL_EXCLUSION_TAG",
+        "exclude_rebuy",
+        "klaviyo_reviews_exclude",
+        "NOREVIEWS",
+        "redo-package-protection"
+      ],
+      "variants_count": 2,
+      "available": true,
+      "price_min": 0.8,
+      "price_max": 2.98,
+      "compare_at_min": 0.8,
+      "compare_at_max": 2.98,
+      "images": [
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/Screenshot_2026-06-11_at_10.12.01_AM.png?v=1781197934"
+      ],
+      "discount_pct_min": null,
+      "discount_pct_max": null,
+      "discount_method": "same_variant",
+      "priced_variants_count": 2
+    },
+    {
+      "id": 7218356060240,
+      "title": "Men's Strider Explore - Natural Black (Dark Grey Sole)",
+      "handle": "mens-strider-explore",
+      "product_url": "https://www.allbirds.com/products/mens-strider-explore",
+      "created_at": "2025-09-10T12:47:47-07:00",
+      "published_at": "2026-08-26T10:22:14-07:00",
+      "updated_at": "2026-09-05T11:02:39-07:00",
+      "vendor": "Allbirds",
+      "tags": [
+        "allbirds::carbon-score => undefined",
+        "allbirds::cfId => color-187a11c8f0327fffbdefb2c298f2ce22",
+        "allbirds::complete => true",
+        "allbirds::edition => classic",
+        "allbirds::gender => mens",
+        "allbirds::hue => black",
+        "allbirds::master => mens-strider-explore",
+        "allbirds::material => cotton",
+        "allbirds::price-tier => tier-2",
+        "allbirds::silhouette => runner",
+        "DNAM BRANDS",
+        "loop::returnable => true",
+        "SF OUTLET INVENTORY",
+        "shoprunner",
+        "WRENTHAM OUTLETS",
+        "YCRF_mens-trail-shoes",
+        "YGroup_ygroup_mens-strider-explore"
+      ],
+      "variants_count": 13,
+      "available": false,
+      "price_min": 130.0,
+      "price_max": 130.0,
+      "compare_at_min": null,
+      "compare_at_max": null,
+      "images": [
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A11768_25Q4_Strider-Explore-Natural-Black-Dark-Grey-Sole_PDP_LEFT.png?v=1759336475",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A11768_25Q4_Strider-Explore-Natural-Black-Dark-Grey-Sole_PDP_BACK.png?v=1759336475",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A11768_25Q4_Strider-Explore-Natural-Black-Dark-Grey-Sole_PDP_TD.png?v=1759336475"
+      ],
+      "discount_pct_min": null,
+      "discount_pct_max": null,
+      "discount_method": "same_variant",
+      "priced_variants_count": 13
+    },
+    {
+      "id": 7205198004304,
+      "title": "Women's Dasher NZ - Blizzard/Deep Navy (Blizzard Sole)",
+      "handle": "womens-dasher-nz-blizzard-deep-navy",
+      "product_url": "https://www.allbirds.com/products/womens-dasher-nz-blizzard-deep-navy",
+      "created_at": "2025-08-06T20:08:21-07:00",
+      "published_at": "2026-08-24T09:55:31-07:00",
+      "updated_at": "2026-09-05T11:02:39-07:00",
+      "vendor": "Allbirds",
+      "tags": [
+        "allbirds::carbon-score => undefined",
+        "allbirds::cfId => color-c09d6e63b4a11feebc68f762220735d5",
+        "allbirds::complete => true",
+        "allbirds::edition => classic",
+        "allbirds::gender => womens",
+        "allbirds::hue => blue",
+        "allbirds::hue => white",
+        "allbirds::master => womens-dasher-nz",
+        "allbirds::material => tree",
+        "allbirds::price-tier => msrp",
+        "allbirds::silhouette => dasher",
+        "FLEX3818571 (PL 553696876312)",
+        "loop::returnable => true",
+        "OOS DNS",
+        "WAVE 2 ECDC",
+        "WAVE 2 WCDC",
+        "YCRF_womens-perform-shoes",
+        "YGroup_ygroup_womens-dasher-nz"
+      ],
+      "variants_count": 13,
+      "available": true,
+      "price_min": 140.0,
+      "price_max": 140.0,
+      "compare_at_min": null,
+      "compare_at_max": null,
+      "images": [
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A12464_26Q1_Dasher-NZ-Blizzard-Deep-Navy-Blizzard_PDP_LEFT_e38509e9-51da-49a3-a794-53de6797a109.png?v=1768948779",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A12464_26Q1_Dasher-NZ-Blizzard-Deep-Navy-Blizzard_PDP_BACK_147b2d53-d690-4834-839e-a493d91622d3.png?v=1768948779",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A12464_26Q1_Dasher-NZ-Blizzard-Deep-Navy-Blizzard_PDP_TD_ba41e658-df71-418f-a4e0-960192597068.png?v=1768948779"
+      ],
+      "discount_pct_min": null,
+      "discount_pct_max": null,
+      "discount_method": "same_variant",
+      "priced_variants_count": 13
+    },
+    {
+      "id": 7205191974992,
+      "title": "Men's Dasher NZ - Anthracite (Dark Anthracite Sole)",
+      "handle": "mens-dasher-nz-anthracite",
+      "product_url": "https://www.allbirds.com/products/mens-dasher-nz-anthracite",
+      "created_at": "2025-08-06T18:54:33-07:00",
+      "published_at": "2026-08-24T09:53:01-07:00",
+      "updated_at": "2026-09-05T11:02:39-07:00",
+      "vendor": "Allbirds",
+      "tags": [
+        "allbirds::carbon-score => undefined",
+        "allbirds::cfId => color-ec0dcc8441508c674c885b8c8a990cfa",
+        "allbirds::complete => true",
+        "allbirds::edition => limited",
+        "allbirds::gender => mens",
+        "allbirds::hue => grey",
+        "allbirds::master => mens-dasher-nz",
+        "allbirds::material => tree",
+        "allbirds::price-tier => msrp",
+        "allbirds::silhouette => dasher",
+        "FLEX3818571 (PL 553696876312)",
+        "loop::returnable => true",
+        "OOS DNS",
+        "WAVE 2 WCDC",
+        "YCRF_mens-perform-shoes",
+        "YGroup_ygroup_mens-dasher-nz"
+      ],
+      "variants_count": 13,
+      "available": true,
+      "price_min": 140.0,
+      "price_max": 140.0,
+      "compare_at_min": null,
+      "compare_at_max": null,
+      "images": [
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A12416_26Q1_Dasher-NZ-Anthracite-Dark-Anthr_PDP_LEFT.png?v=1768948005",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A12416_26Q1_Dasher-NZ-Anthracite-Dark-Anthr_PDP_BACK.png?v=1768948005",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A12416_26Q1_Dasher-NZ-Anthracite-Dark-Anthr_PDP_TD.png?v=1768948006"
+      ],
+      "discount_pct_min": null,
+      "discount_pct_max": null,
+      "discount_method": "same_variant",
+      "priced_variants_count": 13
+    },
+    {
+      "id": 7199699927120,
+      "title": "Men's Strider - Medium Grey (Blizzard Sole)",
+      "handle": "mens-strider-medium-grey",
+      "product_url": "https://www.allbirds.com/products/mens-strider-medium-grey",
+      "created_at": "2025-07-23T14:43:12-07:00",
+      "published_at": "2026-08-11T15:42:35-07:00",
+      "updated_at": "2026-09-05T11:02:39-07:00",
+      "vendor": "Allbirds",
+      "tags": [
+        "allbirds::carbon-score => undefined",
+        "allbirds::cfId => color-5c1b83ad086f3c3e7029020d0c7f6b2e",
+        "allbirds::complete => true",
+        "allbirds::edition => classic",
+        "allbirds::gender => mens",
+        "allbirds::hue => grey",
+        "allbirds::master => mens-strider",
+        "allbirds::material => tree",
+        "allbirds::price-tier => tier-2",
+        "allbirds::silhouette => dasher",
+        "DNAM BRANDS",
+        "loop::returnable => true",
+        "SF OUTLET INVENTORY",
+        "shoprunner",
+        "WAVE 2 WCDC",
+        "WRENTHAM OUTLETS",
+        "YCRF_mens-perform-shoes",
+        "YGroup_ygroup_mens-strider"
+      ],
+      "variants_count": 13,
+      "available": true,
+      "price_min": 130.0,
+      "price_max": 130.0,
+      "compare_at_min": null,
+      "compare_at_max": null,
+      "images": [
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A11729_25Q3_Strider-Medium-Grey-Blizzard-Sole_PDP_LEFT.png?v=1754951480",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A11729_25Q3_Strider-Medium-Grey-Blizzard-Sole_PDP_BACK.png?v=1754951480",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A11729_25Q3_Strider-Medium-Grey-Blizzard-Sole_PDP_TD.png?v=1754951480"
+      ],
+      "discount_pct_min": null,
+      "discount_pct_max": null,
+      "discount_method": "same_variant",
+      "priced_variants_count": 13
+    },
+    {
+      "id": 6643980468304,
+      "title": "Men's Tree Dasher 2 - Natural Black (Blizzard Sole)",
+      "handle": "mens-tree-dashers",
+      "product_url": "https://www.allbirds.com/products/mens-tree-dashers",
+      "created_at": "2022-02-03T10:34:21-08:00",
+      "published_at": "2026-08-11T15:42:25-07:00",
+      "updated_at": "2026-09-05T11:02:39-07:00",
+      "vendor": "Allbirds",
+      "tags": [
+        "allbirds::carbon-score => 5.48",
+        "allbirds::cfId => color-mens-tree-dashers2-natural-black-blizzard",
+        "allbirds::complete => true",
+        "allbirds::edition => classic",
+        "allbirds::gender => mens",
+        "allbirds::hue => black",
+        "allbirds::master => mens-tree-dashers",
+        "allbirds::material => tree",
+        "allbirds::price-tier => tier-2",
+        "allbirds::silhouette => dasher",
+        "allbirdskit::kit-discount-1vfZgzpP7yLkKg8C97GSxO => 18",
+        "allbirdskit::kit-id => 1vfZgzpP7yLkKg8C97GSxO",
+        "allbirdskit::kit-size-1vfZgzpP7yLkKg8C97GSxO => 2",
+        "DNAM BRANDS",
+        "loop::returnable => true",
+        "SF OUTLET INVENTORY",
+        "shoprunner",
+        "WRENTHAM OUTLETS",
+        "YCRF_mens-perform-shoes",
+        "YGroup_ygroup_mens-tree-dashers"
+      ],
+      "variants_count": 13,
+      "available": false,
+      "price_min": 140.0,
+      "price_max": 140.0,
+      "compare_at_min": null,
+      "compare_at_max": null,
+      "images": [
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/AA000YM_SHOE_LEFT_GLOBAL_MENS_TREE_DASHER_2.0_Natural_Black_Blizzard_48bbccd1-a0ef-475d-a3c1-af945ece7fbc.png?v=1751061059",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/AA000YM_SHOE_BACK_GLOBAL_MENS_TREE_DASHER_2.0_Natural_Black_Blizzard_b226015e-961d-4cd2-83fb-cd9a379e4ad1.png?v=1751061059",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/AA000YM_SHOE_TOP_GLOBAL_MENS_TREE_DASHER_2.0_Natural_Black_Blizzard_e1def74f-da58-415f-8a42-686d0e24bbd7.png?v=1751061059"
+      ],
+      "discount_pct_min": null,
+      "discount_pct_max": null,
+      "discount_method": "same_variant",
+      "priced_variants_count": 13
+    },
+    {
+      "id": 7292464955472,
+      "title": "Men's Cruiser - Shadow Blue (Natural White Sole)",
+      "handle": "mens-cruiser-shadow-blue-natural-white-sole",
+      "product_url": "https://www.allbirds.com/products/mens-cruiser-shadow-blue-natural-white-sole",
+      "created_at": "2026-02-04T17:38:18-08:00",
+      "published_at": "2026-07-08T11:32:23-07:00",
+      "updated_at": "2026-09-05T11:02:39-07:00",
+      "vendor": "Allbirds",
+      "tags": [
+        "allbirds::cfId => color-8d8c461eb0f65396c57fcd7467def939",
+        "DNAM BRANDS",
+        "EC CROSS DOCK 6.11",
+        "EC STOCK",
+        "Onsite @ WC 5.26.26"
+      ],
+      "variants_count": 13,
+      "available": true,
+      "price_min": 105.0,
+      "price_max": 105.0,
+      "compare_at_min": null,
+      "compare_at_max": null,
+      "images": [
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/All-birds_0010.png?v=1783535519",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/All-birds_0017.png?v=1783535524",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/All-birds_0029.png?v=1783535534"
+      ],
+      "discount_pct_min": null,
+      "discount_pct_max": null,
+      "discount_method": "same_variant",
+      "priced_variants_count": 13
+    },
+    {
+      "id": 7215691300944,
+      "title": "Women's Cruiser Slip On Canvas - Sea Spray (Natural White Sole)",
+      "handle": "womens-cruiser-slip-on-canvas-sea-spray-natural-white-sole",
+      "product_url": "https://www.allbirds.com/products/womens-cruiser-slip-on-canvas-sea-spray-natural-white-sole",
+      "created_at": "2025-08-30T02:29:20-07:00",
+      "published_at": "2026-07-08T11:32:06-07:00",
+      "updated_at": "2026-09-05T11:02:39-07:00",
+      "vendor": "Allbirds",
+      "tags": [
+        "allbirds::cfId => color-981b5f72ee3391152acee3cbdb3d08f5",
+        "DNAM BRANDS",
+        "Onsite @ WC 5.26.26"
+      ],
+      "variants_count": 13,
+      "available": true,
+      "price_min": 100.0,
+      "price_max": 100.0,
+      "compare_at_min": null,
+      "compare_at_max": null,
+      "images": [
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/All-birds_0005_c3386c3f-064e-43f2-9d46-66377d0ebd10.png?v=1783537948",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/All-birds_0018_0142b8ea-0931-49b0-9f1d-606d80803cdd.png?v=1783537948",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/All-birds_0035_02293746-a96e-41a3-b160-74814342fa8c.png?v=1783537948"
+      ],
+      "discount_pct_min": null,
+      "discount_pct_max": null,
+      "discount_method": "same_variant",
+      "priced_variants_count": 13
+    },
+    {
+      "id": 7205181653072,
+      "title": "Men's Cruiser Terralux - Anthracite (Dark Gum Sole)",
+      "handle": "mens-cruiser-terralux-anthracite",
+      "product_url": "https://www.allbirds.com/products/mens-cruiser-terralux-anthracite",
+      "created_at": "2025-08-06T16:52:33-07:00",
+      "published_at": "2026-06-30T18:04:23-07:00",
+      "updated_at": "2026-09-05T11:02:39-07:00",
+      "vendor": "Allbirds",
+      "tags": [
+        "allbirds::carbon-score => undefined",
+        "allbirds::cfId => color-812bf8a9fcbc030cc9bb008dc85dffeb",
+        "allbirds::complete => true",
+        "allbirds::edition => limited",
+        "allbirds::gender => mens",
+        "allbirds::hue => grey",
+        "allbirds::master => mens-cruiser-terralux",
+        "allbirds::material => alternative-leather",
+        "allbirds::price-tier => msrp",
+        "allbirds::silhouette => runner",
+        "loop::returnable => true",
+        "OOS DNS",
+        "WAVE 2 ECDC",
+        "WAVE 2 WCDC",
+        "Wave1_EC-A PL",
+        "YCRF_mens-move-shoes-half-sizes",
+        "YGroup_ygroup_mens-cruiser-terralux"
+      ],
+      "variants_count": 12,
+      "available": true,
+      "price_min": 135.0,
+      "price_max": 135.0,
+      "compare_at_min": null,
+      "compare_at_max": null,
+      "images": [
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A12400_26Q1_Cruiser-Terralux-Anthracite-Dark-Gum-Sole_PDP_LEFT.png?v=1768947640",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A12400_26Q1_Cruiser-Terralux-Anthracite-Dark-Gum-Sole_PDP_BACK.png?v=1768947640",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A12400_26Q1_Cruiser-Terralux-Anthracite-Dark-Gum-Sole_PDP_TD.png?v=1768947642"
+      ],
+      "discount_pct_min": null,
+      "discount_pct_max": null,
+      "discount_method": "same_variant",
+      "priced_variants_count": 12
+    },
+    {
+      "id": 7214904279120,
+      "title": "Women's Wool Runner NZ Mid Waterproof - Natural Black (Natural White Sole)",
+      "handle": "womens-wool-runner-nz-mid-waterproof",
+      "product_url": "https://www.allbirds.com/products/womens-wool-runner-nz-mid-waterproof",
+      "created_at": "2025-08-26T17:33:15-07:00",
+      "published_at": "2026-06-30T18:03:14-07:00",
+      "updated_at": "2026-09-05T11:02:39-07:00",
+      "vendor": "Allbirds",
+      "tags": [
+        "allbirds::carbon-score => undefined",
+        "allbirds::cfId => color-0cb3d574736f8139f9b8763bf3dc3f81",
+        "allbirds::complete => true",
+        "allbirds::edition => classic",
+        "allbirds::gender => womens",
+        "allbirds::hue => black",
+        "allbirds::master => womens-wool-runner-nz-mid-waterproof",
+        "allbirds::material => wool",
+        "allbirds::price-tier => msrp",
+        "allbirds::silhouette => runner up",
+        "FLEX3777714 (PL 553696702662)",
+        "loop::returnable => true",
+        "OOS DNS",
+        "shoprunner",
+        "WAVE 2 WCDC",
+        "YCRF_womens-move-shoes-half-sizes",
+        "YGroup_ygroup_womens-wool-runner-nz-mid-waterproof"
+      ],
+      "variants_count": 13,
+      "available": true,
+      "price_min": 160.0,
+      "price_max": 160.0,
+      "compare_at_min": null,
+      "compare_at_max": null,
+      "images": [
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A12023_25Q3_Wool-Runner-NZ-Mid-Waterproof-Natural-Black-Natural-White-Sole_PDP_LEFT_15a18748-ff33-4e50-8755-fbf0158abcdd.png?v=1757724073",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A12023_25Q3_Wool-Runner-NZ-Mid-Waterproof-Natural-Black-Natural-White-Sole_PDP_BACK_df4a9fe9-71d4-46fb-8f54-1498b5c48138.png?v=1757724072",
+        "https://cdn.shopify.com/s/files/1/1104/4168/files/A12023_25Q3_Wool-Runner-NZ-Mid-Waterproof-Natural-Black-Natural-White-Sole_PDP_TD_76382c58-3bfa-4496-a89a-6cfa5f66301d.png?v=1757724072"
+      ],
+      "discount_pct_min": null,
+      "discount_pct_max": null,
+      "discount_method": "same_variant",
+      "priced_variants_count": 13
+    }
+  ],
+  "analysis": {
+    "generated_at": "2026-09-05T18:03:23.727028Z",
+    "takeaways": [
+      "Low launch velocity: 0.0 products/month, suggesting mature/stable catalog.",
+      "80.0% of products are currently in stock, which suggests stable inventory.",
+      "0.0% of products show valid discounts (compare-at > price), indicating limited discounting.",
+      "Pricing spans $0.80\u2013$160.00 with a median of $132.50. Position your core offer near the median to compete directly.",
+      "The dominant price band is $100\u2013$199 (90.0% of products), showing where they primarily compete.",
+      "Newest products price near the median, suggesting steady positioning rather than a strategic shift.",
+      "Products have multiple variants on average, suggesting upsell/option strategy (sizes, bundles, tiers)."
+    ],
+    "positioning": {
+      "market_position": {
+        "label": "Premium",
+        "note": "Based on catalog median price (simple heuristic)."
+      },
+      "promo_intensity": {
+        "score": 0,
+        "label": "Low",
+        "note": "Blend of discounted share + median discount depth."
+      },
+      "launch_velocity": {
+        "score": 40,
+        "label": "Low",
+        "note": "Blend of new product + update activity (last 90 days)."
+      },
+      "catalog_complexity": {
+        "score": 39,
+        "label": "Low",
+        "note": "Blend of catalog size + price spread + variants."
+      }
+    },
+    "new_vs_old": {
+      "total": 10,
+      "created": {
+        "d30": {
+          "count": 0,
+          "pct": 0.0
+        },
+        "d90": {
+          "count": 0,
+          "pct": 0.0
+        },
+        "d180": {
+          "count": 1,
+          "pct": 10.0
+        },
+        "missing": 0
+      },
+      "updated": {
+        "d30": {
+          "count": 10,
+          "pct": 100.0
+        },
+        "d90": {
+          "count": 10,
+          "pct": 100.0
+        },
+        "d180": {
+          "count": 10,
+          "pct": 100.0
+        },
+        "missing": 0
+      }
+    },
+    "comparisons": {
+      "new_vs_old": {
+        "created_30": 0,
+        "created_30_pct": 0.0,
+        "created_90": 0,
+        "created_90_pct": 0.0,
+        "created_180": 1,
+        "created_180_pct": 10.0,
+        "new_90_median_price": null,
+        "catalog_median_price": 132.5
+      },
+      "update_activity": {
+        "updated_30": 10,
+        "updated_30_pct": 100.0,
+        "updated_90": 10,
+        "updated_90_pct": 100.0,
+        "bulk_update_flag": false,
+        "bulk_update_bucket": "2026-09-05",
+        "bulk_update_dominant_pct": 100.0,
+        "bulk_filter_applied": false,
+        "updated_30_raw": 10,
+        "updated_30_raw_pct": 100.0,
+        "updated_90_raw": 10,
+        "updated_90_raw_pct": 100.0
+      },
+      "discounted_vs_full_price": {
+        "discounted_count": 0,
+        "discounted_pct": 0.0,
+        "discounted_median_price": null,
+        "full_price_median_price": 132.5
+      }
+    },
+    "confidence_notes": [
+      "Low discount detection: store may not use compare-at pricing consistently.",
+      "This report is based only on the public Shopify product catalog endpoint (/products.json). It does not include traffic, conversion rate, ads, or checkout data.",
+      "Date coverage: 100.0% of products include created/published dates; 100.0% include updated_at.",
+      "Pricing coverage: 100.0% of products include a usable price.",
+      "Discount coverage: 10.0% include compare-at pricing fields (discounts only count when compare_at > price).",
+      "If a store returns HTML/404 for /products.json, it may be non-Shopify, headless Shopify with restrictions, or intentionally blocking the endpoint."
+    ],
+    "launch_timeline": {
+      "launch_counts": {
+        "7d": {
+          "count": 0,
+          "pct": 0.0
+        },
+        "30d": {
+          "count": 0,
+          "pct": 0.0
+        },
+        "90d": {
+          "count": 0,
+          "pct": 0.0
+        },
+        "180d": {
+          "count": 1,
+          "pct": 10.0
+        },
+        "1yr": {
+          "count": 3,
+          "pct": 30.0
+        }
+      },
+      "velocity": {
+        "last_30d": 0.0,
+        "last_90d": 0.0,
+        "last_1yr": 0.2
+      },
+      "acceleration": {
+        "30d_vs_90d_pct": null,
+        "trend": "Steady"
+      },
+      "price_positioning": {
+        "catalog_median": 132.5,
+        "new_30d_median": null,
+        "new_90d_median": null,
+        "delta_30d_pct": null,
+        "delta_90d_pct": null,
+        "strategy": "Consistent positioning"
+      },
+      "monthly_distribution": {
+        "counts": {
+          "2025-09": 1,
+          "2026-02": 1,
+          "2026-06": 1
+        },
+        "peak_months": [
+          {
+            "month": "2025-09",
+            "count": 1
+          },
+          {
+            "month": "2026-02",
+            "count": 1
+          },
+          {
+            "month": "2026-06",
+            "count": 1
+          }
+        ]
+      },
+      "new_product_vendors": {
+        "90d_top_3": []
+      },
+      "oldest_product": {
+        "title": "Men's Tree Dasher 2 - Natural Black (Blizzard Sole)",
+        "created": "2022-02-03",
+        "age_days": 1674
+      },
+      "newest_product": {
+        "title": "Free Returns Coverage",
+        "created": "2026-06-05",
+        "age_days": 92
+      }
+    },
+    "catalog": {
+      "total_products": 10,
+      "in_stock_count": 8,
+      "in_stock_pct": 80.0,
+      "out_of_stock_count": 2,
+      "out_of_stock_pct": 20.0,
+      "vendors": {
+        "re:do": 1,
+        "Allbirds": 9
+      },
+      "vendor_count": 2
+    },
+    "vendor_analysis": {
+      "brand_type": "Brand with sub-lines",
+      "brand_note": "2 vendors \u2014 a brand with owned sub-labels or product lines.",
+      "vendor_count": 2,
+      "top_vendors": [
+        {
+          "vendor": "Allbirds",
+          "count": 9,
+          "pct": 90.0
+        },
+        {
+          "vendor": "re:do",
+          "count": 1,
+          "pct": 10.0
+        }
+      ]
+    },
+    "tag_analysis": {
+      "coverage_pct": 100.0,
+      "total_unique": 70,
+      "top_tags": [
+        {
+          "tag": "allbirds::complete => true",
+          "count": 7,
+          "pct": 70.0
+        },
+        {
+          "tag": "loop::returnable => true",
+          "count": 7,
+          "pct": 70.0
+        },
+        {
+          "tag": "allbirds::carbon-score => undefined",
+          "count": 6,
+          "pct": 60.0
+        },
+        {
+          "tag": "allbirds::edition => classic",
+          "count": 5,
+          "pct": 50.0
+        },
+        {
+          "tag": "allbirds::gender => mens",
+          "count": 5,
+          "pct": 50.0
+        },
+        {
+          "tag": "dnam brands",
+          "count": 5,
+          "pct": 50.0
+        },
+        {
+          "tag": "wave 2 wcdc",
+          "count": 5,
+          "pct": 50.0
+        },
+        {
+          "tag": "shoprunner",
+          "count": 4,
+          "pct": 40.0
+        },
+        {
+          "tag": "allbirds::material => tree",
+          "count": 4,
+          "pct": 40.0
+        },
+        {
+          "tag": "allbirds::price-tier => msrp",
+          "count": 4,
+          "pct": 40.0
+        },
+        {
+          "tag": "allbirds::silhouette => dasher",
+          "count": 4,
+          "pct": 40.0
+        },
+        {
+          "tag": "oos dns",
+          "count": 4,
+          "pct": 40.0
+        },
+        {
+          "tag": "allbirds::hue => black",
+          "count": 3,
+          "pct": 30.0
+        },
+        {
+          "tag": "allbirds::price-tier => tier-2",
+          "count": 3,
+          "pct": 30.0
+        },
+        {
+          "tag": "sf outlet inventory",
+          "count": 3,
+          "pct": 30.0
+        }
+      ]
+    },
+    "pricing": {
+      "count": 10,
+      "min": 0.8,
+      "max": 160.0,
+      "median": 132.5,
+      "p25": 111.25,
+      "p75": 140.0,
+      "price_buckets": {
+        "buckets": {
+          "<$25": 1,
+          "$100\u2013$199": 9
+        },
+        "bucket_order": [
+          "<$25",
+          "$25\u2013$49",
+          "$50\u2013$99",
+          "$100\u2013$199",
+          "$200\u2013$299",
+          "$300\u2013$499",
+          "$500+"
+        ]
+      }
+    },
+    "discounts": {
+      "discounted_count": 0,
+      "discounted_pct": 0.0,
+      "avg_discount_pct": null,
+      "median_discount_pct": null,
+      "max_discount_pct": null,
+      "note": "A product is discounted when at least one variant has a compare-at price above its own price. Discount depth is the smallest valid markdown among its discounted variants."
+    },
+    "content_signals": {
+      "avg_images_per_product": 2.8,
+      "avg_variants_per_product": 11.8
+    },
+    "lists": {
+      "top_expensive": [
+        {
+          "title": "Women's Wool Runner NZ Mid Waterproof - Natural Black (Natural White Sole)",
+          "product_url": "https://www.allbirds.com/products/womens-wool-runner-nz-mid-waterproof",
+          "price_min": 160.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-26T17:33:15-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A12023_25Q3_Wool-Runner-NZ-Mid-Waterproof-Natural-Black-Natural-White-Sole_PDP_LEFT_15a18748-ff33-4e50-8755-fbf0158abcdd.png?v=1757724073"
+          ]
+        },
+        {
+          "title": "Women's Dasher NZ - Blizzard/Deep Navy (Blizzard Sole)",
+          "product_url": "https://www.allbirds.com/products/womens-dasher-nz-blizzard-deep-navy",
+          "price_min": 140.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-06T20:08:21-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A12464_26Q1_Dasher-NZ-Blizzard-Deep-Navy-Blizzard_PDP_LEFT_e38509e9-51da-49a3-a794-53de6797a109.png?v=1768948779"
+          ]
+        },
+        {
+          "title": "Men's Dasher NZ - Anthracite (Dark Anthracite Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-dasher-nz-anthracite",
+          "price_min": 140.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-06T18:54:33-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A12416_26Q1_Dasher-NZ-Anthracite-Dark-Anthr_PDP_LEFT.png?v=1768948005"
+          ]
+        },
+        {
+          "title": "Men's Tree Dasher 2 - Natural Black (Blizzard Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-tree-dashers",
+          "price_min": 140.0,
+          "compare_at_min": null,
+          "available": false,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2022-02-03T10:34:21-08:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/AA000YM_SHOE_LEFT_GLOBAL_MENS_TREE_DASHER_2.0_Natural_Black_Blizzard_48bbccd1-a0ef-475d-a3c1-af945ece7fbc.png?v=1751061059"
+          ]
+        },
+        {
+          "title": "Men's Cruiser Terralux - Anthracite (Dark Gum Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-cruiser-terralux-anthracite",
+          "price_min": 135.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-06T16:52:33-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A12400_26Q1_Cruiser-Terralux-Anthracite-Dark-Gum-Sole_PDP_LEFT.png?v=1768947640"
+          ]
+        },
+        {
+          "title": "Men's Strider Explore - Natural Black (Dark Grey Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-strider-explore",
+          "price_min": 130.0,
+          "compare_at_min": null,
+          "available": false,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-09-10T12:47:47-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A11768_25Q4_Strider-Explore-Natural-Black-Dark-Grey-Sole_PDP_LEFT.png?v=1759336475"
+          ]
+        },
+        {
+          "title": "Men's Strider - Medium Grey (Blizzard Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-strider-medium-grey",
+          "price_min": 130.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-07-23T14:43:12-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A11729_25Q3_Strider-Medium-Grey-Blizzard-Sole_PDP_LEFT.png?v=1754951480"
+          ]
+        },
+        {
+          "title": "Men's Cruiser - Shadow Blue (Natural White Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-cruiser-shadow-blue-natural-white-sole",
+          "price_min": 105.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2026-02-04T17:38:18-08:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/All-birds_0010.png?v=1783535519"
+          ]
+        },
+        {
+          "title": "Women's Cruiser Slip On Canvas - Sea Spray (Natural White Sole)",
+          "product_url": "https://www.allbirds.com/products/womens-cruiser-slip-on-canvas-sea-spray-natural-white-sole",
+          "price_min": 100.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-30T02:29:20-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/All-birds_0005_c3386c3f-064e-43f2-9d46-66377d0ebd10.png?v=1783537948"
+          ]
+        },
+        {
+          "title": "Free Returns Coverage",
+          "product_url": "https://www.allbirds.com/products/free-returns-coverage",
+          "price_min": 0.8,
+          "compare_at_min": 0.8,
+          "available": true,
+          "vendor": "re:do",
+          "discount_pct": null,
+          "created_at": "2026-06-05T07:14:57-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/Screenshot_2026-06-11_at_10.12.01_AM.png?v=1781197934"
+          ]
+        }
+      ],
+      "top_discounts": [],
+      "newest_products": [
+        {
+          "title": "Free Returns Coverage",
+          "product_url": "https://www.allbirds.com/products/free-returns-coverage",
+          "price_min": 0.8,
+          "compare_at_min": 0.8,
+          "available": true,
+          "vendor": "re:do",
+          "discount_pct": null,
+          "created_at": "2026-06-05T07:14:57-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/Screenshot_2026-06-11_at_10.12.01_AM.png?v=1781197934"
+          ]
+        },
+        {
+          "title": "Men's Cruiser - Shadow Blue (Natural White Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-cruiser-shadow-blue-natural-white-sole",
+          "price_min": 105.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2026-02-04T17:38:18-08:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/All-birds_0010.png?v=1783535519"
+          ]
+        },
+        {
+          "title": "Men's Strider Explore - Natural Black (Dark Grey Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-strider-explore",
+          "price_min": 130.0,
+          "compare_at_min": null,
+          "available": false,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-09-10T12:47:47-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A11768_25Q4_Strider-Explore-Natural-Black-Dark-Grey-Sole_PDP_LEFT.png?v=1759336475"
+          ]
+        },
+        {
+          "title": "Women's Cruiser Slip On Canvas - Sea Spray (Natural White Sole)",
+          "product_url": "https://www.allbirds.com/products/womens-cruiser-slip-on-canvas-sea-spray-natural-white-sole",
+          "price_min": 100.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-30T02:29:20-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/All-birds_0005_c3386c3f-064e-43f2-9d46-66377d0ebd10.png?v=1783537948"
+          ]
+        },
+        {
+          "title": "Women's Wool Runner NZ Mid Waterproof - Natural Black (Natural White Sole)",
+          "product_url": "https://www.allbirds.com/products/womens-wool-runner-nz-mid-waterproof",
+          "price_min": 160.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-26T17:33:15-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A12023_25Q3_Wool-Runner-NZ-Mid-Waterproof-Natural-Black-Natural-White-Sole_PDP_LEFT_15a18748-ff33-4e50-8755-fbf0158abcdd.png?v=1757724073"
+          ]
+        },
+        {
+          "title": "Women's Dasher NZ - Blizzard/Deep Navy (Blizzard Sole)",
+          "product_url": "https://www.allbirds.com/products/womens-dasher-nz-blizzard-deep-navy",
+          "price_min": 140.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-06T20:08:21-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A12464_26Q1_Dasher-NZ-Blizzard-Deep-Navy-Blizzard_PDP_LEFT_e38509e9-51da-49a3-a794-53de6797a109.png?v=1768948779"
+          ]
+        },
+        {
+          "title": "Men's Dasher NZ - Anthracite (Dark Anthracite Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-dasher-nz-anthracite",
+          "price_min": 140.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-06T18:54:33-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A12416_26Q1_Dasher-NZ-Anthracite-Dark-Anthr_PDP_LEFT.png?v=1768948005"
+          ]
+        },
+        {
+          "title": "Men's Cruiser Terralux - Anthracite (Dark Gum Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-cruiser-terralux-anthracite",
+          "price_min": 135.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-06T16:52:33-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A12400_26Q1_Cruiser-Terralux-Anthracite-Dark-Gum-Sole_PDP_LEFT.png?v=1768947640"
+          ]
+        },
+        {
+          "title": "Men's Strider - Medium Grey (Blizzard Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-strider-medium-grey",
+          "price_min": 130.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-07-23T14:43:12-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A11729_25Q3_Strider-Medium-Grey-Blizzard-Sole_PDP_LEFT.png?v=1754951480"
+          ]
+        },
+        {
+          "title": "Men's Tree Dasher 2 - Natural Black (Blizzard Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-tree-dashers",
+          "price_min": 140.0,
+          "compare_at_min": null,
+          "available": false,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2022-02-03T10:34:21-08:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/AA000YM_SHOE_LEFT_GLOBAL_MENS_TREE_DASHER_2.0_Natural_Black_Blizzard_48bbccd1-a0ef-475d-a3c1-af945ece7fbc.png?v=1751061059"
+          ]
+        }
+      ],
+      "recently_updated": [
+        {
+          "title": "Free Returns Coverage",
+          "product_url": "https://www.allbirds.com/products/free-returns-coverage",
+          "price_min": 0.8,
+          "compare_at_min": 0.8,
+          "available": true,
+          "vendor": "re:do",
+          "discount_pct": null,
+          "created_at": "2026-06-05T07:14:57-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/Screenshot_2026-06-11_at_10.12.01_AM.png?v=1781197934"
+          ]
+        },
+        {
+          "title": "Men's Strider Explore - Natural Black (Dark Grey Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-strider-explore",
+          "price_min": 130.0,
+          "compare_at_min": null,
+          "available": false,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-09-10T12:47:47-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A11768_25Q4_Strider-Explore-Natural-Black-Dark-Grey-Sole_PDP_LEFT.png?v=1759336475"
+          ]
+        },
+        {
+          "title": "Women's Dasher NZ - Blizzard/Deep Navy (Blizzard Sole)",
+          "product_url": "https://www.allbirds.com/products/womens-dasher-nz-blizzard-deep-navy",
+          "price_min": 140.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-06T20:08:21-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A12464_26Q1_Dasher-NZ-Blizzard-Deep-Navy-Blizzard_PDP_LEFT_e38509e9-51da-49a3-a794-53de6797a109.png?v=1768948779"
+          ]
+        },
+        {
+          "title": "Men's Dasher NZ - Anthracite (Dark Anthracite Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-dasher-nz-anthracite",
+          "price_min": 140.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-06T18:54:33-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A12416_26Q1_Dasher-NZ-Anthracite-Dark-Anthr_PDP_LEFT.png?v=1768948005"
+          ]
+        },
+        {
+          "title": "Men's Strider - Medium Grey (Blizzard Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-strider-medium-grey",
+          "price_min": 130.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-07-23T14:43:12-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A11729_25Q3_Strider-Medium-Grey-Blizzard-Sole_PDP_LEFT.png?v=1754951480"
+          ]
+        },
+        {
+          "title": "Men's Tree Dasher 2 - Natural Black (Blizzard Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-tree-dashers",
+          "price_min": 140.0,
+          "compare_at_min": null,
+          "available": false,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2022-02-03T10:34:21-08:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/AA000YM_SHOE_LEFT_GLOBAL_MENS_TREE_DASHER_2.0_Natural_Black_Blizzard_48bbccd1-a0ef-475d-a3c1-af945ece7fbc.png?v=1751061059"
+          ]
+        },
+        {
+          "title": "Men's Cruiser - Shadow Blue (Natural White Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-cruiser-shadow-blue-natural-white-sole",
+          "price_min": 105.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2026-02-04T17:38:18-08:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/All-birds_0010.png?v=1783535519"
+          ]
+        },
+        {
+          "title": "Women's Cruiser Slip On Canvas - Sea Spray (Natural White Sole)",
+          "product_url": "https://www.allbirds.com/products/womens-cruiser-slip-on-canvas-sea-spray-natural-white-sole",
+          "price_min": 100.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-30T02:29:20-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/All-birds_0005_c3386c3f-064e-43f2-9d46-66377d0ebd10.png?v=1783537948"
+          ]
+        },
+        {
+          "title": "Men's Cruiser Terralux - Anthracite (Dark Gum Sole)",
+          "product_url": "https://www.allbirds.com/products/mens-cruiser-terralux-anthracite",
+          "price_min": 135.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-06T16:52:33-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A12400_26Q1_Cruiser-Terralux-Anthracite-Dark-Gum-Sole_PDP_LEFT.png?v=1768947640"
+          ]
+        },
+        {
+          "title": "Women's Wool Runner NZ Mid Waterproof - Natural Black (Natural White Sole)",
+          "product_url": "https://www.allbirds.com/products/womens-wool-runner-nz-mid-waterproof",
+          "price_min": 160.0,
+          "compare_at_min": null,
+          "available": true,
+          "vendor": "Allbirds",
+          "discount_pct": null,
+          "created_at": "2025-08-26T17:33:15-07:00",
+          "updated_at": "2026-09-05T11:02:39-07:00",
+          "images": [
+            "https://cdn.shopify.com/s/files/1/1104/4168/files/A12023_25Q3_Wool-Runner-NZ-Mid-Waterproof-Natural-Black-Natural-White-Sole_PDP_LEFT_15a18748-ff33-4e50-8755-fbf0158abcdd.png?v=1757724073"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,894 @@
+{
+  "sample_n": 46,
+  "raw_counts": {
+    "partial": 2,
+    "correct": 35,
+    "unknown": 2,
+    "wrong": 4,
+    "unclassified": 3
+  },
+  "weighted_rates": {
+    "correct": 0.8028169014084507,
+    "partial": 0.02112676056338028,
+    "wrong": 0.11267605633802817,
+    "unclassified": 0.03755868544600939,
+    "unknown": 0.025821596244131457
+  },
+  "reviews": [
+    {
+      "domain": "undisputedbelts.com",
+      "stratum": [
+        "Accessories",
+        "verified",
+        "0-7"
+      ],
+      "N": 6,
+      "n": 1,
+      "inclusion_probability": 0.16666666666666666,
+      "weight": 6.0,
+      "category": "Accessories",
+      "subcategory": "Belts",
+      "confidence": 95,
+      "broad_category_review": "partial",
+      "reason": "Broad classification has a plausible adjacency but championship awards/aquatic plants do not cleanly fit the stored apparel-accessory/home-decor niche.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://undisputedbelts.com"
+    },
+    {
+      "domain": "craftandlore.com",
+      "stratum": [
+        "Accessories",
+        "verified",
+        "31-60"
+      ],
+      "N": 30,
+      "n": 1,
+      "inclusion_probability": 0.03333333333333333,
+      "weight": 30.0,
+      "category": "Accessories",
+      "subcategory": "Wallets",
+      "confidence": 85,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://craftandlore.com"
+    },
+    {
+      "domain": "glitzpuffs.com",
+      "stratum": [
+        "Adult",
+        "verified",
+        "31-60"
+      ],
+      "N": 2,
+      "n": 1,
+      "inclusion_probability": 0.5,
+      "weight": 2.0,
+      "category": "Adult",
+      "subcategory": "General",
+      "confidence": 85,
+      "broad_category_review": "unknown",
+      "reason": "Current unavailable/redirect-limit observation does not support independent category adjudication.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://glitzpuffs.com"
+    },
+    {
+      "domain": "iamherstationary.com",
+      "stratum": [
+        "Arts & Crafts",
+        "verified",
+        "0-7"
+      ],
+      "N": 3,
+      "n": 1,
+      "inclusion_probability": 0.3333333333333333,
+      "weight": 3.0,
+      "category": "Arts & Crafts",
+      "subcategory": "Stationery",
+      "confidence": 95,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://iamherstationary.com"
+    },
+    {
+      "domain": "honeybeestamps.com",
+      "stratum": [
+        "Arts & Crafts",
+        "verified",
+        "31-60"
+      ],
+      "N": 7,
+      "n": 1,
+      "inclusion_probability": 0.14285714285714285,
+      "weight": 7.0,
+      "category": "Arts & Crafts",
+      "subcategory": "Craft Supplies",
+      "confidence": 98,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://honeybeestamps.com"
+    },
+    {
+      "domain": "mooncarstereo.com",
+      "stratum": [
+        "Automotive",
+        "verified",
+        "0-7"
+      ],
+      "N": 1,
+      "n": 1,
+      "inclusion_probability": 1.0,
+      "weight": 1.0,
+      "category": "Automotive",
+      "subcategory": "Car Accessories",
+      "confidence": 95,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://mooncarstereo.com"
+    },
+    {
+      "domain": "apexrace.us",
+      "stratum": [
+        "Automotive",
+        "verified",
+        "31-60"
+      ],
+      "N": 9,
+      "n": 1,
+      "inclusion_probability": 0.1111111111111111,
+      "weight": 9.0,
+      "category": "Automotive",
+      "subcategory": "Parts",
+      "confidence": 92,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://apexrace.us"
+    },
+    {
+      "domain": "peachandlily.com",
+      "stratum": [
+        "Beauty",
+        "verified",
+        "0-7"
+      ],
+      "N": 7,
+      "n": 1,
+      "inclusion_probability": 0.14285714285714285,
+      "weight": 7.0,
+      "category": "Beauty",
+      "subcategory": "Skincare",
+      "confidence": 80,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://peachandlily.com"
+    },
+    {
+      "domain": "perfumetogo.com",
+      "stratum": [
+        "Beauty",
+        "verified",
+        "31-60"
+      ],
+      "N": 17,
+      "n": 1,
+      "inclusion_probability": 0.058823529411764705,
+      "weight": 17.0,
+      "category": "Beauty",
+      "subcategory": "Fragrance",
+      "confidence": 78,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://perfumetogo.com"
+    },
+    {
+      "domain": "kitchenworldsupplies.com",
+      "stratum": [
+        "Books & Media",
+        "verified",
+        "0-7"
+      ],
+      "N": 2,
+      "n": 1,
+      "inclusion_probability": 0.5,
+      "weight": 2.0,
+      "category": "Books & Media",
+      "subcategory": "Films",
+      "confidence": 95,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://kitchenworldsupplies.com"
+    },
+    {
+      "domain": "shop.thestrokes.com",
+      "stratum": [
+        "Books & Media",
+        "verified",
+        "31-60"
+      ],
+      "N": 5,
+      "n": 1,
+      "inclusion_probability": 0.2,
+      "weight": 5.0,
+      "category": "Books & Media",
+      "subcategory": "Music",
+      "confidence": 92,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://shop.thestrokes.com"
+    },
+    {
+      "domain": "thephotostick.com",
+      "stratum": [
+        "Electronics & Gadgets",
+        "verified",
+        "0-7"
+      ],
+      "N": 3,
+      "n": 1,
+      "inclusion_probability": 0.3333333333333333,
+      "weight": 3.0,
+      "category": "Electronics & Gadgets",
+      "subcategory": "Wearables",
+      "confidence": 75,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "wrong: storage/photo backup hardware is not wearable technology",
+      "evidence_url": "https://thephotostick.com"
+    },
+    {
+      "domain": "mujjo.com",
+      "stratum": [
+        "Electronics & Gadgets",
+        "verified",
+        "31-60"
+      ],
+      "N": 9,
+      "n": 1,
+      "inclusion_probability": 0.1111111111111111,
+      "weight": 9.0,
+      "category": "Electronics & Gadgets",
+      "subcategory": "Accessories",
+      "confidence": 87,
+      "broad_category_review": "unknown",
+      "reason": "Current unavailable/redirect-limit observation does not support independent category adjudication.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://mujjo.com"
+    },
+    {
+      "domain": "nursingqueen.com",
+      "stratum": [
+        "Fashion",
+        "verified",
+        "0-7"
+      ],
+      "N": 18,
+      "n": 1,
+      "inclusion_probability": 0.05555555555555555,
+      "weight": 18.0,
+      "category": "Fashion",
+      "subcategory": "Womenswear",
+      "confidence": 86,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://nursingqueen.com"
+    },
+    {
+      "domain": "riotsociety.com",
+      "stratum": [
+        "Fashion",
+        "verified",
+        "31-60"
+      ],
+      "N": 50,
+      "n": 1,
+      "inclusion_probability": 0.02,
+      "weight": 50.0,
+      "category": "Fashion",
+      "subcategory": "Streetwear",
+      "confidence": 92,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://riotsociety.com"
+    },
+    {
+      "domain": "lezat.com",
+      "stratum": [
+        "Fitness Apparel",
+        "verified",
+        "0-7"
+      ],
+      "N": 1,
+      "n": 1,
+      "inclusion_probability": 1.0,
+      "weight": 1.0,
+      "category": "Fitness Apparel",
+      "subcategory": "Activewear",
+      "confidence": 92,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://lezat.com"
+    },
+    {
+      "domain": "getflytex.co",
+      "stratum": [
+        "Fitness Apparel",
+        "verified",
+        "31-60"
+      ],
+      "N": 11,
+      "n": 1,
+      "inclusion_probability": 0.09090909090909091,
+      "weight": 11.0,
+      "category": "Fitness Apparel",
+      "subcategory": "Gym Accessories",
+      "confidence": 85,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://getflytex.co"
+    },
+    {
+      "domain": "inspiredgo.ca",
+      "stratum": [
+        "Food & Beverage",
+        "verified",
+        "0-7"
+      ],
+      "N": 3,
+      "n": 1,
+      "inclusion_probability": 0.3333333333333333,
+      "weight": 3.0,
+      "category": "Food & Beverage",
+      "subcategory": "Snacks",
+      "confidence": 92,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "partial/wrong: prepared meals and salads, not primarily snacks",
+      "evidence_url": "https://inspiredgo.ca"
+    },
+    {
+      "domain": "heatonist.com",
+      "stratum": [
+        "Food & Beverage",
+        "verified",
+        "31-60"
+      ],
+      "N": 13,
+      "n": 1,
+      "inclusion_probability": 0.07692307692307693,
+      "weight": 13.0,
+      "category": "Food & Beverage",
+      "subcategory": "Condiments",
+      "confidence": 95,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://heatonist.com"
+    },
+    {
+      "domain": "virelivo.com",
+      "stratum": [
+        "Footwear",
+        "verified",
+        "0-7"
+      ],
+      "N": 3,
+      "n": 1,
+      "inclusion_probability": 0.3333333333333333,
+      "weight": 3.0,
+      "category": "Footwear",
+      "subcategory": "Sneakers",
+      "confidence": 95,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://virelivo.com"
+    },
+    {
+      "domain": "kizik.com",
+      "stratum": [
+        "Footwear",
+        "verified",
+        "31-60"
+      ],
+      "N": 10,
+      "n": 1,
+      "inclusion_probability": 0.1,
+      "weight": 10.0,
+      "category": "Footwear",
+      "subcategory": "Sneakers",
+      "confidence": 92,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://kizik.com"
+    },
+    {
+      "domain": "goodvibesbysabrina.com",
+      "stratum": [
+        "Health & Personal Care",
+        "verified",
+        "0-7"
+      ],
+      "N": 3,
+      "n": 1,
+      "inclusion_probability": 0.3333333333333333,
+      "weight": 3.0,
+      "category": "Health & Personal Care",
+      "subcategory": "Sexual Wellness",
+      "confidence": 95,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://goodvibesbysabrina.com"
+    },
+    {
+      "domain": "pepticool.com",
+      "stratum": [
+        "Health & Personal Care",
+        "verified",
+        "31-60"
+      ],
+      "N": 5,
+      "n": 1,
+      "inclusion_probability": 0.2,
+      "weight": 5.0,
+      "category": "Health & Personal Care",
+      "subcategory": "Medical",
+      "confidence": 78,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://pepticool.com"
+    },
+    {
+      "domain": "wetplants.com",
+      "stratum": [
+        "Home & Living",
+        "verified",
+        "0-7"
+      ],
+      "N": 3,
+      "n": 1,
+      "inclusion_probability": 0.3333333333333333,
+      "weight": 3.0,
+      "category": "Home & Living",
+      "subcategory": "Home Decor",
+      "confidence": 75,
+      "broad_category_review": "partial",
+      "reason": "Broad classification has a plausible adjacency but championship awards/aquatic plants do not cleanly fit the stored apparel-accessory/home-decor niche.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://wetplants.com"
+    },
+    {
+      "domain": "wallcoveringsmart.com",
+      "stratum": [
+        "Home & Living",
+        "verified",
+        "31-60"
+      ],
+      "N": 16,
+      "n": 1,
+      "inclusion_probability": 0.0625,
+      "weight": 16.0,
+      "category": "Home & Living",
+      "subcategory": "Home Decor",
+      "confidence": 99,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://wallcoveringsmart.com"
+    },
+    {
+      "domain": "parachutehome.com",
+      "stratum": [
+        "Home & Living",
+        "verified",
+        "8-30"
+      ],
+      "N": 2,
+      "n": 1,
+      "inclusion_probability": 0.5,
+      "weight": 2.0,
+      "category": "Home & Living",
+      "subcategory": "Bedding",
+      "confidence": 95,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://parachutehome.com"
+    },
+    {
+      "domain": "primeweld.com",
+      "stratum": [
+        "Home Improvement",
+        "verified",
+        "31-60"
+      ],
+      "N": 3,
+      "n": 1,
+      "inclusion_probability": 0.3333333333333333,
+      "weight": 3.0,
+      "category": "Home Improvement",
+      "subcategory": "Tools",
+      "confidence": 95,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://primeweld.com"
+    },
+    {
+      "domain": "fashionnova.com",
+      "stratum": [
+        "Jewelry",
+        "verified",
+        "0-7"
+      ],
+      "N": 10,
+      "n": 1,
+      "inclusion_probability": 0.1,
+      "weight": 10.0,
+      "category": "Jewelry",
+      "subcategory": "Watches",
+      "confidence": 95,
+      "broad_category_review": "wrong",
+      "reason": "Observed fashion apparel; stored Jewelry/Watches does not describe the main assortment.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://fashionnova.com"
+    },
+    {
+      "domain": "spigen.com",
+      "stratum": [
+        "Jewelry",
+        "verified",
+        "31-60"
+      ],
+      "N": 22,
+      "n": 1,
+      "inclusion_probability": 0.045454545454545456,
+      "weight": 22.0,
+      "category": "Jewelry",
+      "subcategory": "Watches",
+      "confidence": 88,
+      "broad_category_review": "wrong",
+      "reason": "Observed device cases/accessories; stored Jewelry/Watches does not describe the main assortment.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://spigen.com"
+    },
+    {
+      "domain": "kinugawaturbo.com",
+      "stratum": [
+        "Kids & Baby",
+        "verified",
+        "0-7"
+      ],
+      "N": 4,
+      "n": 1,
+      "inclusion_probability": 0.25,
+      "weight": 4.0,
+      "category": "Kids & Baby",
+      "subcategory": "Toys",
+      "confidence": 89,
+      "broad_category_review": "wrong",
+      "reason": "Observed turbocharger/compressor automotive parts contradict stored Kids & Baby/Toys.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://kinugawaturbo.com"
+    },
+    {
+      "domain": "babysprouts.com",
+      "stratum": [
+        "Kids & Baby",
+        "verified",
+        "31-60"
+      ],
+      "N": 19,
+      "n": 1,
+      "inclusion_probability": 0.05263157894736842,
+      "weight": 19.0,
+      "category": "Kids & Baby",
+      "subcategory": "Kids Apparel",
+      "confidence": 98,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://babysprouts.com"
+    },
+    {
+      "domain": "fedfitness.com",
+      "stratum": [
+        "Other",
+        "verified",
+        "0-7"
+      ],
+      "N": 8,
+      "n": 1,
+      "inclusion_probability": 0.125,
+      "weight": 8.0,
+      "category": "Other",
+      "subcategory": "General",
+      "confidence": 85,
+      "broad_category_review": "unclassified",
+      "reason": "Stored Other/General is not a useful specific business classification; public offerings support a more specific class.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://fedfitness.com"
+    },
+    {
+      "domain": "shoplinenlace.com",
+      "stratum": [
+        "Other",
+        "verified",
+        "31-60"
+      ],
+      "N": 7,
+      "n": 1,
+      "inclusion_probability": 0.14285714285714285,
+      "weight": 7.0,
+      "category": "Other",
+      "subcategory": "General",
+      "confidence": 25,
+      "broad_category_review": "unclassified",
+      "reason": "Stored Other/General is not a useful specific business classification; public offerings support a more specific class.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://shoplinenlace.com"
+    },
+    {
+      "domain": "moft.us",
+      "stratum": [
+        "Other",
+        "verified",
+        "8-30"
+      ],
+      "N": 1,
+      "n": 1,
+      "inclusion_probability": 1.0,
+      "weight": 1.0,
+      "category": "Other",
+      "subcategory": "General",
+      "confidence": 95,
+      "broad_category_review": "unclassified",
+      "reason": "Stored Other/General is not a useful specific business classification; public offerings support a more specific class.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://moft.us"
+    },
+    {
+      "domain": "broadrivermercantile.com",
+      "stratum": [
+        "Outdoors",
+        "verified",
+        "0-7"
+      ],
+      "N": 5,
+      "n": 1,
+      "inclusion_probability": 0.2,
+      "weight": 5.0,
+      "category": "Outdoors",
+      "subcategory": "Hunting & Fishing",
+      "confidence": 75,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://broadrivermercantile.com"
+    },
+    {
+      "domain": "benchmarkabrasives.com",
+      "stratum": [
+        "Outdoors",
+        "verified",
+        "31-60"
+      ],
+      "N": 12,
+      "n": 1,
+      "inclusion_probability": 0.08333333333333333,
+      "weight": 12.0,
+      "category": "Outdoors",
+      "subcategory": "Water Sports",
+      "confidence": 90,
+      "broad_category_review": "wrong",
+      "reason": "Observed industrial abrasives contradict stored Outdoors/Water Sports.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://benchmarkabrasives.com"
+    },
+    {
+      "domain": "fetchyourpetneeds.ie",
+      "stratum": [
+        "Pets",
+        "verified",
+        "0-7"
+      ],
+      "N": 5,
+      "n": 1,
+      "inclusion_probability": 0.2,
+      "weight": 5.0,
+      "category": "Pets",
+      "subcategory": "Pet Food",
+      "confidence": 85,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://fetchyourpetneeds.ie"
+    },
+    {
+      "domain": "kensfish.com",
+      "stratum": [
+        "Pets",
+        "verified",
+        "31-60"
+      ],
+      "N": 19,
+      "n": 1,
+      "inclusion_probability": 0.05263157894736842,
+      "weight": 19.0,
+      "category": "Pets",
+      "subcategory": "Pet Accessories",
+      "confidence": 95,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://kensfish.com"
+    },
+    {
+      "domain": "modernskate.com",
+      "stratum": [
+        "Sporting Goods",
+        "verified",
+        "0-7"
+      ],
+      "N": 9,
+      "n": 1,
+      "inclusion_probability": 0.1111111111111111,
+      "weight": 9.0,
+      "category": "Sporting Goods",
+      "subcategory": "Equipment",
+      "confidence": 92,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://modernskate.com"
+    },
+    {
+      "domain": "on9bike.com",
+      "stratum": [
+        "Sporting Goods",
+        "verified",
+        "31-60"
+      ],
+      "N": 18,
+      "n": 1,
+      "inclusion_probability": 0.05555555555555555,
+      "weight": 18.0,
+      "category": "Sporting Goods",
+      "subcategory": "Equipment",
+      "confidence": 92,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://on9bike.com"
+    },
+    {
+      "domain": "ultimatesportnutrition.us",
+      "stratum": [
+        "Supplements",
+        "verified",
+        "0-7"
+      ],
+      "N": 1,
+      "n": 1,
+      "inclusion_probability": 1.0,
+      "weight": 1.0,
+      "category": "Supplements",
+      "subcategory": "Sports Nutrition",
+      "confidence": 95,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://ultimatesportnutrition.us"
+    },
+    {
+      "domain": "horbaach.com",
+      "stratum": [
+        "Supplements",
+        "verified",
+        "31-60"
+      ],
+      "N": 4,
+      "n": 1,
+      "inclusion_probability": 0.25,
+      "weight": 4.0,
+      "category": "Supplements",
+      "subcategory": "Vitamins",
+      "confidence": 98,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://horbaach.com"
+    },
+    {
+      "domain": "warsawwireless.com",
+      "stratum": [
+        "Tech Accessories",
+        "verified",
+        "0-7"
+      ],
+      "N": 1,
+      "n": 1,
+      "inclusion_probability": 1.0,
+      "weight": 1.0,
+      "category": "Tech Accessories",
+      "subcategory": "Phone Cases",
+      "confidence": 92,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://warsawwireless.com"
+    },
+    {
+      "domain": "otterbox.com",
+      "stratum": [
+        "Tech Accessories",
+        "verified",
+        "31-60"
+      ],
+      "N": 6,
+      "n": 1,
+      "inclusion_probability": 0.16666666666666666,
+      "weight": 6.0,
+      "category": "Tech Accessories",
+      "subcategory": "Phone Cases",
+      "confidence": 95,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://otterbox.com"
+    },
+    {
+      "domain": "lpdiecastgarage.com",
+      "stratum": [
+        "Toys & Games",
+        "verified",
+        "0-7"
+      ],
+      "N": 7,
+      "n": 1,
+      "inclusion_probability": 0.14285714285714285,
+      "weight": 7.0,
+      "category": "Toys & Games",
+      "subcategory": "Collectibles",
+      "confidence": 95,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://lpdiecastgarage.com"
+    },
+    {
+      "domain": "kazkatoys.com",
+      "stratum": [
+        "Toys & Games",
+        "verified",
+        "31-60"
+      ],
+      "N": 26,
+      "n": 1,
+      "inclusion_probability": 0.038461538461538464,
+      "weight": 26.0,
+      "category": "Toys & Games",
+      "subcategory": "Toys",
+      "confidence": 95,
+      "broad_category_review": "correct",
+      "reason": "Current official homepage/catalog supports the stored broad category; this does not validate every subcategory or product.",
+      "subcategory_review": "not separately scored",
+      "evidence_url": "https://kazkatoys.com"
+    }
+  ],
+  "limitation": "Single analyst, stratified small sample with many singleton strata. Heuristic confidence is not calibrated probability; no precise per-confidence calibration curve or full confusion matrix is justified."
+}
