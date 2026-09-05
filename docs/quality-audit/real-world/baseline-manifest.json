@@ -1,0 +1,33 @@
+{
+  "baseline_commit": "ff555bb2842a05f55dcc83403bfef80bc7eb17cf",
+  "baseline_kind": "current local code, NOT deployed production code",
+  "production_last_known_revision": "e66e3f05417cea5d57f27800c755c2353ca2b791",
+  "date": "2026-09-05",
+  "source_sha256": {
+    "app/api/v1/competitors.py": "a4ea76e39bc83f4053c050440b02a37e54432a0575b123c8b9b47cdc88ee1fe7",
+    "app/services/discovery_quality.py": "06e5bfc773b9ee910f45a80ff6724f3d16246809e08c6d5282aca248d2517db4",
+    "app/services/store_dna.py": "49b900002520bdfc8c5ecf0437951042ea518804a882a143393c91bbf9be79b3",
+    "app/services/store_index.py": "47d9d38ee7b66035e8a7132b09865eaa1d0fc74928d6bf29c34bcf77cf9ac276",
+    "app/tasks/store_index.py": "5eb090e501b64804323e96424decb3f873e066334ec7c1de233b7421f465d8e3"
+  },
+  "reference_panel_sha256": "56f9c0a10beef5e2f0d8f588c6a480f489ff1f68c05c1f0b36cfcac98e2f1e2a",
+  "snapshot_sha256": null,
+  "snapshot_rows": null,
+  "benchmark_executed": false,
+  "metrics": null,
+  "pending_required_context": [
+    "read-only public.shopify_store_index export with schema and timestamp",
+    "actual configured index thresholds without secret values",
+    "faithful request replay with all writes, HTTP verification, queues and paid AI disabled",
+    "record category/profile context and all retrieval/fallback stages"
+  ],
+  "prohibited": [
+    "production discover-ai call",
+    "production writes",
+    "paid model requests",
+    "deployments",
+    "reference-driven seeding before baseline"
+  ],
+  "connection_state": "Supabase connected and installed; query tools absent from current active tool registry",
+  "query_execution_count": 0
+}

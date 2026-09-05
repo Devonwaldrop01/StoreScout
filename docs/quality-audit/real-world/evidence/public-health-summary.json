@@ -1,0 +1,847 @@
+{
+  "sample_n": 240,
+  "strata_n": 59,
+  "observation_domains": 353,
+  "metrics": {
+    "accessible_home": {
+      "observed_sample_count": 208,
+      "weighted_rate": 0.8818042437403523,
+      "weighted_estimated_rows": 33703.44,
+      "conservative_95_bound": [
+        0.7829000210579313,
+        0.9807084664227732
+      ],
+      "margin": 0.09890422268242093
+    },
+    "readable_nonempty_catalog": {
+      "observed_sample_count": 201,
+      "weighted_rate": 0.8462792705580702,
+      "weighted_estimated_rows": 32345.64,
+      "conservative_95_bound": [
+        0.7473750478756492,
+        0.9451834932404911
+      ],
+      "margin": 0.09890422268242093
+    },
+    "shopify_evidence": {
+      "observed_sample_count": 228,
+      "weighted_rate": 0.9551251929567515,
+      "weighted_estimated_rows": 36505.84,
+      "conservative_95_bound": [
+        0.8562209702743305,
+        1
+      ],
+      "margin": 0.09890422268242093
+    },
+    "password_signal": {
+      "observed_sample_count": 1,
+      "weighted_rate": 0.005393893409382277,
+      "weighted_estimated_rows": 206.16,
+      "conservative_95_bound": [
+        0,
+        0.1042981160918032
+      ],
+      "margin": 0.09890422268242093
+    },
+    "parking_signal": {
+      "observed_sample_count": 1,
+      "weighted_rate": 0.00494492556448026,
+      "weighted_estimated_rows": 189.0,
+      "conservative_95_bound": [
+        0,
+        0.10384914824690118
+      ],
+      "margin": 0.09890422268242093
+    },
+    "unknown_access": {
+      "observed_sample_count": 10,
+      "weighted_rate": 0.036057664634624946,
+      "weighted_estimated_rows": 1378.16,
+      "conservative_95_bound": [
+        0,
+        0.13496188731704586
+      ],
+      "margin": 0.09890422268242093
+    },
+    "http_402_unavailable": {
+      "observed_sample_count": 2,
+      "weighted_rate": 0.0054462206640328616,
+      "weighted_estimated_rows": 208.16,
+      "conservative_95_bound": [
+        0,
+        0.10435044334645378
+      ],
+      "margin": 0.09890422268242093
+    },
+    "challenge_observed": {
+      "observed_sample_count": 1,
+      "weighted_rate": 0.0004971089191805551,
+      "weighted_estimated_rows": 18.999999999999996,
+      "conservative_95_bound": [
+        0,
+        0.09940133160160149
+      ],
+      "margin": 0.09890422268242093
+    },
+    "public_catalog_empty": {
+      "observed_sample_count": 1,
+      "weighted_rate": 0.005393893409382277,
+      "weighted_estimated_rows": 206.16,
+      "conservative_95_bound": [
+        0,
+        0.1042981160918032
+      ],
+      "margin": 0.09890422268242093
+    }
+  },
+  "by_status": {
+    "candidate": {
+      "sample_n": 7,
+      "population_n": 1323.0,
+      "readable_nonempty_catalog_n": 1,
+      "weighted_catalog_rate": 0.14285714285714285
+    },
+    "discovered": {
+      "sample_n": 177,
+      "population_n": 36088.0,
+      "readable_nonempty_catalog_n": 156,
+      "weighted_catalog_rate": 0.8800332520505431
+    },
+    "failed": {
+      "sample_n": 1,
+      "population_n": 61.0,
+      "readable_nonempty_catalog_n": 0,
+      "weighted_catalog_rate": 0.0
+    },
+    "rejected": {
+      "sample_n": 9,
+      "population_n": 323.0,
+      "readable_nonempty_catalog_n": 3,
+      "weighted_catalog_rate": 0.021671826625386997
+    },
+    "verified": {
+      "sample_n": 46,
+      "population_n": 426.0,
+      "readable_nonempty_catalog_n": 41,
+      "weighted_catalog_rate": 0.9178403755868545
+    }
+  },
+  "strata": [
+    {
+      "stratum": [
+        "Accessories",
+        "rejected",
+        "0-7"
+      ],
+      "population_n": 1,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Accessories",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 6,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Accessories",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 30,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Adult",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 2,
+      "n": 1,
+      "catalog_successes": 0,
+      "unknown_access": 1,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Arts & Crafts",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 3,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Arts & Crafts",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 7,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Automotive",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 1,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Automotive",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 9,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Beauty",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 7,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Beauty",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 17,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Books & Media",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 2,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Books & Media",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 5,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Electronics & Gadgets",
+        "rejected",
+        "0-7"
+      ],
+      "population_n": 2,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Electronics & Gadgets",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 3,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Electronics & Gadgets",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 9,
+      "n": 1,
+      "catalog_successes": 0,
+      "unknown_access": 1,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Fashion",
+        "rejected",
+        "0-7"
+      ],
+      "population_n": 1,
+      "n": 1,
+      "catalog_successes": 0,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Fashion",
+        "rejected",
+        "31-60"
+      ],
+      "population_n": 1,
+      "n": 1,
+      "catalog_successes": 0,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Fashion",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 18,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Fashion",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 50,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Fitness Apparel",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 1,
+      "n": 1,
+      "catalog_successes": 0,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Fitness Apparel",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 11,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Food & Beverage",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 3,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Food & Beverage",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 13,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Footwear",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 3,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Footwear",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 10,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Health & Personal Care",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 3,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Health & Personal Care",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 5,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Home & Living",
+        "rejected",
+        "8-30"
+      ],
+      "population_n": 1,
+      "n": 1,
+      "catalog_successes": 0,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Home & Living",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 3,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Home & Living",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 16,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Home & Living",
+        "verified",
+        "8-30"
+      ],
+      "population_n": 2,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Home Improvement",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 3,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Jewelry",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 10,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Jewelry",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 22,
+      "n": 1,
+      "catalog_successes": 0,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Kids & Baby",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 4,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Kids & Baby",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 19,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Other",
+        "discovered",
+        "31-60"
+      ],
+      "population_n": 5,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Other",
+        "rejected",
+        "31-60"
+      ],
+      "population_n": 4,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Other",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 8,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Other",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 7,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Other",
+        "verified",
+        "8-30"
+      ],
+      "population_n": 1,
+      "n": 1,
+      "catalog_successes": 0,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Outdoors",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 5,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Outdoors",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 12,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Pets",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 5,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Pets",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 19,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Sporting Goods",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 9,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Sporting Goods",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 18,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Supplements",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 1,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Supplements",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 4,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Tech Accessories",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 1,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Tech Accessories",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 6,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Toys & Games",
+        "verified",
+        "0-7"
+      ],
+      "population_n": 7,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "Toys & Games",
+        "verified",
+        "31-60"
+      ],
+      "population_n": 26,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "UNCLASSIFIED",
+        "candidate",
+        "missing"
+      ],
+      "population_n": 1323,
+      "n": 7,
+      "catalog_successes": 1,
+      "unknown_access": 5,
+      "uncertainty": "small stratified sample; see overall conservative bound"
+    },
+    {
+      "stratum": [
+        "UNCLASSIFIED",
+        "discovered",
+        "31-60"
+      ],
+      "population_n": 5,
+      "n": 1,
+      "catalog_successes": 1,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "UNCLASSIFIED",
+        "discovered",
+        "missing"
+      ],
+      "population_n": 36078,
+      "n": 175,
+      "catalog_successes": 154,
+      "unknown_access": 1,
+      "uncertainty": "small stratified sample; see overall conservative bound"
+    },
+    {
+      "stratum": [
+        "UNCLASSIFIED",
+        "failed",
+        "31-60"
+      ],
+      "population_n": 61,
+      "n": 1,
+      "catalog_successes": 0,
+      "unknown_access": 1,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "UNCLASSIFIED",
+        "rejected",
+        "0-7"
+      ],
+      "population_n": 3,
+      "n": 1,
+      "catalog_successes": 0,
+      "unknown_access": 0,
+      "uncertainty": "single observation; no within-stratum variance estimate"
+    },
+    {
+      "stratum": [
+        "UNCLASSIFIED",
+        "rejected",
+        "31-60"
+      ],
+      "population_n": 310,
+      "n": 2,
+      "catalog_successes": 0,
+      "unknown_access": 1,
+      "uncertainty": "small stratified sample; see overall conservative bound"
+    }
+  ],
+  "confirmed_platform_absence": null,
+  "confirmed_dead": null,
+  "wholesale_only_rate": null,
+  "interpretation": "These are observed access/evidence rates in a bounded public-check window, not sales activity, full-catalog completeness, or exhaustive platform absence. Unknown access is not dead. Confidence bounds address sample selection only, not probe or label errors.",
+  "check_window": [
+    "2026-09-05T20:55:20.005860+00:00",
+    "2026-09-05T21:06:30.734877+00:00"
+  ]
+}

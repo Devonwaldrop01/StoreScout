@@ -34,7 +34,8 @@ def get_public_report(snapshot_id: str):
     launch = data.get("launch_timeline") or {}
     takeaways = data.get("takeaways") or []
 
-    # Fetch the latest AI brief for this competitor (no auth required — safe aggregate data)
+    # Only include a brief explicitly bound to this observation. Legacy briefs
+    # without snapshot provenance must not be attached to historical reports.
     ai_brief = None
     competitor_id = snap.get("competitor_id")
     if competitor_id:
@@ -43,13 +44,16 @@ def get_public_report(snapshot_id: str):
             .eq("competitor_id", competitor_id)\
             .eq("summary_type", "brief")\
             .order("generated_at", desc=True)\
-            .limit(1)\
+            .limit(20)\
             .execute()
-        if brief_res.data:
+        for brief in brief_res.data or []:
             try:
-                ai_brief = json.loads(brief_res.data[0]["summary_text"])
-            except Exception:
-                pass
+                candidate = json.loads(brief["summary_text"])
+                if isinstance(candidate, dict) and candidate.get("_snapshot_id") == snapshot_id:
+                    ai_brief = candidate
+                    break
+            except (TypeError, ValueError, KeyError):
+                continue
 
     return {
         "data": {
@@ -57,6 +61,8 @@ def get_public_report(snapshot_id: str):
             "scanned_at": snap["scanned_at"],
             "hostname": data.get("hostname") or data.get("display_name") or "Unknown Store",
             "product_count": snap.get("product_count"),
+            "catalog_complete": data.get("catalog_complete") is True,
+            "catalog_coverage_reason": data.get("catalog_coverage_reason", "unknown"),
             "pricing": {
                 "median": pricing.get("median"),
                 "min": pricing.get("min"),

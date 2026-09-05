@@ -1,0 +1,1067 @@
+{
+  "version": 1,
+  "frozen_before_discovery_output": true,
+  "created_date": "2026-09-05",
+  "status": "independent reference panel prepared; NOT an executed discovery benchmark",
+  "baseline_commit": "ff555bb2842a05f55dcc83403bfef80bc7eb17cf",
+  "label_definition": {
+    "3": "strong product/use-case competitor for the stated query; does not assert equal price",
+    "2": "useful related competitor for part of query; limitations must be visible",
+    "1": "weak adjacency, accessory-only or materially different audience/position",
+    "0": "clearly wrong",
+    "null": "not enough evidence; do not silently count as irrelevant"
+  },
+  "limitations": [
+    "Single analyst reference judgment, independent of StoreScout but not independent second human review.",
+    "Brands are grouped; 25 cases are not 25 independent niches. Group bootstrap/splits required.",
+    "Platform status and live catalog availability are separate unmeasured properties.",
+    "Two known references per case are insufficient to enumerate the market; returned results must be judged independently.",
+    "No synthetic rows are passed off as real index records.",
+    "NuPhy evidence older than most sources; refresh before scoring.",
+    "Owner wording and willingness to accept a competitor remain unvalidated."
+  ],
+  "sources": {
+    "durstongear.com": {
+      "name": "Durston",
+      "url": "https://durstongear.com/",
+      "web_ref": "turn21view0",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Premium ultralight tents, packs and trekking poles; X-Mid and X-Dome lines.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "zpacks.com": {
+      "name": "Zpacks",
+      "url": "https://zpacks.com/collections/tents",
+      "web_ref": "turn20search43",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Ultralight backpacking tents; Duplex family includes two-person shelters.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "gossamergear.com": {
+      "name": "Gossamer Gear",
+      "url": "https://www.gossamergear.com/",
+      "web_ref": "turn21view1",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Framed and frameless hiking packs; The One, The Two and other shelters.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "iliabeauty.com": {
+      "name": "ILIA",
+      "url": "https://iliabeauty.com/products/super-serum-skin-tint-spf-40-tinted-moisturizer",
+      "web_ref": "turn20search1",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Super Serum Skin Tint supplies light coverage and mineral SPF; fragrance-free positioning.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "tower28beauty.com": {
+      "name": "Tower 28",
+      "url": "https://www.tower28beauty.com/",
+      "web_ref": "turn25view2",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "SunnyDays tinted SPF 30 plus makeup and skincare.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "saiehello.com": {
+      "name": "Saie",
+      "url": "https://saiehello.com/",
+      "web_ref": "turn24view0",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Slip Tint tinted moisturizer SPF 35; complexion, cheek, lip and eye makeup.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "pipettebaby.com": {
+      "name": "Pipette",
+      "url": "https://www.pipettebaby.com/collections/soothing",
+      "web_ref": "turn20search2",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Fragrance-free baby skin products including eczema lotion; product availability is separate.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "tubbytodd.com": {
+      "name": "Tubby Todd",
+      "url": "https://tubbytodd.com/products/all-over-ointment",
+      "web_ref": "turn22search0",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "All Over Ointment has a fragrance-free option positioned for sensitive/eczema-prone skin.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "babobotanicals.com": {
+      "name": "Babo Botanicals",
+      "url": "https://www.babobotanicals.com/collections/sensitive-baby-skin-care",
+      "web_ref": "turn22search7",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Sensitive Baby collection includes fragrance-free wash/lotion/balm; broader family assortment.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "onyxcoffeelab.com": {
+      "name": "Onyx Coffee Lab",
+      "url": "https://onyxcoffeelab.com/",
+      "web_ref": "turn22view0",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Retail single origins, blends and subscriptions alongside tea/chocolate/equipment and wholesale.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "counterculturecoffee.com": {
+      "name": "Counter Culture",
+      "url": "https://counterculturecoffee.com/",
+      "web_ref": "turn26view7",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Single origins, year-round blends and recurring coffee delivery; named blends and office packs.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "vervecoffee.com": {
+      "name": "Verve",
+      "url": "https://www.vervecoffee.com/",
+      "web_ref": "turn26view8",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Fresh roasted coffee sold online, including Roaster's Choice subscriptions.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "littlesleepies.com": {
+      "name": "Little Sleepies",
+      "url": "https://littlesleepies.com/",
+      "web_ref": "turn23view1",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Bamboo pajamas and daywear for babies, kids and adults; matching family positioning.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "kytebaby.com": {
+      "name": "Kyte Baby",
+      "url": "https://kytebaby.com/",
+      "web_ref": "turn23view2",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Bamboo sleep bag specialist with broader sleepwear; sleep bags are not interchangeable with pajamas.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "birdiebean.com": {
+      "name": "Birdie Bean",
+      "url": "https://birdiebean.com/",
+      "web_ref": "turn26view6",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Bamboo kids clothing, original prints and family matching.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "purebites.com": {
+      "name": "PureBites",
+      "url": "https://purebites.com/",
+      "web_ref": "turn25view4",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Chicken/beef/salmon freeze-dried dog treats alongside distinct cat treats, food and toppers.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "stewartpet.com": {
+      "name": "Stewart",
+      "url": "https://stewartpet.com/",
+      "web_ref": "turn25view1",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Freeze-dried dog treats, toppers and foods; homepage contains WordPress assets, Shopify monitorability unknown.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "stellaandchewys.com": {
+      "name": "Stella & Chewy's",
+      "url": "https://www.stellaandchewys.com/collections/freeze-dried-raw-dog-treats",
+      "web_ref": "turn25search0",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Freeze-dried raw dog treats; limited-ingredient and training use supported by related official collections.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "quince.com": {
+      "name": "Quince",
+      "url": "https://www.quince.com/",
+      "web_ref": "turn25view3",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Broad clothing/home/baby/travel/accessories retailer, low-price positioning; linen sheets explicitly offered.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "brooklinen.com": {
+      "name": "Brooklinen",
+      "url": "https://www.brooklinen.com/",
+      "web_ref": "turn24view3",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Bedding, sheets and comforters; independent homepage evidence, product-specific linen validation still required.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "parachutehome.com": {
+      "name": "Parachute",
+      "url": "https://parachutehome.com/",
+      "web_ref": "turn26view4",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Bedding and bath; linen sheets and duvet covers shown.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "keychron.com": {
+      "name": "Keychron",
+      "url": "https://www.keychron.com/",
+      "web_ref": "turn24view5",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Custom mechanical keyboards for Mac/Windows plus broader accessories.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "nuphy.com": {
+      "name": "NuPhy",
+      "url": "https://nuphy.com/collections/low-profile-keyboards",
+      "web_ref": "turn25search6",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Low-profile mechanical keyboards; search-source crawl about two months old, current availability unverified.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "epomaker.com": {
+      "name": "EPOMAKER",
+      "url": "https://epomaker.com/collections/low-profile-keyboard",
+      "web_ref": "turn26view2",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Mechanical keyboard retailer with a dedicated low-profile collection.",
+      "evidence_kind": "official public page, not StoreScout output",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "colourpop.com": {
+      "name": "ColourPop",
+      "url": "https://colourpop.com/collections/face",
+      "web_ref": "turn23view0",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Makeup across face, eyes and lips; multiple low-priced items and collections.",
+      "evidence_kind": "official public page",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "elfcosmetics.com": {
+      "name": "e.l.f.",
+      "url": "https://www.elfcosmetics.com/",
+      "web_ref": "turn26view0",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Makeup and skincare retailer; product-level price equivalence remains unmeasured.",
+      "evidence_kind": "official public page",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    },
+    "revolutionbeauty.com": {
+      "name": "Revolution Beauty",
+      "url": "https://www.revolutionbeauty.com/",
+      "web_ref": "turn26view1",
+      "reviewed_date": "2026-09-05",
+      "evidence_summary": "Makeup and skincare retailer; product-level price equivalence remains unmeasured.",
+      "evidence_kind": "official public page",
+      "platform_status": "unverified",
+      "live_catalog_access": "not tested"
+    }
+  },
+  "cases": [
+    {
+      "id": "durstongear",
+      "business": "Durston",
+      "domain": "durstongear.com",
+      "niche": "ultralight",
+      "query": "We sell ultralight backpacking tents and packs for long-distance hikers.",
+      "alternate_query": "We make lightweight overnight shelters and load-carrying gear for people walking long trails.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "zpacks.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "gossamergear.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "zpacks",
+      "business": "Zpacks",
+      "domain": "zpacks.com",
+      "niche": "ultralight",
+      "query": "We sell ultralight two-person backpacking tents.",
+      "alternate_query": "We make lightweight two-person trail shelters.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "durstongear.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "gossamergear.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "gossamergear",
+      "business": "Gossamer Gear",
+      "domain": "gossamergear.com",
+      "niche": "ultralight",
+      "query": "We sell lightweight hiking backpacks and shelters.",
+      "alternate_query": "We make low-weight packs and overnight protection for long-distance walkers.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "durstongear.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "zpacks.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "iliabeauty",
+      "business": "ILIA",
+      "domain": "iliabeauty.com",
+      "niche": "tinted_complexion",
+      "query": "We sell light-coverage skin tint with mineral SPF for adults.",
+      "alternate_query": "We sell sheer complexion makeup with sun protection.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "tower28beauty.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "saiehello.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "tower28beauty",
+      "business": "Tower 28",
+      "domain": "tower28beauty.com",
+      "niche": "tinted_complexion",
+      "query": "We sell tinted sunscreen and everyday complexion makeup.",
+      "alternate_query": "We sell a face base combining sheer coverage and sun protection.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "iliabeauty.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "saiehello.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "saiehello",
+      "business": "Saie",
+      "domain": "saiehello.com",
+      "niche": "tinted_complexion",
+      "query": "We sell tinted moisturizer with SPF and everyday makeup.",
+      "alternate_query": "We sell a sheer hydrating makeup base with sun protection.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "iliabeauty.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "tower28beauty.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "pipettebaby",
+      "business": "Pipette",
+      "domain": "pipettebaby.com",
+      "niche": "baby_skin",
+      "query": "We sell fragrance-free baby lotion for sensitive skin.",
+      "alternate_query": "We sell unscented skin care for babies with easily irritated skin.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "tubbytodd.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "babobotanicals.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "tubbytodd",
+      "business": "Tubby Todd",
+      "domain": "tubbytodd.com",
+      "niche": "baby_skin",
+      "query": "We sell fragrance-free ointment and skin care for babies.",
+      "alternate_query": "We make unscented baby skin balms and gentle body care.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "pipettebaby.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "babobotanicals.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "babobotanicals",
+      "business": "Babo Botanicals",
+      "domain": "babobotanicals.com",
+      "niche": "baby_skin",
+      "query": "We sell fragrance-free sensitive baby skin care.",
+      "alternate_query": "We sell unscented wash and moisturizing products for delicate infant skin.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "pipettebaby.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "tubbytodd.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "onyxcoffeelab",
+      "business": "Onyx Coffee Lab",
+      "domain": "onyxcoffeelab.com",
+      "niche": "specialty_coffee",
+      "query": "We roast specialty coffee for home brewers and sell subscriptions.",
+      "alternate_query": "We ship freshly roasted single origins and rotating bags to home coffee enthusiasts.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "counterculturecoffee.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "vervecoffee.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "counterculturecoffee",
+      "business": "Counter Culture",
+      "domain": "counterculturecoffee.com",
+      "niche": "specialty_coffee",
+      "query": "We sell specialty coffee beans and recurring home deliveries.",
+      "alternate_query": "We roast single origins and blends for people brewing at home.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "onyxcoffeelab.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "vervecoffee.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "vervecoffee",
+      "business": "Verve",
+      "domain": "vervecoffee.com",
+      "niche": "specialty_coffee",
+      "query": "We sell freshly roasted specialty coffee and subscriptions.",
+      "alternate_query": "We ship rotating bags of roasted beans to home brewers.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "onyxcoffeelab.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "counterculturecoffee.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "littlesleepies",
+      "business": "Little Sleepies",
+      "domain": "littlesleepies.com",
+      "niche": "bamboo_family_sleepwear",
+      "query": "We sell bamboo pajamas for babies and matching families.",
+      "alternate_query": "We sell soft infant nightwear and coordinating sleep sets for parents.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "kytebaby.com",
+          "provisional_relevance": 2,
+          "rationale": "Related catalog segment; confirm queried product form and assortment breadth.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "birdiebean.com",
+          "provisional_relevance": 2,
+          "rationale": "Related catalog segment; confirm queried product form and assortment breadth.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "kytebaby",
+      "business": "Kyte Baby",
+      "domain": "kytebaby.com",
+      "niche": "bamboo_family_sleepwear",
+      "query": "We sell bamboo baby sleep bags and sleepwear.",
+      "alternate_query": "We sell wearable baby blankets and soft infant night clothes.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "littlesleepies.com",
+          "provisional_relevance": 2,
+          "rationale": "Related catalog segment; confirm queried product form and assortment breadth.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "birdiebean.com",
+          "provisional_relevance": 2,
+          "rationale": "Related catalog segment; confirm queried product form and assortment breadth.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "birdiebean",
+      "business": "Birdie Bean",
+      "domain": "birdiebean.com",
+      "niche": "bamboo_family_sleepwear",
+      "query": "We sell printed bamboo pajamas and clothing for children.",
+      "alternate_query": "We sell soft kids nightwear and coordinating family outfits.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "littlesleepies.com",
+          "provisional_relevance": 2,
+          "rationale": "Related catalog segment; confirm queried product form and assortment breadth.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "kytebaby.com",
+          "provisional_relevance": 2,
+          "rationale": "Related catalog segment; confirm queried product form and assortment breadth.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "purebites",
+      "business": "PureBites",
+      "domain": "purebites.com",
+      "niche": "dog_freeze_dried_treats",
+      "query": "We sell freeze-dried single-protein dog treats.",
+      "alternate_query": "We sell simple meat reward bites for dogs.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "stewartpet.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "stellaandchewys.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "stewartpet",
+      "business": "Stewart",
+      "domain": "stewartpet.com",
+      "niche": "dog_freeze_dried_treats",
+      "query": "We sell freeze-dried raw dog treats and toppers.",
+      "alternate_query": "We sell meat rewards and food toppers for dogs.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "purebites.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "stellaandchewys.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "off-platform uncertainty control; report separately",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "stellaandchewys",
+      "business": "Stella & Chewy's",
+      "domain": "stellaandchewys.com",
+      "niche": "dog_freeze_dried_treats",
+      "query": "We sell freeze-dried raw training treats for dogs.",
+      "alternate_query": "We sell meat reward bites for dog training.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "purebites.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "stewartpet.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "quince",
+      "business": "Quince",
+      "domain": "quince.com",
+      "niche": "bedding_and_broad_store",
+      "query": "We sell affordable clothing, home essentials, bedding, bags and jewelry.",
+      "alternate_query": "For our home range, find competitors selling linen sheets and bedding.",
+      "alternate_kind": "changed focus, score separately",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "value brand claim, uncalibrated",
+      "reference_set": [
+        {
+          "domain": "brooklinen.com",
+          "provisional_relevance": 2,
+          "rationale": "Related catalog segment; confirm queried product form and assortment breadth.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "parachutehome.com",
+          "provisional_relevance": 2,
+          "rationale": "Related catalog segment; confirm queried product form and assortment breadth.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "brooklinen",
+      "business": "Brooklinen",
+      "domain": "brooklinen.com",
+      "niche": "bedding_and_broad_store",
+      "query": "We sell bedding, sheets and comforters directly to consumers.",
+      "alternate_query": "We sell bed linens and sleep essentials for the home.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "quince.com",
+          "provisional_relevance": 2,
+          "rationale": "Related catalog segment; confirm queried product form and assortment breadth.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "parachutehome.com",
+          "provisional_relevance": 2,
+          "rationale": "Related catalog segment; confirm queried product form and assortment breadth.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "parachutehome",
+      "business": "Parachute",
+      "domain": "parachutehome.com",
+      "niche": "bedding_and_broad_store",
+      "query": "We sell linen bedding and bath linens for the home.",
+      "alternate_query": "We sell flax bed linens, duvet covers and home textiles.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "quince.com",
+          "provisional_relevance": 2,
+          "rationale": "Related catalog segment; confirm queried product form and assortment breadth.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "brooklinen.com",
+          "provisional_relevance": 2,
+          "rationale": "Related catalog segment; confirm queried product form and assortment breadth.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "keychron",
+      "business": "Keychron",
+      "domain": "keychron.com",
+      "niche": "mechanical_keyboards",
+      "query": "We sell customizable mechanical keyboards for Mac and Windows.",
+      "alternate_query": "We sell customizable typing boards for computer enthusiasts.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "nuphy.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "epomaker.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "nuphy",
+      "business": "NuPhy",
+      "domain": "nuphy.com",
+      "niche": "mechanical_keyboards",
+      "query": "We sell low-profile wireless mechanical keyboards.",
+      "alternate_query": "We make slim wireless typing boards for computers.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "keychron.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "epomaker.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "epomaker",
+      "business": "EPOMAKER",
+      "domain": "epomaker.com",
+      "niche": "mechanical_keyboards",
+      "query": "We sell mechanical keyboards including low-profile models.",
+      "alternate_query": "We sell slim typing boards and customizable computer keyboards.",
+      "alternate_kind": "analyst-authored wording variant, review equivalence before scoring",
+      "query_provenance": "analyst paraphrase of official offerings, not owner-supplied",
+      "price_position": "unknown; no cross-currency catalog-median inference",
+      "reference_set": [
+        {
+          "domain": "keychron.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "nuphy.com",
+          "provisional_relevance": 3,
+          "rationale": "Competes for the stated product/use case based on independently read official offerings.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    },
+    {
+      "id": "colourpop",
+      "business": "ColourPop",
+      "domain": "colourpop.com",
+      "niche": "tinted_complexion",
+      "query": "We sell affordable eye palettes, lip products and face makeup.",
+      "alternate_query": "We sell budget color cosmetics for everyday looks.",
+      "alternate_kind": "analyst-authored wording variant",
+      "query_provenance": "analyst paraphrase, not owner-supplied",
+      "price_position": "value assortment hypothesis from visible prices; not calibrated across all products",
+      "reference_set": [
+        {
+          "domain": "elfcosmetics.com",
+          "provisional_relevance": 3,
+          "rationale": "Overlapping face, eye and lip cosmetics for retail shoppers; pricing needs item-level confirmation.",
+          "price_audience_equivalence": "not established"
+        },
+        {
+          "domain": "revolutionbeauty.com",
+          "provisional_relevance": 3,
+          "rationale": "Overlapping face, eye and lip cosmetics for retail shoppers; pricing needs item-level confirmation.",
+          "price_audience_equivalence": "not established"
+        }
+      ],
+      "reference_scope": "partial known set; not exhaustive; not customer-confirmed",
+      "evaluation_role": "core",
+      "results": null,
+      "metrics": null,
+      "execution_status": "blocked: production index snapshot unavailable"
+    }
+  ],
+  "lifecycle_controls": [
+    {
+      "domain": "drop.com",
+      "url": "https://drop.com/",
+      "web_ref": "turn25view0",
+      "observation": "Homepage now presents Corsair gaming collaborations and links out. Do not assume a historical standalone keyboard catalog still exists. Platform/redirect audit pending."
+    },
+    {
+      "domain": "valuepetsupplies.com",
+      "url": "https://www.valuepetsupplies.com/",
+      "web_ref": "turn23view6",
+      "observation": "Wholesale/bulk positioning alongside natural chews/treats. Not evidence of wholesale-only access; inspect purchase audience and pack sizes."
+    },
+    {
+      "domain": "earthbath.com",
+      "url": "https://earthbath.com/products/hypoallergenic-shampoo-groomer",
+      "web_ref": "turn20search4",
+      "observation": "Fragrance-free shampoo for pets/groomers; negative audience/use-case control for infant skincare, not negative for pet grooming."
+    }
+  ]
+}

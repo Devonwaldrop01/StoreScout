@@ -1,0 +1,1379 @@
+{
+  "scope": "Source inventory, not runtime proof",
+  "routes": [
+    {
+      "file": "app/api/v1/action_items.py",
+      "function": "get_action_items",
+      "decorators": [
+        "router.get('')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/admin_brief.py",
+      "function": "morning_brief",
+      "decorators": [
+        "router.get('')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/alerts.py",
+      "function": "list_alerts",
+      "decorators": [
+        "router.get('')",
+        "safe_read('GET /alerts', {'data': []})"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/alerts.py",
+      "function": "mark_read",
+      "decorators": [
+        "router.put('/{change_id}/read')"
+      ],
+      "purpose": "Mark a single alert as read in-app (sets read_at, not alert_sent)."
+    },
+    {
+      "file": "app/api/v1/alerts.py",
+      "function": "mark_all_read",
+      "decorators": [
+        "router.post('/mark-all-read')"
+      ],
+      "purpose": "Mark all unread alerts as read for this user.\nCalled when the user visits the alerts page so the notification bell clears."
+    },
+    {
+      "file": "app/api/v1/alerts.py",
+      "function": "unread_count",
+      "decorators": [
+        "router.get('/unread-count')"
+      ],
+      "purpose": "Count unread in-app alerts (read_at IS NULL).\nIntentionally separate from alert_sent, which tracks email cooldown."
+    },
+    {
+      "file": "app/api/v1/api_keys.py",
+      "function": "list_keys",
+      "decorators": [
+        "router.get('')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/api_keys.py",
+      "function": "create_key",
+      "decorators": [
+        "router.post('')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/api_keys.py",
+      "function": "revoke_key",
+      "decorators": [
+        "router.delete('/{key_id}', status_code=204)"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/billing.py",
+      "function": "create_checkout",
+      "decorators": [
+        "router.post('/checkout')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/billing.py",
+      "function": "create_portal",
+      "decorators": [
+        "router.post('/portal')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "list_competitors",
+      "decorators": [
+        "router.get('')",
+        "safe_read('GET /competitors', {'data': []})"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "add_competitor",
+      "decorators": [
+        "router.post('', status_code=status.HTTP_201_CREATED)"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "discover_similar",
+      "decorators": [
+        "router.get('/discover')"
+      ],
+      "purpose": "Suggest similar Shopify stores to track based on tag/vendor overlap\nwith the user's currently tracked competitors. Falls back to curated\npopular stores for new users or when no tag data is available."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "discover_ai",
+      "decorators": [
+        "router.post('/discover-ai')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "discovery_feedback",
+      "decorators": [
+        "router.post('/discovery-feedback')"
+      ],
+      "purpose": "Discovery relevance feedback \u2192 the competitor knowledge graph.\n\nThree persisted states (the edge model stores a signed weight, so all\nthree are representable without a schema change):\n  \u00b7 direct       \u2192 strengthen the edge (+3) \u2014 a confirmed rival\n  \u00b7 related      \u2192 gentle positive (+1) \u2014 adjacent, still worth surfacing\n  \u00b7 not_relevant \u2192 pin negative (\u22125) \u2014 never surface for this user/store again\nA legacy `correct` boolean maps to direct / not_relevant."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "get_competitor",
+      "decorators": [
+        "router.get('/{competitor_id}')",
+        "guarded_required('GET /competitor')"
+      ],
+      "purpose": "Fetch a single competitor record (no snapshot data)."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "update_competitor",
+      "decorators": [
+        "router.patch('/{competitor_id}')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "delete_competitor",
+      "decorators": [
+        "router.delete('/{competitor_id}', status_code=status.HTTP_204_NO_CONTENT)"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "manual_rescan",
+      "decorators": [
+        "router.post('/{competitor_id}/rescan')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "get_scan_status",
+      "decorators": [
+        "router.get('/{competitor_id}/scan-status')",
+        "safe_read('GET /scan-status', {'data': {'state': 'idle', 'scan_status': None, 'since': None, 'last_scanned_at': None, 'running_seconds': None, 'timed_out': False}})"
+      ],
+      "purpose": "Normalized, pollable scan lifecycle for a competitor: idle | queued | running\n| completed | failed | timed_out \u2014 derived from the real scan_status + how\nlong it has been running (genuine timeout detection, no fake progress).\nThe rescan POST itself returns already_in_progress (409) / rate_limited (429)\n/ unavailable (503). @safe_read: degrades, ownership 404 preserved."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "get_latest_snapshot",
+      "decorators": [
+        "router.get('/{competitor_id}/snapshots/latest')",
+        "guarded_required('GET /snapshots/latest')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "list_snapshots",
+      "decorators": [
+        "router.get('/{competitor_id}/snapshots')",
+        "guarded_required('GET /snapshots')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "get_changes",
+      "decorators": [
+        "router.get('/{competitor_id}/changes')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "get_ai_summary",
+      "decorators": [
+        "router.get('/{competitor_id}/ai-summary')",
+        "guarded_required('GET /ai-summary')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "regenerate_ai_summary",
+      "decorators": [
+        "router.post('/{competitor_id}/ai-summary/regenerate')"
+      ],
+      "purpose": "Trigger a fresh Pro analysis on demand (Pro/Agency only)."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "get_winning_products",
+      "decorators": [
+        "router.get('/{competitor_id}/winning-products')",
+        "safe_read('GET /winning-products', {'data': {'products': [], 'newest': [], 'locked': False, 'locked_count': 0}})"
+      ],
+      "purpose": "Winning-product analysis. Free tier sees the #1 product (score visible, the\n'why' locked) plus a locked count. Pro/Agency see the full ranked list,\nsignal breakdowns, reasons, and the newest-products list."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "get_gaps",
+      "decorators": [
+        "router.get('/{competitor_id}/gaps')",
+        "safe_read('GET /gaps', {'data': {'gaps': [], 'locked': False, 'locked_count': 0}})"
+      ],
+      "purpose": "Gap analysis. Free tier sees the top 2 gap titles (detail locked) plus a\nlocked count. Pro/Agency see every gap with full detail and metrics."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "get_store_profile",
+      "decorators": [
+        "router.get('/{competitor_id}/store-profile')",
+        "safe_read('GET /store-profile', {'data': None})"
+      ],
+      "purpose": "Brand intelligence from extended scraping (collections, pages, blogs).\nFree tier: top-level signals only (collection count, key boolean flags).\nPro/Agency: full collection names, all brand signals, content intelligence."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "get_comparison",
+      "decorators": [
+        "router.get('/{competitor_id}/comparison')",
+        "safe_read('GET /comparison', {'data': {'has_store': False}})"
+      ],
+      "purpose": "Head-to-head: the user's own store vs this competitor. Requires the user to\nhave set their store. Free tier sees the diagnosis (verdicts + insights);\naction items and the match strategy are Pro."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "get_quick_wins",
+      "decorators": [
+        "router.get('/{competitor_id}/quick-wins')",
+        "safe_read('GET /quick-wins', {'data': {'wins': [], 'locked': False, 'locked_count': 0, 'tier': 'free'}})"
+      ],
+      "purpose": "Rule-based action cards from the latest snapshot.\nFree tier: 1 card visible + locked_count.  Pro/Agency: all cards.\nOptional intelligence \u2014 @safe_read degrades an unexpected failure (e.g. a\nnon-dict snapshot payload) to a typed-empty result + logged error, while the\nownership 404 is preserved (safe_read re-raises HTTPException)."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "get_price_history",
+      "decorators": [
+        "router.get('/{competitor_id}/price-history')",
+        "safe_read('GET /price-history', {'data': {'points': [], 'locked': False}})"
+      ],
+      "purpose": "Time-series of median_price and promo_rate across scans.\nFree: last 2 data points + locked flag.  Pro: 90 days.  Agency: unlimited."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "get_market_context",
+      "decorators": [
+        "router.get('/{competitor_id}/market-context')",
+        "safe_read('GET /market-context', {'data': {'category': None, 'saturation': 0, 'peers': []}})"
+      ],
+      "purpose": "Market research context for Product Intelligence: this competitor's\ncategory, its verified peers from StoreScout's own store index, and\nsaturation. Every number here is VERIFIED index data \u2014 the frontend\nlayers clearly-labeled estimates (wholesale ranges) on top."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "get_brief",
+      "decorators": [
+        "router.get('/{competitor_id}/brief')",
+        "guarded_required('GET /brief')"
+      ],
+      "purpose": "Latest Intelligence Brief for this competitor (available to all tiers)."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "export_products_csv",
+      "decorators": [
+        "router.get('/{competitor_id}/export/products.csv')"
+      ],
+      "purpose": "Download a CSV of the competitor's latest product catalog. Pro/Agency only."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "ask_storescout",
+      "decorators": [
+        "router.post('/{competitor_id}/ask')",
+        "safe_read('POST /ask', {'data': {'answer': None, 'followups': []}})"
+      ],
+      "purpose": "Ask StoreScout anything about a competitor \u2014 grounded in its real scanned\ndata + StoreScout's strategic read. Turns the dossier into a conversation."
+    },
+    {
+      "file": "app/api/v1/competitors.py",
+      "function": "get_benchmarks",
+      "decorators": [
+        "router.get('/{competitor_id}/benchmarks')",
+        "safe_read('GET /benchmarks', {'data': {'category': None, 'benchmarks': []}})"
+      ],
+      "purpose": "Benchmark this competitor against its category's averages, computed from\nthe verified store index. Turns raw numbers into 'where do they sit in the\nmarket' \u2014 instant market-norm understanding."
+    },
+    {
+      "file": "app/api/v1/favicon.py",
+      "function": "get_favicon",
+      "decorators": [
+        "router.get('/favicon')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/feedback.py",
+      "function": "submit_feedback",
+      "decorators": [
+        "router.post('')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/feedback.py",
+      "function": "public_feedback",
+      "decorators": [
+        "router.get('/public')"
+      ],
+      "purpose": "Return approved testimonials visible to all visitors."
+    },
+    {
+      "file": "app/api/v1/integrations.py",
+      "function": "get_integrations",
+      "decorators": [
+        "router.get('')"
+      ],
+      "purpose": "Return integration status for the current user (keys masked)."
+    },
+    {
+      "file": "app/api/v1/integrations.py",
+      "function": "get_intelligence_sources",
+      "decorators": [
+        "router.get('/intelligence-sources')"
+      ],
+      "purpose": "What does StoreScout currently know about this business? Per-source\nknowledge, capabilities unlocked, and the Business Understanding score\n(how well StoreScout understands the business \u2014 NOT a health score)."
+    },
+    {
+      "file": "app/api/v1/integrations.py",
+      "function": "get_integration_hub",
+      "decorators": [
+        "router.get('/hub')"
+      ],
+      "purpose": "The Integrations Hub \u2014 the full ecosystem framed as intelligence, with\neach integration's value story, live connection state, and the intelligence\nmap (what StoreScout already understands, what the next connection unlocks)."
+    },
+    {
+      "file": "app/api/v1/integrations.py",
+      "function": "save_klaviyo_key",
+      "decorators": [
+        "router.put('/klaviyo')"
+      ],
+      "purpose": "Store a Klaviyo private API key for this user."
+    },
+    {
+      "file": "app/api/v1/integrations.py",
+      "function": "remove_klaviyo_key",
+      "decorators": [
+        "router.delete('/klaviyo', status_code=204)"
+      ],
+      "purpose": "Remove Klaviyo key for this user."
+    },
+    {
+      "file": "app/api/v1/integrations.py",
+      "function": "test_klaviyo",
+      "decorators": [
+        "router.post('/klaviyo/test')"
+      ],
+      "purpose": "Test the stored Klaviyo key \u2014 returns list count and total profiles."
+    },
+    {
+      "file": "app/api/v1/integrations.py",
+      "function": "google_connect_url",
+      "decorators": [
+        "router.get('/google/connect-url')"
+      ],
+      "purpose": "Return a Google OAuth URL. Stores user_id in Redis keyed by state (10-min TTL)."
+    },
+    {
+      "file": "app/api/v1/integrations.py",
+      "function": "google_callback",
+      "decorators": [
+        "router.get('/google/callback')"
+      ],
+      "purpose": "Google redirects here after user approves OAuth."
+    },
+    {
+      "file": "app/api/v1/integrations.py",
+      "function": "google_properties",
+      "decorators": [
+        "router.get('/google/properties')"
+      ],
+      "purpose": "List available GA4 properties and GSC sites for the connected Google account."
+    },
+    {
+      "file": "app/api/v1/integrations.py",
+      "function": "save_google_property",
+      "decorators": [
+        "router.put('/google/property')"
+      ],
+      "purpose": "Save the user's selected GA4 property and/or GSC site."
+    },
+    {
+      "file": "app/api/v1/integrations.py",
+      "function": "disconnect_google",
+      "decorators": [
+        "router.delete('/google', status_code=204)"
+      ],
+      "purpose": "Disconnect Google \u2014 clear tokens and property selections."
+    },
+    {
+      "file": "app/api/v1/internal.py",
+      "function": "internal_scan",
+      "decorators": [
+        "router.post('/scan/{competitor_id}')"
+      ],
+      "purpose": "Runs the Shopify fetch + analyze + DB write on the web service process.\nCalled by the Celery worker so the fetch uses the web service's outbound IP."
+    },
+    {
+      "file": "app/api/v1/internal.py",
+      "function": "internal_store_index_process",
+      "decorators": [
+        "router.post('/store-index/process')"
+      ],
+      "purpose": "Run one domain's index pass (verify + light scan + classify + upsert) on\nthe web service process \u2014 worker IPs get blocked, this one doesn't.\nCalled by app/tasks/store_index.py."
+    },
+    {
+      "file": "app/api/v1/internal.py",
+      "function": "internal_store_index_verify",
+      "decorators": [
+        "router.post('/store-index/verify')"
+      ],
+      "purpose": "Stage 2 of the index pipeline: fetch one domain's storefront ONCE and store\na VERIFIED row (raw signals only, no classification) or a REJECTED row with\na strict reason. Runs on the web process (worker IPs get blocked). Called by\napp.tasks.store_index.stage_verification."
+    },
+    {
+      "file": "app/api/v1/internal.py",
+      "function": "internal_shop_app_page",
+      "decorators": [
+        "router.post('/shop-app-page')"
+      ],
+      "purpose": "Discovery Source #1 fetcher: return a page of candidate Shopify merchant\ndomains from the Shop App. This runs on the web process because the worker's\nIP is blocked from outbound fetches. shop.app has no stable public discovery\nAPI, so this degrades gracefully \u2014 on any failure it returns an empty list\nand the source holds its cursor (never fabricates domains).\n\nBody: {\"cursor\": {child, offset}, \"limit\": int}.\nReturns {\"domains\": [str], \"cursor\": {...}, \"note\": str}."
+    },
+    {
+      "file": "app/api/v1/internal.py",
+      "function": "internal_shop_app_count",
+      "decorators": [
+        "router.post('/shop-app-count')"
+      ],
+      "purpose": "Return how many storefront handles Shop App publishes (the discovery\nceiling) \u2014 cheap, no per-store fetches. Runs on the web process."
+    },
+    {
+      "file": "app/api/v1/internal.py",
+      "function": "internal_shop_app_harvest",
+      "decorators": [
+        "router.post('/shop-app-harvest')"
+      ],
+      "purpose": "Stage 1 (Discovery), cheap + bulk: return a page of raw Shop App refs\n(shop.app/m/{handle} URLs) straight from the storefronts sitemap \u2014 NO\nper-store page fetches, so this scales to thousands per run. Resolution to\nreal domains happens separately. Body: {cursor, limit}. Returns\n{refs, cursor, child_total}."
+    },
+    {
+      "file": "app/api/v1/internal.py",
+      "function": "internal_shop_app_resolve",
+      "decorators": [
+        "router.post('/shop-app-resolve')"
+      ],
+      "purpose": "Stage 2 (Resolution), rate-limited: given raw Shop App refs, fetch each\nstore page and return its real merchant domain. Concurrent + 429-backoff.\nBody: {refs: [url]}. Returns {resolved: [{ref, domain}], stats}."
+    },
+    {
+      "file": "app/api/v1/internal.py",
+      "function": "internal_reddit_search",
+      "decorators": [
+        "router.post('/reddit-search')"
+      ],
+      "purpose": "Search Reddit's public JSON for intent phrases across channels (runs on the\nweb process \u2014 worker IPs are blocked). Returns normalized posts. Reddit\nrequires a descriptive User-Agent and rate-limits, so this is polite.\nBody: {channels: [str], queries: [str], limit: int}. Returns {posts: [...]}."
+    },
+    {
+      "file": "app/api/v1/internal.py",
+      "function": "debug_fetch",
+      "decorators": [
+        "router.post('/debug-fetch')"
+      ],
+      "purpose": "Diagnostic endpoint: run fetch_products_shopify against any store_url and\nreturn the full result including product count and any failure details.\nDoes NOT write to DB. Use for live testing without Celery.\n\nBody: {\"store_url\": \"https://gymshark.com\"}"
+    },
+    {
+      "file": "app/api/v1/leads.py",
+      "function": "list_leads",
+      "decorators": [
+        "router.get('')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/leads.py",
+      "function": "update_lead",
+      "decorators": [
+        "router.patch('/{lead_id}')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/leads.py",
+      "function": "list_signals",
+      "decorators": [
+        "router.get('/signals')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/leads.py",
+      "function": "update_signal",
+      "decorators": [
+        "router.patch('/signals/{signal_id}')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/leads.py",
+      "function": "scan_signals",
+      "decorators": [
+        "router.post('/signals/scan')"
+      ],
+      "purpose": "Manual intent scan (bypasses INTENT_ENGINE_ENABLED)."
+    },
+    {
+      "file": "app/api/v1/leads.py",
+      "function": "run_lead_discovery",
+      "decorators": [
+        "router.post('/run')"
+      ],
+      "purpose": "Small manual discovery run for testing. Bypasses LEAD_ENGINE_ENABLED;\nthe quality threshold and target cap still apply."
+    },
+    {
+      "file": "app/api/v1/market.py",
+      "function": "interpret_signals",
+      "decorators": [
+        "router.post('/signals/interpret')",
+        "safe_read('POST /market/signals/interpret', {'data': {'interpretations': {}}})"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/my_store.py",
+      "function": "get_my_store",
+      "decorators": [
+        "router.get('')",
+        "safe_read('GET /my-store', {'data': None})"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/my_store.py",
+      "function": "set_my_store",
+      "decorators": [
+        "router.post('', status_code=status.HTTP_201_CREATED)"
+      ],
+      "purpose": "Create or replace the user's own store. Reuses the competitor scan pipeline."
+    },
+    {
+      "file": "app/api/v1/my_store.py",
+      "function": "delete_my_store",
+      "decorators": [
+        "router.delete('', status_code=status.HTTP_204_NO_CONTENT)"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/playbook.py",
+      "function": "get_playbook",
+      "decorators": [
+        "router.get('')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/playbook.py",
+      "function": "regenerate_playbook",
+      "decorators": [
+        "router.post('/regenerate')"
+      ],
+      "purpose": "Retry AI Playbook generation after a failed/timed-out attempt. Clears the\nsingle-flight job marker so the next GET dispatches a fresh generation, and\nkicks one off now. Idempotent; safe to call repeatedly."
+    },
+    {
+      "file": "app/api/v1/playbook_items.py",
+      "function": "create_item",
+      "decorators": [
+        "router.post('')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/playbook_items.py",
+      "function": "list_items",
+      "decorators": [
+        "router.get('')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/playbook_items.py",
+      "function": "update_item",
+      "decorators": [
+        "router.patch('/{item_id}')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/reports.py",
+      "function": "get_public_report",
+      "decorators": [
+        "router.get('/{snapshot_id}')"
+      ],
+      "purpose": "Public (no auth) endpoint for shareable report pages.\nReturns aggregate intelligence from a snapshot \u2014 no individual product data."
+    },
+    {
+      "file": "app/api/v1/shopify_app.py",
+      "function": "install",
+      "decorators": [
+        "router.get('/install')"
+      ],
+      "purpose": "Step 1: merchant clicks 'Add app' \u2014 redirect to Shopify OAuth."
+    },
+    {
+      "file": "app/api/v1/shopify_app.py",
+      "function": "callback",
+      "decorators": [
+        "router.get('/callback')"
+      ],
+      "purpose": "Step 2: Shopify redirects back \u2014 exchange code for access token."
+    },
+    {
+      "file": "app/api/v1/shopify_app.py",
+      "function": "connect_url",
+      "decorators": [
+        "router.get('/connect-url')"
+      ],
+      "purpose": "Return the Shopify OAuth URL for an existing logged-in user.\nStores user_id in Redis keyed by state token (10-min TTL).\nFrontend redirects the browser to the returned URL."
+    },
+    {
+      "file": "app/api/v1/shopify_app.py",
+      "function": "connect_callback",
+      "decorators": [
+        "router.get('/connect-callback')"
+      ],
+      "purpose": "Shopify redirects here after user approves the connect flow."
+    },
+    {
+      "file": "app/api/v1/shopify_app.py",
+      "function": "get_connection",
+      "decorators": [
+        "router.get('/connection')"
+      ],
+      "purpose": "Return the user's connected Shopify store (if any)."
+    },
+    {
+      "file": "app/api/v1/shopify_app.py",
+      "function": "delete_connection",
+      "decorators": [
+        "router.delete('/connection', status_code=204)"
+      ],
+      "purpose": "Disconnect the user's Shopify store."
+    },
+    {
+      "file": "app/api/v1/shopify_app.py",
+      "function": "customers_data_request",
+      "decorators": [
+        "router.post('/webhooks/customers/data_request')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/shopify_app.py",
+      "function": "customers_redact",
+      "decorators": [
+        "router.post('/webhooks/customers/redact')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/shopify_app.py",
+      "function": "shop_redact",
+      "decorators": [
+        "router.post('/webhooks/shop/redact')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "network_stats",
+      "decorators": [
+        "router.get('/store-index/network-stats')"
+      ],
+      "purpose": "Public-facing credibility numbers for the Intelligence Network panel \u2014\nhow much verified data grounds StoreScout's analysis. Cheap counts; degrades\nto zeros pre-migration so it never breaks the dashboard."
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "search_store_index",
+      "decorators": [
+        "router.get('/store-index/search')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "store_index_stats",
+      "decorators": [
+        "router.get('/admin/store-index/stats')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "migration_health",
+      "decorators": [
+        "router.get('/admin/migration-health')"
+      ],
+      "purpose": "Operational check that the live schema has the columns/tables the current\ncode needs \u2014 especially recent feature migrations (Brand Decode, business-\nprofile enrichment, Store DNA, intent signals). Returns a structured verdict\n(healthy | degraded | unhealthy | db_unavailable) naming the newest expected\nmigration and any missing feature/table/column. Exposes only schema\nmetadata, never row data."
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "error_summary",
+      "decorators": [
+        "router.get('/admin/error-summary')"
+      ],
+      "purpose": "Recent grouped in-process failures (operation \u00d7 exception) with counts,\nlast-seen, latest correlation ref, and a redacted sample. A launch-time\nconvenience over the structured logs \u2014 per-process and cleared on restart,\nnever row data or secrets. Full history + aggregation needs external\nmonitoring (see docs/OBSERVABILITY.md)."
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "scheduler_status_endpoint",
+      "decorators": [
+        "router.get('/admin/scheduler-status')"
+      ],
+      "purpose": "Evidence-only scheduler health for the staged index pipeline: the configured\nbeat schedule, the last recorded dispatch heartbeat (global + per task), the\nlast/last-scheduled/last-failed run from store_index_runs, whether the\npipeline is enabled, and the consuming queue/worker. NEVER reports health from\nprocess deployment \u2014 'dispatch_looks_stale' is derived from the age of a real\nrecorded heartbeat. Degrades to a safe shape (no crash) if the DB is down."
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "index_ops",
+      "decorators": [
+        "router.get('/admin/index-ops')"
+      ],
+      "purpose": "Everything the operator needs to see what the index is doing right now:\nthe discovery\u2192verification\u2192knowledge funnel, today's throughput, success\nrate, category coverage, discovery sources + progress, recent failures with\nreasons, and index growth. Degrades to zeros pre-migration (never 500s)."
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "store_inspector",
+      "decorators": [
+        "router.get('/admin/store-inspector/{domain}')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "store_inspector_action",
+      "decorators": [
+        "router.post('/admin/store-inspector/{domain}/action')"
+      ],
+      "purpose": "Re-run verification (re-fetches storefront via the web process) or\nre-run knowledge (re-classifies from stored signals) for one store."
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "seed_store_index",
+      "decorators": [
+        "router.post('/admin/store-index/seed')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "run_store_index",
+      "decorators": [
+        "router.post('/admin/store-index/run')"
+      ],
+      "purpose": "Small manual indexing run for testing. Runs synchronously via Celery\nif available, otherwise inline \u2014 force=True bypasses the enabled flag,\ncaps and politeness still apply."
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "shop_app_probe",
+      "decorators": [
+        "router.get('/admin/store-index/shop-app-probe')"
+      ],
+      "purpose": "Live diagnostic for Discovery Source #1, run on the web process (which,\nunlike the worker, can reach shop.app). With no args it tries a BATTERY of\ncandidate shop.app entry points (robots.txt, sitemap, discover, browse, \u2026)\nand reports each one's HTTP status, size, a text sample, and any merchant\ndomains found \u2014 so we can see which routes actually work. Pass ?url= to\nprobe one specific URL."
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "reclassify",
+      "decorators": [
+        "router.post('/admin/store-index/reclassify')"
+      ],
+      "purpose": "Fix classifications. Two modes:\n  \u00b7 default \u2014 clear knowledge_at so the knowledge stage re-runs the AI\n    classifier on the STORED product data (scope by category or confidence).\n  \u00b7 reenrich_thin \u2014 for verified stores with NO product data (the\n    'Other \u00b7 General' rows from the discovery write-back), send them back to\n    'discovered' so verification re-fetches their catalog, then knowledge\n    classifies them properly."
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "shop_app_count",
+      "decorators": [
+        "router.get('/admin/store-index/shop-app-count')"
+      ],
+      "purpose": "How many storefronts Shop App exposes in its sitemap \u2014 the discovery\nceiling. Runs on the web process (can reach shop.app)."
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "run_stage",
+      "decorators": [
+        "router.post('/admin/store-index/run-stage')"
+      ],
+      "purpose": "Manually run ONE stage of the three-stage pipeline (force=True bypasses the\nenabled flag). This is how you test Shop App discovery in isolation and see\nits TRUE success rate \u2014 unlike /run, which drains legacy AI-guessed\ncandidates and will always look bad.\n\ndiscovery    \u2192 Shop App (+ any enabled source) surfaces candidate domains\nverification \u2192 discovered domains become verified/rejected (fetches once)\nknowledge    \u2192 verified stores get classified from stored data"
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "get_admin_config",
+      "decorators": [
+        "router.get('/admin/config')"
+      ],
+      "purpose": "Effective values of the runtime-configurable engine knobs \u2014 the settings\ndefaults overlaid with any DB overrides, so every knob renders populated."
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "store_index_coverage",
+      "decorators": [
+        "router.get('/admin/store-index/coverage')"
+      ],
+      "purpose": "Index coverage at a glance: verified depth per category, and which niches\nthe candidate generator has reached vs still pending \u2014 so you can tell\nwhether a niche is covered before test-searching it. Guarded; degrades to\npartials on any read error."
+    },
+    {
+      "file": "app/api/v1/store_index.py",
+      "function": "update_admin_config",
+      "decorators": [
+        "router.put('/admin/config')"
+      ],
+      "purpose": "Override engine knobs. Takes effect within ~15s (worker cache window);\nno redeploy or restart. Env vars remain the defaults for a fresh deploy."
+    },
+    {
+      "file": "app/api/v1/team.py",
+      "function": "list_members",
+      "decorators": [
+        "router.get('/members')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/team.py",
+      "function": "invite_member",
+      "decorators": [
+        "router.post('/invite')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/team.py",
+      "function": "remove_member",
+      "decorators": [
+        "router.delete('/members/{member_id}', status_code=204)"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/team.py",
+      "function": "get_invite_details",
+      "decorators": [
+        "router.get('/invite/{token}')"
+      ],
+      "purpose": "Public \u2014 returns context for the invite accept page."
+    },
+    {
+      "file": "app/api/v1/team.py",
+      "function": "accept_invite",
+      "decorators": [
+        "router.post('/accept')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/user.py",
+      "function": "get_business_profile",
+      "decorators": [
+        "router.get('/business-profile')",
+        "safe_read('GET /business-profile', {'data': None})"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/user.py",
+      "function": "update_business_profile",
+      "decorators": [
+        "router.put('/business-profile')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/user.py",
+      "function": "get_subscription",
+      "decorators": [
+        "router.get('/subscription')",
+        "guarded_required('GET /subscription')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/user.py",
+      "function": "get_prefs",
+      "decorators": [
+        "router.get('/notification-prefs')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/user.py",
+      "function": "update_prefs",
+      "decorators": [
+        "router.put('/notification-prefs')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/user.py",
+      "function": "test_webhook",
+      "decorators": [
+        "router.post('/test-webhook')"
+      ],
+      "purpose": "Send a sample payload to the user's configured Slack or generic webhook.\nbody: { \"type\": \"slack\" | \"generic\" }"
+    },
+    {
+      "file": "app/api/v1/user.py",
+      "function": "provision_user",
+      "decorators": [
+        "router.post('/provision')"
+      ],
+      "purpose": "Idempotent, concurrency-safe account provisioning. Called after Supabase auth\nsignup (and again from onboarding) to guarantee a complete application\naccount exists \u2014 a `user_profiles` row + default notification prefs.\n\nSafe to call repeatedly and from concurrent duplicate requests: an existing\nrow short-circuits (preserving the user's real tier/subscription), and a\nduplicate-key race is treated as success. On a genuine DB failure it returns\na structured 500 (never leaks internals) so the frontend can block/retry\ninstead of proceeding with an unknown account state."
+    },
+    {
+      "file": "app/api/v1/watchlist.py",
+      "function": "list_watches",
+      "decorators": [
+        "router.get('')",
+        "safe_read('GET /watchlist', {'data': [], 'cap': 0})"
+      ],
+      "purpose": "Return the user's pinned products enriched with current price + delta."
+    },
+    {
+      "file": "app/api/v1/watchlist.py",
+      "function": "add_watch",
+      "decorators": [
+        "router.post('')",
+        "guarded_required('POST /watchlist')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/watchlist.py",
+      "function": "remove_watch",
+      "decorators": [
+        "router.delete('/{watch_id}', status_code=204)",
+        "guarded_required('DELETE /watchlist')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/api/v1/webhooks.py",
+      "function": "stripe_subscription_webhook",
+      "decorators": [
+        "router.post('/stripe-subscriptions')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "check_store_endpoint",
+      "decorators": [
+        "app.get('/check_store')"
+      ],
+      "purpose": "Probe whether a URL is an accessible Shopify store using curl_cffi (Chrome TLS fingerprint)."
+    },
+    {
+      "file": "app/main.py",
+      "function": "home",
+      "decorators": [
+        "app.get('/', response_class=HTMLResponse)"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "competitortool",
+      "decorators": [
+        "app.get('/shopify-competitor-analysis-tool')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "faq",
+      "decorators": [
+        "app.get('/faq', response_class=HTMLResponse)"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "sample_report",
+      "decorators": [
+        "app.get('/sample-report', response_class=HTMLResponse)"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "free_report",
+      "decorators": [
+        "app.get('/free-report')"
+      ],
+      "purpose": "Serve the free Allbirds sample PDF. Generates once and caches."
+    },
+    {
+      "file": "app/main.py",
+      "function": "blog",
+      "decorators": [
+        "app.get('/blog', response_class=HTMLResponse)"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "fenty_pricing_strategy",
+      "decorators": [
+        "app.get('/blog/fenty-pricing-strategy', response_class=HTMLResponse)"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "fenty_pricing_strategy",
+      "decorators": [
+        "app.get('/blog/gymshark-pricing-strategy', response_class=HTMLResponse)"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "fenty_pricing_strategy",
+      "decorators": [
+        "app.get('/blog/how-to-analyze-shopify-competitors', response_class=HTMLResponse)"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "landing_page",
+      "decorators": [
+        "app.get('/landing', response_class=HTMLResponse)"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "preview",
+      "decorators": [
+        "app.get('/preview', response_class=HTMLResponse)"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "generate",
+      "decorators": [
+        "app.post('/generate')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "buy",
+      "decorators": [
+        "app.post('/buy')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "success",
+      "decorators": [
+        "app.get('/success')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "sitemap",
+      "decorators": [
+        "app.get('/sitemap.xml')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "robots",
+      "decorators": [
+        "app.get('/robots.txt')"
+      ],
+      "purpose": null
+    },
+    {
+      "file": "app/main.py",
+      "function": "stripe_webhook",
+      "decorators": [
+        "app.post('/stripe/webhook')"
+      ],
+      "purpose": null
+    }
+  ],
+  "pages": [
+    "frontend/app/(app)/alerts/page.tsx",
+    "frontend/app/(app)/api-docs/page.tsx",
+    "frontend/app/(app)/competitors/page.tsx",
+    "frontend/app/(app)/dashboard/[id]/page.tsx",
+    "frontend/app/(app)/dashboard/page.tsx",
+    "frontend/app/(app)/playbook/page.tsx",
+    "frontend/app/(app)/settings/page.tsx",
+    "frontend/app/admin/leads/page.tsx",
+    "frontend/app/admin/page.tsx",
+    "frontend/app/admin/store-index/page.tsx",
+    "frontend/app/auth/forgot-password/page.tsx",
+    "frontend/app/auth/login/page.tsx",
+    "frontend/app/auth/reset-password/page.tsx",
+    "frontend/app/auth/signup/page.tsx",
+    "frontend/app/invite/[token]/page.tsx",
+    "frontend/app/onboarding/page.tsx",
+    "frontend/app/onboarding/reveal/[id]/page.tsx",
+    "frontend/app/page.tsx",
+    "frontend/app/privacy/page.tsx",
+    "frontend/app/reports/[id]/page.tsx",
+    "frontend/app/terms/page.tsx"
+  ],
+  "jobs": [
+    {
+      "file": "app/tasks/ai_summaries.py",
+      "function": "generate_weekly_summary",
+      "decorators": [
+        "celery.task(name='app.tasks.ai_summaries.generate_weekly_summary')"
+      ]
+    },
+    {
+      "file": "app/tasks/ai_summaries.py",
+      "function": "generate_brief",
+      "decorators": [
+        "celery.task(name='app.tasks.ai_summaries.generate_brief')"
+      ]
+    },
+    {
+      "file": "app/tasks/ai_summaries.py",
+      "function": "generate_pro_analysis",
+      "decorators": [
+        "celery.task(name='app.tasks.ai_summaries.generate_pro_analysis')"
+      ]
+    },
+    {
+      "file": "app/tasks/alerts.py",
+      "function": "send_change_alert",
+      "decorators": [
+        "celery.task(name='app.tasks.alerts.send_change_alert', queue='priority', bind=True, max_retries=3)"
+      ]
+    },
+    {
+      "file": "app/tasks/alerts.py",
+      "function": "flush_alert_batch",
+      "decorators": [
+        "celery.task(name='app.tasks.alerts.flush_alert_batch', queue='priority', bind=True, max_retries=2)"
+      ]
+    },
+    {
+      "file": "app/tasks/alerts.py",
+      "function": "send_weekly_digest_email",
+      "decorators": [
+        "celery.task(name='app.tasks.alerts.send_weekly_digest_email')"
+      ]
+    },
+    {
+      "file": "app/tasks/alerts.py",
+      "function": "send_first_scan_email",
+      "decorators": [
+        "celery.task(name='app.tasks.alerts.send_first_scan_email', queue='priority', bind=True, max_retries=3)"
+      ]
+    },
+    {
+      "file": "app/tasks/alerts.py",
+      "function": "send_daily_brief_email",
+      "decorators": [
+        "celery.task(name='app.tasks.alerts.send_daily_brief_email')"
+      ]
+    },
+    {
+      "file": "app/tasks/detect_changes.py",
+      "function": "detect_changes",
+      "decorators": [
+        "celery.task(name='app.tasks.detect_changes.detect_changes')"
+      ]
+    },
+    {
+      "file": "app/tasks/drip.py",
+      "function": "send_drip_d0",
+      "decorators": [
+        "celery.task(name='app.tasks.drip.send_drip_d0')"
+      ]
+    },
+    {
+      "file": "app/tasks/drip.py",
+      "function": "send_drip_d1",
+      "decorators": [
+        "celery.task(name='app.tasks.drip.send_drip_d1')"
+      ]
+    },
+    {
+      "file": "app/tasks/drip.py",
+      "function": "send_drip_d3",
+      "decorators": [
+        "celery.task(name='app.tasks.drip.send_drip_d3')"
+      ]
+    },
+    {
+      "file": "app/tasks/drip.py",
+      "function": "send_drip_d7",
+      "decorators": [
+        "celery.task(name='app.tasks.drip.send_drip_d7')"
+      ]
+    },
+    {
+      "file": "app/tasks/drip.py",
+      "function": "send_drip_d14",
+      "decorators": [
+        "celery.task(name='app.tasks.drip.send_drip_d14')"
+      ]
+    },
+    {
+      "file": "app/tasks/lead_engine.py",
+      "function": "scan_intent_signals",
+      "decorators": [
+        "celery.task(name='app.tasks.lead_engine.scan_intent_signals')"
+      ]
+    },
+    {
+      "file": "app/tasks/lead_engine.py",
+      "function": "discover_leads_daily",
+      "decorators": [
+        "celery.task(name='app.tasks.lead_engine.discover_leads_daily')"
+      ]
+    },
+    {
+      "file": "app/tasks/playbook_ai.py",
+      "function": "generate_ai_playbook",
+      "decorators": [
+        "celery.task(name='app.tasks.playbook_ai.generate_ai_playbook')"
+      ]
+    },
+    {
+      "file": "app/tasks/scan.py",
+      "function": "scan_competitor",
+      "decorators": [
+        "celery.task(bind=True, max_retries=3, default_retry_delay=30, name='app.tasks.scan.scan_competitor', soft_time_limit=240, time_limit=300)"
+      ]
+    },
+    {
+      "file": "app/tasks/scan.py",
+      "function": "manual_rescan",
+      "decorators": [
+        "celery.task(name='app.tasks.scan.manual_rescan')"
+      ]
+    },
+    {
+      "file": "app/tasks/scheduler.py",
+      "function": "recover_stuck_scans",
+      "decorators": [
+        "celery.task(name='app.tasks.scheduler.recover_stuck_scans')"
+      ]
+    },
+    {
+      "file": "app/tasks/scheduler.py",
+      "function": "enqueue_due_scans",
+      "decorators": [
+        "celery.task(name='app.tasks.scheduler.enqueue_due_scans')"
+      ]
+    },
+    {
+      "file": "app/tasks/scheduler.py",
+      "function": "send_weekly_digests_batch",
+      "decorators": [
+        "celery.task(name='app.tasks.scheduler.send_weekly_digests_batch')"
+      ]
+    },
+    {
+      "file": "app/tasks/scheduler.py",
+      "function": "generate_ai_summaries_batch",
+      "decorators": [
+        "celery.task(name='app.tasks.scheduler.generate_ai_summaries_batch')"
+      ]
+    },
+    {
+      "file": "app/tasks/scheduler.py",
+      "function": "send_daily_briefs_batch",
+      "decorators": [
+        "celery.task(name='app.tasks.scheduler.send_daily_briefs_batch')"
+      ]
+    },
+    {
+      "file": "app/tasks/store_index.py",
+      "function": "stage_discovery",
+      "decorators": [
+        "celery.task(name='app.tasks.store_index.stage_discovery')",
+        "scheduled_index_task('stage_discovery')"
+      ]
+    },
+    {
+      "file": "app/tasks/store_index.py",
+      "function": "stage_resolution",
+      "decorators": [
+        "celery.task(name='app.tasks.store_index.stage_resolution')",
+        "scheduled_index_task('stage_resolution')"
+      ]
+    },
+    {
+      "file": "app/tasks/store_index.py",
+      "function": "stage_verification",
+      "decorators": [
+        "celery.task(name='app.tasks.store_index.stage_verification')",
+        "scheduled_index_task('stage_verification')"
+      ]
+    },
+    {
+      "file": "app/tasks/store_index.py",
+      "function": "stage_knowledge",
+      "decorators": [
+        "celery.task(name='app.tasks.store_index.stage_knowledge')",
+        "scheduled_index_task('stage_knowledge')"
+      ]
+    },
+    {
+      "file": "app/tasks/store_index.py",
+      "function": "generate_niche_candidates",
+      "decorators": [
+        "celery.task(name='app.tasks.store_index.generate_niche_candidates')"
+      ]
+    },
+    {
+      "file": "app/tasks/store_index.py",
+      "function": "generate_related_candidates",
+      "decorators": [
+        "celery.task(name='app.tasks.store_index.generate_related_candidates')"
+      ]
+    },
+    {
+      "file": "app/tasks/store_index.py",
+      "function": "generate_candidates_rotating",
+      "decorators": [
+        "celery.task(name='app.tasks.store_index.generate_candidates_rotating')",
+        "scheduled_index_task('stage_candidates')"
+      ]
+    },
+    {
+      "file": "app/tasks/store_index.py",
+      "function": "discover_shopify_stores_daily",
+      "decorators": [
+        "celery.task(name='app.tasks.store_index.discover_shopify_stores_daily')"
+      ]
+    }
+  ]
+}

@@ -9,7 +9,6 @@ from fastapi import APIRouter, Depends
 from app.core.auth import get_effective_user_id
 from app.core.config import get_settings
 from app.core.database import get_supabase
-from app.services.playbook_intelligence import snapshot_intelligence, change_event_play
 
 _AI_FRESHNESS_HOURS = 23
 
@@ -32,7 +31,7 @@ def get_playbook(user_id: str = Depends(get_effective_user_id)):
             count = r.count or 0
         except Exception:
             count = 0
-        return {"plays": [], "competitor_count": count, "locked": False}
+        return {"plays": [], "competitor_count": count, "locked": False, "ai_state": "unavailable", "error": "Playbook data could not be loaded. Please retry."}
 
 
 def _build_playbook(user_id: str) -> dict:
@@ -75,12 +74,13 @@ def _build_playbook(user_id: str) -> dict:
         try:
             ai_data = json.loads(ai_res.data["summary_text"])
             ai_plays = ai_data.get("plays") or []
-            if ai_plays:
-                # Re-validate competitor_ids — guard against stale references post-deletion
+            if ai_plays and ai_data.get("user_id") == user_id and ai_data.get("engine_version") == 1:
                 valid_ids = set(comp_ids)
-                for p in ai_plays:
-                    if p.get("competitor_id") and p["competitor_id"] not in valid_ids:
-                        p["competitor_id"] = comp_ids[0]
+                from app.services.action_candidates import fresh
+                ai_plays = [p for p in ai_plays if p.get("competitor_id") in valid_ids
+                            and (p.get("fact_confidence") == "stale" or fresh(p.get("observed_at"), datetime.now(timezone.utc)))]
+                if not ai_plays:
+                    raise ValueError("Cached actions have no current supported observations")
                 # Sort by priority so free-tier slice always gets highest-urgency plays
                 ai_plays_sorted = sorted(ai_plays, key=lambda x: x.get("priority", 0), reverse=True)
                 if tier == "free":
@@ -133,55 +133,8 @@ def _build_playbook(user_id: str) -> dict:
     # Only claim "generating" when a job is genuinely in flight.
     ai_generating = ai_state == "generating"
 
-    # ── Fetch latest snapshot per competitor ──────────────────────────────────
-    competitors_data: list[dict] = []
-    for comp in competitors:
-        snap_res = (
-            db.table("scan_snapshots")
-            .select("product_count, median_price, promo_rate, new_30d, snapshot_data, scanned_at")
-            .eq("competitor_id", comp["id"])
-            .order("scanned_at", desc=True)
-            .limit(1)
-            .maybe_single()
-            .execute()
-        )
-        if snap_res and snap_res.data:
-            competitors_data.append({
-                "competitor_id": comp["id"],
-                "hostname": comp["hostname"],
-                "snap": snap_res.data,
-            })
-
-    # ── 1. Snapshot intelligence (cross-competitor synthesis) ─────────────────
-    plays: list[dict] = list(snapshot_intelligence(competitors_data))
-
-    # ── 2. Change-event plays (reactive) ─────────────────────────────────────
-    cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
-    changes_res = (
-        db.table("change_events")
-        .select("*")
-        .in_("competitor_id", comp_ids)
-        .gte("detected_at", cutoff)
-        .order("detected_at", desc=True)
-        .limit(150)
-        .execute()
-    )
-    raw_changes = [
-        c for c in (changes_res.data or [])
-        if c.get("severity") in ("critical", "warning")
-    ]
-
-    # Max 2 change plays per competitor to avoid flooding
-    change_count: dict[str, int] = {}
-    for chg in sorted(raw_changes, key=lambda c: c.get("detected_at", ""), reverse=True):
-        cid  = chg["competitor_id"]
-        host = comp_map.get(cid)
-        if not host or change_count.get(cid, 0) >= 2:
-            continue
-        play = change_event_play(chg, host, cid)
-        if play:
-            plays.append(play)
-            change_count[cid] = change_count.get(cid, 0) + 1
+    from app.services.action_candidates import load_context
+    plays = load_context(db, user_id, comps_res.data or [])
 
     # ── 3. Deduplicate + sort ─────────────────────────────────────────────────
     seen: set[str] = set()

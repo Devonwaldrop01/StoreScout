@@ -37,6 +37,8 @@ def scan_competitor(self, competitor_id: str) -> dict:
         )
         resp.raise_for_status()
         data = resp.json()
+        if data.get("status") == "error":
+            raise RuntimeError("Scanner reported a failed scan")
 
         if data.get("status") == "ok" and data.get("snapshot_id"):
             from app.tasks.detect_changes import detect_changes

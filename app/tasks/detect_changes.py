@@ -24,7 +24,7 @@ def _product_index(snapshot_data: dict) -> Dict[str, dict]:
     the _product_index field was added.
     """
     idx = snapshot_data.get("_product_index")
-    if idx and isinstance(idx, dict):
+    if isinstance(idx, dict):
         return idx
 
     # Legacy fallback: rebuild from the top-N lists stored in snapshot_data
@@ -39,13 +39,27 @@ def _product_index(snapshot_data: dict) -> Dict[str, dict]:
 
 
 def _detect(old_snap: dict, new_snap: dict) -> List[dict]:
-    old_products = _product_index(old_snap)
+    old_products = dict(_product_index(old_snap))
     new_products = _product_index(new_snap)
+    # A renamed handle is still the same Shopify product when both IDs are known.
+    old_by_id = {str(p["id"]): h for h,p in old_products.items() if p.get("id") is not None}
+    for handle, product in new_products.items():
+        previous = old_by_id.get(str(product.get("id"))) if product.get("id") is not None else None
+        if previous and previous != handle and handle not in old_products:
+            old_products[handle] = old_products.pop(previous)
     changes: List[dict] = []
+    # Absence from a partial (or legacy top-N) snapshot is not evidence of
+    # addition/removal. Comparable products can still have observed changes.
+    complete_pair = all(
+        snap.get("catalog_complete") is True
+        and not snap.get("catalog_truncated")
+        and isinstance(snap.get("_product_index"), dict)
+        for snap in (old_snap, new_snap)
+    )
 
     # ── New products ────────────────────────────────────────────────────────
     for handle, prod in new_products.items():
-        if handle not in old_products:
+        if complete_pair and handle not in old_products:
             changes.append({
                 "change_type": "new_product",
                 "product_handle": handle,
@@ -59,7 +73,7 @@ def _detect(old_snap: dict, new_snap: dict) -> List[dict]:
 
     # ── Removed products ────────────────────────────────────────────────────
     for handle, prod in old_products.items():
-        if handle not in new_products:
+        if complete_pair and handle not in new_products:
             changes.append({
                 "change_type": "product_removed",
                 "product_handle": handle,
@@ -77,6 +91,13 @@ def _detect(old_snap: dict, new_snap: dict) -> List[dict]:
         old_prod = old_products.get(handle)
         if not old_prod:
             continue
+        # Future snapshots identify the variant(s) supplying the minimum price.
+        # Without a shared identity a changed minimum may be assortment, not repricing.
+        # Mixed old/new formats also wait for a second comparable observation.
+        if "price_min_variant_ids" in old_prod or "price_min_variant_ids" in new_prod:
+            shared = set(old_prod.get("price_min_variant_ids") or []) & set(new_prod.get("price_min_variant_ids") or [])
+            if not shared:
+                continue
         old_price = old_prod.get("price_min")
         new_price = new_prod.get("price_min")
         if old_price is None or new_price is None or old_price == 0:
@@ -132,7 +153,7 @@ def _detect(old_snap: dict, new_snap: dict) -> List[dict]:
     old_disc_pct = (old_snap.get("discounts") or {}).get("discounted_pct", 0) or 0
     new_disc_pct = (new_snap.get("discounts") or {}).get("discounted_pct", 0) or 0
     delta_disc = new_disc_pct - old_disc_pct
-    if abs(delta_disc) >= DISCOUNT_RATE_SWING_PCT:
+    if complete_pair and abs(delta_disc) >= DISCOUNT_RATE_SWING_PCT:
         changes.append({
             "change_type": "discount_start" if delta_disc > 0 else "discount_end",
             "product_handle": None,

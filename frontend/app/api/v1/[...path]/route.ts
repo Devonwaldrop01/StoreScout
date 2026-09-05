@@ -14,15 +14,28 @@ async function proxy(request: NextRequest, path: string[]) {
   // Admin console (/admin/store-index) authenticates with this header
   const adminToken = request.headers.get("x-admin-token");
   if (adminToken) headers["x-admin-token"] = adminToken;
+  const signature = request.headers.get("stripe-signature");
+  if (signature) headers["stripe-signature"] = signature;
 
   const body =
     request.method !== "GET" && request.method !== "HEAD"
-      ? await request.text()
+      ? await request.arrayBuffer()
       : undefined;
 
-  const res = await fetch(target, { method: request.method, headers, body });
+  let res: Response;
+  try {
+    res = await fetch(target, {
+      method: request.method, headers, body, cache: "no-store",
+      signal: AbortSignal.timeout(120_000),
+    });
+  } catch {
+    return NextResponse.json(
+      { detail: "StoreScout is temporarily unavailable. Please try again." },
+      { status: 503 },
+    );
+  }
   const text = await res.text();
-  return new NextResponse(text, {
+  return new NextResponse(res.status === 204 || res.status === 304 ? null : text, {
     status: res.status,
     headers: { "content-type": res.headers.get("content-type") || "application/json" },
   });
@@ -43,6 +56,13 @@ export async function POST(
 }
 
 export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  return proxy(req, (await params).path);
+}
+
+export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ path: string[] }> }
 ) {

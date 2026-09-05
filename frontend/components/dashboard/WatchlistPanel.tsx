@@ -59,7 +59,7 @@ export function WatchlistPanel({ competitorId }: Props) {
                   </p>
                   <div className="flex items-center gap-1.5">
                     <span className="text-[11px] font-mono" style={{ color: "var(--muted)" }}>
-                      {w.removed ? "delisted" : w.current_price != null ? formatPrice(w.current_price) : "—"}
+                      {w.not_observed ? "not observed" : w.removed ? "delisted" : w.current_price != null ? formatPrice(w.current_price) : "—"}
                     </span>
                     {w.delta_pct != null && w.delta_pct !== 0 && !w.removed && (
                       <span

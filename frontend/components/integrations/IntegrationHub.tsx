@@ -30,8 +30,8 @@ function IntelligenceMap({ dims }: { dims: IntegrationHubData["intelligence"] })
     <div className="rounded-md p-4 sm:p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
       <div className="flex items-center gap-2 mb-3">
         <Sparkles className="w-4 h-4" style={{ color: "var(--accent)" }} />
-        <h3 className="text-sm font-semibold" style={{ color: "var(--text)" }}>What StoreScout understands</h3>
-        <span className="text-[11px]" style={{ color: "var(--muted)" }}>· connect more to fill the map</span>
+        <h3 className="text-sm font-semibold" style={{ color: "var(--text)" }}>Source setup</h3>
+        <span className="text-[11px]" style={{ color: "var(--muted)" }}>· connection status, not data quality</span>
       </div>
       <div className="space-y-2.5">
         {dims.map((d) => {
@@ -41,7 +41,7 @@ function IntelligenceMap({ dims }: { dims: IntegrationHubData["intelligence"] })
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-medium" style={{ color: "var(--text-2)" }}>{d.label}</span>
                 <span className="num text-[11px]" style={{ color: d.pct >= 60 ? c : "var(--muted)" }}>
-                  {d.key === "competitor" ? "Full" : `${d.connected}/${d.total}`}
+                  {d.key === "competitor" ? (d.connected ? "Tracking configured" : "No tracked competitors") : `${d.connected}/${d.total}`}
                 </span>
               </div>
               <div className="h-2 rounded-full overflow-hidden" style={{ background: "var(--bg3)" }}>
@@ -133,8 +133,7 @@ export function IntegrationHub({ onConnect }: { onConnect?: (id: string) => void
       <IntelligenceMap dims={hub.intelligence} />
 
       <p className="text-[13px]" style={{ color: "var(--muted)" }}>
-        Every integration teaches StoreScout something new — and that knowledge makes every recommendation,
-        investigation, and Playbook smarter. <span style={{ color: "var(--text-2)" }}>{hub.connected_count} connected.</span>
+        Public competitor reviews work without integrations. Available connections provide additional context; freshness and coverage still need review. <span style={{ color: "var(--text-2)" }}>{hub.connected_count} connected.</span>
       </p>
 
       {/* Category tabs */}

@@ -1,0 +1,1001 @@
+{
+  "total": 38221,
+  "status": {
+    "discovered": 36088,
+    "candidate": 1323,
+    "verified": 426,
+    "rejected": 323,
+    "failed": 61
+  },
+  "groups": {
+    "all": {
+      "n": 38221,
+      "category": {
+        "NULL": 37780,
+        "Arts & Crafts": 10,
+        "Food & Beverage": 16,
+        "Fashion": 70,
+        "Automotive": 10,
+        "Toys & Games": 33,
+        "Sporting Goods": 27,
+        "Accessories": 37,
+        "Other": 25,
+        "Fitness Apparel": 12,
+        "Jewelry": 32,
+        "Kids & Baby": 23,
+        "Supplements": 5,
+        "Electronics & Gadgets": 14,
+        "Footwear": 13,
+        "Outdoors": 17,
+        "Beauty": 24,
+        "Home & Living": 22,
+        "Health & Personal Care": 8,
+        "Tech Accessories": 7,
+        "Pets": 24,
+        "Adult": 2,
+        "Books & Media": 7,
+        "Home Improvement": 3
+      },
+      "subcategory": {
+        "NULL": 37780,
+        "Craft Supplies": 5,
+        "Tea": 4,
+        "Womenswear": 29,
+        "Car Accessories": 7,
+        "Collectibles": 26,
+        "Equipment": 19,
+        "Bags": 22,
+        "General": 27,
+        "Activewear": 11,
+        "Streetwear": 12,
+        "Fashion Jewelry": 16,
+        "Parts": 3,
+        "Kids Apparel": 11,
+        "Watches": 11,
+        "Wellness": 3,
+        "Smart Home": 2,
+        "Nursery": 1,
+        "Sandals": 2,
+        "Water Sports": 6,
+        "Cosmetics": 5,
+        "Audio": 5,
+        "Furniture": 3,
+        "Denim": 1,
+        "Sneakers": 8,
+        "Baby Gear": 6,
+        "Personal Care": 2,
+        "Wallets": 3,
+        "Combat Sports": 2,
+        "Hunting & Fishing": 3,
+        "Condiments": 5,
+        "Menswear": 15,
+        "Wearables": 3,
+        "Fragrance": 8,
+        "Skincare": 5,
+        "Fine Jewelry": 5,
+        "Phone Cases": 6,
+        "Hats": 7,
+        "Snacks": 4,
+        "Home Decor": 13,
+        "Haircare": 1,
+        "Kitchen": 2,
+        "Footwear": 6,
+        "Pet Toys": 2,
+        "Pet Accessories": 20,
+        "Stationery": 4,
+        "Boots": 3,
+        "Nails": 4,
+        "Pet Food": 2,
+        "Outerwear": 2,
+        "Hobbies": 3,
+        "Sexual Wellness": 3,
+        "Cycling": 4,
+        "Gym Accessories": 1,
+        "Golf": 2,
+        "Team Sports": 4,
+        "Swimwear": 2,
+        "Feeding": 1,
+        "Books": 1,
+        "Vitamins": 1,
+        "Accessories": 3,
+        "Camping": 4,
+        "Toys": 7,
+        "Lingerie": 3,
+        "Films": 1,
+        "Coffee": 2,
+        "Board Games": 1,
+        "Sunglasses": 4,
+        "Bedding": 4,
+        "Medical": 3,
+        "Hardware": 1,
+        "Art": 1,
+        "Music": 5,
+        "Garden": 1,
+        "Tools": 2,
+        "Computers": 1,
+        "Screen Protectors": 1,
+        "Candy": 1,
+        "Sports Nutrition": 1,
+        "Belts": 1
+      },
+      "ages": {
+        "last_verified_at": {
+          "missing": 37401,
+          "31-60": 706,
+          "0-7": 110,
+          "8-30": 4
+        },
+        "knowledge_at": {
+          "missing": 37788,
+          "31-60": 433
+        },
+        "last_light_scanned_at": {
+          "missing": 37782,
+          "31-60": 330,
+          "0-7": 105,
+          "8-30": 4
+        },
+        "verified_at": {
+          "missing": 37780,
+          "31-60": 340,
+          "0-7": 100,
+          "8-30": 1
+        },
+        "dna_at": {
+          "missing": 38009,
+          "31-60": 212
+        },
+        "updated_at": {
+          "31-60": 22872,
+          "8-30": 14465,
+          "0-7": 884
+        }
+      },
+      "missing": {
+        "category": 37780,
+        "subcategory": 37780,
+        "category_confidence": 37780,
+        "category_evidence": 37791,
+        "brand_name": 37743,
+        "description": 37840,
+        "product_titles": 37830,
+        "product_types": 37838,
+        "dna_keywords": 38009,
+        "target_customer": 37793,
+        "pricing_tier": 37793,
+        "median_price": 37789,
+        "country": 38221,
+        "language": 37798,
+        "collections": 37801,
+        "homepage_message": 37872,
+        "price_bands": 37789,
+        "knowledge_at": 37788,
+        "dna_at": 38009,
+        "last_verified_at": 37401
+      },
+      "confidence": {
+        "None": 37780,
+        "95": 132,
+        "83": 11,
+        "76": 1,
+        "92": 60,
+        "75": 44,
+        "82": 10,
+        "85": 51,
+        "98": 34,
+        "100": 13,
+        "79": 3,
+        "88": 6,
+        "90": 7,
+        "99": 17,
+        "96": 1,
+        "71": 1,
+        "72": 1,
+        "87": 11,
+        "0": 11,
+        "89": 3,
+        "77": 1,
+        "94": 2,
+        "93": 1,
+        "35": 1,
+        "45": 3,
+        "25": 5,
+        "15": 2,
+        "86": 2,
+        "80": 1,
+        "78": 3,
+        "97": 1,
+        "65": 1,
+        "52": 1
+      },
+      "source": {
+        "shop_app": 36458,
+        "ai_niche_query": 795,
+        "related_expansion": 698,
+        "discovery": 250,
+        "tracked": 20
+      },
+      "classified_confident": 412
+    },
+    "verified": {
+      "n": 426,
+      "category": {
+        "Arts & Crafts": 10,
+        "Food & Beverage": 16,
+        "Fashion": 68,
+        "Automotive": 10,
+        "Toys & Games": 33,
+        "Sporting Goods": 27,
+        "Accessories": 36,
+        "Other": 16,
+        "Fitness Apparel": 12,
+        "Jewelry": 32,
+        "Kids & Baby": 23,
+        "Supplements": 5,
+        "Electronics & Gadgets": 12,
+        "Footwear": 13,
+        "Outdoors": 17,
+        "Beauty": 24,
+        "Home & Living": 21,
+        "Health & Personal Care": 8,
+        "Tech Accessories": 7,
+        "Pets": 24,
+        "Adult": 2,
+        "Books & Media": 7,
+        "Home Improvement": 3
+      },
+      "subcategory": {
+        "Craft Supplies": 5,
+        "Tea": 4,
+        "Womenswear": 28,
+        "Car Accessories": 7,
+        "Collectibles": 26,
+        "Equipment": 19,
+        "Bags": 21,
+        "General": 18,
+        "Activewear": 11,
+        "Streetwear": 12,
+        "Fashion Jewelry": 16,
+        "Parts": 3,
+        "Kids Apparel": 11,
+        "Watches": 11,
+        "Wellness": 3,
+        "Smart Home": 2,
+        "Nursery": 1,
+        "Sandals": 2,
+        "Water Sports": 6,
+        "Cosmetics": 5,
+        "Audio": 3,
+        "Furniture": 3,
+        "Denim": 1,
+        "Sneakers": 8,
+        "Baby Gear": 6,
+        "Personal Care": 2,
+        "Wallets": 3,
+        "Combat Sports": 2,
+        "Hunting & Fishing": 3,
+        "Condiments": 5,
+        "Menswear": 14,
+        "Wearables": 3,
+        "Fragrance": 8,
+        "Skincare": 5,
+        "Fine Jewelry": 5,
+        "Phone Cases": 6,
+        "Hats": 7,
+        "Snacks": 4,
+        "Haircare": 1,
+        "Kitchen": 2,
+        "Footwear": 6,
+        "Pet Toys": 2,
+        "Home Decor": 12,
+        "Pet Accessories": 20,
+        "Stationery": 4,
+        "Boots": 3,
+        "Nails": 4,
+        "Pet Food": 2,
+        "Outerwear": 2,
+        "Hobbies": 3,
+        "Sexual Wellness": 3,
+        "Cycling": 4,
+        "Gym Accessories": 1,
+        "Golf": 2,
+        "Team Sports": 4,
+        "Swimwear": 2,
+        "Feeding": 1,
+        "Books": 1,
+        "Vitamins": 1,
+        "Accessories": 3,
+        "Camping": 4,
+        "Toys": 7,
+        "Lingerie": 3,
+        "Films": 1,
+        "Coffee": 2,
+        "Board Games": 1,
+        "Sunglasses": 4,
+        "Bedding": 4,
+        "Medical": 3,
+        "Hardware": 1,
+        "Art": 1,
+        "Music": 5,
+        "Garden": 1,
+        "Tools": 2,
+        "Computers": 1,
+        "Screen Protectors": 1,
+        "Candy": 1,
+        "Sports Nutrition": 1,
+        "Belts": 1
+      },
+      "ages": {
+        "last_verified_at": {
+          "31-60": 320,
+          "0-7": 103,
+          "8-30": 3
+        },
+        "knowledge_at": {
+          "31-60": 426
+        },
+        "last_light_scanned_at": {
+          "31-60": 320,
+          "0-7": 103,
+          "8-30": 3
+        },
+        "verified_at": {
+          "31-60": 292,
+          "0-7": 93,
+          "missing": 41
+        },
+        "dna_at": {
+          "31-60": 207,
+          "missing": 219
+        },
+        "updated_at": {
+          "31-60": 320,
+          "0-7": 103,
+          "8-30": 3
+        }
+      },
+      "missing": {
+        "category": 0,
+        "subcategory": 0,
+        "category_confidence": 0,
+        "category_evidence": 2,
+        "brand_name": 2,
+        "description": 49,
+        "product_titles": 43,
+        "product_types": 49,
+        "dna_keywords": 219,
+        "target_customer": 2,
+        "pricing_tier": 6,
+        "median_price": 2,
+        "country": 426,
+        "language": 16,
+        "collections": 13,
+        "homepage_message": 84,
+        "price_bands": 2,
+        "knowledge_at": 0,
+        "dna_at": 219,
+        "last_verified_at": 0
+      },
+      "confidence": {
+        "95": 131,
+        "83": 10,
+        "76": 1,
+        "92": 60,
+        "75": 44,
+        "82": 10,
+        "85": 48,
+        "98": 34,
+        "100": 13,
+        "79": 3,
+        "88": 6,
+        "90": 7,
+        "99": 17,
+        "96": 1,
+        "71": 1,
+        "72": 1,
+        "87": 10,
+        "89": 3,
+        "0": 2,
+        "77": 1,
+        "94": 2,
+        "93": 1,
+        "35": 1,
+        "45": 3,
+        "25": 5,
+        "15": 2,
+        "86": 2,
+        "80": 1,
+        "78": 3,
+        "97": 1,
+        "65": 1,
+        "52": 1
+      },
+      "source": {
+        "shop_app": 344,
+        "tracked": 20,
+        "ai_niche_query": 8,
+        "discovery": 28,
+        "related_expansion": 26
+      },
+      "classified_confident": 406
+    }
+  },
+  "normalized_collisions": {
+    "accessprive.com": [
+      "accessprive.com",
+      "www.accessprive.com"
+    ],
+    "advancedsimracing.com": [
+      "advancedsimracing.com",
+      "www.advancedsimracing.com"
+    ],
+    "agreekcreation.com": [
+      "agreekcreation.com",
+      "www.agreekcreation.com"
+    ],
+    "allbirds.com": [
+      "allbirds.com",
+      "www.allbirds.com"
+    ],
+    "aninebing.com": [
+      "aninebing.com",
+      "www.aninebing.com"
+    ],
+    "anna-nina.nl": [
+      "anna-nina.nl",
+      "www.anna-nina.nl"
+    ],
+    "awesomehank.com": [
+      "awesomehank.com",
+      "www.awesomehank.com"
+    ],
+    "baublebar.com": [
+      "baublebar.com",
+      "www.baublebar.com"
+    ],
+    "bemodestboutique.com": [
+      "bemodestboutique.com",
+      "www.bemodestboutique.com"
+    ],
+    "bengalsandbandits.com": [
+      "bengalsandbandits.com",
+      "www.bengalsandbandits.com"
+    ],
+    "blenderbottle.com": [
+      "blenderbottle.com",
+      "www.blenderbottle.com"
+    ],
+    "blueingreensoho.com": [
+      "blueingreensoho.com",
+      "www.blueingreensoho.com"
+    ],
+    "boardgamebliss.com": [
+      "boardgamebliss.com",
+      "www.boardgamebliss.com"
+    ],
+    "boppy.com": [
+      "boppy.com",
+      "www.boppy.com"
+    ],
+    "bosca.com": [
+      "bosca.com",
+      "www.bosca.com"
+    ],
+    "boxingcollector.com": [
+      "boxingcollector.com",
+      "www.boxingcollector.com"
+    ],
+    "broadrivermercantile.com": [
+      "broadrivermercantile.com",
+      "www.broadrivermercantile.com"
+    ],
+    "bulksupplements.com": [
+      "bulksupplements.com",
+      "www.bulksupplements.com"
+    ],
+    "cheesebros.com": [
+      "cheesebros.com",
+      "www.cheesebros.com"
+    ],
+    "chicartiqueforthehome.com": [
+      "chicartiqueforthehome.com",
+      "www.chicartiqueforthehome.com"
+    ],
+    "clarindon.co.uk": [
+      "clarindon.co.uk",
+      "www.clarindon.co.uk"
+    ],
+    "colorstreet.com": [
+      "colorstreet.com",
+      "www.colorstreet.com"
+    ],
+    "cosmoxtoys.au": [
+      "cosmoxtoys.au",
+      "www.cosmoxtoys.au"
+    ],
+    "cotopaxi.com": [
+      "cotopaxi.com",
+      "www.cotopaxi.com"
+    ],
+    "culturekings.com": [
+      "culturekings.com",
+      "www.culturekings.com"
+    ],
+    "dermalogica.com": [
+      "dermalogica.com",
+      "www.dermalogica.com"
+    ],
+    "dickies.com": [
+      "dickies.com",
+      "www.dickies.com"
+    ],
+    "digitmakers.ca": [
+      "digitmakers.ca",
+      "www.digitmakers.ca"
+    ],
+    "discountcreditcardsupply.com": [
+      "discountcreditcardsupply.com",
+      "www.discountcreditcardsupply.com"
+    ],
+    "dreamclosetbysira.com": [
+      "dreamclosetbysira.com",
+      "www.dreamclosetbysira.com"
+    ],
+    "elevateyoursole.co.uk": [
+      "elevateyoursole.co.uk",
+      "www.elevateyoursole.co.uk"
+    ],
+    "fetchyourpetneeds.ie": [
+      "fetchyourpetneeds.ie",
+      "www.fetchyourpetneeds.ie"
+    ],
+    "fightjunkiefootwear.com": [
+      "fightjunkiefootwear.com",
+      "www.fightjunkiefootwear.com"
+    ],
+    "filson.com": [
+      "filson.com",
+      "www.filson.com"
+    ],
+    "footballshirtvintage.fr": [
+      "footballshirtvintage.fr",
+      "www.footballshirtvintage.fr"
+    ],
+    "freezbone.com": [
+      "freezbone.com",
+      "www.freezbone.com"
+    ],
+    "funwaterboard.com": [
+      "funwaterboard.com",
+      "www.funwaterboard.com"
+    ],
+    "futurekind.com": [
+      "futurekind.com",
+      "www.futurekind.com"
+    ],
+    "gainful.com": [
+      "gainful.com",
+      "www.gainful.com"
+    ],
+    "ghostbed.com": [
+      "ghostbed.com",
+      "www.ghostbed.com"
+    ],
+    "glossier.com": [
+      "glossier.com",
+      "www.glossier.com"
+    ],
+    "goodvibesbysabrina.com": [
+      "goodvibesbysabrina.com",
+      "www.goodvibesbysabrina.com"
+    ],
+    "gracebeautybox.co.uk": [
+      "gracebeautybox.co.uk",
+      "www.gracebeautybox.co.uk"
+    ],
+    "greats.com": [
+      "greats.com",
+      "www.greats.com"
+    ],
+    "grindstore.com": [
+      "grindstore.com",
+      "www.grindstore.com"
+    ],
+    "heavensentandco.com": [
+      "heavensentandco.com",
+      "www.heavensentandco.com"
+    ],
+    "heirloomartco.com": [
+      "heirloomartco.com",
+      "www.heirloomartco.com"
+    ],
+    "hibobbie.com": [
+      "hibobbie.com",
+      "www.hibobbie.com"
+    ],
+    "hydrusboardtech.com": [
+      "hydrusboardtech.com",
+      "www.hydrusboardtech.com"
+    ],
+    "i-blason.com": [
+      "i-blason.com",
+      "www.i-blason.com"
+    ],
+    "iamherstationary.com": [
+      "iamherstationary.com",
+      "www.iamherstationary.com"
+    ],
+    "inspiredgo.ca": [
+      "inspiredgo.ca",
+      "www.inspiredgo.ca"
+    ],
+    "japanimporttackle.com": [
+      "japanimporttackle.com",
+      "www.japanimporttackle.com"
+    ],
+    "javierthejewelernyc.com": [
+      "javierthejewelernyc.com",
+      "www.javierthejewelernyc.com"
+    ],
+    "jewelleryblossom.com": [
+      "jewelleryblossom.com",
+      "www.jewelleryblossom.com"
+    ],
+    "kinugawaturbo.com": [
+      "kinugawaturbo.com",
+      "www.kinugawaturbo.com"
+    ],
+    "kitchenworldsupplies.com": [
+      "kitchenworldsupplies.com",
+      "www.kitchenworldsupplies.com"
+    ],
+    "komusodesign.com": [
+      "komusodesign.com",
+      "www.komusodesign.com"
+    ],
+    "kontrolfreek.com": [
+      "kontrolfreek.com",
+      "www.kontrolfreek.com"
+    ],
+    "kramerleather.com": [
+      "kramerleather.com",
+      "www.kramerleather.com"
+    ],
+    "kvmtools.com": [
+      "kvmtools.com",
+      "www.kvmtools.com"
+    ],
+    "leonisa.com": [
+      "leonisa.com",
+      "www.leonisa.com"
+    ],
+    "lezat.com": [
+      "lezat.com",
+      "www.lezat.com"
+    ],
+    "lowbowz.shop": [
+      "lowbowz.shop",
+      "www.lowbowz.shop"
+    ],
+    "lpdiecastgarage.com": [
+      "lpdiecastgarage.com",
+      "www.lpdiecastgarage.com"
+    ],
+    "luxuryflameco.com": [
+      "luxuryflameco.com",
+      "www.luxuryflameco.com"
+    ],
+    "manduka.com": [
+      "manduka.com",
+      "www.manduka.com"
+    ],
+    "marcrobinsonjewelers.com": [
+      "marcrobinsonjewelers.com",
+      "www.marcrobinsonjewelers.com"
+    ],
+    "marika.com": [
+      "marika.com",
+      "www.marika.com"
+    ],
+    "mcgeeandco.com": [
+      "mcgeeandco.com",
+      "www.mcgeeandco.com"
+    ],
+    "medicalsupplysurplus.com": [
+      "medicalsupplysurplus.com",
+      "www.medicalsupplysurplus.com"
+    ],
+    "memoky.com": [
+      "memoky.com",
+      "www.memoky.com"
+    ],
+    "miamiheatstore.com": [
+      "miamiheatstore.com",
+      "www.miamiheatstore.com"
+    ],
+    "modernskate.com": [
+      "modernskate.com",
+      "www.modernskate.com"
+    ],
+    "mooncarstereo.com": [
+      "mooncarstereo.com",
+      "www.mooncarstereo.com"
+    ],
+    "morphe.com": [
+      "morphe.com",
+      "www.morphe.com"
+    ],
+    "mous.co": [
+      "mous.co",
+      "www.mous.co"
+    ],
+    "mukama.com": [
+      "mukama.com",
+      "www.mukama.com"
+    ],
+    "muscletech.com": [
+      "muscletech.com",
+      "www.muscletech.com"
+    ],
+    "myluxurycloset.org": [
+      "myluxurycloset.org",
+      "www.myluxurycloset.org"
+    ],
+    "northwoodshumidors.com": [
+      "northwoodshumidors.com",
+      "www.northwoodshumidors.com"
+    ],
+    "nursingqueen.com": [
+      "nursingqueen.com",
+      "www.nursingqueen.com"
+    ],
+    "oiselle.com": [
+      "oiselle.com",
+      "www.oiselle.com"
+    ],
+    "okayamadenim.com": [
+      "okayamadenim.com",
+      "www.okayamadenim.com"
+    ],
+    "onedamelane.com": [
+      "onedamelane.com",
+      "www.onedamelane.com"
+    ],
+    "optimumnutrition.com": [
+      "optimumnutrition.com",
+      "www.optimumnutrition.com"
+    ],
+    "peachandlily.com": [
+      "peachandlily.com",
+      "www.peachandlily.com"
+    ],
+    "peakdesign.com": [
+      "peakdesign.com",
+      "www.peakdesign.com"
+    ],
+    "poptoptoys.com": [
+      "poptoptoys.com",
+      "www.poptoptoys.com"
+    ],
+    "primary.com": [
+      "primary.com",
+      "www.primary.com"
+    ],
+    "queensupplies.com": [
+      "queensupplies.com",
+      "www.queensupplies.com"
+    ],
+    "redbarn.com": [
+      "redbarn.com",
+      "www.redbarn.com"
+    ],
+    "robertsonmadison.com": [
+      "robertsonmadison.com",
+      "www.robertsonmadison.com"
+    ],
+    "roboskillz.com": [
+      "roboskillz.com",
+      "www.roboskillz.com"
+    ],
+    "rumpl.com": [
+      "rumpl.com",
+      "www.rumpl.com"
+    ],
+    "safeguardclothing.com": [
+      "safeguardclothing.com",
+      "www.safeguardclothing.com"
+    ],
+    "sahajan.com": [
+      "sahajan.com",
+      "www.sahajan.com"
+    ],
+    "sandmarc.com": [
+      "sandmarc.com",
+      "www.sandmarc.com"
+    ],
+    "sexyhint.com": [
+      "sexyhint.com",
+      "www.sexyhint.com"
+    ],
+    "shades.net.au": [
+      "shades.net.au",
+      "www.shades.net.au"
+    ],
+    "shopelvis.com": [
+      "shopelvis.com",
+      "www.shopelvis.com"
+    ],
+    "shopluxelifeboutique.com": [
+      "shopluxelifeboutique.com",
+      "www.shopluxelifeboutique.com"
+    ],
+    "shopshowroom.com": [
+      "shopshowroom.com",
+      "www.shopshowroom.com"
+    ],
+    "siestacrafts.co.uk": [
+      "siestacrafts.co.uk",
+      "www.siestacrafts.co.uk"
+    ],
+    "sneakersnstuff.com": [
+      "sneakersnstuff.com",
+      "www.sneakersnstuff.com"
+    ],
+    "splits59.com": [
+      "splits59.com",
+      "www.splits59.com"
+    ],
+    "starfoot.store": [
+      "starfoot.store",
+      "www.starfoot.store"
+    ],
+    "tartine-et-chocolat.com": [
+      "tartine-et-chocolat.com",
+      "www.tartine-et-chocolat.com"
+    ],
+    "tasteofbritain.com": [
+      "tasteofbritain.com",
+      "www.tasteofbritain.com"
+    ],
+    "teranisandbows.com": [
+      "teranisandbows.com",
+      "www.teranisandbows.com"
+    ],
+    "thebreadoflife.us": [
+      "thebreadoflife.us",
+      "www.thebreadoflife.us"
+    ],
+    "theflyingneedles.com": [
+      "theflyingneedles.com",
+      "www.theflyingneedles.com"
+    ],
+    "thekrazeboutique.com": [
+      "thekrazeboutique.com",
+      "www.thekrazeboutique.com"
+    ],
+    "thelifeapparel.com": [
+      "thelifeapparel.com",
+      "www.thelifeapparel.com"
+    ],
+    "thephotostick.com": [
+      "thephotostick.com",
+      "www.thephotostick.com"
+    ],
+    "tower28beauty.com": [
+      "tower28beauty.com",
+      "www.tower28beauty.com"
+    ],
+    "truphaeinc.com": [
+      "truphaeinc.com",
+      "www.truphaeinc.com"
+    ],
+    "ultimatesportnutrition.us": [
+      "ultimatesportnutrition.us",
+      "www.ultimatesportnutrition.us"
+    ],
+    "undisputedbelts.com": [
+      "undisputedbelts.com",
+      "www.undisputedbelts.com"
+    ],
+    "uniforms-world.com": [
+      "uniforms-world.com",
+      "www.uniforms-world.com"
+    ],
+    "unpluggedgames.com": [
+      "unpluggedgames.com",
+      "www.unpluggedgames.com"
+    ],
+    "unsprung.com.sg": [
+      "unsprung.com.sg",
+      "www.unsprung.com.sg"
+    ],
+    "vicegolf.com": [
+      "vicegolf.com",
+      "www.vicegolf.com"
+    ],
+    "vintagerecordstore.com": [
+      "vintagerecordstore.com",
+      "www.vintagerecordstore.com"
+    ],
+    "vipselene.es": [
+      "vipselene.es",
+      "www.vipselene.es"
+    ],
+    "virelivo.com": [
+      "virelivo.com",
+      "www.virelivo.com"
+    ],
+    "vitacost.com": [
+      "vitacost.com",
+      "www.vitacost.com"
+    ],
+    "vivanteegolf.com": [
+      "vivanteegolf.com",
+      "www.vivanteegolf.com"
+    ],
+    "vivolife.com": [
+      "vivolife.com",
+      "www.vivolife.com"
+    ],
+    "volcom.com": [
+      "volcom.com",
+      "www.volcom.com"
+    ],
+    "wargamesusa.com": [
+      "wargamesusa.com",
+      "www.wargamesusa.com"
+    ],
+    "warsawwireless.com": [
+      "warsawwireless.com",
+      "www.warsawwireless.com"
+    ],
+    "wayoutwesttrading.com": [
+      "wayoutwesttrading.com",
+      "www.wayoutwesttrading.com"
+    ],
+    "wetplants.com": [
+      "wetplants.com",
+      "www.wetplants.com"
+    ],
+    "winkbeds.com": [
+      "winkbeds.com",
+      "www.winkbeds.com"
+    ],
+    "wixez.com": [
+      "wixez.com",
+      "www.wixez.com"
+    ],
+    "yokitackle.com": [
+      "www.yokitackle.com",
+      "yokitackle.com"
+    ],
+    "zapateriasleon.com": [
+      "www.zapateriasleon.com",
+      "zapateriasleon.com"
+    ]
+  },
+  "same_brand_candidates": {
+    "vuori": [
+      "vuori.com",
+      "vuoriclothing.com"
+    ]
+  },
+  "failure_reasons": {
+    "confidence 0 below threshold 60": 47,
+    "discovery probe below threshold or catalog locked": 209,
+    "unreachable_or_dns": 61,
+    "confidence 35 below threshold 60": 5,
+    "confidence 25 below threshold 60": 2,
+    "invalid_storefront": 17,
+    "dead_domain": 18,
+    "not_shopify": 18,
+    "no_products": 3,
+    "confidence 40 below threshold 60": 1,
+    "confidence 15 below threshold 60": 1,
+    "confidence 50 below threshold 60": 2
+  },
+  "wholesale_flag": 23,
+  "no_currency_column": true,
+  "domain_timestamp_md5": "2f56a53de54cde8c97f359c6b437cd42",
+  "snapshot_sha256": "661b34722ab431c63b3f458660cc154a1e0352e9585fee2b994c1a311476f136"
+}

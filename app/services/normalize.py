@@ -1,4 +1,5 @@
 import json
+import math
 from urllib.parse import urlparse
 
 def normalize_store_url(url: str) -> str:
@@ -11,17 +12,28 @@ def to_float(x):
     if x is None:
         return None
     try:
-        return float(x)
+        value = float(x)
+        return value if math.isfinite(value) and value >= 0 else None
     except Exception:
         return None
 
 def normalize_product(p: dict, base_url: str) -> dict:
-    variants = p.get("variants", [])
-    prices = [to_float(v.get("price")) for v in variants if v.get("price") is not None]
-    compare_prices = [to_float(v.get("compare_at_price")) for v in variants if v.get("compare_at_price")]
+    variants = [v for v in (p.get("variants") or []) if isinstance(v, dict)]
+    prices = [n for v in variants if (n := to_float(v.get("price"))) is not None]
+    compare_prices = [n for v in variants if (n := to_float(v.get("compare_at_price"))) is not None]
+    # A markdown is evidence about ONE variant. Independent minima may belong
+    # to different variants and cannot establish a discount.
+    discounts = []
+    for variant in variants:
+        price = to_float(variant.get("price"))
+        compare = to_float(variant.get("compare_at_price"))
+        if price is not None and compare is not None and compare > price:
+            discounts.append(round((compare - price) / compare * 100, 2))
 
-    available = any(v.get("available") for v in variants)
+    observed_availability = [v["available"] for v in variants if isinstance(v.get("available"), bool)]
+    available = True if True in observed_availability else (False if variants and len(observed_availability) == len(variants) else None)
 
+    minimum_price = min(prices) if prices else None
     out = {
         "id": p.get("id"),
         "title": p.get("title"),
@@ -33,8 +45,10 @@ def normalize_product(p: dict, base_url: str) -> dict:
         "vendor": p.get("vendor"),
         "tags": p.get("tags", []),
         "variants_count": len(variants),
-        "available": bool(available),
-        "price_min": min(prices) if prices else None,
+        "available": available,
+        "price_min": minimum_price,
+        "price_min_variant_ids": [str(v["id"]) for v in variants if v.get("id") is not None
+                                  and prices and to_float(v.get("price")) == minimum_price],
         "price_max": max(prices) if prices else None,
         "compare_at_min": min(compare_prices) if compare_prices else None,
         "compare_at_max": max(compare_prices) if compare_prices else None,
@@ -42,10 +56,10 @@ def normalize_product(p: dict, base_url: str) -> dict:
     }
 
     # derived helpers (useful later)
-    if out["compare_at_min"] and out["price_min"]:
-        out["discount_pct_min"] = round((out["compare_at_min"] - out["price_min"]) / out["compare_at_min"] * 100, 1)
-    else:
-        out["discount_pct_min"] = None
+    out["discount_pct_min"] = min(discounts) if discounts else None
+    out["discount_pct_max"] = max(discounts) if discounts else None
+    out["discount_method"] = "same_variant"
+    out["priced_variants_count"] = len(prices)
 
     return out
 

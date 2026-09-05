@@ -1,0 +1,150 @@
+{
+  "scope": "synthetic ranking simulation; not live index retrieval",
+  "baseline_commit": "70af98e",
+  "results": [
+    {
+      "case": "ceramics",
+      "top3": [
+        "ceramics-2.test",
+        "ceramics-3.test",
+        "ceramics-4.test"
+      ],
+      "labels": [
+        1,
+        1,
+        0
+      ],
+      "direct_precision_at_3": 0.0,
+      "missed_direct": [
+        "ceramics-0.test",
+        "ceramics-1.test"
+      ]
+    },
+    {
+      "case": "running",
+      "top3": [
+        "running-2.test",
+        "running-3.test",
+        "running-4.test"
+      ],
+      "labels": [
+        1,
+        1,
+        0
+      ],
+      "direct_precision_at_3": 0.0,
+      "missed_direct": [
+        "running-0.test",
+        "running-1.test"
+      ]
+    },
+    {
+      "case": "pets",
+      "top3": [
+        "pets-2.test",
+        "pets-4.test",
+        "pets-3.test"
+      ],
+      "labels": [
+        1,
+        1,
+        0
+      ],
+      "direct_precision_at_3": 0.0,
+      "missed_direct": [
+        "pets-0.test",
+        "pets-1.test"
+      ]
+    },
+    {
+      "case": "baby",
+      "top3": [
+        "baby-4.test",
+        "baby-2.test",
+        "baby-3.test"
+      ],
+      "labels": [
+        1,
+        1,
+        0
+      ],
+      "direct_precision_at_3": 0.0,
+      "missed_direct": [
+        "baby-0.test",
+        "baby-1.test"
+      ]
+    },
+    {
+      "case": "coffee",
+      "top3": [
+        "coffee-2.test",
+        "coffee-3.test",
+        "coffee-4.test"
+      ],
+      "labels": [
+        1,
+        1,
+        0
+      ],
+      "direct_precision_at_3": 0.0,
+      "missed_direct": [
+        "coffee-0.test",
+        "coffee-1.test"
+      ]
+    },
+    {
+      "case": "skincare",
+      "top3": [
+        "skincare-2.test",
+        "skincare-3.test",
+        "skincare-4.test"
+      ],
+      "labels": [
+        0,
+        1,
+        0
+      ],
+      "direct_precision_at_3": 0.0,
+      "missed_direct": [
+        "skincare-0.test",
+        "skincare-1.test"
+      ]
+    },
+    {
+      "case": "broad_store",
+      "top3": [
+        "broad_store-4.test",
+        "broad_store-3.test",
+        "broad_store-2.test"
+      ],
+      "labels": [
+        0,
+        1,
+        1
+      ],
+      "direct_precision_at_3": 0.0,
+      "missed_direct": [
+        "broad_store-0.test",
+        "broad_store-1.test"
+      ]
+    },
+    {
+      "case": "weak_metadata",
+      "top3": [
+        "weak_metadata-2.test",
+        "weak_metadata-3.test",
+        "weak_metadata-4.test"
+      ],
+      "labels": [
+        1,
+        1,
+        0
+      ],
+      "direct_precision_at_3": 0.0,
+      "missed_direct": [
+        "weak_metadata-0.test",
+        "weak_metadata-1.test"
+      ]
+    }
+  ]
+}

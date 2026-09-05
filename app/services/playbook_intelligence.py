@@ -49,11 +49,11 @@ def _play(
 
 
 def _normalize_pct(value) -> float:
-    """Normalise a percentage value to 0–1 fraction, handling both scales."""
+    """Stored analytics percentages are 0–100, including values below one."""
     if value is None:
         return 0.0
     v = float(value)
-    return v / 100.0 if v > 1.0 else v
+    return v / 100.0 if 0 <= v <= 100 else 0.0
 
 
 def _find_price_gap(pricing: dict) -> Optional[dict]:
@@ -154,7 +154,7 @@ def snapshot_intelligence(competitors_data: list[dict]) -> list[dict]:
         launch_d    = sd.get("launch_timeline") or {}
 
         raw_col = snap.get("promo_rate")
-        promo_rate = float(raw_col) if raw_col is not None else _normalize_pct(discounts.get("discounted_pct"))
+        promo_rate = _normalize_pct(raw_col if raw_col is not None else discounts.get("discounted_pct"))
 
         new_30d    = int(snap.get("new_30d") or 0)
         median     = float(snap.get("median_price") or pricing_d.get("median") or 0)

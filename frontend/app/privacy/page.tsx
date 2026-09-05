@@ -104,7 +104,7 @@ export default function PrivacyPage() {
 
           <h2>7. Your rights &amp; choices</h2>
           <ul>
-            <li>Access, correct, or delete your account data — you can delete your account from Settings.</li>
+            <li>Access, correct, or delete your account data — request account deletion through the support link in Settings.</li>
             <li>Opt out of marketing emails using the unsubscribe link (transactional emails are required for the Service).</li>
             <li>Remove connected integrations at any time in Settings.</li>
             <li>Depending on your location (e.g., EEA/UK or California), you may have additional rights — contact us to exercise them.</li>

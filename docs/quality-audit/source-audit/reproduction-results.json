@@ -1,0 +1,60 @@
+[
+  {
+    "check": "Variant-mismatched discount",
+    "observed": {
+      "discount_pct_min": 90.0,
+      "discounted_pct": 100.0
+    },
+    "expected": "Neither variant has a markdown; discounted share should be 0%."
+  },
+  {
+    "check": "Malformed numeric price",
+    "observed": "TypeError: '<' not supported between instances of 'float' and 'NoneType'",
+    "expected": "Ignore invalid value; report lower coverage."
+  },
+  {
+    "check": "Incomplete snapshots generate removal",
+    "observed": [
+      {
+        "change_type": "product_removed",
+        "product_handle": "b",
+        "product_title": "B",
+        "product_url": null,
+        "old_value": {
+          "price_min": 20
+        },
+        "new_value": null,
+        "delta_pct": null,
+        "severity": "info"
+      }
+    ],
+    "expected": "No confirmed removal from non-exhaustive snapshots."
+  },
+  {
+    "check": "Page two 503 returns success-shaped list",
+    "observed": [
+      {
+        "id": 1,
+        "handle": "a"
+      }
+    ],
+    "expected": "Distinct incomplete/error result; do not publish as full scan."
+  },
+  {
+    "check": "One-product probe misses another product change",
+    "observed": {
+      "status": "unchanged"
+    },
+    "fetch_limits": [
+      1
+    ],
+    "expected": "Full scan or a catalog-wide change token."
+  },
+  {
+    "check": "Payment handler failure acknowledged",
+    "observed": {
+      "received": true
+    },
+    "expected": "Retryable failure or durable queued work before success acknowledgement."
+  }
+]

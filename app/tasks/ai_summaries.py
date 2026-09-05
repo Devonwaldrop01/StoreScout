@@ -275,6 +275,15 @@ Store data:
         logger.error("generate_brief Claude API failed for %s: %s", competitor_id, exc)
         return {"status": "error", "reason": str(exc)}
 
+    # Keep public historical reports tied to the observation that generated
+    # this brief, without requiring a schema change to the text payload.
+    brief_payload = _json.loads(raw_text)
+    if not isinstance(brief_payload, dict):
+        logger.error("generate_brief: expected a JSON object")
+        return {"status": "error", "reason": "invalid_json_shape"}
+    brief_payload["_snapshot_id"] = snapshot_id
+    raw_text = _json.dumps(brief_payload)
+
     db.table("ai_summaries").insert({
         "competitor_id": competitor_id,
         "generated_at": datetime.now(timezone.utc).isoformat(),

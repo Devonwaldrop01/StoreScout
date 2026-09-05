@@ -56,9 +56,9 @@ def _i(id, name, category, dims, learns, gets_better, capabilities, status="avai
 CATALOG: List[Dict[str, Any]] = [
     # ── Store platform ──
     _i("shopify", "Shopify", "store", ["business"],
-       ["Your catalog, pricing, and collections", "Your orders and product performance", "Your inventory levels"],
-       "Recommendations compare their catalog to YOURS — assortment gaps, products to defend, pricing openings become specific to your business.",
-       ["Personalized Playbooks", "Catalog gap detection", "Price-opportunity scoring"], status="available"),
+       ["Your catalog, pricing, and collections", "A sample of tracked variant inventory", "Active discount rules"],
+       "Own-store public snapshots can identify possible wording matches. Connected inventory and discount-rule samples require review; order and sales performance are not imported.",
+       ["Own-store catalog context", "Inventory sample context"], status="available"),
     _i("woocommerce", "WooCommerce", "store", ["business"],
        ["Your catalog and pricing"], "Same business-level personalization for non-Shopify stores.",
        ["Personalized Playbooks"], status="coming_soon"),
@@ -67,9 +67,9 @@ CATALOG: List[Dict[str, Any]] = [
        ["Personalized Playbooks"], status="coming_soon"),
     # ── Email ──
     _i("klaviyo", "Klaviyo", "email", ["marketing", "customer"],
-       ["Your segments and list size", "Campaign and flow performance", "Repeat-purchase behavior"],
-       "Playbook execution becomes exact — the right segment, subject lines, estimated audience, and timing instead of 'email your customers'.",
-       ["Segment-level execution", "Draft campaigns", "Retention insights"], status="available"),
+       ["List memberships and largest list", "Sent campaign dates in a recent sample"],
+       "List and sent-campaign context can support manual campaign review. Engagement, segments, flows and repeat-purchase data are not imported.",
+       ["Email list context", "Recent campaign sample"], status="available"),
     _i("omnisend", "Omnisend", "email", ["marketing"],
        ["Segments and campaign performance"], "Personalized email execution paths.",
        ["Segment-level execution"], status="coming_soon"),
@@ -95,13 +95,13 @@ CATALOG: List[Dict[str, Any]] = [
        ["Channel-aware recommendations"], status="coming_soon"),
     # ── Analytics ──
     _i("ga4", "Google Analytics 4", "analytics", ["marketing", "business"],
-       ["Traffic sources and volume", "Landing pages and bounce", "Conversion funnels"],
-       "Playbooks become tied to REAL traffic — StoreScout can spot competitor moves that correlate with changes in your own traffic.",
-       ["Traffic-correlated insights", "Better predictions", "Funnel-aware recommendations"], status="available"),
+       ["Top page paths by sessions over 30 days"],
+       "Shows sampled page traffic for review. Conversion funnels and correlations with competitor activity are not calculated.",
+       ["Page-traffic context"], status="available"),
     _i("gsc", "Google Search Console", "analytics", ["marketing"],
-       ["Search queries and rankings", "Impressions and CTR"],
+       ["Top search queries, impressions and average position"],
        "SEO recommendations reference the queries you already rank (or nearly rank) for.",
-       ["SEO opportunity detection", "Query-level content ideas"], status="available"),
+       ["Search-query context"], status="available"),
     _i("clarity", "Microsoft Clarity", "analytics", ["customer"],
        ["Session recordings and heatmaps"], "UX-level recommendations grounded in real behavior.",
        ["Behavior-aware CX advice"], status="coming_soon"),
@@ -174,7 +174,7 @@ CATALOG: List[Dict[str, Any]] = [
 CATALOG_BY_ID = {e["id"]: e for e in CATALOG}
 
 
-def build_hub(connected_ids: List[str]) -> Dict[str, Any]:
+def build_hub(connected_ids: List[str], competitor_count: int = 0) -> Dict[str, Any]:
     """Layer the user's real connection state onto the catalog and compute the
     intelligence map. `connected_ids` are integration ids the user has wired."""
     connected = set(connected_ids)
@@ -195,11 +195,11 @@ def build_hub(connected_ids: List[str]) -> Dict[str, Any]:
     intelligence: List[Dict[str, Any]] = []
     for d in DIMENSIONS:
         if d == "competitor":
-            pct = 100
-            connected_here = 1
+            pct = 100 if competitor_count else 0
+            connected_here = 1 if competitor_count else 0
             total_here = 1
         else:
-            feeders = dim_feeders[d]
+            feeders = [f for f in dim_feeders[d] if f["status"] != "coming_soon"]
             total_here = len(feeders)
             connected_here = sum(1 for f in feeders if f["id"] in connected)
             # A single strong connection already lights the dimension meaningfully.

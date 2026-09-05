@@ -1,0 +1,51 @@
+{
+  "verified_date": "2026-09-05",
+  "basis": "Existing ff555bb inventory and completed report; no repeated source or runtime audit",
+  "counts": {
+    "feature_groups": 58,
+    "route_handlers": 137,
+    "pages": 21,
+    "jobs": 32
+  },
+  "dimensions": {
+    "purpose": "feature/purpose column",
+    "implementation": "data and technical state column",
+    "usefulness": "usefulness, clarity and next action column",
+    "actionability": "usefulness, clarity and next action column",
+    "no_integration": "without/with integrations column",
+    "integrated": "without/with integrations column",
+    "flaws": "data/state and decision columns",
+    "changes_made": "decision/priority/changes column; no change is explicitly stated when appropriate",
+    "remaining_improvements": "decision/priority/changes column",
+    "disposition": "decision/priority/changes column"
+  },
+  "page_to_report_group": {
+    "frontend/app/(app)/alerts/page.tsx": "Change feed, alerts list",
+    "frontend/app/(app)/api-docs/page.tsx": "API keys and API docs",
+    "frontend/app/(app)/competitors/page.tsx": "Add/manage competitor",
+    "frontend/app/(app)/dashboard/[id]/page.tsx": "Competitor overview KPIs",
+    "frontend/app/(app)/dashboard/page.tsx": "Dashboard portfolio",
+    "frontend/app/(app)/playbook/page.tsx": "Central Playbook",
+    "frontend/app/(app)/settings/page.tsx": "account settings",
+    "frontend/app/admin/leads/page.tsx": "Admin lead engine",
+    "frontend/app/admin/page.tsx": "Admin morning brief",
+    "frontend/app/admin/store-index/page.tsx": "Admin store index",
+    "frontend/app/auth/forgot-password/page.tsx": "Forgot/reset password",
+    "frontend/app/auth/login/page.tsx": "Signup, login",
+    "frontend/app/auth/reset-password/page.tsx": "Forgot/reset password",
+    "frontend/app/auth/signup/page.tsx": "Signup, login",
+    "frontend/app/invite/[token]/page.tsx": "Agency team invitation",
+    "frontend/app/onboarding/page.tsx": "Onboarding business description",
+    "frontend/app/onboarding/reveal/[id]/page.tsx": "First-scan reveal",
+    "frontend/app/page.tsx": "Landing, pricing",
+    "frontend/app/privacy/page.tsx": "Account deletion/support and legal",
+    "frontend/app/reports/[id]/page.tsx": "Shareable report page",
+    "frontend/app/terms/page.tsx": "Account deletion/support and legal"
+  },
+  "limits": [
+    "Source coverage is complete at the recorded checkpoint, not live functional certification.",
+    "Feature groups aggregate controls and APIs; page coverage alone does not certify every route.",
+    "Mixed dispositions such as Keep/Improve or Merge/Improve describe retained purpose plus recommended changes, not actions already executed.",
+    "Partial/dormant integrations are identified; no new integrations were implemented."
+  ]
+}

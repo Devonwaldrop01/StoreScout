@@ -43,6 +43,7 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
     const err = await res.json().catch(() => ({ detail: res.statusText }));
     throw Object.assign(new Error(err.detail || "API error"), { status: res.status, data: err });
   }
+  if (res.status === 204) return undefined as T;
   return res.json();
 }
 
@@ -644,6 +645,10 @@ export interface PlaybookPlay {
   what_happened?: string;
   why_it_matters?: string;
   interpretation?: string;
+  decision?: string;
+  avoid?: string;
+  additional_data?: string[];
+  observed_at?: string;
   objective?: string;
   execution_paths?: { surface: string; action: string }[];
   expected_outcome?: string;
@@ -655,6 +660,7 @@ export interface PlaybookPlay {
 }
 
 export interface PlaybookResponse {
+  error?: string;
   plays: PlaybookPlay[];
   competitor_count: number;
   locked: boolean;
@@ -723,6 +729,8 @@ export interface NotificationPrefs {
 }
 
 export interface PublicReport {
+  catalog_complete?: boolean;
+  catalog_coverage_reason?: string;
   snapshot_id: string;
   scanned_at: string;
   hostname: string;
@@ -839,6 +847,7 @@ export interface WatchedProduct {
   current_price: number | null;
   available: boolean | null;
   removed: boolean;
+  not_observed?: boolean;
   delta_pct: number | null;
 }
 

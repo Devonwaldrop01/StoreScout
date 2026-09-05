@@ -236,6 +236,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
           </h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
             Scanned {formatRelativeTime(scanned_at)} · {product_count?.toLocaleString() ?? "—"} products analyzed
+            {report.catalog_complete !== true && " · Catalog coverage partial or unverified"}
           </p>
         </div>
 

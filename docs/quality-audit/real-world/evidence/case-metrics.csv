@@ -1,0 +1,51 @@
+case_id,business,mode,niche,role,returned,precision_at_5,precision_at_10,known_reference_recall,useful,wrong,unknown,three_useful_top5
+durstongear,Durston,description_only,ultralight,core,5,0.0,0.0,0.0,0,2,0,False
+zpacks,Zpacks,description_only,ultralight,core,1,0.0,0.0,0.0,0,1,0,False
+gossamergear,Gossamer Gear,description_only,ultralight,core,8,0.2,0.1,0.0,1,3,0,False
+iliabeauty,ILIA,description_only,tinted_complexion,core,5,0.6,0.3,0.5,3,2,0,True
+tower28beauty,Tower 28,description_only,tinted_complexion,core,8,0.6,0.3,0.0,3,3,0,True
+saiehello,Saie,description_only,tinted_complexion,core,8,0.8,0.4,0.5,4,2,0,True
+pipettebaby,Pipette,description_only,baby_skin,core,8,0.0,0.0,0.0,0,6,0,False
+tubbytodd,Tubby Todd,description_only,baby_skin,core,8,0.0,0.0,0.0,0,4,0,False
+babobotanicals,Babo Botanicals,description_only,baby_skin,core,8,0.0,0.0,0.0,0,2,0,False
+onyxcoffeelab,Onyx Coffee Lab,description_only,specialty_coffee,core,8,0.4,0.2,0.0,2,4,0,False
+counterculturecoffee,Counter Culture,description_only,specialty_coffee,core,6,0.4,0.2,0.0,2,2,0,False
+vervecoffee,Verve,description_only,specialty_coffee,core,8,0.4,0.2,0.0,2,4,0,False
+littlesleepies,Little Sleepies,description_only,bamboo_family_sleepwear,core,0,0.0,0.0,0.0,0,0,0,False
+kytebaby,Kyte Baby,description_only,bamboo_family_sleepwear,core,8,0.2,0.1,0.0,1,3,1,False
+birdiebean,Birdie Bean,description_only,bamboo_family_sleepwear,core,8,0.0,0.0,0.0,0,8,0,False
+purebites,PureBites,description_only,dog_freeze_dried_treats,core,8,0.6,0.3,0.0,3,1,0,True
+stewartpet,Stewart,description_only,dog_freeze_dried_treats,off-platform uncertainty control; report separately,8,0.4,0.3,0.0,3,1,0,False
+stellaandchewys,Stella & Chewy's,description_only,dog_freeze_dried_treats,core,8,0.6,0.3,0.0,3,1,0,True
+quince,Quince,description_only,bedding_and_broad_store,core,8,0.6,0.6,0.0,6,1,0,True
+brooklinen,Brooklinen,description_only,bedding_and_broad_store,core,6,0.4,0.2,0.0,2,2,1,False
+parachutehome,Parachute,description_only,bedding_and_broad_store,core,4,0.2,0.1,0.0,1,1,1,False
+keychron,Keychron,description_only,mechanical_keyboards,core,2,0.0,0.0,0.0,0,0,0,False
+nuphy,NuPhy,description_only,mechanical_keyboards,core,3,0.0,0.0,0.0,0,2,0,False
+epomaker,EPOMAKER,description_only,mechanical_keyboards,core,4,0.0,0.0,0.0,0,2,0,False
+colourpop,ColourPop,description_only,tinted_complexion,core,8,0.8,0.5,0.0,5,1,0,True
+durstongear,Durston,structured_profile,ultralight,core,5,0.0,0.0,0.0,0,2,0,False
+zpacks,Zpacks,structured_profile,ultralight,core,1,0.0,0.0,0.0,0,1,0,False
+gossamergear,Gossamer Gear,structured_profile,ultralight,core,8,0.2,0.1,0.0,1,3,0,False
+iliabeauty,ILIA,structured_profile,tinted_complexion,core,8,0.6,0.3,0.5,3,4,0,True
+tower28beauty,Tower 28,structured_profile,tinted_complexion,core,8,0.6,0.3,0.0,3,2,0,True
+saiehello,Saie,structured_profile,tinted_complexion,core,8,0.8,0.6,0.5,6,1,0,True
+pipettebaby,Pipette,structured_profile,baby_skin,core,8,0.0,0.0,0.0,0,6,0,False
+tubbytodd,Tubby Todd,structured_profile,baby_skin,core,8,0.0,0.0,0.0,0,4,0,False
+babobotanicals,Babo Botanicals,structured_profile,baby_skin,core,8,0.0,0.0,0.0,0,3,0,False
+onyxcoffeelab,Onyx Coffee Lab,structured_profile,specialty_coffee,core,8,0.4,0.2,0.0,2,4,0,False
+counterculturecoffee,Counter Culture,structured_profile,specialty_coffee,core,8,0.4,0.2,0.0,2,5,0,False
+vervecoffee,Verve,structured_profile,specialty_coffee,core,8,0.4,0.2,0.0,2,5,0,False
+littlesleepies,Little Sleepies,structured_profile,bamboo_family_sleepwear,core,1,0.2,0.1,0.0,1,0,0,False
+kytebaby,Kyte Baby,structured_profile,bamboo_family_sleepwear,core,8,0.2,0.2,0.0,2,2,1,False
+birdiebean,Birdie Bean,structured_profile,bamboo_family_sleepwear,core,8,0.0,0.0,0.0,0,5,0,False
+purebites,PureBites,structured_profile,dog_freeze_dried_treats,core,8,0.6,0.3,0.0,3,2,0,True
+stewartpet,Stewart,structured_profile,dog_freeze_dried_treats,off-platform uncertainty control; report separately,8,0.6,0.3,0.0,3,1,0,True
+stellaandchewys,Stella & Chewy's,structured_profile,dog_freeze_dried_treats,core,8,0.6,0.3,0.0,3,1,0,True
+quince,Quince,structured_profile,bedding_and_broad_store,core,8,0.6,0.6,0.0,6,1,0,True
+brooklinen,Brooklinen,structured_profile,bedding_and_broad_store,core,7,0.2,0.2,0.0,2,3,1,False
+parachutehome,Parachute,structured_profile,bedding_and_broad_store,core,8,0.2,0.1,0.0,1,4,1,False
+keychron,Keychron,structured_profile,mechanical_keyboards,core,8,0.0,0.0,0.0,0,5,0,False
+nuphy,NuPhy,structured_profile,mechanical_keyboards,core,5,0.0,0.0,0.0,0,4,0,False
+epomaker,EPOMAKER,structured_profile,mechanical_keyboards,core,4,0.0,0.0,0.0,0,2,0,False
+colourpop,ColourPop,structured_profile,tinted_complexion,core,8,0.8,0.6,0.0,6,0,0,True

@@ -51,7 +51,7 @@ class Settings(BaseSettings):
 
     # Internal service communication (worker → web service for outbound fetches)
     api_internal_url: str = "http://localhost:10000"
-    internal_secret: str = "dev-internal-secret"
+    internal_secret: str = ""
 
     # Anthropic
     anthropic_api_key: str = ""

@@ -344,7 +344,9 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
             ct = r.headers.get("content-type", "")
             if r.status_code == 200 and "application/json" in ct:
                 data = r.json()
-                if isinstance(data, dict) and "products" in data:
+                if (isinstance(data, dict) and isinstance(data.get("products"), list)
+                        and data["products"] and all(isinstance(p, dict) and p.get("id") and p.get("handle")
+                                                     and isinstance(p.get("variants"), list) and p["variants"] for p in data["products"])):
                     reachable = True
                     products_ok = True
                     confidence += 55
@@ -353,7 +355,6 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
             elif r.status_code == 403:
                 # Bot-protected probe — Shopify-shaped; full scanner usually gets in
                 reachable = True
-                confidence += 35
                 signals.append("Storefront responds (bot-protected)")
         except Exception:
             pass
@@ -437,7 +438,7 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
         "reachable": reachable,
         "confidence": confidence,
         "signals": signals,
-        "monitorable": products_ok or "Storefront responds (bot-protected)" in signals,
+        "monitorable": products_ok,
         "profile": profile,
         "failure_reason": None if reachable else "unreachable_or_dns",
     }
@@ -694,13 +695,15 @@ def classify_store_v2(
         signals.append(("homepage", hp[:2000]))
 
     scores: Dict[str, float] = {}
+    support: Dict[str, set] = {}
     sub_hits: Dict[str, Dict[str, int]] = {}
     evidence: Dict[str, List[dict]] = {}
 
     for kind, text in signals:
         w = _SIGNAL_WEIGHT.get(kind, 1)
         for keyword, (cat, sub) in _RULE_KEYWORDS:
-            if keyword in text:
+            if re.search(r"(?<!\w)" + re.escape(keyword) + r"(?:s)?(?!\w)", text):
+                support.setdefault(cat, set()).add((kind, text))
                 scores[cat] = scores.get(cat, 0) + w
                 sub_hits.setdefault(cat, {})
                 sub_hits[cat][sub] = sub_hits[cat].get(sub, 0) + w
@@ -725,6 +728,8 @@ def classify_store_v2(
     volume = min(1.0, top / 12.0)
     confidence = int(round(100 * (0.45 * share + 0.35 * margin + 0.20 * volume)))
     confidence = max(0, min(100, confidence))
+    if len(support.get(winner, set())) < 2 or top < 6:
+        confidence = min(confidence, 54)  # sparse evidence stays below the index recommendation floor
 
     sub = max(sub_hits.get(winner, {"General": 1}).items(), key=lambda kv: kv[1])[0]
     ev = sorted(evidence.get(winner, []), key=lambda e: -e["weight"])[:6]
@@ -741,6 +746,8 @@ def classify_store_v2(
             confidence = max(confidence, 72)
             method = "multi_signal+ai"
 
+    if len(support.get(winner, set())) < 2 or scores.get(winner, 0) < 6:
+        confidence = min(confidence, 54)
     return {
         "category": winner,
         "subcategory": sub,
@@ -933,26 +940,17 @@ def verify_and_store(db, domain: str, source: str, source_query: Optional[str] =
 
     # Reject anything that fails the storefront bar, or scores below the
     # configured Shopify-confidence threshold.
-    if not result.get("reachable") or confidence < settings.shopify_index_min_confidence:
+    if not result.get("reachable") or not result.get("monitorable") or confidence < settings.shopify_index_min_confidence:
         return _reject(_rejection_reason(result))
 
-    # Duplicate guard: a DIFFERENT domain already verified under the same brand
-    # is almost certainly the same merchant (brand.com vs brand.myshopify.com).
-    brand = (profile.get("brand_name") or "").strip()
-    if brand and len(brand) > 2:
-        try:
-            dup = db.table("shopify_store_index").select("domain")\
-                .eq("brand_name", brand).eq("status", "verified")\
-                .neq("domain", domain).limit(1).execute()
-            if dup and dup.data:
-                return _reject(REJECT_DUPLICATE)
-        except Exception:
-            pass
+    # Shared brand text is not proof of canonical identity. Keep both domains
+    # until redirect or Shopify shop identity evidence establishes equivalence.
 
     # VERIFIED — store raw signals only. Classification happens in Stage 3.
     market = derive_market_context(profile.get("product_count"), profile.get("median_price"))
     upsert_index_row(db, domain, {
         "status": "verified",
+        "knowledge_at": None,
         "rejection_reason": None,
         "failure_reason": None,
         "business_stage": market["business_stage"],
@@ -1168,7 +1166,10 @@ def graph_neighbors(db, source_keys: List[str], limit: int = 12) -> Dict[str, in
             .in_("source_key", keys).order("weight", desc=True).limit(limit * 4).execute()
         for r in res.data or []:
             d = r["target_domain"]
-            out[d] = max(out.get(d, -999), r.get("weight") or 0) if d in out else (r.get("weight") or 0)
+            out[d] = max(out.get(d, -999), r.get("weight") or 0)
+        negatives = db.table("competitor_edges").select("target_domain, weight").in_("source_key", keys).lt("weight", 0).limit(1000).execute()
+        for r in negatives.data or []:
+            out[r["target_domain"]] = r["weight"]
     except Exception as exc:
         logger.debug("graph neighbors lookup skipped: %s", exc)
     return out
@@ -1189,7 +1190,7 @@ def upsert_index_row(db, domain: str, fields: Dict[str, Any]) -> str:
     now = datetime.now(timezone.utc).isoformat()
     # Drop unset fields so partial updates don't blank existing data — but keep
     # an explicit failure_reason=None, which clears a stale reason on re-verify.
-    fields = {k: v for k, v in fields.items() if v is not None or k == "failure_reason"}
+    fields = {k: v for k, v in fields.items() if v is not None or k in {"failure_reason", "rejection_reason", "knowledge_at"}}
     fields["domain"] = domain
     fields["updated_at"] = now
 
@@ -1198,7 +1199,8 @@ def upsert_index_row(db, domain: str, fields: Dict[str, Any]) -> str:
         res = db.table("shopify_store_index").select("id, status").eq("domain", domain).maybe_single().execute()
         existing = res.data if res else None
     except Exception:
-        existing = None
+        # A failed existence lookup is not evidence that the row is absent.
+        raise
 
     # Columns added by later migrations may not exist yet — retry without them
     # so the index keeps working during the migration window (008:
@@ -1237,15 +1239,14 @@ def upsert_index_row(db, domain: str, fields: Dict[str, Any]) -> str:
                 payload.pop(missing, None)
                 logger.debug("upsert dropping missing column %r for %s", missing, domain)
                 continue
-            # Fall back to stripping all known-newer columns at once.
-            stripped = {k: v for k, v in payload.items() if k not in _NEWER_COLS}
-            if len(stripped) < len(payload):
-                logger.debug("upsert retry without newer columns for %s: %s", domain, exc)
-                try:
-                    _write(stripped)
-                    return "updated" if existing else "inserted"
-                except Exception:
-                    raise
+            # Handle only a confirmed concurrent insert, retaining verified status.
+            if not existing and (getattr(exc, "code", None) == "23505" or "23505" in str(exc)):
+                found = db.table("shopify_store_index").select("id, status").eq("domain", domain).maybe_single().execute()
+                existing = found.data if found else None
+                if existing:
+                    if existing.get("status") == "verified" and payload.get("status") in ("candidate", "discovered"):
+                        return "skipped"
+                    continue
             raise
     return "updated" if existing else "inserted"
 

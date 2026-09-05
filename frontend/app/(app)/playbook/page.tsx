@@ -1117,7 +1117,7 @@ export default function PlaybookPage() {
               )}
             </div>
             <p className="text-sm" style={{ color: "var(--muted)" }}>
-              What to do right now, based on what your competitors are doing —{" "}
+              What to investigate or watch, based on observed competitor activity —{" "}
               <span style={{ color: "var(--text-2, var(--muted))" }}>
                 {data.competitor_count} competitor{data.competitor_count !== 1 ? "s" : ""} analysed
               </span>
@@ -1134,6 +1134,7 @@ export default function PlaybookPage() {
           </button>
         </div>
 
+        {data.error && <p role="alert" className="text-sm">{data.error}</p>}
         {/* ── AI analysis: FINITE states only ─────────────────────────────── */}
         {/* Generating — a real job is in flight. Never shown indefinitely: the
             backend resolves to timed_out after a real timeout. */}
@@ -1146,7 +1147,7 @@ export default function PlaybookPage() {
             <RefreshCw className="w-3.5 h-3.5 animate-spin shrink-0" />
             <span>
               <span className="font-bold">AI analysis in progress</span>
-              <span style={{ color: "var(--muted)" }}> — Claude is reviewing your competitors. These deterministic plays are ready now; AI-tailored plays will replace them shortly.</span>
+              <span style={{ color: "var(--muted)" }}> — Your evidence-based reviews are ready now; AI may help order actions with equal priority.</span>
             </span>
           </div>
         )}
@@ -1158,7 +1159,7 @@ export default function PlaybookPage() {
             style={{ background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--text-2)" }}
           >
             <span>
-              <span className="font-bold">AI-tailored plays aren&apos;t available right now</span>
+              <span className="font-bold">AI prioritisation is unavailable</span>
               <span style={{ color: "var(--muted)" }}> — the plays below are ready to use. You can retry the AI pass.</span>
             </span>
             <button

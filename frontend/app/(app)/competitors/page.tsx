@@ -503,7 +503,7 @@ function CompetitorsContent() {
               {myCompetitors.length === 0 ? "Find your competitors" : `Tracking ${myCompetitors.length} — add a few more for a fuller picture`}
             </p>
             <p className="text-xs" style={{ color: "var(--muted)" }}>
-              Describe what you sell and we&apos;ll find verified Shopify competitors you can track in one click.
+              Describe what you sell and we&apos;ll find Shopify catalog candidates you can track in one click.
             </p>
           </div>
           <span className="text-xs font-semibold shrink-0" style={{ color: "var(--accent)" }}>Find →</span>
@@ -676,7 +676,7 @@ function CompetitorsContent() {
             {discoverResult && discoverResult.suggestions.length > 0 && (
               <div className="mt-4">
                 <p className="tick-label mb-2">
-                  Verified Shopify · trackable — {discoverResult.suggestions.length}
+                  Shopify catalog candidates · review fit — {discoverResult.suggestions.length}
                 </p>
                 <div className="space-y-2">
                   {discoverResult.suggestions.map((s) => {

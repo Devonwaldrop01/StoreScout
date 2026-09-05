@@ -39,7 +39,7 @@ const PLANS = [
     sub: "/month",
     annualNote: "or $63/mo billed annually",
     highlight: false,
-    features: ["50 competitors", "Daily auto-scans", "Unlimited history", "Email + in-app alerts", "Weekly AI digest", "Shareable report URLs"],
+    features: ["50 competitors", "Auto-scans every 12 hours", "Unlimited history", "Email + in-app alerts", "Weekly AI digest", "Shareable report URLs"],
     cta: "Start Agency",
     href: "/auth/signup?plan=agency",
   },
@@ -67,7 +67,7 @@ function BrowserChrome({ url, children }: { url: string; children: React.ReactNo
         </div>
         <div className="flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" style={{ color: "#FFB224" }} />
-          <span className="text-[10px] font-semibold" style={{ color: "#FFB224" }}>LIVE</span>
+          <span className="text-[10px] font-semibold" style={{ color: "#FFB224" }}>EXAMPLE</span>
         </div>
       </div>
       {children}
@@ -105,7 +105,7 @@ function FlashSaleCard() {
       <div className="mx-5 mb-3 px-3.5 py-3 rounded-md text-xs leading-relaxed"
         style={{ background: "rgba(0,0,0,.2)", color: "#A8AC9E" }}>
         <span className="font-semibold" style={{ color: "#F2555A" }}>Why this matters · </span>
-        Summer clearance or aggressive acquisition push. Flash sales this size typically run 48–72h and are often paired with Meta spend within hours.
+        Several observed price drops may indicate a promotion. Check the affected products and storefront before deciding how to respond.
       </div>
       <div className="mx-5 mb-4 px-3.5 py-3 rounded-md text-xs leading-relaxed"
         style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.18)" }}>
@@ -151,7 +151,7 @@ function LaunchBurstCard() {
       <div className="mx-5 mb-3 px-3.5 py-3 rounded-md text-xs leading-relaxed"
         style={{ background: "rgba(0,0,0,.2)", color: "#A8AC9E" }}>
         <span className="font-semibold" style={{ color: "#FFB224" }}>Why this matters · </span>
-        A burst this large usually precedes a paid push. Expect heavy Meta spend on these SKUs within 48 hours — their best-case launch window.
+        A group of product additions may be worth reviewing. Catalog timestamps alone do not establish launch intent or advertising plans.
       </div>
       <div className="mx-5 mb-4 px-3.5 py-3 rounded-md text-xs leading-relaxed"
         style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.18)" }}>
@@ -197,12 +197,12 @@ function PriceIncreaseCard() {
       <div className="mx-5 mb-3 px-3.5 py-3 rounded-md text-xs leading-relaxed"
         style={{ background: "rgba(0,0,0,.2)", color: "#A8AC9E" }}>
         <span className="font-semibold" style={{ color: "#FFB224" }}>Why this matters · </span>
-        Allbirds raised prices on 8 core styles. Their price-sensitive customers are now actively comparison shopping — this is your window.
+        Allbirds raised prices on 8 core styles. This establishes a price change, not a change in customer demand.
       </div>
       <div className="mx-5 mb-4 px-3.5 py-3 rounded-md text-xs leading-relaxed"
         style={{ background: "rgba(255,178,36,.05)", border: "1px solid rgba(255,178,36,.18)" }}>
         <span className="font-bold" style={{ color: "#FFB224" }}>▶ Your move · </span>
-        <span style={{ color: "#A8AC9E" }}>Launch a Google Shopping campaign targeting their product names — their price-sensitive customers are now actively looking for alternatives.</span>
+        <span style={{ color: "#A8AC9E" }}>Compare the affected styles with equivalent products in your own catalog before choosing a response.</span>
       </div>
       <div className="flex items-center justify-between px-5 py-2 text-xs font-semibold border-t"
         style={{ borderColor: "rgba(255,178,36,.15)", color: "#6C7164" }}>
@@ -687,7 +687,7 @@ function WinCompareMock() {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg)" }}>
+    <div className="min-h-screen landing-page" style={{ background: "var(--bg)" }}>
 
       {/* ── Nav ─────────────────────────────────────────────────────────────── */}
       <nav
@@ -729,20 +729,20 @@ export default function LandingPage() {
           style={{ background: "rgba(255,178,36,.08)", color: "#FFB224", border: "1px solid rgba(255,178,36,.2)" }}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-          Live competitor intelligence for Shopify
+          Shopify competitor pricing and catalog monitoring
         </div>
 
         <h1
           className="text-4xl md:text-6xl font-bold tracking-tight mb-6"
           style={{ color: "var(--text)", letterSpacing: "-0.04em", lineHeight: 1.05 }}
         >
-          Your Shopify competitors<br />
-          are making moves<br />
-          <span style={{ color: "#FFB224" }}>right now.</span>
+          See what changed in<br />
+          your competitors’ catalogs.<br />
+          <span style={{ color: "#FFB224" }}>Review the evidence.</span>
         </h1>
 
         <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed" style={{ color: "var(--muted)" }}>
-          StoreScout scans your competitors every day, detects the moves that matter — price cuts, launches, flash sales — and delivers them in one Daily Intelligence Brief, with an instant alert the moment a critical move is detected.
+          Track public prices, compare-at discounts and product availability across supported Shopify stores. Review changes and source links before your next promotion or client meeting. Pro checks daily.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
@@ -765,11 +765,12 @@ export default function LandingPage() {
         </div>
 
         <p className="text-sm mb-12" style={{ color: "var(--muted)", opacity: 0.6 }}>
-          No credit card required · Free forever · First scan ready in 60 seconds
+          No credit card required · Free forever · Scan time depends on catalog size and access
         </p>
 
         {/* The transformation, not the interface */}
         <HeroScan />
+        <p className="text-sm mt-6" style={{ color: "var(--text-2)" }}>Product previews below use illustrative data. Public catalogs do not reveal sales, revenue, customer intent or checkout-only promotions.</p>
       </div>
 
       {/* ── Stats strip ─────────────────────────────────────────────────────── */}
@@ -777,8 +778,8 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {[
             { value: "Daily", label: "Auto-scans on Pro" },
-            { value: "1M+", label: "Shopify stores supported" },
-            { value: "100%", label: "Public data — no ToS issues" },
+            { value: "10", label: "Competitors on Pro" },
+            { value: "Public", label: "Storefront catalog data" },
             { value: "$0", label: "To get started" },
           ].map(({ value, label }) => (
             <div key={label}>
@@ -792,7 +793,7 @@ export default function LandingPage() {
       {/* ── Brand ticker ────────────────────────────────────────────────────── */}
       <div className="py-5 mb-16">
         <p className="text-center text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "var(--muted)", opacity: 0.5 }}>
-          Track any of these stores — and thousands more
+          Example research subjects · availability checked when you add a store
         </p>
         <div className="flex items-center gap-8 px-8 flex-wrap justify-center">
           {BRANDS.map((b, i) => (
@@ -813,13 +814,12 @@ export default function LandingPage() {
             </h2>
             <p className="text-base leading-relaxed mb-6" style={{ color: "var(--muted)" }}>
               Describe what you sell — StoreScout maps your competitive landscape, verifies which rivals run
-              scannable Shopify storefronts, and tells you honestly which ones it can&apos;t watch yet. No guessing,
-              no dead links.
+              scannable Shopify storefronts, and tells you honestly which ones it can&apos;t watch yet. Review suggested matches before adding them.
             </p>
             <ul className="space-y-3">
               {[
-                "AI maps the brands your customers actually compare",
-                "Every result verified as a real, trackable Shopify store",
+                "Discover possible competitors to review for relevance",
+                "Catalog access checked before monitoring",
                 "Peers your size first — not just the giants",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-sm" style={{ color: "var(--muted)" }}>
@@ -848,7 +848,7 @@ export default function LandingPage() {
           <PricingDashboardMock />
         </BrowserChrome>
         <p className="text-center text-xs mt-3" style={{ color: "var(--muted)", opacity: 0.5 }}>
-          Real Gymshark data from a live scan — price distribution, top discounted products, and launch velocity
+          Illustrative interface with example figures. These are not current observations of Gymshark.
         </p>
       </div>
 
@@ -899,7 +899,7 @@ export default function LandingPage() {
             style={{ background: "rgba(242,85,90,.1)", color: "#F2555A", border: "1px solid rgba(242,85,90,.2)" }}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-            Detected in the last 3 hours
+            Illustrative change examples
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
             Here&apos;s what you&apos;re<br />
@@ -918,7 +918,7 @@ export default function LandingPage() {
 
         <div className="text-center mt-8">
           <p className="text-sm mb-4" style={{ color: "var(--muted)" }}>
-            Without StoreScout, you find out about moves like these <span style={{ color: "#F2555A" }}>days later</span> — after Reddit, after their customers have already bought.
+            Compare observations from successive scans. These examples illustrate the interface and are not live competitor events.
           </p>
           <Link
             href="/auth/signup"
@@ -940,22 +940,22 @@ export default function LandingPage() {
               style={{ background: "rgba(242,85,90,.1)", color: "#F2555A", border: "1px solid rgba(242,85,90,.2)" }}
             >
               <Bell className="w-3 h-3" />
-              Critical moves alert you instantly
+              Email updates after completed scans
             </div>
             <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>03 · Monitor</p>
             <h2 className="text-3xl font-bold mb-4" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
-              Beat your competitors to their own move.
+              Review price changes without reopening every store.
             </h2>
             <p className="text-base leading-relaxed mb-6" style={{ color: "var(--muted)" }}>
-              By the time a competitor&apos;s flash sale shows up on Reddit, their best customers have already bought. StoreScout alerts you while the sale is still running — so you can match it, counter it, or let it pass informed.
+              StoreScout compares successful scans and groups observed changes into updates. Pro checks every 24 hours; Agency every 12 hours. Short promotions between checks can be missed.
             </p>
             <ul className="space-y-3">
               {[
-                "Price drops ≥10% trigger an immediate alert",
+                "Price changes include observed before-and-after prices",
                 "Flash sale events grouped and explained by AI",
                 "Product list with exact price changes included",
                 "\"Your Move\" action item in every email",
-                "New launches and discount campaigns tracked start-to-finish",
+                "Product additions and compare-at markdowns from supported catalogs",
               ].map((item) => (
                 <li key={item} className="flex items-center gap-3 text-sm" style={{ color: "var(--muted)" }}>
                   <Check className="w-4 h-4 shrink-0" style={{ color: "#FFB224" }} />
@@ -1070,7 +1070,7 @@ export default function LandingPage() {
         <div className="text-center mb-14">
           <p className="label-caps mb-3" style={{ color: "var(--accent)" }}>How it works</p>
           <h2 className="text-3xl font-bold mb-3" style={{ color: "var(--text)", letterSpacing: "-0.03em" }}>
-            Live in 60 seconds
+            Start with one competitor
           </h2>
           <p className="text-base" style={{ color: "var(--muted)" }}>No setup, no API keys, no spreadsheets.</p>
         </div>
@@ -1083,8 +1083,8 @@ export default function LandingPage() {
               desc: "Enter a competitor's store URL. We verify it's a Shopify store and kick off the first scan immediately — no browser extension needed.",
             },
             {
-              step: "02", icon: TrendingUp, title: "We analyze their full catalog",
-              desc: "StoreScout fetches their entire product catalog, analyzes pricing patterns, launch velocity, and discount strategy. First results in under 2 minutes.",
+              step: "02", icon: TrendingUp, title: "Review the accessible catalog",
+              desc: "StoreScout analyzes accessible products and labels partial coverage. Large catalogs are capped for reliability; scan duration varies.",
             },
             {
               step: "03", icon: Bell, title: "Get alerted when they move",

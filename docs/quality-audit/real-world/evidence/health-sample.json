@@ -1,0 +1,2882 @@
+[
+  {
+    "domain": "awesomehank.com",
+    "stratum": [
+      "Accessories",
+      "rejected",
+      "0-7"
+    ],
+    "N": 1,
+    "n": 1,
+    "inclusion_probability": 1.0,
+    "weight": 1.0
+  },
+  {
+    "domain": "undisputedbelts.com",
+    "stratum": [
+      "Accessories",
+      "verified",
+      "0-7"
+    ],
+    "N": 6,
+    "n": 1,
+    "inclusion_probability": 0.16666666666666666,
+    "weight": 6.0
+  },
+  {
+    "domain": "craftandlore.com",
+    "stratum": [
+      "Accessories",
+      "verified",
+      "31-60"
+    ],
+    "N": 30,
+    "n": 1,
+    "inclusion_probability": 0.03333333333333333,
+    "weight": 30.0
+  },
+  {
+    "domain": "glitzpuffs.com",
+    "stratum": [
+      "Adult",
+      "verified",
+      "31-60"
+    ],
+    "N": 2,
+    "n": 1,
+    "inclusion_probability": 0.5,
+    "weight": 2.0
+  },
+  {
+    "domain": "iamherstationary.com",
+    "stratum": [
+      "Arts & Crafts",
+      "verified",
+      "0-7"
+    ],
+    "N": 3,
+    "n": 1,
+    "inclusion_probability": 0.3333333333333333,
+    "weight": 3.0
+  },
+  {
+    "domain": "honeybeestamps.com",
+    "stratum": [
+      "Arts & Crafts",
+      "verified",
+      "31-60"
+    ],
+    "N": 7,
+    "n": 1,
+    "inclusion_probability": 0.14285714285714285,
+    "weight": 7.0
+  },
+  {
+    "domain": "mooncarstereo.com",
+    "stratum": [
+      "Automotive",
+      "verified",
+      "0-7"
+    ],
+    "N": 1,
+    "n": 1,
+    "inclusion_probability": 1.0,
+    "weight": 1.0
+  },
+  {
+    "domain": "apexrace.us",
+    "stratum": [
+      "Automotive",
+      "verified",
+      "31-60"
+    ],
+    "N": 9,
+    "n": 1,
+    "inclusion_probability": 0.1111111111111111,
+    "weight": 9.0
+  },
+  {
+    "domain": "peachandlily.com",
+    "stratum": [
+      "Beauty",
+      "verified",
+      "0-7"
+    ],
+    "N": 7,
+    "n": 1,
+    "inclusion_probability": 0.14285714285714285,
+    "weight": 7.0
+  },
+  {
+    "domain": "perfumetogo.com",
+    "stratum": [
+      "Beauty",
+      "verified",
+      "31-60"
+    ],
+    "N": 17,
+    "n": 1,
+    "inclusion_probability": 0.058823529411764705,
+    "weight": 17.0
+  },
+  {
+    "domain": "kitchenworldsupplies.com",
+    "stratum": [
+      "Books & Media",
+      "verified",
+      "0-7"
+    ],
+    "N": 2,
+    "n": 1,
+    "inclusion_probability": 0.5,
+    "weight": 2.0
+  },
+  {
+    "domain": "shop.thestrokes.com",
+    "stratum": [
+      "Books & Media",
+      "verified",
+      "31-60"
+    ],
+    "N": 5,
+    "n": 1,
+    "inclusion_probability": 0.2,
+    "weight": 5.0
+  },
+  {
+    "domain": "kvmtools.com",
+    "stratum": [
+      "Electronics & Gadgets",
+      "rejected",
+      "0-7"
+    ],
+    "N": 2,
+    "n": 1,
+    "inclusion_probability": 0.5,
+    "weight": 2.0
+  },
+  {
+    "domain": "thephotostick.com",
+    "stratum": [
+      "Electronics & Gadgets",
+      "verified",
+      "0-7"
+    ],
+    "N": 3,
+    "n": 1,
+    "inclusion_probability": 0.3333333333333333,
+    "weight": 3.0
+  },
+  {
+    "domain": "mujjo.com",
+    "stratum": [
+      "Electronics & Gadgets",
+      "verified",
+      "31-60"
+    ],
+    "N": 9,
+    "n": 1,
+    "inclusion_probability": 0.1111111111111111,
+    "weight": 9.0
+  },
+  {
+    "domain": "starfoot.store",
+    "stratum": [
+      "Fashion",
+      "rejected",
+      "0-7"
+    ],
+    "N": 1,
+    "n": 1,
+    "inclusion_probability": 1.0,
+    "weight": 1.0
+  },
+  {
+    "domain": "fashionfinderhub.com",
+    "stratum": [
+      "Fashion",
+      "rejected",
+      "31-60"
+    ],
+    "N": 1,
+    "n": 1,
+    "inclusion_probability": 1.0,
+    "weight": 1.0
+  },
+  {
+    "domain": "nursingqueen.com",
+    "stratum": [
+      "Fashion",
+      "verified",
+      "0-7"
+    ],
+    "N": 18,
+    "n": 1,
+    "inclusion_probability": 0.05555555555555555,
+    "weight": 18.0
+  },
+  {
+    "domain": "riotsociety.com",
+    "stratum": [
+      "Fashion",
+      "verified",
+      "31-60"
+    ],
+    "N": 50,
+    "n": 1,
+    "inclusion_probability": 0.02,
+    "weight": 50.0
+  },
+  {
+    "domain": "lezat.com",
+    "stratum": [
+      "Fitness Apparel",
+      "verified",
+      "0-7"
+    ],
+    "N": 1,
+    "n": 1,
+    "inclusion_probability": 1.0,
+    "weight": 1.0
+  },
+  {
+    "domain": "getflytex.co",
+    "stratum": [
+      "Fitness Apparel",
+      "verified",
+      "31-60"
+    ],
+    "N": 11,
+    "n": 1,
+    "inclusion_probability": 0.09090909090909091,
+    "weight": 11.0
+  },
+  {
+    "domain": "inspiredgo.ca",
+    "stratum": [
+      "Food & Beverage",
+      "verified",
+      "0-7"
+    ],
+    "N": 3,
+    "n": 1,
+    "inclusion_probability": 0.3333333333333333,
+    "weight": 3.0
+  },
+  {
+    "domain": "heatonist.com",
+    "stratum": [
+      "Food & Beverage",
+      "verified",
+      "31-60"
+    ],
+    "N": 13,
+    "n": 1,
+    "inclusion_probability": 0.07692307692307693,
+    "weight": 13.0
+  },
+  {
+    "domain": "virelivo.com",
+    "stratum": [
+      "Footwear",
+      "verified",
+      "0-7"
+    ],
+    "N": 3,
+    "n": 1,
+    "inclusion_probability": 0.3333333333333333,
+    "weight": 3.0
+  },
+  {
+    "domain": "kizik.com",
+    "stratum": [
+      "Footwear",
+      "verified",
+      "31-60"
+    ],
+    "N": 10,
+    "n": 1,
+    "inclusion_probability": 0.1,
+    "weight": 10.0
+  },
+  {
+    "domain": "goodvibesbysabrina.com",
+    "stratum": [
+      "Health & Personal Care",
+      "verified",
+      "0-7"
+    ],
+    "N": 3,
+    "n": 1,
+    "inclusion_probability": 0.3333333333333333,
+    "weight": 3.0
+  },
+  {
+    "domain": "pepticool.com",
+    "stratum": [
+      "Health & Personal Care",
+      "verified",
+      "31-60"
+    ],
+    "N": 5,
+    "n": 1,
+    "inclusion_probability": 0.2,
+    "weight": 5.0
+  },
+  {
+    "domain": "chicartiqueforthehome.com",
+    "stratum": [
+      "Home & Living",
+      "rejected",
+      "8-30"
+    ],
+    "N": 1,
+    "n": 1,
+    "inclusion_probability": 1.0,
+    "weight": 1.0
+  },
+  {
+    "domain": "wetplants.com",
+    "stratum": [
+      "Home & Living",
+      "verified",
+      "0-7"
+    ],
+    "N": 3,
+    "n": 1,
+    "inclusion_probability": 0.3333333333333333,
+    "weight": 3.0
+  },
+  {
+    "domain": "wallcoveringsmart.com",
+    "stratum": [
+      "Home & Living",
+      "verified",
+      "31-60"
+    ],
+    "N": 16,
+    "n": 1,
+    "inclusion_probability": 0.0625,
+    "weight": 16.0
+  },
+  {
+    "domain": "parachutehome.com",
+    "stratum": [
+      "Home & Living",
+      "verified",
+      "8-30"
+    ],
+    "N": 2,
+    "n": 1,
+    "inclusion_probability": 0.5,
+    "weight": 2.0
+  },
+  {
+    "domain": "primeweld.com",
+    "stratum": [
+      "Home Improvement",
+      "verified",
+      "31-60"
+    ],
+    "N": 3,
+    "n": 1,
+    "inclusion_probability": 0.3333333333333333,
+    "weight": 3.0
+  },
+  {
+    "domain": "fashionnova.com",
+    "stratum": [
+      "Jewelry",
+      "verified",
+      "0-7"
+    ],
+    "N": 10,
+    "n": 1,
+    "inclusion_probability": 0.1,
+    "weight": 10.0
+  },
+  {
+    "domain": "spigen.com",
+    "stratum": [
+      "Jewelry",
+      "verified",
+      "31-60"
+    ],
+    "N": 22,
+    "n": 1,
+    "inclusion_probability": 0.045454545454545456,
+    "weight": 22.0
+  },
+  {
+    "domain": "kinugawaturbo.com",
+    "stratum": [
+      "Kids & Baby",
+      "verified",
+      "0-7"
+    ],
+    "N": 4,
+    "n": 1,
+    "inclusion_probability": 0.25,
+    "weight": 4.0
+  },
+  {
+    "domain": "babysprouts.com",
+    "stratum": [
+      "Kids & Baby",
+      "verified",
+      "31-60"
+    ],
+    "N": 19,
+    "n": 1,
+    "inclusion_probability": 0.05263157894736842,
+    "weight": 19.0
+  },
+  {
+    "domain": "tentree.com",
+    "stratum": [
+      "Other",
+      "discovered",
+      "31-60"
+    ],
+    "N": 5,
+    "n": 1,
+    "inclusion_probability": 0.2,
+    "weight": 5.0
+  },
+  {
+    "domain": "pipol.it",
+    "stratum": [
+      "Other",
+      "rejected",
+      "31-60"
+    ],
+    "N": 4,
+    "n": 1,
+    "inclusion_probability": 0.25,
+    "weight": 4.0
+  },
+  {
+    "domain": "fedfitness.com",
+    "stratum": [
+      "Other",
+      "verified",
+      "0-7"
+    ],
+    "N": 8,
+    "n": 1,
+    "inclusion_probability": 0.125,
+    "weight": 8.0
+  },
+  {
+    "domain": "shoplinenlace.com",
+    "stratum": [
+      "Other",
+      "verified",
+      "31-60"
+    ],
+    "N": 7,
+    "n": 1,
+    "inclusion_probability": 0.14285714285714285,
+    "weight": 7.0
+  },
+  {
+    "domain": "moft.us",
+    "stratum": [
+      "Other",
+      "verified",
+      "8-30"
+    ],
+    "N": 1,
+    "n": 1,
+    "inclusion_probability": 1.0,
+    "weight": 1.0
+  },
+  {
+    "domain": "broadrivermercantile.com",
+    "stratum": [
+      "Outdoors",
+      "verified",
+      "0-7"
+    ],
+    "N": 5,
+    "n": 1,
+    "inclusion_probability": 0.2,
+    "weight": 5.0
+  },
+  {
+    "domain": "benchmarkabrasives.com",
+    "stratum": [
+      "Outdoors",
+      "verified",
+      "31-60"
+    ],
+    "N": 12,
+    "n": 1,
+    "inclusion_probability": 0.08333333333333333,
+    "weight": 12.0
+  },
+  {
+    "domain": "fetchyourpetneeds.ie",
+    "stratum": [
+      "Pets",
+      "verified",
+      "0-7"
+    ],
+    "N": 5,
+    "n": 1,
+    "inclusion_probability": 0.2,
+    "weight": 5.0
+  },
+  {
+    "domain": "kensfish.com",
+    "stratum": [
+      "Pets",
+      "verified",
+      "31-60"
+    ],
+    "N": 19,
+    "n": 1,
+    "inclusion_probability": 0.05263157894736842,
+    "weight": 19.0
+  },
+  {
+    "domain": "modernskate.com",
+    "stratum": [
+      "Sporting Goods",
+      "verified",
+      "0-7"
+    ],
+    "N": 9,
+    "n": 1,
+    "inclusion_probability": 0.1111111111111111,
+    "weight": 9.0
+  },
+  {
+    "domain": "on9bike.com",
+    "stratum": [
+      "Sporting Goods",
+      "verified",
+      "31-60"
+    ],
+    "N": 18,
+    "n": 1,
+    "inclusion_probability": 0.05555555555555555,
+    "weight": 18.0
+  },
+  {
+    "domain": "ultimatesportnutrition.us",
+    "stratum": [
+      "Supplements",
+      "verified",
+      "0-7"
+    ],
+    "N": 1,
+    "n": 1,
+    "inclusion_probability": 1.0,
+    "weight": 1.0
+  },
+  {
+    "domain": "horbaach.com",
+    "stratum": [
+      "Supplements",
+      "verified",
+      "31-60"
+    ],
+    "N": 4,
+    "n": 1,
+    "inclusion_probability": 0.25,
+    "weight": 4.0
+  },
+  {
+    "domain": "warsawwireless.com",
+    "stratum": [
+      "Tech Accessories",
+      "verified",
+      "0-7"
+    ],
+    "N": 1,
+    "n": 1,
+    "inclusion_probability": 1.0,
+    "weight": 1.0
+  },
+  {
+    "domain": "otterbox.com",
+    "stratum": [
+      "Tech Accessories",
+      "verified",
+      "31-60"
+    ],
+    "N": 6,
+    "n": 1,
+    "inclusion_probability": 0.16666666666666666,
+    "weight": 6.0
+  },
+  {
+    "domain": "lpdiecastgarage.com",
+    "stratum": [
+      "Toys & Games",
+      "verified",
+      "0-7"
+    ],
+    "N": 7,
+    "n": 1,
+    "inclusion_probability": 0.14285714285714285,
+    "weight": 7.0
+  },
+  {
+    "domain": "kazkatoys.com",
+    "stratum": [
+      "Toys & Games",
+      "verified",
+      "31-60"
+    ],
+    "N": 26,
+    "n": 1,
+    "inclusion_probability": 0.038461538461538464,
+    "weight": 26.0
+  },
+  {
+    "domain": "unseen-skincare.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "candidate",
+      "missing"
+    ],
+    "N": 1323,
+    "n": 7,
+    "inclusion_probability": 0.005291005291005291,
+    "weight": 189.0
+  },
+  {
+    "domain": "formaggeriavizzavona.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "candidate",
+      "missing"
+    ],
+    "N": 1323,
+    "n": 7,
+    "inclusion_probability": 0.005291005291005291,
+    "weight": 189.0
+  },
+  {
+    "domain": "probikekit.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "candidate",
+      "missing"
+    ],
+    "N": 1323,
+    "n": 7,
+    "inclusion_probability": 0.005291005291005291,
+    "weight": 189.0
+  },
+  {
+    "domain": "yummie.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "candidate",
+      "missing"
+    ],
+    "N": 1323,
+    "n": 7,
+    "inclusion_probability": 0.005291005291005291,
+    "weight": 189.0
+  },
+  {
+    "domain": "paula's-choice.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "candidate",
+      "missing"
+    ],
+    "N": 1323,
+    "n": 7,
+    "inclusion_probability": 0.005291005291005291,
+    "weight": 189.0
+  },
+  {
+    "domain": "aether.run",
+    "stratum": [
+      "UNCLASSIFIED",
+      "candidate",
+      "missing"
+    ],
+    "N": 1323,
+    "n": 7,
+    "inclusion_probability": 0.005291005291005291,
+    "weight": 189.0
+  },
+  {
+    "domain": "besides.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "candidate",
+      "missing"
+    ],
+    "N": 1323,
+    "n": 7,
+    "inclusion_probability": 0.005291005291005291,
+    "weight": 189.0
+  },
+  {
+    "domain": "thesill.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "31-60"
+    ],
+    "N": 5,
+    "n": 1,
+    "inclusion_probability": 0.2,
+    "weight": 5.0
+  },
+  {
+    "domain": "beyondhype.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.savvygreenville.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "flavordistro.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "hondaspareparts.co.uk",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "theindieblue.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "celebralaboutique.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "hstrends.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "us.abrandjeans.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "bontucson.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "rainbowkeyboards.org",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "texasbuildmart.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "chromeindustries.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "borgesandscott.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.theoriginalera.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "thelittlecaterpillar.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.bambibaby.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "hairwebshop.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "americanforestry.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "store.hozier.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.manual-heaven.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "doodlelaneboutique.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "martiandlizboutique.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.wayoutwesttrading.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.hootandco.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "row.nishorama.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "rhinorescuestore.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "serenemerchant.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "gameknightstx.net",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "thesabercompany.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.komusodesign.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "werk91.at",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "lashbase.co.uk",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "ledgrowshop.co.uk",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "shop.mileycyrus.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "kbsportshub.ie",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.hobbykitz.com.au",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "hopscotchgames.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "michaelgabriels.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "bbqland.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "earthboundsheets.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "gotrax.ca",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "shopgaui.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.sportscardsuperstore.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "maxsimracing.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.shoesbruneck.it",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.eliseetmoi.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "tintlab.ca",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.whitlynaquatics.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "headblade.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "strada-shoes.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.pgmetalshop.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "larrimors.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "sportsworldlebanontn.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "juliusk9.ca",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.ledgrowlightsdepot.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "fromwhere.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.edcofinewoods.ca",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "orthobracing.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "baxtersrealm.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "sheecsocks.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "theportalcomicsandgaming.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "browneyedbella.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.animalbiome.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "hugbugshop.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "chito.international",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "imallure.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "medtechkits.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "iamrchobbyshop.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "shop.karstgoods.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "edktactical.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.loopsbeauty.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.cosmicblackcat.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "patchnes.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "iconicimprint.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "frontiernutritionco.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "sound-merch.com.au",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.ctrl-mod.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "laboitemystere.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.lysse.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "mineralfoxgems.myshopify.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "nihobby.jp",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "amishoutletstore.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "sneakervenueva.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "boujiestyleco.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "outlawsandgypsies.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.reneetaylorgallery.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "flawlesslashesbyloreta.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.swindlercompany.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "blu341.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "capitainedabord.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "infinityreefs.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "dreamsvg.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "27augustapparel.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "skycrafthobbies.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.muchachomalo.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "sonarproselectronics.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "doremifa-esme.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "prestigegarment.shop",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "rckitout.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "eminiashop.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.detroitshirt.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "heelys.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.eclectibles.co.uk",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "rideoutsupply.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "colteal.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "miravalshop.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "hypecurrent.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "warriorsociety.shop",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "fitplanetco.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.dentluxe.com.au",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.christcenteredironworks.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "neyer.de",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "toymojistore.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "seanscottboutique.com.au",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "phantomich.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.easy-lightbulbs.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.summersnkrs.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "frikinside.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "britwest.net",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "dawaveessentials.shop",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "ryzon.net",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.allworthyrecords.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.gumbies.co.uk",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "stemcaps.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "blueillusion.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "smirkyevil.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "heightechsafety.com.au",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "amazingpostershop.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.cordeecases.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "phoneshells.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.chefsac.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "intimaly.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "theluckylk.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "artilleriegallerie.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "famazacouture.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "shopriffraff.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "madhouseuk.net",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "basket-connection.fr",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "asphalt-nyc.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "dkali.fr",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.bucklehideleather.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "goldhdq.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "bootsplusmore.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "hifimaxnavi.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "carworkshopmanual.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "beyondthehobby.shop",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "sharkrobot.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "icemanvideogames.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "thefragrancefoundry.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "the-tag.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "magikmuzik.shop",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "dulhansdiary.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.nunaturals.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "solem.ca",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "fitnessfrontiershop.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "seagraves-shop.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.hotshotbrewing.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "m4u.es",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "habesha.fashion",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.puremicronutrients.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.royalsperfume.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.lavaqueritafashion.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "officialstore.shaniatwain.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "reliefband.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "ineffablecoffee.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "tabletopdominion.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "kora-fit.myshopify.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.eandlapparel.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "ebikesupershop.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "dorionworld.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "8fa8e5-10.myshopify.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "tcbgamesandcollectibles.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "samaudiosg.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "www.stokedboardshop.be",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "nfrdesigns.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "discovered",
+      "missing"
+    ],
+    "N": 36078,
+    "n": 175,
+    "inclusion_probability": 0.004850601474582848,
+    "weight": 206.16
+  },
+  {
+    "domain": "rogue-fitness.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "failed",
+      "31-60"
+    ],
+    "N": 61,
+    "n": 1,
+    "inclusion_probability": 0.01639344262295082,
+    "weight": 61.0
+  },
+  {
+    "domain": "dreamclosetbysira.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "rejected",
+      "0-7"
+    ],
+    "N": 3,
+    "n": 1,
+    "inclusion_probability": 0.3333333333333333,
+    "weight": 3.0
+  },
+  {
+    "domain": "yellowstone-home.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "rejected",
+      "31-60"
+    ],
+    "N": 310,
+    "n": 2,
+    "inclusion_probability": 0.0064516129032258064,
+    "weight": 155.0
+  },
+  {
+    "domain": "pixelco.com",
+    "stratum": [
+      "UNCLASSIFIED",
+      "rejected",
+      "31-60"
+    ],
+    "N": 310,
+    "n": 2,
+    "inclusion_probability": 0.0064516129032258064,
+    "weight": 155.0
+  }
+]
