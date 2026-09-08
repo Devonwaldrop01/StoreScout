@@ -77,6 +77,14 @@ It prevented Actions checkout cleanup. The release removes only this stale Git
 index entry, preserving the local directory, and ignores local Claude worktrees
 in Git and Docker packaging. No application source was removed.
 
+The inventory gate also identified previously committed generated PDFs under
+app/outputs. Docker now excludes generated output directories at every depth.
+The approved manifest uses CRLF bytes: a file-specific Git attribute disables
+line-ending normalization so Linux receives its original SHA-256 exactly.
+Both manifest and migration byte digests are enforced before and inside builds.
+Pygments, a transitive runtime dependency of rich, is constrained to the already
+tested 2.21.0 version as well.
+
 ## Remaining production gates
 
 After image success, recheck deployed source/configuration, migration checksum,

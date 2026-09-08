@@ -8,6 +8,8 @@ import subprocess
 import sys
 
 ROOT = Path.cwd()
+assert hashlib.sha256((ROOT / 'config/verification-canary.json').read_bytes()).hexdigest() == '0c30c1e7cbf26ca3b0ab2e8cdb3da6f287e49da329ee4af9681ff83e18b2f103', 'approved manifest bytes changed'
+assert hashlib.sha256((ROOT / 'supabase/migrations/20260905235144_verification_lifecycle.sql').read_bytes()).hexdigest() == '34b93523b69ee2991745ca77f305a82e7b879f641cc9b1c72999d93fdcb187f9', 'reviewed migration bytes changed'
 
 
 def excluded(path):
