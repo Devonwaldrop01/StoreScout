@@ -48,11 +48,13 @@ else:
         r = Requirement(line)
         if r.marker is None or r.marker.evaluate(): constraints[canonicalize_name(r.name)] = r.specifier
     installed = {canonicalize_name(d.metadata['Name']): d.version for d in distributions()}
-    for name, version in installed.items():
-        if name in {'pip', 'setuptools', 'wheel'}: continue
-        assert name in constraints and version in constraints[name], (name, version, 'unreviewed dependency')
+    base = {canonicalize_name(k): v for k, v in json.loads(Path('/opt/storescout-base-packages.json').read_text()).items()}
+    unexpected = {name: version for name, version in installed.items()
+                  if not (name in constraints and version in constraints[name])
+                  and not (name not in constraints and base.get(name) == version)}
+    assert not unexpected, ('unreviewed dependency changes', unexpected)
     for line in Path('requirements.txt').read_text().splitlines():
         if not line or line.startswith('#'): continue
         r = Requirement(line)
         assert installed[canonicalize_name(r.name)] in r.specifier
-    print(json.dumps({'source_sha': expected['sha'], 'verified_files': len(files), 'packages': installed}, indent=2))
+    print(json.dumps({'source_sha': expected['sha'], 'verified_files': len(files), 'packages': installed, 'base_packages': base}, indent=2))

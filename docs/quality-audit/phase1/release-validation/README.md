@@ -85,6 +85,11 @@ Both manifest and migration byte digests are enforced before and inside builds.
 Pygments, a transitive runtime dependency of rich, is constrained to the already
 tested 2.21.0 version as well.
 
+The pinned Playwright base also carries packaging tools such as filelock that
+are not application dependencies. Their versions are captured before pip installs
+anything; the final gate accepts only exact unchanged base versions or an explicit
+release constraint. Unknown added/changed packages still fail the build.
+
 ## Remaining production gates
 
 After image success, recheck deployed source/configuration, migration checksum,

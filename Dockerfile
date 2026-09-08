@@ -5,6 +5,9 @@ FROM mcr.microsoft.com/playwright/python:v1.58.0-noble@sha256:678457c4c323b981d8
 
 WORKDIR /app
 
+# Record packages inherited from the immutable base separately from app deps.
+RUN python -c "import json,importlib.metadata as m; json.dump({d.metadata['Name']:d.version for d in m.distributions()},open('/opt/storescout-base-packages.json','w'),sort_keys=True)"
+
 COPY requirements.txt requirements-release-constraints.txt ./
 RUN pip install --no-cache-dir -r requirements.txt -c requirements-release-constraints.txt
 
