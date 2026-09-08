@@ -82,10 +82,15 @@ class _FakeRedis:
     def set(self, key, _v, nx=False, ex=None):
         if nx and key in self.store:
             return False
-        self.store[key] = "1"
+        self.store[key] = _v
         return True
-    def delete(self, key):
-        self.store.pop(key, None)
+    def eval(self, script, n, key, token, *args):
+        if self.store.get(key) != token:
+            return 0
+        if "'del'" in script:
+            self.store.pop(key, None)
+        return 1
+    def close(self): pass
 
 
 def test_overlapping_run_is_skipped_and_records_nothing(monkeypatch):

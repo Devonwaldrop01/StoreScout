@@ -1,0 +1,360 @@
+{
+  "columns": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": "NO",
+      "default": "gen_random_uuid()"
+    },
+    {
+      "name": "domain",
+      "type": "text",
+      "nullable": "NO",
+      "default": null
+    },
+    {
+      "name": "brand_name",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "homepage_url",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "category",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "subcategory",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "description",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "country",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "language",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "product_count",
+      "type": "integer",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "median_price",
+      "type": "numeric",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "min_price",
+      "type": "numeric",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "max_price",
+      "type": "numeric",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "promo_rate",
+      "type": "numeric",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "collections",
+      "type": "jsonb",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "product_types",
+      "type": "jsonb",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "tags",
+      "type": "jsonb",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "vendors",
+      "type": "jsonb",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "verification_confidence",
+      "type": "integer",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "verification_signals",
+      "type": "jsonb",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "source",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "source_query",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "nullable": "NO",
+      "default": "'candidate'::text"
+    },
+    {
+      "name": "failure_reason",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "last_verified_at",
+      "type": "timestamp with time zone",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "last_light_scanned_at",
+      "type": "timestamp with time zone",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": "YES",
+      "default": "now()"
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "nullable": "YES",
+      "default": "now()"
+    },
+    {
+      "name": "business_stage",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "pricing_tier",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "expanded_at",
+      "type": "timestamp with time zone",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "discovery_source",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "discovered_at",
+      "type": "timestamp with time zone",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "verified_at",
+      "type": "timestamp with time zone",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "knowledge_at",
+      "type": "timestamp with time zone",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "rejection_reason",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "category_confidence",
+      "type": "integer",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "category_evidence",
+      "type": "jsonb",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "price_bands",
+      "type": "jsonb",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "target_customer",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "brand_keywords",
+      "type": "jsonb",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "homepage_message",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "collection_count",
+      "type": "integer",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "related_ready",
+      "type": "boolean",
+      "nullable": "YES",
+      "default": "false"
+    },
+    {
+      "name": "product_titles",
+      "type": "jsonb",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "tech_signals",
+      "type": "jsonb",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "contact_email",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "contact_source",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "sells_wholesale",
+      "type": "boolean",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "multi_market",
+      "type": "boolean",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "store_dna",
+      "type": "jsonb",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "dna_keywords",
+      "type": "jsonb",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "dna_signature",
+      "type": "text",
+      "nullable": "YES",
+      "default": null
+    },
+    {
+      "name": "dna_at",
+      "type": "timestamp with time zone",
+      "nullable": "YES",
+      "default": null
+    }
+  ],
+  "constraints": [
+    "CHECK ((business_stage = ANY (ARRAY['startup'::text, 'growing'::text, 'established'::text, 'enterprise'::text])))",
+    "UNIQUE (domain)",
+    "PRIMARY KEY (id)",
+    "CHECK ((pricing_tier = ANY (ARRAY['budget'::text, 'mid-market'::text, 'premium'::text, 'luxury'::text])))",
+    "CHECK ((status = ANY (ARRAY['discovered'::text, 'candidate'::text, 'verified'::text, 'rejected'::text, 'failed'::text])))"
+  ],
+  "indexes": [
+    "CREATE UNIQUE INDEX shopify_store_index_pkey ON public.shopify_store_index USING btree (id)",
+    "CREATE UNIQUE INDEX shopify_store_index_domain_key ON public.shopify_store_index USING btree (domain)",
+    "CREATE INDEX idx_store_index_domain ON public.shopify_store_index USING btree (domain)",
+    "CREATE INDEX idx_store_index_category ON public.shopify_store_index USING btree (category)",
+    "CREATE INDEX idx_store_index_subcategory ON public.shopify_store_index USING btree (subcategory)",
+    "CREATE INDEX idx_store_index_confidence ON public.shopify_store_index USING btree (verification_confidence)",
+    "CREATE INDEX idx_store_index_status ON public.shopify_store_index USING btree (status)",
+    "CREATE INDEX idx_store_index_last_verified ON public.shopify_store_index USING btree (last_verified_at)",
+    "CREATE INDEX idx_store_index_last_scanned ON public.shopify_store_index USING btree (last_light_scanned_at)",
+    "CREATE INDEX idx_store_index_stage ON public.shopify_store_index USING btree (business_stage)",
+    "CREATE INDEX idx_store_index_tier ON public.shopify_store_index USING btree (pricing_tier)",
+    "CREATE INDEX idx_store_index_expanded ON public.shopify_store_index USING btree (expanded_at)",
+    "CREATE INDEX idx_store_index_cat_conf ON public.shopify_store_index USING btree (category, category_confidence)",
+    "CREATE INDEX idx_store_index_knowledge ON public.shopify_store_index USING btree (knowledge_at)",
+    "CREATE INDEX idx_store_index_disc_src ON public.shopify_store_index USING btree (discovery_source)",
+    "CREATE INDEX idx_store_index_dna_keywords ON public.shopify_store_index USING gin (dna_keywords)",
+    "CREATE INDEX idx_store_index_dna_at ON public.shopify_store_index USING btree (dna_at)"
+  ],
+  "rls": true,
+  "settings_columns": [
+    "key",
+    "value",
+    "updated_at"
+  ]
+}

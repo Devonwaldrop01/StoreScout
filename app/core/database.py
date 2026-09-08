@@ -2,9 +2,10 @@ from __future__ import annotations
 from functools import lru_cache
 from supabase import create_client, Client
 from .config import get_settings
+from .index_hold import GuardedDatabase
 
 
 @lru_cache
 def get_supabase() -> Client:
     s = get_settings()
-    return create_client(s.supabase_url, s.supabase_service_role_key)
+    return GuardedDatabase(create_client(s.supabase_url, s.supabase_service_role_key))

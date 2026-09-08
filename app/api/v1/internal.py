@@ -33,7 +33,7 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
     settings = get_settings()
     db = get_supabase()
 
-    # ── 1. Load competitor from DB ──────────────────────────────────────────
+    # â”€â”€ 1. Load competitor from DB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     logger.info("[SCAN %s] loading competitor from DB", competitor_id)
     try:
         result = db.table("competitors")\
@@ -59,7 +59,7 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
     # Every scheduled check needs a catalog fetch: one product's updated_at
     # cannot tell us whether another product changed.
 
-    # ── 3. Full fetch (memory-capped) ────────────────────────────────────────
+    # â”€â”€ 3. Full fetch (memory-capped) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # Bound the catalog size so peak memory across fetch/normalize/analyze/
     # detect stays under the dyno limit. Huge stores are staged: we take the
     # cap and record that the catalog was truncated for transparency.
@@ -76,7 +76,7 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
     logger.info("[SCAN %s] fetch returned %d raw products", competitor_id, len(raw))
 
     if not raw:
-        logger.error("[SCAN %s] fetch returned empty list for %r — see FETCH logs above for root cause",
+        logger.error("[SCAN %s] fetch returned empty list for %r â€” see FETCH logs above for root cause",
                      competitor_id, store_url)
         _mark_error(db, competitor_id,
             "Could not access this store's catalog. It may use bot protection that blocks automated access. "
@@ -84,7 +84,7 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
         )
         return {"status": "error", "reason": f"No products returned for {store_url}"}
 
-    # ── 4. Normalize ─────────────────────────────────────────────────────────
+    # â”€â”€ 4. Normalize â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     logger.info("[SCAN %s] normalizing %d products", competitor_id, len(raw))
     try:
         normalized = [normalize_product(p, store_url) for p in raw]
@@ -94,7 +94,7 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
         _mark_error(db, competitor_id, f"normalize exception: {exc}")
         return {"status": "error", "reason": f"normalize exception: {exc}"}
 
-    # ── 5. Analyze ───────────────────────────────────────────────────────────
+    # â”€â”€ 5. Analyze â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     logger.info("[SCAN %s] analyzing products", competitor_id)
     try:
         insights = analyze_products(normalized)
@@ -132,7 +132,7 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
         if p.get("handle")
     }
 
-    # ── 5b. Extended scraping (collections, pages, blogs) ───────────────────
+    # â”€â”€ 5b. Extended scraping (collections, pages, blogs) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     store_profile: dict = {}
     try:
         from app.services.fetch import fetch_extended_data
@@ -151,7 +151,7 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
                      competitor_id, exc, traceback.format_exc())
         insights["store_profile"] = {}
 
-    # Stage 1 intelligence — winning products + gap analysis, computed from the
+    # Stage 1 intelligence â€” winning products + gap analysis, computed from the
     # full normalized catalog and stored in the snapshot for tier-gated serving.
     try:
         from app.services.insights import score_winning_products, analyze_gaps
@@ -171,7 +171,7 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
     insights["hostname"] = hostname
     insights["display_name"] = display_name
 
-    # ── 6. Write snapshot ────────────────────────────────────────────────────
+    # â”€â”€ 6. Write snapshot â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     pricing = insights.get("pricing", {})
     discounts = insights.get("discounts", {})
     launch = insights.get("launch_timeline", {})
@@ -195,7 +195,7 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
         _mark_error(db, competitor_id, f"snapshot insert failed: {exc}")
         return {"status": "error", "reason": f"snapshot insert failed: {exc}"}
 
-    # ── 7. Update competitor row ─────────────────────────────────────────────
+    # â”€â”€ 7. Update competitor row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     interval_h = _interval_for_tier(tier, settings)
     try:
         db.table("competitors").update({
@@ -208,13 +208,17 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
         logger.info("[SCAN %s] competitor updated to scan_status=done", competitor_id)
     except Exception as exc:
         logger.error("[SCAN %s] competitor update failed: %s\n%s", competitor_id, exc, traceback.format_exc())
-        # Snapshot is already written — don't fail the whole request over this
+        # Snapshot is already written â€” don't fail the whole request over this
 
-    # ── 8. Feed the store index — every successfully scanned store is a
+    # â”€â”€ 8. Feed the store index â€” every successfully scanned store is a
     # verified Shopify store we already have fresh data for. Zero extra
     # requests; failures here never break the scan.
     try:
+        from app.core.index_hold import require_index_writes
+        require_index_writes()
         from app.services.store_index import upsert_index_row, classify_store, normalize_domain, derive_market_context
+        from app.services.verification_lifecycle import successful_catalog, successful_fields
+        observation = successful_catalog(raw, now, "tracked_scan")
         profile = insights.get("store_profile") or {}
         market = derive_market_context(total_products, pricing.get("median"))
         classification = classify_store(
@@ -237,7 +241,13 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
             "business_stage": market["business_stage"],
             "pricing_tier": market["pricing_tier"],
             "verification_confidence": 100,
-            "verification_signals": ["Actively scanned by StoreScout"],
+            **successful_fields(observation, signals=["Actively scanned by StoreScout"]),
+            # Let the existing knowledge stage derive confidence and DNA from
+            # this successful scan, instead of inheriting an old category score.
+            "knowledge_at": None,
+            "category_confidence": 0,
+            "product_titles": [p.get("title") for p in raw if p.get("title")][:40],
+            "product_types": sorted({p["product_type"] for p in raw if p.get("product_type")})[:15],
             "source": "tracked",
             "last_verified_at": now.isoformat(),
             "last_light_scanned_at": now.isoformat(),
@@ -254,9 +264,11 @@ def internal_scan(competitor_id: str, x_internal_token: str = Header(...)):
 def internal_store_index_process(body: dict, x_internal_token: str = Header(...)):
     """
     Run one domain's index pass (verify + light scan + classify + upsert) on
-    the web service process — worker IPs get blocked, this one doesn't.
+    the web service process â€” worker IPs get blocked, this one doesn't.
     Called by app/tasks/store_index.py.
     """
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     _require_internal(x_internal_token)
     from app.services.store_index import process_domain_into_index
 
@@ -272,6 +284,15 @@ def internal_store_index_process(body: dict, x_internal_token: str = Header(...)
     return result
 
 
+@router.post("/store-index/canary/verify")
+def internal_store_index_canary(body: dict, x_internal_token: str = Header(...)):
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
+    _require_internal(x_internal_token)
+    from app.services.verification_canary import verify_canary
+    return verify_canary(body, get_settings(), get_supabase)
+
+
 @router.post("/store-index/verify")
 def internal_store_index_verify(body: dict, x_internal_token: str = Header(...)):
     """
@@ -280,6 +301,8 @@ def internal_store_index_verify(body: dict, x_internal_token: str = Header(...))
     a strict reason. Runs on the web process (worker IPs get blocked). Called by
     app.tasks.store_index.stage_verification.
     """
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     _require_internal(x_internal_token)
     from app.services.store_index import verify_and_store
 
@@ -301,18 +324,20 @@ def internal_shop_app_page(body: dict, x_internal_token: str = Header(...)):
     Discovery Source #1 fetcher: return a page of candidate Shopify merchant
     domains from the Shop App. This runs on the web process because the worker's
     IP is blocked from outbound fetches. shop.app has no stable public discovery
-    API, so this degrades gracefully — on any failure it returns an empty list
+    API, so this degrades gracefully â€” on any failure it returns an empty list
     and the source holds its cursor (never fabricates domains).
 
     Body: {"cursor": {child, offset}, "limit": int}.
     Returns {"domains": [str], "cursor": {...}, "note": str}.
     """
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     _require_internal(x_internal_token)
     cursor = (body or {}).get("cursor") or {}
     limit = max(1, min(int((body or {}).get("limit") or 30), 50))
 
     result = _shop_app_discover(cursor, limit)
-    logger.info("[SHOP_APP] cursor=%s processed=%s resolved=%s rate_limited=%s → %d domains (%s)",
+    logger.info("[SHOP_APP] cursor=%s processed=%s resolved=%s rate_limited=%s â†’ %d domains (%s)",
                 cursor, result.get("processed"), result.get("resolved"),
                 result.get("rate_limited"), len(result.get("domains", [])), result.get("note") or "ok")
     return {
@@ -330,7 +355,9 @@ def internal_shop_app_page(body: dict, x_internal_token: str = Header(...)):
 @router.post("/shop-app-count")
 def internal_shop_app_count(body: dict, x_internal_token: str = Header(...)):
     """Return how many storefront handles Shop App publishes (the discovery
-    ceiling) — cheap, no per-store fetches. Runs on the web process."""
+    ceiling) â€” cheap, no per-store fetches. Runs on the web process."""
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     _require_internal(x_internal_token)
     return _shop_app_count()
 
@@ -339,16 +366,18 @@ def internal_shop_app_count(body: dict, x_internal_token: str = Header(...)):
 def internal_shop_app_harvest(body: dict, x_internal_token: str = Header(...)):
     """
     Stage 1 (Discovery), cheap + bulk: return a page of raw Shop App refs
-    (shop.app/m/{handle} URLs) straight from the storefronts sitemap — NO
+    (shop.app/m/{handle} URLs) straight from the storefronts sitemap â€” NO
     per-store page fetches, so this scales to thousands per run. Resolution to
     real domains happens separately. Body: {cursor, limit}. Returns
     {refs, cursor, child_total}.
     """
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     _require_internal(x_internal_token)
     cursor = (body or {}).get("cursor") or {}
     limit = max(1, min(int((body or {}).get("limit") or 500), 5000))
     result = _shop_app_harvest(cursor, limit)
-    logger.info("[SHOP_APP_HARVEST] cursor=%s → %d refs (child_total=%s)",
+    logger.info("[SHOP_APP_HARVEST] cursor=%s â†’ %d refs (child_total=%s)",
                 cursor, len(result.get("refs", [])), result.get("child_total"))
     return result
 
@@ -360,6 +389,8 @@ def internal_shop_app_resolve(body: dict, x_internal_token: str = Header(...)):
     store page and return its real merchant domain. Concurrent + 429-backoff.
     Body: {refs: [url]}. Returns {resolved: [{ref, domain}], stats}.
     """
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     _require_internal(x_internal_token)
     from concurrent.futures import ThreadPoolExecutor
     refs = [r for r in ((body or {}).get("refs") or []) if r][:60]
@@ -397,7 +428,7 @@ _SHOP_APP_SKIP = (
 def _shop_app_extract(html: str, limit: int) -> list:
     """Pull candidate merchant storefront hosts from a Shop App HTML payload.
     Shop App is a JS app, but its server response embeds initial state as JSON
-    inside <script> tags — this scans the whole payload (anchors + embedded
+    inside <script> tags â€” this scans the whole payload (anchors + embedded
     JSON) for external hosts, prioritizing explicit merchant-URL keys."""
     import re as _re
     hosts: list = []
@@ -450,7 +481,7 @@ def _shop_app_analyze(html: str) -> dict:
         if len(domain_keys) >= 30:
             break
 
-    # Internal API / Remix data-endpoint hints — how the page loads its data.
+    # Internal API / Remix data-endpoint hints â€” how the page loads its data.
     api_hints = list(dict.fromkeys(
         _re.findall(r'(https?://[a-z0-9.\-]*shop\.app/[^"\'\\ ]*(?:api|graphql|storefront|_data)[^"\'\\ ]*)', txt, _re.I)
         + _re.findall(r'(https?://server\.shop\.app[^"\'\\ ]*)', txt, _re.I)
@@ -466,7 +497,7 @@ def _shop_app_analyze(html: str) -> dict:
 
 def _shop_app_raw_fetch(url: str, timeout: int = 20, follow_done: bool = False) -> dict:
     """Fetch one URL and report status, size, a short text sample, and any
-    external hosts found. Pure diagnostic — used to discover which shop.app
+    external hosts found. Pure diagnostic â€” used to discover which shop.app
     endpoints actually return usable content."""
     from app.services.fetch import IMPERSONATE, _USE_CURL_CFFI, _headers
     status = None
@@ -485,7 +516,7 @@ def _shop_app_raw_fetch(url: str, timeout: int = 20, follow_done: bool = False) 
                 r = client.get(url, headers=_headers(), timeout=timeout)
                 status = r.status_code
                 raw = r.content
-        # Shop App's child sitemaps are gzip FILES (.xml.gz) — decompress when
+        # Shop App's child sitemaps are gzip FILES (.xml.gz) â€” decompress when
         # the URL says .gz or the bytes carry the gzip magic number.
         if raw and (url.endswith(".gz") or raw[:2] == b"\x1f\x8b"):
             import gzip as _gzip
@@ -501,7 +532,7 @@ def _shop_app_raw_fetch(url: str, timeout: int = 20, follow_done: bool = False) 
     # can read the sitemap structure; otherwise a short sample of the shell.
     is_textmap = url.endswith(".txt") or url.endswith(".xml") or "sitemap" in url
     sample_cap = 8000 if is_textmap else 400
-    # Also surface every shop.app/child-sitemap <loc> URL — the map we actually
+    # Also surface every shop.app/child-sitemap <loc> URL â€” the map we actually
     # want to follow (the domain extractor deliberately skips shop.app hosts).
     import re as _re
     all_locs = _re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", text or "", _re.I)
@@ -542,7 +573,7 @@ def _shop_app_raw_fetch(url: str, timeout: int = 20, follow_done: bool = False) 
 
 def _shop_app_probe_battery() -> list:
     """Try a battery of plausible shop.app entry points so the operator can see
-    — in one click — which routes return 200 and which yield merchant domains.
+    â€” in one click â€” which routes return 200 and which yield merchant domains.
     robots.txt/sitemaps are the reliable way to enumerate valid pages."""
     candidates = [
         "https://shop.app/robots.txt",
@@ -558,6 +589,8 @@ _STOREFRONTS_INDEX = "https://shop.app/cdn/shopifycloud/shop-web/sitemaps/storef
 
 def _shop_app_get(url: str, timeout: int = 20):
     """Fetch a URL, decompress .gz, return (status, text). ('' on any error.)"""
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     from app.services.fetch import IMPERSONATE, _USE_CURL_CFFI, _headers
     try:
         if _USE_CURL_CFFI:
@@ -629,7 +662,7 @@ def _shop_app_children() -> tuple:
 
 
 def _shop_app_count() -> dict:
-    """Count every storefront handle Shop App publishes — the discovery ceiling.
+    """Count every storefront handle Shop App publishes â€” the discovery ceiling.
     Cheap: 10-ish gzipped sitemaps, no per-store page fetches."""
     import re as _re
     children, idx_status = _shop_app_children()
@@ -648,7 +681,7 @@ def _shop_app_count() -> dict:
 def _shop_app_harvest(cursor: dict, limit: int) -> dict:
     """Cheap bulk harvest: read one child sitemap and return a page of
     shop.app/m/{handle} refs, advancing a {child, offset} cursor. No per-store
-    fetches — this is how discovery scales to the full ceiling fast."""
+    fetches â€” this is how discovery scales to the full ceiling fast."""
     import re as _re
     cursor = cursor or {}
     child_i = int(cursor.get("child", 0))
@@ -677,7 +710,7 @@ def _shop_app_harvest(cursor: dict, limit: int) -> dict:
 def _shop_app_discover(cursor: dict, limit: int) -> dict:
     """
     Resumable Shop App discovery. Walks the storefronts sitemap:
-      index → child .xml.gz → shop.app/m/{handle} pages → resolve real domain.
+      index â†’ child .xml.gz â†’ shop.app/m/{handle} pages â†’ resolve real domain.
     The cursor {child, offset} remembers exactly where it stopped, so each run
     continues over time and never rediscovers. Resolves a batch concurrently
     (bounded pool) with a 429 backoff so it moves faster without bursting.
@@ -735,7 +768,7 @@ def _shop_app_discover(cursor: dict, limit: int) -> dict:
 def internal_reddit_search(body: dict, x_internal_token: str = Header(...)):
     """
     Search Reddit's public JSON for intent phrases across channels (runs on the
-    web process — worker IPs are blocked). Returns normalized posts. Reddit
+    web process â€” worker IPs are blocked). Returns normalized posts. Reddit
     requires a descriptive User-Agent and rate-limits, so this is polite.
     Body: {channels: [str], queries: [str], limit: int}. Returns {posts: [...]}.
     """
@@ -769,7 +802,7 @@ def internal_reddit_search(body: dict, x_internal_token: str = Header(...)):
         for q in queries[:10]:
             url = f"https://www.reddit.com/r/{ch}/search.json?q={quote_plus(q)}&restrict_sr=1&sort=new&t=year&limit={limit}"
             data = _get(url)
-            _time.sleep(1.0)  # polite — Reddit rate-limits
+            _time.sleep(1.0)  # polite â€” Reddit rate-limits
             if not data:
                 continue
             for child in (data.get("data", {}).get("children") or []):

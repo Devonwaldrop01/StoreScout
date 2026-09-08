@@ -1,0 +1,30 @@
+name: Isolated StoreScout release image
+on:
+  push:
+    branches: [codex/release-validation-2026-09-08]
+permissions:
+  contents: read
+concurrency:
+  group: storescout-isolated-release-image
+  cancel-in-progress: false
+jobs:
+  image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - name: Build and validate exact release image without production credentials
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+        run: bash scripts/validate_release_image.sh
+      - name: Preserve validation evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-validation-${{ github.sha }}
+          path: ${{ runner.temp }}/release-evidence/
+          if-no-files-found: error
+          retention-days: 14

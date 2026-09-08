@@ -46,7 +46,12 @@ def test_redact_helper_scrubs_and_truncates():
     assert len(redact("x" * 5000)) <= 300
 
 
-def test_summary_bounded_and_newest_first():
+def test_summary_bounded_and_newest_first(monkeypatch):
+    # Windows may give two immediate calls the same wall-clock timestamp.
+    # This test concerns distinct-time ordering, not OS clock resolution.
+    from types import SimpleNamespace
+    ticks = iter([1000.0, 1001.0])
+    monkeypatch.setattr(obs, "time", SimpleNamespace(time=lambda: next(ticks), monotonic=lambda: 0.0))
     _clear()
     report_error("test.a", ValueError("1"))
     report_error("test.b", ValueError("2"))

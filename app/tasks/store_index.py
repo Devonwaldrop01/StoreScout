@@ -2,15 +2,15 @@
 Background Shopify store index worker.
 
 Continuously discovers, verifies, lightly scans, classifies, and stores
-Shopify stores into shopify_store_index — StoreScout's compounding
+Shopify stores into shopify_store_index â€” StoreScout's compounding
 proprietary store database. Deliberately polite and cheap:
 
-  · disabled by default (SHOPIFY_INDEX_ENABLED)
-  · daily candidate cap (SHOPIFY_INDEX_DAILY_CANDIDATE_LIMIT)
-  · domains are processed once; verified rows re-checked on a 60-day
-    cycle capped at 10/day — nothing gets hammered repeatedly
-  · ≤4 requests per domain, low thread concurrency, retries with backoff
-  · fetches run on the WEB process via /internal/store-index/process
+  Â· disabled by default (SHOPIFY_INDEX_ENABLED)
+  Â· daily candidate cap (SHOPIFY_INDEX_DAILY_CANDIDATE_LIMIT)
+  Â· domains are processed once; verified rows re-checked on a 60-day
+    cycle capped at 10/day â€” nothing gets hammered repeatedly
+  Â· â‰¤4 requests per domain, low thread concurrency, retries with backoff
+  Â· fetches run on the WEB process via /internal/store-index/process
     (same IP-reputation pattern as the tracked-competitor scanner)
 
 Tracked competitors are never touched by this worker.
@@ -26,6 +26,7 @@ from typing import List, Optional
 import httpx
 
 from .celery_app import celery
+from .index_hold import IndexTask
 from app.core.config import get_settings
 from app.core.database import get_supabase
 from app.services.scheduler_status import scheduled_index_task
@@ -38,57 +39,52 @@ _REVERIFY_DAILY_CAP = 10
 
 
 def _process_via_web(domain: str, source: str, source_query: Optional[str]) -> dict:
-    """Run one domain's index pass on the web service (worker IPs get blocked)."""
-    settings = get_settings()
-    url = f"{settings.api_internal_url}/api/v1/internal/store-index/process"
-    payload = {"domain": domain, "source": source, "source_query": source_query}
-    headers = {"x-internal-token": settings.internal_secret}
-
-    for attempt in range(2):  # 1 retry with backoff
-        try:
-            resp = httpx.post(url, json=payload, headers=headers, timeout=60.0)
-            if resp.status_code == 200:
-                return resp.json()
-            logger.warning("store-index process %s returned HTTP %d", domain, resp.status_code)
-        except Exception as exc:
-            logger.warning("store-index process %s failed (attempt %d): %s", domain, attempt + 1, exc)
-        if attempt == 0:
-            time.sleep(5)
-    return {"domain": domain, "outcome": "failed", "confidence": 0}
+    from app.services.verification_delivery import verify_via_web
+    return verify_via_web(domain, source, source_query, endpoint="process")
 
 
 def _verify_via_web(domain: str, source: str, source_query: Optional[str]) -> dict:
-    """Run one domain's Stage-2 verification pass on the web service (worker
-    IPs get blocked from outbound storefront fetches)."""
+    from app.services.verification_delivery import verify_via_web
+    return verify_via_web(domain, source, source_query)
+
+
+@celery.task(base=IndexTask, name="app.tasks.store_index.verification_canary_wave")
+def verification_canary_wave(wave: str = "sentinel") -> dict:
+    """Manual only. No Beat entry, implicit arming, acquisition or paid AI."""
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
+    import asyncio
+    import json
+    from app.services.verification_canary import load_manifest
+    from app.services.verification_delivery import deliver
     settings = get_settings()
-    url = f"{settings.api_internal_url}/api/v1/internal/store-index/verify"
-    payload = {"domain": domain, "source": source, "source_query": source_query}
-    headers = {"x-internal-token": settings.internal_secret}
-    for attempt in range(2):
-        try:
-            resp = httpx.post(url, json=payload, headers=headers, timeout=60.0)
-            if resp.status_code == 200:
-                return resp.json()
-            logger.warning("store-index verify %s returned HTTP %d", domain, resp.status_code)
-        except Exception as exc:
-            logger.warning("store-index verify %s failed (attempt %d): %s", domain, attempt + 1, exc)
-        if attempt == 0:
-            time.sleep(5)
-    return {"domain": domain, "outcome": "failed", "reason": "web_unreachable"}
+    if not settings.store_index_canary_enabled:
+        return {"status": "disabled"}
+    if wave not in {"sentinel", "remaining"}:
+        raise ValueError("invalid canary wave")
+    manifest, digest = load_manifest(settings)
+    entries = manifest["stores"][:3] if wave == "sentinel" else manifest["stores"][3:]
+    results = []
+    for entry in entries:
+        result = asyncio.run(deliver(
+            f"{settings.api_internal_url}/api/v1/internal/store-index/canary/verify",
+            {"domain": entry["domain"], "manifest_sha256": digest},
+            {"x-internal-token": settings.internal_secret},
+        ))
+        results.append(result)
+        logger.info("[CANARY] %s", json.dumps(result))
+        if result.get("reason") == "web_unreachable" or result.get("canary_state") != "ready":
+            break
+    return {"status": "stopped", "wave": wave, "results": results}
 
 
-# ── Stage 1: DISCOVERY ──────────────────────────────────────────────────────
-# Pluggable sources surface candidate domains only. Nothing is verified,
-# classified, or scanned here. Each source resumes from a persisted cursor so
-# the crawl continues over time and never rediscovers the same store.
-
-@celery.task(name="app.tasks.store_index.stage_discovery")
+@celery.task(base=IndexTask, name="app.tasks.store_index.stage_discovery")
 @scheduled_index_task("stage_discovery")
 def stage_discovery(limit_override: Optional[int] = None, force: bool = False) -> dict:
     """
     Stage 1. Cheap + bulk. For sources that yield raw refs needing resolution
     (Shop App), harvest thousands of refs straight into the discovery_queue with
-    NO per-store fetches — this is what lets the discovered universe scale to
+    NO per-store fetches â€” this is what lets the discovered universe scale to
     100k+. For sources that already yield real domains, insert them straight
     into shopify_store_index as 'discovered'. Resumable per-source cursor.
     """
@@ -123,7 +119,7 @@ def stage_discovery(limit_override: Optional[int] = None, force: bool = False) -
 
         added = 0
         if getattr(source, "needs_resolution", False):
-            # ── Bulk harvest raw refs into the discovery_queue (cheap) ──
+            # â”€â”€ Bulk harvest raw refs into the discovery_queue (cheap) â”€â”€
             try:
                 refs, next_cursor = source.harvest(cursor, harvest_batch)
             except Exception as exc:
@@ -142,7 +138,7 @@ def stage_discovery(limit_override: Optional[int] = None, force: bool = False) -
                     logger.warning("discovery_queue insert (%s) failed: %s", source.name, exc)
             totals["queued"] += added
         else:
-            # ── Source yields real domains → straight to index 'discovered' ──
+            # â”€â”€ Source yields real domains â†’ straight to index 'discovered' â”€â”€
             try:
                 domains, next_cursor = source.fetch(cursor, harvest_batch)
             except Exception as exc:
@@ -181,12 +177,12 @@ def stage_discovery(limit_override: Optional[int] = None, force: bool = False) -
     return {"status": "ok", **totals, "by_source": by_source}
 
 
-# ── Stage 1.5: RESOLUTION ───────────────────────────────────────────────────
+# â”€â”€ Stage 1.5: RESOLUTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Turn queued raw refs (shop.app/m/{handle}) into real merchant domains and
 # promote them into the index as 'discovered'. This is the rate-limited step,
 # isolated from cheap discovery and paced so it never bursts.
 
-@celery.task(name="app.tasks.store_index.stage_resolution")
+@celery.task(base=IndexTask, name="app.tasks.store_index.stage_resolution")
 @scheduled_index_task("stage_resolution")
 def stage_resolution(limit_override: Optional[int] = None, force: bool = False) -> dict:
     from app.services.runtime_config import get_config
@@ -270,20 +266,21 @@ def stage_resolution(limit_override: Optional[int] = None, force: bool = False) 
                 pass
 
     new_count = len([d for d in domains if d not in seen])
-    logger.info("stage_resolution: %d/%d refs resolved → %d new index rows (rate_limited=%s)",
+    logger.info("stage_resolution: %d/%d refs resolved â†’ %d new index rows (rate_limited=%s)",
                 promoted, len(pending), new_count, stats.get("rate_limited"))
     return {"status": "ok", "processed": len(pending), "resolved": promoted,
             "new_domains": new_count, "rate_limited": stats.get("rate_limited"),
             "no_domain": stats.get("no_domain")}
 
 
-# ── Stage 2: VERIFICATION ───────────────────────────────────────────────────
+# â”€â”€ Stage 2: VERIFICATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Turn DISCOVERED domains into VERIFIED or REJECTED (with a reason). Fetches
 # run on the web process. Chunked so the shared worker stays within memory.
 
-@celery.task(name="app.tasks.store_index.stage_verification")
+@celery.task(base=IndexTask, name="app.tasks.store_index.stage_verification")
 @scheduled_index_task("stage_verification")
 def stage_verification(limit_override: Optional[int] = None, force: bool = False) -> dict:
+    from app.services.verification_lifecycle import plan_verification, RENEW_AFTER, timestamp
     from app.services.runtime_config import get_config
     settings = get_settings()
     if not get_config("shopify_index_enabled", settings.shopify_index_enabled) and not force:
@@ -294,16 +291,22 @@ def stage_verification(limit_override: Optional[int] = None, force: bool = False
         "shopify_index_verify_batch", settings.shopify_index_verify_batch), 200))
     concurrency = max(1, min(settings.shopify_index_concurrency, 4))
 
+    now = datetime.now(timezone.utc)
     try:
-        # Drain BOTH shop.app-resolved rows ('discovered') AND niche/related/
-        # demand-generated candidates ('candidate') — otherwise the breadth
-        # sources never get verified and the index can't cover diverse niches.
-        res = db.table("shopify_store_index")\
-            .select("domain, source, source_query")\
-            .in_("status", ["discovered", "candidate"])\
-            .order("created_at")\
-            .limit(batch).execute()
-        rows = res.data or []
+        rows = []
+        # Reserve supply from every lifecycle lane. No category/confidence
+        # filter: unclassified rows must make progress as well.
+        for statuses in (["discovered"], ["candidate"], ["failed", "rejected"], ["verified"]):
+            q = db.table("shopify_store_index").select(
+                "domain, source, source_query, status, created_at, updated_at, last_verified_at, "
+                "next_verification_at, last_attempted_at, verification_attempts, catalog_observation"
+            ).in_("status", statuses)
+            if statuses == ["verified"]:
+                q = q.or_(f"next_verification_at.lte.{now.isoformat()},and(next_verification_at.is.null,last_verified_at.lte.{(now - RENEW_AFTER).isoformat()}),and(next_verification_at.is.null,last_verified_at.is.null)")
+            else:
+                q = q.or_(f"next_verification_at.is.null,next_verification_at.lte.{now.isoformat()}")
+            rows.extend(q.order("next_verification_at", nullsfirst=True).order("created_at").order("domain").limit(batch).execute().data or [])
+        rows = plan_verification(rows, now, batch)
     except Exception as exc:
         logger.error("stage_verification: discovered/candidate fetch failed: %s", exc)
         return {"status": "error", "verified": 0}
@@ -312,8 +315,20 @@ def stage_verification(limit_override: Optional[int] = None, force: bool = False
         return {"status": "ok", "processed": 0, "verified": 0, "rejected": 0,
                 "failed": 0, "reverified": 0, "note": "queue_empty"}
 
-    work = [{**r, "domain": normalize_domain(r["domain"])} for r in rows]
-    counts = {"verified": 0, "rejected": 0, "failed": 0}
+    from app.services.index_lease import current_lease
+    lease = current_lease.get()
+
+    def dispatch(row):
+        # ContextVars are not inherited by executor threads: capture explicitly.
+        if lease is not None:
+            lease.require()
+        return _verify_via_web(row["domain"], row.get("source") or "unknown", row.get("source_query"))
+
+    work = rows
+    counts = {"verified": 0, "rejected": 0, "failed": 0, "reverified": 0, "skipped": 0}
+    successful_catalogs = 0
+    storefront_attempts = 0
+    delivery_unknown = 0
     reasons: dict = {}
     # Chunk the batch so the worker never holds too many results at once.
     chunk = max(concurrency * 5, 10)
@@ -321,29 +336,49 @@ def stage_verification(limit_override: Optional[int] = None, force: bool = False
         part = work[i:i + chunk]
         with ThreadPoolExecutor(max_workers=concurrency) as pool:
             results = list(pool.map(
-                lambda w: _verify_via_web(w["domain"], w.get("source") or "unknown", w.get("source_query")),
+                dispatch,
                 part,
             ))
-        for r in results:
+        for row, r in zip(part, results):
+            if r.get("reason") == "web_unreachable":
+                delivery_unknown += 1
+                # Delivery failure isn't a storefront attempt. CAS prevents an
+                # ambiguous HTTP timeout from undoing a successful web write.
+                q = db.table("shopify_store_index").update({
+                    "next_verification_at": (now + timedelta(hours=1)).isoformat(),
+                    "updated_at": now.isoformat(),
+                }).eq("domain", row["domain"])
+                q = q.eq("updated_at", row["updated_at"]) if row.get("updated_at") else q.is_("updated_at", "null")
+                q.execute()
             outcome = r.get("outcome", "failed")
+            if outcome == "verified" and r.get("reverified"):
+                outcome = "reverified"
             counts[outcome] = counts.get(outcome, 0) + 1
-            if outcome == "rejected" and r.get("reason"):
+            successful_catalogs += r.get("successful_catalogs", int(outcome in {"verified", "reverified"}))
+            storefront_attempts += bool(r.get("attempted"))
+            if r.get("reason"):
                 reasons[r["reason"]] = reasons.get(r["reason"], 0) + 1
 
-    logger.info("stage_verification: %d attempted → %d verified, %d rejected, %d failed %s",
+    logger.info("stage_verification: %d attempted â†’ %d verified, %d rejected, %d failed %s",
                 len(work), counts["verified"], counts["rejected"], counts["failed"], reasons)
-    # processed = unique candidates ATTEMPTED (every 'discovered' row gets exactly
-    # one terminal outcome). reverified is 0: this stage only reads 'discovered',
-    # so every verify here is a first-time verification.
-    return {"status": "ok", "processed": len(work), "reverified": 0,
-            **counts, "rejection_reasons": reasons}
+    # Keep renewals separate from first successful verifications; HTTP delivery
+    # failures are not confirmed storefront attempts.
+    return {"status": "ok", "processed": len(work) - counts["skipped"],
+            **counts, "rejection_reasons": reasons, "attempt_reasons": reasons,
+            "successful_catalogs": successful_catalogs,
+            "confirmed_storefront_attempts": storefront_attempts,
+            "delivery_outcome_unknown": delivery_unknown,
+            "oldest_queue_age_days": max(((now - timestamp(r["created_at"])).total_seconds() / 86400
+                                            for r in work if timestamp(r.get("created_at"))), default=0),
+            "selected_by_status": {s: sum(r.get("status") == s for r in work)
+                                   for s in {r.get("status") for r in work}}}
 
 
-# ── Stage 3: KNOWLEDGE ──────────────────────────────────────────────────────
-# Runs ONLY on verified stores and ONLY on their stored signals — no network.
+# â”€â”€ Stage 3: KNOWLEDGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Runs ONLY on verified stores and ONLY on their stored signals â€” no network.
 # Because there is no storefront fetch, it runs directly in the worker.
 
-@celery.task(name="app.tasks.store_index.stage_knowledge")
+@celery.task(base=IndexTask, name="app.tasks.store_index.stage_knowledge")
 @scheduled_index_task("stage_knowledge")
 def stage_knowledge(limit_override: Optional[int] = None, force: bool = False) -> dict:
     from app.services.runtime_config import get_config
@@ -355,14 +390,14 @@ def stage_knowledge(limit_override: Optional[int] = None, force: bool = False) -
     batch = max(1, min(limit_override or get_config(
         "shopify_index_knowledge_batch", settings.shopify_index_knowledge_batch), 300))
 
-    _full_cols = ("domain, brand_name, homepage_message, description, product_types, "
+    _full_cols = ("domain, category, subcategory, category_confidence, category_evidence, brand_keywords, target_customer, store_dna, dna_keywords, dna_signature, dna_at, brand_name, homepage_message, description, product_types, "
                   "product_titles, tags, collections, pricing_tier, product_count, "
-                  "median_price, min_price, max_price, price_bands")
-    # product_titles (016) may lag behind 015 — fall back to a select without it
+                  "median_price, min_price, max_price, price_bands, catalog_observation")
+    # product_titles (016) may lag behind 015 â€” fall back to a select without it
     # so knowledge still runs (it just loses the product-title signal).
-    _fallback_cols = ("domain, brand_name, homepage_message, description, product_types, "
+    _fallback_cols = ("domain, category, subcategory, category_confidence, category_evidence, brand_keywords, target_customer, store_dna, dna_keywords, dna_signature, dna_at, brand_name, homepage_message, description, product_types, "
                       "tags, collections, pricing_tier, product_count, "
-                      "median_price, min_price, max_price, price_bands")
+                      "median_price, min_price, max_price, price_bands, catalog_observation")
     rows = []
     for cols in (_full_cols, _fallback_cols):
         try:
@@ -370,13 +405,14 @@ def stage_knowledge(limit_override: Optional[int] = None, force: bool = False) -
                 .select(cols)\
                 .eq("status", "verified")\
                 .is_("knowledge_at", "null")\
+                .or_("catalog_observation->>classification_retry_at.is.null,catalog_observation->>classification_retry_at.lte." + datetime.now(timezone.utc).isoformat())\
                 .order("verified_at")\
                 .limit(batch).execute()
             rows = res.data or []
             break
         except Exception as exc:
             if cols is _full_cols:
-                logger.warning("stage_knowledge: full select failed (%s) — retrying without product_titles", exc)
+                logger.warning("stage_knowledge: full select failed (%s) â€” retrying without product_titles", exc)
                 continue
             logger.error("stage_knowledge: verified fetch failed (apply migration 015): %s", exc)
             return {"status": "error", "classified": 0}
@@ -390,23 +426,27 @@ def stage_knowledge(limit_override: Optional[int] = None, force: bool = False) -
     for row in rows:
         try:
             out = run_knowledge(db, row)
+            if out.get("status") == "superseded":
+                continue
             classified += 1
             if (out.get("confidence") or 0) < cat_min:
                 low_conf += 1
         except Exception as exc:
             logger.warning("stage_knowledge: %s failed: %s", row.get("domain"), exc)
 
-    logger.info("stage_knowledge: %d attempted → %d classified (%d below category threshold)",
+    logger.info("stage_knowledge: %d attempted â†’ %d classified (%d below category threshold)",
                 len(rows), classified, low_conf)
     # processed = rows attempted; classified = those that produced a category.
     return {"status": "ok", "processed": len(rows), "classified": classified,
             "below_threshold": low_conf}
 
 
-@celery.task(name="app.tasks.store_index.generate_niche_candidates")
+@celery.task(base=IndexTask, name="app.tasks.store_index.generate_niche_candidates")
 def generate_niche_candidates(query: str, target: int = 20) -> dict:
-    """Ask Haiku for ~20 DTC brand domains in a niche (platform-agnostic —
+    """Ask Haiku for ~20 DTC brand domains in a niche (platform-agnostic â€”
     verification is OUR job) and insert unseen ones as candidates."""
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     import json as _json
     import anthropic
 
@@ -415,7 +455,7 @@ def generate_niche_candidates(query: str, target: int = 20) -> dict:
         return {"status": "no_api_key", "inserted": 0}
 
     db = get_supabase()
-    # StoreScout users compete against niche and growing brands, not Nike —
+    # StoreScout users compete against niche and growing brands, not Nike â€”
     # the index must represent the REAL Shopify ecosystem, so the generator
     # deliberately skews toward underdogs and category specialists.
     prompt = f"""You are mapping the DTC ecommerce landscape.
@@ -427,9 +467,9 @@ Return ONLY valid JSON, no markdown fences:
 
 Rules:
 - domain must be the brand's own storefront domain (never marketplaces, social pages, or retailers like Amazon/Walmart/Target)
-- STRONGLY favor niche, emerging, fast-growing, and mid-size independent brands — at most 3 household names in the whole list
+- STRONGLY favor niche, emerging, fast-growing, and mid-size independent brands â€” at most 3 household names in the whole list
 - Include category specialists and underdogs a small store owner actually competes against
-- Ignore what ecommerce platform they use — that is verified separately"""
+- Ignore what ecommerce platform they use â€” that is verified separately"""
 
     try:
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
@@ -483,7 +523,7 @@ Rules:
     return {"status": "ok", "inserted": inserted, "suggested": len(domains)}
 
 
-@celery.task(name="app.tasks.store_index.generate_related_candidates")
+@celery.task(base=IndexTask, name="app.tasks.store_index.generate_related_candidates")
 def generate_related_candidates(domain: str, brand_name: str = "", category: str = "", description: str = "", target: int = 12) -> dict:
     """
     Graph expansion: every verified store becomes a seed for discovering the
@@ -491,6 +531,8 @@ def generate_related_candidates(domain: str, brand_name: str = "", category: str
     insert unseen ones as candidates. The seed store's expanded_at is stamped
     so each store is expanded exactly once.
     """
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     import json as _json
     import anthropic
 
@@ -500,20 +542,20 @@ def generate_related_candidates(domain: str, brand_name: str = "", category: str
 
     db = get_supabase()
     who = brand_name or domain
-    context = " · ".join(x for x in [category, (description or "")[:120]] if x)
+    context = " Â· ".join(x for x in [category, (description or "")[:120]] if x)
     prompt = f"""You are mapping the competitive neighborhood of a DTC ecommerce brand.
 
-Brand: {who} ({domain}){f" — {context}" if context else ""}
+Brand: {who} ({domain}){f" â€” {context}" if context else ""}
 
-List {target} brands whose customers would ALSO consider {who} — direct competitors and close peers.
+List {target} brands whose customers would ALSO consider {who} â€” direct competitors and close peers.
 
 Return ONLY valid JSON, no markdown fences:
 {{"stores": [{{"domain": "example-brand.com", "name": "Example Brand"}}, ...]}}
 
 Rules:
 - domain must be each brand's own storefront domain (never marketplaces or retailers)
-- Prefer brands of a SIMILAR size and stage to {who} — peers first, giants last, at most 2 household names
-- Ignore what ecommerce platform they use — that is verified separately"""
+- Prefer brands of a SIMILAR size and stage to {who} â€” peers first, giants last, at most 2 household names
+- Ignore what ecommerce platform they use â€” that is verified separately"""
 
     inserted = 0
     try:
@@ -549,7 +591,7 @@ Rules:
         logger.error("generate_related_candidates(%s) failed: %s", domain, exc)
         return {"status": "error", "inserted": 0}
     finally:
-        # Stamp even on failure — a store that errors during expansion should
+        # Stamp even on failure â€” a store that errors during expansion should
         # not be retried every single day (guarded: column may not exist yet).
         try:
             db.table("shopify_store_index").update(
@@ -562,11 +604,11 @@ Rules:
     return {"status": "ok", "inserted": inserted}
 
 
-@celery.task(name="app.tasks.store_index.generate_candidates_rotating")
+@celery.task(base=IndexTask, name="app.tasks.store_index.generate_candidates_rotating")
 @scheduled_index_task("stage_candidates")
 def generate_candidates_rotating(limit_override: Optional[int] = None, force: bool = False) -> dict:
     """Proactively grow index BREADTH so it can cover almost any niche a user
-    describes. Each run advances a cursor through the full niche list (≈90
+    describes. Each run advances a cursor through the full niche list (â‰ˆ90
     taxonomy niches + seeds) and generates candidates for the next few, plus a
     couple of graph expansions off recently-verified stores. Candidates land as
     'candidate' and are drained by stage_verification. Gated + single-flight
@@ -601,7 +643,7 @@ def generate_candidates_rotating(limit_override: Optional[int] = None, force: bo
         except Exception as exc:
             logger.warning("generate_candidates_rotating: %r failed: %s", q, exc)
 
-    # A little graph expansion too — peers of the freshest verified stores.
+    # A little graph expansion too â€” peers of the freshest verified stores.
     try:
         db = get_supabase()
         recent = db.table("shopify_store_index")\
@@ -620,10 +662,10 @@ def generate_candidates_rotating(limit_override: Optional[int] = None, force: bo
     return {"status": "ok", "processed": inserted, "discovered": inserted, "niches": used}
 
 
-@celery.task(name="app.tasks.store_index.discover_shopify_stores_daily")
+@celery.task(base=IndexTask, name="app.tasks.store_index.discover_shopify_stores_daily")
 def discover_shopify_stores_daily(limit_override: Optional[int] = None, force: bool = False) -> dict:
     """
-    Daily indexing run, optimized for NEW VERIFIED stores — not candidates
+    Daily indexing run, optimized for NEW VERIFIED stores â€” not candidates
     processed. Works in small batches until the verified target is hit or the
     request budget runs out, topping up candidates graph-first (related-brand
     expansion of already-verified stores) and then via niche rotation.
@@ -631,21 +673,23 @@ def discover_shopify_stores_daily(limit_override: Optional[int] = None, force: b
     `force=True` is the admin test-run path: it bypasses the enabled flag and
     treats limit_override as both target and budget (a bounded small run).
     """
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     settings = get_settings()
     from app.services.runtime_config import get_config
     if not get_config("shopify_index_enabled", settings.shopify_index_enabled) and not force:
-        logger.info("store index disabled (toggle off) — skipping run")
+        logger.info("store index disabled (toggle off) â€” skipping run")
         return {"status": "disabled"}
 
-    # Distributed lock — same pattern as enqueue_due_scans
+    # Distributed lock â€” same pattern as enqueue_due_scans
     try:
         import redis as redis_lib
         _r = redis_lib.from_url(settings.redis_url, socket_connect_timeout=2)
         if not _r.set("lock:store_index_daily", "1", nx=True, ex=3600):
-            logger.info("store index run already in progress — skipping")
+            logger.info("store index run already in progress â€” skipping")
             return {"status": "skipped_lock"}
     except Exception as exc:
-        logger.warning("store index: Redis unavailable (%s) — running without lock", exc)
+        logger.warning("store index: Redis unavailable (%s) â€” running without lock", exc)
         _r = None
 
     db = get_supabase()
@@ -694,7 +738,7 @@ def discover_shopify_stores_daily(limit_override: Optional[int] = None, force: b
 
     def _top_up() -> bool:
         """Generate more candidates. Graph expansion first (peers of already-
-        verified stores — this is what compounds the ecosystem coverage),
+        verified stores â€” this is what compounds the ecosystem coverage),
         then niche-query rotation. Returns True if anything new landed."""
         # Related-brand expansion: up to 3 unexpanded verified stores per top-up
         if topups_used["expansion"] < 3:
@@ -747,17 +791,17 @@ def discover_shopify_stores_daily(limit_override: Optional[int] = None, force: b
             done_domains.add(w["domain"])
         processed += len(batch)
 
-    # ── Main loop: batches until verified target hit or budget spent ──────
+    # â”€â”€ Main loop: batches until verified target hit or budget spent â”€â”€â”€â”€â”€â”€
     while counts["verified"] < verified_target and processed < budget:
         batch = _fetch_candidates(min(batch_size, budget - processed))
         if not batch:
             if not _top_up():
-                logger.info("store index: candidate sources dry — stopping at %d verified", counts["verified"])
+                logger.info("store index: candidate sources dry â€” stopping at %d verified", counts["verified"])
                 break
             continue
         _process_batch(batch)
 
-    # ── Re-verification: small daily slice of stale verified rows ─────────
+    # â”€â”€ Re-verification: small daily slice of stale verified rows â”€â”€â”€â”€â”€â”€â”€â”€â”€
     new_verified = counts.get("verified", 0)  # snapshot before re-verify so
     # refreshing old rows doesn't inflate the new-verified number
     reverify_count = 0
@@ -807,7 +851,7 @@ def discover_shopify_stores_daily(limit_override: Optional[int] = None, force: b
     except Exception as exc:
         logger.debug("store index: run-history insert skipped (%s)", exc)
     logger.info(
-        "store index run: %(processed)d processed — %(verified)d verified, "
+        "store index run: %(processed)d processed â€” %(verified)d verified, "
         "%(rejected)d rejected, %(failed)d failed, %(skipped_duplicates)d dup-skipped, "
         "%(reverified)d re-verified", summary,
     )

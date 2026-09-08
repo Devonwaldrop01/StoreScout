@@ -30,12 +30,15 @@ class _FakeQuery:
     def select(self, *_a, **_k): return self
     def eq(self, *_a, **_k): return self
     def in_(self, col, vals):
-        self._c["status_filter"] = (col, list(vals)); return self
+        self._c.setdefault("status_filters", []).extend(vals)
+        self._statuses = vals
+        return self
+    def or_(self, *_a, **_k): return self
     def order(self, *_a, **_k): return self
     def limit(self, *_a, **_k): return self
     def execute(self):
         class _R: pass
-        r = _R(); r.data = self._rows; return r
+        r = _R(); r.data = [row for row in self._rows if row.get("status") in self._statuses]; return r
 
 
 class _FakeDB:
@@ -47,17 +50,16 @@ class _FakeDB:
 
 def test_verification_query_includes_candidate_status(monkeypatch):
     captured = {}
-    rows = [{"domain": "a.com", "source": "ai_niche_query", "source_query": "ashtrays"},
-            {"domain": "b.com", "source": "shop_app", "source_query": None}]
+    rows = [{"domain": "a.com", "status": "candidate", "source": "ai_niche_query", "source_query": "ashtrays"},
+            {"domain": "b.com", "status": "discovered", "source": "shop_app", "source_query": None}]
     monkeypatch.setattr(si, "get_supabase", lambda: _FakeDB(rows, captured))
     monkeypatch.setattr(si, "_verify_via_web",
                         lambda d, s, q: {"outcome": "verified" if d == "a.com" else "rejected", "reason": "not_shopify"})
     monkeypatch.setattr(si, "normalize_domain", lambda d: d)
 
-    out = si.stage_verification(force=True)
+    out = si.stage_verification.__wrapped__.__wrapped__(force=True)
     # the fetch must target BOTH discovered and candidate
-    col, vals = captured["status_filter"]
-    assert col == "status" and set(vals) == {"discovered", "candidate"}
+    assert {"discovered", "candidate", "failed", "rejected", "verified"} == set(captured["status_filters"])
     # both rows attempted; the niche candidate a.com verified
     assert out["processed"] == 2
     assert out["verified"] == 1 and out["rejected"] == 1
@@ -66,7 +68,7 @@ def test_verification_query_includes_candidate_status(monkeypatch):
 
 def test_verification_empty_queue_is_clean(monkeypatch):
     monkeypatch.setattr(si, "get_supabase", lambda: _FakeDB([], {}))
-    out = si.stage_verification(force=True)
+    out = si.stage_verification.__wrapped__.__wrapped__(force=True)
     assert out["status"] == "ok" and out["processed"] == 0 and out.get("note") == "queue_empty"
 
 
@@ -76,7 +78,7 @@ def test_rotating_generator_gated_off_by_default(monkeypatch):
     # disabled → no work, no AI calls
     monkeypatch.setattr("app.services.runtime_config.get_config",
                         lambda k, d=None: False if k == "shopify_index_enabled" else d)
-    out = si.generate_candidates_rotating()
+    out = si.generate_candidates_rotating.__wrapped__.__wrapped__()
     assert out["status"] == "disabled"
 
 
@@ -89,7 +91,7 @@ def test_rotating_generator_cycles_niches_and_counts(monkeypatch):
     # no graph expansion rows
     monkeypatch.setattr(si, "get_supabase", lambda: _FakeDB([], {}))
 
-    out = si.generate_candidates_rotating(force=True)
+    out = si.generate_candidates_rotating.__wrapped__.__wrapped__(force=True)
     assert out["status"] == "ok"
     assert len(used) == 3                      # per_run niches generated
     assert len(set(used)) == 3                 # distinct niches (cursor rotates)

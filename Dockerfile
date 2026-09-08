@@ -1,12 +1,12 @@
 # ──────────────────────────────────────────────────
 # Base: Python with Playwright (kept for legacy PDF support)
 # ──────────────────────────────────────────────────
-FROM mcr.microsoft.com/playwright/python:v1.58.0-noble AS base
+FROM mcr.microsoft.com/playwright/python:v1.58.0-noble@sha256:678457c4c323b981d8b4befc57b95366bb1bb6aa30057b1269f6b171e8d9975a AS base
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt requirements-release-constraints.txt ./
+RUN pip install --no-cache-dir -r requirements.txt -c requirements-release-constraints.txt
 
 COPY . .
 

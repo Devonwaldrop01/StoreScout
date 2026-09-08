@@ -1,11 +1,11 @@
 """
 Shopify store index API.
 
-  · GET  /store-index/search           — authenticated; verified stores only.
+  Â· GET  /store-index/search           â€” authenticated; verified stores only.
     Powers (and will increasingly power) competitor discovery.
-  · GET  /api/v1/admin/store-index/stats — admin console data
-  · POST /api/v1/admin/store-index/seed  — manual candidate ingestion
-  · POST /api/v1/admin/store-index/run   — small manual indexing run
+  Â· GET  /api/v1/admin/store-index/stats â€” admin console data
+  Â· POST /api/v1/admin/store-index/seed  â€” manual candidate ingestion
+  Â· POST /api/v1/admin/store-index/run   â€” small manual indexing run
 
 Admin endpoints require the X-Admin-Token header to equal ADMIN_TOKEN; while
 that env var is empty they are hard-disabled (403 for every request).
@@ -44,11 +44,11 @@ def _require_admin(token: Optional[str]) -> None:
         raise HTTPException(status_code=403, detail="Forbidden")
 
 
-# ── Search (authenticated users; internal consumer: discovery) ────────────
+# â”€â”€ Search (authenticated users; internal consumer: discovery) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @router.get("/store-index/network-stats")
 def network_stats(user_id: str = Depends(get_effective_user_id)):
-    """Public-facing credibility numbers for the Intelligence Network panel —
+    """Public-facing credibility numbers for the Intelligence Network panel â€”
     how much verified data grounds StoreScout's analysis. Cheap counts; degrades
     to zeros pre-migration so it never breaks the dashboard."""
     db = get_supabase()
@@ -119,13 +119,13 @@ def search_store_index(
             return {"data": result.data or []}
         except Exception as exc:
             if fields is _SEARCH_FIELDS_DNA:
-                continue  # pre-022 — retry without DNA columns
-            # Table may not exist yet (migration pending) — empty result, not a 500
+                continue  # pre-022 â€” retry without DNA columns
+            # Table may not exist yet (migration pending) â€” empty result, not a 500
             logger.warning("store-index search failed: %s", exc)
             return {"data": []}
 
 
-# ── Admin ──────────────────────────────────────────────────────────────────
+# â”€â”€ Admin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @router.get("/admin/store-index/stats")
 def store_index_stats(
@@ -171,7 +171,7 @@ def store_index_stats(
     except Exception as exc:
         logger.warning("store-index stats rows failed (table missing?): %s", exc)
 
-    # ── Quality aggregates — computed in Python over a slim sample of up to
+    # â”€â”€ Quality aggregates â€” computed in Python over a slim sample of up to
     # 5000 rows (plenty for early scale; PostgREST has no group-by).
     categories: dict = {}
     sources: dict = {}
@@ -246,13 +246,13 @@ def store_index_stats(
     }
 
 
-# ── Index Operations dashboard — the three-stage pipeline at a glance ────────
+# â”€â”€ Index Operations dashboard â€” the three-stage pipeline at a glance â”€â”€â”€â”€â”€â”€â”€â”€
 
 @router.get("/admin/migration-health")
 def migration_health(x_admin_token: Optional[str] = Header(default=None)):
     """
     Operational check that the live schema has the columns/tables the current
-    code needs — especially recent feature migrations (Brand Decode, business-
+    code needs â€” especially recent feature migrations (Brand Decode, business-
     profile enrichment, Store DNA, intent signals). Returns a structured verdict
     (healthy | degraded | unhealthy | db_unavailable) naming the newest expected
     migration and any missing feature/table/column. Exposes only schema
@@ -274,9 +274,9 @@ def migration_health(x_admin_token: Optional[str] = Header(default=None)):
 
 @router.get("/admin/error-summary")
 def error_summary(x_admin_token: Optional[str] = Header(default=None)):
-    """Recent grouped in-process failures (operation × exception) with counts,
+    """Recent grouped in-process failures (operation Ã— exception) with counts,
     last-seen, latest correlation ref, and a redacted sample. A launch-time
-    convenience over the structured logs — per-process and cleared on restart,
+    convenience over the structured logs â€” per-process and cleared on restart,
     never row data or secrets. Full history + aggregation needs external
     monitoring (see docs/OBSERVABILITY.md)."""
     _require_admin(x_admin_token)
@@ -295,7 +295,7 @@ def scheduler_status_endpoint(x_admin_token: Optional[str] = Header(default=None
     beat schedule, the last recorded dispatch heartbeat (global + per task), the
     last/last-scheduled/last-failed run from store_index_runs, whether the
     pipeline is enabled, and the consuming queue/worker. NEVER reports health from
-    process deployment — 'dispatch_looks_stale' is derived from the age of a real
+    process deployment â€” 'dispatch_looks_stale' is derived from the age of a real
     recorded heartbeat. Degrades to a safe shape (no crash) if the DB is down.
     """
     _require_admin(x_admin_token)
@@ -318,7 +318,7 @@ def scheduler_status_endpoint(x_admin_token: Optional[str] = Header(default=None
 def index_ops(x_admin_token: Optional[str] = Header(default=None)):
     """
     Everything the operator needs to see what the index is doing right now:
-    the discovery→verification→knowledge funnel, today's throughput, success
+    the discoveryâ†’verificationâ†’knowledge funnel, today's throughput, success
     rate, category coverage, discovery sources + progress, recent failures with
     reasons, and index growth. Degrades to zeros pre-migration (never 500s).
     """
@@ -344,7 +344,7 @@ def index_ops(x_admin_token: Optional[str] = Header(default=None)):
         except Exception:
             return 0
 
-    # ── Pipeline funnel (lifetime) ──
+    # â”€â”€ Pipeline funnel (lifetime) â”€â”€
     discovered = _count(status="discovered")
     verified = _count(status="verified")
     rejected = _count(status="rejected")
@@ -359,7 +359,7 @@ def index_ops(x_admin_token: Optional[str] = Header(default=None)):
     except Exception:
         knowledge_done = 0
 
-    # Discovered universe — the discovery_queue staging table (migration 017).
+    # Discovered universe â€” the discovery_queue staging table (migration 017).
     def _qcount(**filters) -> int:
         try:
             q = db.table("discovery_queue").select("id", count="exact")
@@ -372,14 +372,14 @@ def index_ops(x_admin_token: Optional[str] = Header(default=None)):
     queue_pending = _qcount(status="pending")
     queue_resolved = _qcount(status="resolved")
 
-    # ── Today ──
+    # â”€â”€ Today â”€â”€
     discovered_today = _count_gte("discovered_at", today)
     verified_today = _count_gte("verified_at", today, status="verified")
     rejected_today = _count_gte("verified_at", today, status="rejected")
     attempted_today = verified_today + rejected_today
     knowledge_today = _count_gte("knowledge_at", today)
 
-    # ── Category coverage + failure reasons (slim sample; PostgREST has no GROUP BY) ──
+    # â”€â”€ Category coverage + failure reasons (slim sample; PostgREST has no GROUP BY) â”€â”€
     categories: dict = {}
     low_conf_categories = 0
     reasons: dict = {}
@@ -405,7 +405,7 @@ def index_ops(x_admin_token: Optional[str] = Header(default=None)):
     except Exception as exc:
         logger.warning("index-ops aggregates failed: %s", exc)
 
-    # ── Discovery sources + cursors ──
+    # â”€â”€ Discovery sources + cursors â”€â”€
     sources: List[dict] = []
     try:
         cur = db.table("discovery_cursors")\
@@ -414,7 +414,7 @@ def index_ops(x_admin_token: Optional[str] = Header(default=None)):
     except Exception:
         pass  # table lands with migration 015
 
-    # ── Index growth (last 14 daily runs) ──
+    # â”€â”€ Index growth (last 14 daily runs) â”€â”€
     runs: List[dict] = []
     try:
         runs = db.table("store_index_runs")\
@@ -423,7 +423,7 @@ def index_ops(x_admin_token: Optional[str] = Header(default=None)):
     except Exception:
         pass
 
-    # ── Worker heartbeat: most recent verified/rejected stamp ──
+    # â”€â”€ Worker heartbeat: most recent verified/rejected stamp â”€â”€
     last_activity = None
     try:
         la = db.table("shopify_store_index").select("verified_at")\
@@ -475,7 +475,7 @@ def index_ops(x_admin_token: Optional[str] = Header(default=None)):
     }
 
 
-# ── Store Inspector — one indexed store, everything we know + re-run actions ──
+# â”€â”€ Store Inspector â€” one indexed store, everything we know + re-run actions â”€â”€
 
 @router.get("/admin/store-inspector/{domain}")
 def store_inspector(domain: str, x_admin_token: Optional[str] = Header(default=None)):
@@ -493,7 +493,7 @@ def store_inspector(domain: str, x_admin_token: Optional[str] = Header(default=N
     if not row:
         raise HTTPException(status_code=404, detail="not found")
 
-    # Relationship-graph foundation — neighbors if any edges exist (placeholder-safe).
+    # Relationship-graph foundation â€” neighbors if any edges exist (placeholder-safe).
     related: List[dict] = []
     try:
         neighbors = graph_neighbors(db, [domain], limit=8)
@@ -514,10 +514,13 @@ def store_inspector_action(domain: str, body: InspectorActionBody,
                            x_admin_token: Optional[str] = Header(default=None)):
     """Re-run verification (re-fetches storefront via the web process) or
     re-run knowledge (re-classifies from stored signals) for one store."""
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     _require_admin(x_admin_token)
-    from app.services.store_index import normalize_domain, run_knowledge, verify_and_store
+    from app.services.store_index import run_knowledge, verify_and_store
+    from urllib.parse import urlparse
     db = get_supabase()
-    domain = normalize_domain(domain)
+    domain = urlparse(domain if "://" in domain else f"https://{domain}").hostname or ""
 
     if body.action == "reverify":
         try:
@@ -527,7 +530,7 @@ def store_inspector_action(domain: str, body: InspectorActionBody,
             sq = (row.data or {}).get("source_query") if row else None
         except Exception:
             src, sq = None, None
-        result = verify_and_store(db, domain, src or "admin_reverify", sq)
+        result = verify_and_store(db, domain, src or "admin_reverify", sq, force=True)
         return {"data": result}
 
     if body.action == "reclassify":
@@ -535,7 +538,7 @@ def store_inspector_action(domain: str, body: InspectorActionBody,
             row = db.table("shopify_store_index").select(
                 "domain, brand_name, homepage_message, description, product_types, "
                 "product_titles, tags, collections, pricing_tier, product_count, "
-                "median_price, min_price, max_price, price_bands").eq("domain", domain)\
+                "median_price, min_price, max_price, price_bands, catalog_observation").eq("domain", domain)\
                 .maybe_single().execute()
         except Exception:
             row = None
@@ -553,6 +556,8 @@ class SeedBody(BaseModel):
 
 @router.post("/admin/store-index/seed")
 def seed_store_index(body: SeedBody, x_admin_token: Optional[str] = Header(default=None)):
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     _require_admin(x_admin_token)
     from app.services.store_index import normalize_domain
 
@@ -567,7 +572,7 @@ def seed_store_index(body: SeedBody, x_admin_token: Optional[str] = Header(defau
         seen = {r["domain"] for r in (existing.data or [])}
     except Exception as exc:
         logger.error("seed: existing-domain lookup failed (migration applied?): %s", exc)
-        raise HTTPException(status_code=500, detail="shopify_store_index table unavailable — apply migration 007")
+        raise HTTPException(status_code=500, detail="shopify_store_index table unavailable â€” apply migration 007")
 
     now = datetime.now(timezone.utc).isoformat()
     rows = [
@@ -586,19 +591,21 @@ class RunBody(BaseModel):
 @router.post("/admin/store-index/run")
 def run_store_index(body: RunBody, x_admin_token: Optional[str] = Header(default=None)):
     """Small manual indexing run for testing. Runs synchronously via Celery
-    if available, otherwise inline — force=True bypasses the enabled flag,
+    if available, otherwise inline â€” force=True bypasses the enabled flag,
     caps and politeness still apply."""
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     _require_admin(x_admin_token)
     limit = max(1, min(body.limit, 25))
 
     from app.tasks.store_index import discover_shopify_stores_daily
     try:
-        # Prefer async via Celery so the HTTP request returns fast…
+        # Prefer async via Celery so the HTTP request returns fastâ€¦
         task = discover_shopify_stores_daily.delay(limit_override=limit, force=True)
         return {"status": "queued", "task_id": str(task.id), "limit": limit}
     except Exception as exc:
-        # …but run inline when no broker is reachable (local/dev testing)
-        logger.warning("store-index run: Celery unavailable (%s) — running inline", exc)
+        # â€¦but run inline when no broker is reachable (local/dev testing)
+        logger.warning("store-index run: Celery unavailable (%s) â€” running inline", exc)
         result = discover_shopify_stores_daily(limit_override=limit, force=True)
         return {"status": "completed_inline", "result": result, "limit": limit}
 
@@ -608,11 +615,13 @@ def shop_app_probe(url: str = "", x_admin_token: Optional[str] = Header(default=
     """
     Live diagnostic for Discovery Source #1, run on the web process (which,
     unlike the worker, can reach shop.app). With no args it tries a BATTERY of
-    candidate shop.app entry points (robots.txt, sitemap, discover, browse, …)
+    candidate shop.app entry points (robots.txt, sitemap, discover, browse, â€¦)
     and reports each one's HTTP status, size, a text sample, and any merchant
-    domains found — so we can see which routes actually work. Pass ?url= to
+    domains found â€” so we can see which routes actually work. Pass ?url= to
     probe one specific URL.
     """
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     _require_admin(x_admin_token)
     from app.api.v1.internal import _shop_app_raw_fetch, _shop_app_probe_battery
     try:
@@ -637,27 +646,29 @@ class ReclassifyBody(BaseModel):
 def reclassify(body: ReclassifyBody, x_admin_token: Optional[str] = Header(default=None)):
     """
     Fix classifications. Two modes:
-      · default — clear knowledge_at so the knowledge stage re-runs the AI
+      Â· default â€” clear knowledge_at so the knowledge stage re-runs the AI
         classifier on the STORED product data (scope by category or confidence).
-      · reenrich_thin — for verified stores with NO product data (the
-        'Other · General' rows from the discovery write-back), send them back to
+      Â· reenrich_thin â€” for verified stores with NO product data (the
+        'Other Â· General' rows from the discovery write-back), send them back to
         'discovered' so verification re-fetches their catalog, then knowledge
         classifies them properly.
     """
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     _require_admin(x_admin_token)
     db = get_supabase()
     now = datetime.now(timezone.utc).isoformat()
     try:
         if body.reenrich_thin:
-            # No products sampled → can't be classified. Re-run the full pipeline.
+            # No products sampled â†’ can't be classified. Re-run the full pipeline.
             res = db.table("shopify_store_index").update(
                 {"status": "discovered", "knowledge_at": None, "updated_at": now}
             ).eq("status", "verified").is_("product_count", "null").execute()
             n = len(res.data or [])
-            return {"data": {"queued": n, "note": f"{n} product-less store(s) re-queued for verification → they'll be re-fetched and classified."}}
+            return {"data": {"queued": n, "note": f"{n} product-less store(s) re-queued for verification â†’ they'll be re-fetched and classified."}}
 
         if body.backfill_dna:
-            # Verified stores that predate Store DNA (dna_at IS NULL) — clear
+            # Verified stores that predate Store DNA (dna_at IS NULL) â€” clear
             # knowledge_at so the Classify stage re-runs and generates DNA from
             # their already-stored signals (no re-fetch, one Haiku call each).
             try:
@@ -667,7 +678,7 @@ def reclassify(body: ReclassifyBody, x_admin_token: Optional[str] = Header(defau
             except Exception:
                 raise HTTPException(status_code=400, detail="backfill_dna needs migration 022 applied first.")
             n = len(res.data or [])
-            return {"data": {"queued": n, "note": f"{n} store(s) without Store DNA queued — run the Classify stage to generate their profiles."}}
+            return {"data": {"queued": n, "note": f"{n} store(s) without Store DNA queued â€” run the Classify stage to generate their profiles."}}
 
         q = db.table("shopify_store_index").update(
             {"knowledge_at": None, "updated_at": now}
@@ -678,15 +689,15 @@ def reclassify(body: ReclassifyBody, x_admin_token: Optional[str] = Header(defau
             q = q.lt("category_confidence", max(1, min(body.threshold, 100)))
         res = q.execute()
         n = len(res.data or [])
-        return {"data": {"queued": n, "note": f"{n} store(s) queued for re-classification — run the Classify stage or wait for the worker."}}
+        return {"data": {"queued": n, "note": f"{n} store(s) queued for re-classification â€” run the Classify stage or wait for the worker."}}
     except Exception as exc:
         logger.warning("reclassify failed: %s", exc)
-        raise HTTPException(status_code=500, detail="reclassify failed — is migration 015 applied?")
+        raise HTTPException(status_code=500, detail="reclassify failed â€” is migration 015 applied?")
 
 
 @router.get("/admin/store-index/shop-app-count")
 def shop_app_count(x_admin_token: Optional[str] = Header(default=None)):
-    """How many storefronts Shop App exposes in its sitemap — the discovery
+    """How many storefronts Shop App exposes in its sitemap â€” the discovery
     ceiling. Runs on the web process (can reach shop.app)."""
     _require_admin(x_admin_token)
     from app.api.v1.internal import _shop_app_count
@@ -706,13 +717,15 @@ def run_stage(body: StageBody, x_admin_token: Optional[str] = Header(default=Non
     """
     Manually run ONE stage of the three-stage pipeline (force=True bypasses the
     enabled flag). This is how you test Shop App discovery in isolation and see
-    its TRUE success rate — unlike /run, which drains legacy AI-guessed
+    its TRUE success rate â€” unlike /run, which drains legacy AI-guessed
     candidates and will always look bad.
 
-    discovery    → Shop App (+ any enabled source) surfaces candidate domains
-    verification → discovered domains become verified/rejected (fetches once)
-    knowledge    → verified stores get classified from stored data
+    discovery    â†’ Shop App (+ any enabled source) surfaces candidate domains
+    verification â†’ discovered domains become verified/rejected (fetches once)
+    knowledge    â†’ verified stores get classified from stored data
     """
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     _require_admin(x_admin_token)
     stage = (body.stage or "").strip().lower()
     task_map = {
@@ -732,16 +745,16 @@ def run_stage(body: StageBody, x_admin_token: Optional[str] = Header(default=Non
         t = task.delay(limit_override=limit, force=True)
         return {"status": "queued", "stage": stage, "task_id": str(t.id)}
     except Exception as exc:
-        logger.warning("run-stage %s: Celery unavailable (%s) — running inline", stage, exc)
+        logger.warning("run-stage %s: Celery unavailable (%s) â€” running inline", stage, exc)
         result = task(limit_override=limit, force=True)
         return {"status": "completed_inline", "stage": stage, "result": result}
 
 
-# ── Runtime engine controls — flip toggles/limits without a redeploy ────────
+# â”€â”€ Runtime engine controls â€” flip toggles/limits without a redeploy â”€â”€â”€â”€â”€â”€â”€â”€
 
 @router.get("/admin/config")
 def get_admin_config(x_admin_token: Optional[str] = Header(default=None)):
-    """Effective values of the runtime-configurable engine knobs — the settings
+    """Effective values of the runtime-configurable engine knobs â€” the settings
     defaults overlaid with any DB overrides, so every knob renders populated."""
     _require_admin(x_admin_token)
     from app.services.runtime_config import get_all
@@ -766,7 +779,7 @@ def get_admin_config(x_admin_token: Optional[str] = Header(default=None)):
 @router.get("/admin/store-index/coverage")
 def store_index_coverage(x_admin_token: Optional[str] = Header(default=None)):
     """Index coverage at a glance: verified depth per category, and which niches
-    the candidate generator has reached vs still pending — so you can tell
+    the candidate generator has reached vs still pending â€” so you can tell
     whether a niche is covered before test-searching it. Guarded; degrades to
     partials on any read error."""
     _require_admin(x_admin_token)
@@ -782,7 +795,7 @@ def store_index_coverage(x_admin_token: Optional[str] = Header(default=None)):
         except Exception:
             return 0
 
-    # Verified depth per taxonomy category (exact counts — 20-ish cheap queries).
+    # Verified depth per taxonomy category (exact counts â€” 20-ish cheap queries).
     categories = []
     for cat in CATEGORY_TAXONOMY:
         if cat in ("Other", "Adult"):
@@ -840,11 +853,11 @@ def store_index_coverage(x_admin_token: Optional[str] = Header(default=None)):
 
 
 class ConfigBody(BaseModel):
-    # All optional — only sent keys are updated; unknown keys are ignored.
+    # All optional â€” only sent keys are updated; unknown keys are ignored.
     shopify_index_enabled: Optional[bool] = None
     shopify_index_daily_verified_target: Optional[int] = None
     shopify_index_daily_candidate_limit: Optional[int] = None
-    # Per-run throughput knobs — tune verified/day live without a redeploy.
+    # Per-run throughput knobs â€” tune verified/day live without a redeploy.
     shopify_index_verify_batch: Optional[int] = None
     shopify_index_resolve_batch: Optional[int] = None
     shopify_index_knowledge_batch: Optional[int] = None

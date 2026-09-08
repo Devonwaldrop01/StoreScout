@@ -96,6 +96,9 @@ def get_all() -> Dict[str, Any]:
 
 def set_config(updates: Dict[str, Any]) -> Dict[str, Any]:
     """Upsert overrides for known keys; returns the new effective config."""
+    if any(key.startswith(("shopify_index_", "scheduler_")) for key in (updates or {})):
+        from app.core.index_hold import require_index_writes
+        require_index_writes()
     from app.core.database import get_supabase
     from datetime import datetime, timezone
 

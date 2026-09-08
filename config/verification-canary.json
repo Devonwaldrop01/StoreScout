@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "live_rows_confirmed": true,
+  "created_at": "2026-09-06T21:13:18.331657+00:00",
+  "expires_at": "2026-09-08T21:13:18.331657+00:00",
+  "selection": "Deterministic stratified safety sample from preserved audit, with documented manual exclusion; current live row preconditions still require confirmation.",
+  "review_exclusions": {
+    "vimeo.com": "Non-retail video platform; unsuitable for a storefront safety canary."
+  },
+  "stores": [
+    {
+      "domain": "provelocitybat.com",
+      "expected_updated_at": "2026-08-01T09:12:00.490315+00:00",
+      "sample_status": "discovered",
+      "category": null
+    },
+    {
+      "domain": "isopure.com",
+      "expected_updated_at": "2026-07-13T06:40:12.966053+00:00",
+      "sample_status": "candidate",
+      "category": null
+    },
+    {
+      "domain": "dear-paw.com",
+      "expected_updated_at": "2026-07-10T03:25:39.876473+00:00",
+      "sample_status": "verified",
+      "category": "Pets"
+    },
+    {
+      "domain": "behemoth-store.com",
+      "expected_updated_at": "2026-08-14T14:12:00.348669+00:00",
+      "sample_status": "discovered",
+      "category": null
+    },
+    {
+      "domain": "thenorthface.com",
+      "expected_updated_at": "2026-07-16T06:40:03.28887+00:00",
+      "sample_status": "candidate",
+      "category": null
+    },
+    {
+      "domain": "muscle-nation.com",
+      "expected_updated_at": "2026-07-09T04:32:14.894471+00:00",
+      "sample_status": "failed",
+      "category": null
+    },
+    {
+      "domain": "thequirkycupcollective.com.au",
+      "expected_updated_at": "2026-07-26T01:36:00.623015+00:00",
+      "sample_status": "discovered",
+      "category": null
+    },
+    {
+      "domain": "flyby.co",
+      "expected_updated_at": "2026-07-18T12:40:03.607449+00:00",
+      "sample_status": "candidate",
+      "category": null
+    },
+    {
+      "domain": "woolandprince.com",
+      "expected_updated_at": "2026-07-10T02:24:49.65073+00:00",
+      "sample_status": "verified",
+      "category": "Fashion"
+    },
+    {
+      "domain": "coquette.com",
+      "expected_updated_at": "2026-08-03T04:00:00.983794+00:00",
+      "sample_status": "discovered",
+      "category": null
+    },
+    {
+      "domain": "jenniferbehr.com",
+      "expected_updated_at": "2026-07-18T12:40:15.936597+00:00",
+      "sample_status": "candidate",
+      "category": null
+    },
+    {
+      "domain": "frankierunner.com",
+      "expected_updated_at": "2026-07-07T23:01:04.028841+00:00",
+      "sample_status": "failed",
+      "category": null
+    }
+  ],
+  "source_snapshot_sha256": "661b34722ab431c63b3f458660cc154a1e0352e9585fee2b994c1a311476f136",
+  "live_checked_at": "2026-09-06T21:29:28.036262+00:00",
+  "supabase_project": "piabxocznzkkbulalynk"
+}

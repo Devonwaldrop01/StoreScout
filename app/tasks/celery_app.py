@@ -10,11 +10,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from app.core.config import get_settings
 
+from app.core.redis_connection import secure_redis_url
+
 settings = get_settings()
 
 celery = Celery(
     "storescout",
-    broker=settings.redis_url,
+    broker=secure_redis_url(settings.redis_url),
     backend=None,
     include=[
         "app.tasks.scan",
@@ -29,9 +31,10 @@ celery = Celery(
     ],
 )
 
-_ssl_config = {"ssl_cert_reqs": ssl.CERT_NONE} if settings.redis_url.startswith("rediss://") else None
+_ssl_config = {"ssl_cert_reqs": ssl.CERT_REQUIRED, "ssl_check_hostname": True} if settings.redis_url.startswith("rediss://") else None
 
 celery.conf.update(
+    beat_scheduler="app.tasks.index_hold:HeldIndexScheduler",
     task_serializer="json",
     accept_content=["json"],
     result_serializer="json",

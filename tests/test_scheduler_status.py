@@ -73,6 +73,9 @@ def test_record_dispatch_writes_heartbeat_keys(monkeypatch):
 # ── Decorator: dispatch before, run after (only on ok) ────────────────────────
 
 def test_scheduled_index_task_records_dispatch_and_run(monkeypatch):
+    from types import SimpleNamespace
+    holder = SimpleNamespace(start=lambda: None, require=lambda: None, release=lambda: None)
+    monkeypatch.setattr(sched, "_acquire_single_flight", lambda *a: holder)
     events = []
     monkeypatch.setattr(sched, "record_dispatch", lambda stage: events.append(("dispatch", stage)))
     monkeypatch.setattr(sched, "record_run", lambda stage, result, **kw: events.append(("run", stage, result.get("status"))))
@@ -88,6 +91,9 @@ def test_scheduled_index_task_records_dispatch_and_run(monkeypatch):
 
 
 def test_scheduled_index_task_disabled_records_dispatch_but_no_run(monkeypatch):
+    from types import SimpleNamespace
+    holder = SimpleNamespace(start=lambda: None, require=lambda: None, release=lambda: None)
+    monkeypatch.setattr(sched, "_acquire_single_flight", lambda *a: holder)
     events = []
     monkeypatch.setattr(sched, "record_dispatch", lambda stage: events.append(("dispatch", stage)))
     monkeypatch.setattr(sched, "record_run", lambda stage, result: events.append(("run", stage)))

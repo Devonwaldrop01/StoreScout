@@ -1,5 +1,5 @@
 """
-Verified Shopify store index — light discovery/indexing pass.
+Verified Shopify store index â€” light discovery/indexing pass.
 
 This is deliberately NOT the tracked-competitor scan pipeline. One indexing
 pass makes at most 4 polite requests to a domain (homepage, /cart.js,
@@ -26,6 +26,7 @@ from app.services.fetch import (
     _enforce_domain_rate_limit,
     _headers,
 )
+from app.services import verification_lifecycle as lifecycle
 
 if _USE_CURL_CFFI:
     from curl_cffi.requests import Session as CurlSession
@@ -34,10 +35,10 @@ else:
 
 logger = logging.getLogger(__name__)
 
-# ── Sources ────────────────────────────────────────────────────────────────
+# â”€â”€ Sources â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 # Niche queries the candidate generator rotates through. These describe
-# MARKETS, not platforms — platform verification is our job, not the AI's.
+# MARKETS, not platforms â€” platform verification is our job, not the AI's.
 SEED_QUERIES = [
     "fitness apparel",
     "skincare brand",
@@ -55,7 +56,7 @@ SEED_QUERIES = [
 def niche_queries() -> "list[str]":
     """The full set of niche queries the candidate generator rotates through so
     the index grows broad enough to cover almost any store a user describes.
-    Built from every taxonomy subcategory (≈90 niches) plus the hand seeds —
+    Built from every taxonomy subcategory (â‰ˆ90 niches) plus the hand seeds â€”
     deterministic, deduped, order-stable. No AI, no network."""
     out: list = list(SEED_QUERIES)
     seen = {q.lower() for q in out}
@@ -69,8 +70,8 @@ def niche_queries() -> "list[str]":
                     out.append(q)
     return out
 
-# ── Taxonomy ───────────────────────────────────────────────────────────────
-# Fixed list keeps index search consistent — classification must map into
+# â”€â”€ Taxonomy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Fixed list keeps index search consistent â€” classification must map into
 # these, never invent new categories.
 
 CATEGORY_TAXONOMY: Dict[str, List[str]] = {
@@ -99,7 +100,7 @@ CATEGORY_TAXONOMY: Dict[str, List[str]] = {
     "Other":                 ["General"],
 }
 
-# keyword → (category, subcategory). Checked against title + description +
+# keyword â†’ (category, subcategory). Checked against title + description +
 # product types + tags + collections, longest keywords first so "pet food"
 # beats "food".
 _RULE_KEYWORDS: List[tuple] = [
@@ -156,7 +157,7 @@ _RULE_KEYWORDS: List[tuple] = [
     ("speaker",           ("Electronics & Gadgets", "Audio")),
     ("smart home",        ("Electronics & Gadgets", "Smart Home")),
     ("phone case",        ("Electronics & Gadgets", "Accessories")),
-    # Generic product-type terms — broaden deterministic classification of
+    # Generic product-type terms â€” broaden deterministic classification of
     # free-text discovery reasons (not tied to any single query).
     ("nail",              ("Beauty", "Nails")),
     ("manicure",          ("Beauty", "Nails")),
@@ -181,7 +182,7 @@ _RULE_KEYWORDS: List[tuple] = [
 
 
 def classify_text_rules(text: str) -> Optional[str]:
-    """Deterministic top-level category from the keyword rules — NO AI, NO
+    """Deterministic top-level category from the keyword rules â€” NO AI, NO
     network. Longest keyword wins ('pet food' beats 'food'). Returns None when
     nothing fires, so callers can treat it as 'unknown' (never a guess)."""
     t = (text or "").lower()
@@ -217,10 +218,10 @@ def rank_discovery_candidates(candidates: List[dict], user_category: Optional[st
     return sorted(candidates, key=_demote)
 
 
-# ── Helpers ────────────────────────────────────────────────────────────────
+# â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def normalize_domain(url_or_domain: str) -> str:
-    """'https://www.Gymshark.com/collections/x' → 'gymshark.com'."""
+    """'https://www.Gymshark.com/collections/x' â†’ 'gymshark.com'."""
     d = (url_or_domain or "").strip().lower()
     if "//" in d:
         d = urlparse(d).netloc or d
@@ -235,9 +236,15 @@ def _make_client():
 
 
 def _get(client, url: str, timeout: int = 12):
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
+    from app.services.verification_canary import probe_context
+    guard = probe_context.get()
+    if guard is not None:
+        return guard.get(client, url, timeout, _USE_CURL_CFFI)
     if _USE_CURL_CFFI:
         return client.get(url, timeout=timeout, allow_redirects=True)
-    return client.get(url)
+    return client.get(url, timeout=timeout)
 
 
 _TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
@@ -257,16 +264,18 @@ def _clean(text: str, max_len: int = 300) -> str:
     return re.sub(r"\s+", " ", text or "").strip()[:max_len]
 
 
-# ── The light pass ─────────────────────────────────────────────────────────
+# â”€â”€ The light pass â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def index_store_pass(domain: str) -> Dict[str, Any]:
     """
-    One polite ≤4-request pass over a domain: verification signals + light
+    One polite â‰¤4-request pass over a domain: verification signals + light
     profile together. Returns a dict with:
       reachable, confidence (0-100), signals [str], monitorable (bool),
       profile {...light-scan fields}, failure_reason (when not reachable)
     """
-    domain = normalize_domain(domain)
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
+    domain = urlparse(domain if "://" in domain else f"https://{domain}").hostname or ""
     _enforce_domain_rate_limit(domain)
 
     confidence = 0
@@ -274,16 +283,24 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
     profile: Dict[str, Any] = {"homepage_url": f"https://{domain}"}
     reachable = False
     products_ok = False
+    access_state = None
+    catalog_observation = None
+    home_status = cart_status = None
+    home_password = home_challenge = False
 
     with _make_client() as client:
-        # 1. Homepage — brand identity + HTML fingerprints
+        # 1. Homepage â€” brand identity + HTML fingerprints
         html = ""
         try:
             r = _get(client, f"https://{domain}/")
+            home_status = r.status_code
             if r.status_code in (200, 403):
                 reachable = True
             if r.status_code == 200:
                 html = (r.text or "")[:400_000]
+                lower = html.lower()
+                home_password = 'action="/password"' in lower or "shopify-section-main-password" in lower
+                home_challenge = "cf-chl-" in lower or "challenge-platform" in lower
         except Exception as exc:
             logger.debug("index pass homepage failed for %s: %s", domain, exc)
 
@@ -305,7 +322,7 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
             title_m = _TITLE_RE.search(html)
             title = _clean(title_m.group(1), 150) if title_m else ""
             profile["page_title"] = title
-            profile["brand_name"] = _clean(m.group(1), 80) if m else (title.split("|")[0].split("–")[0].strip()[:80] or None)
+            profile["brand_name"] = _clean(m.group(1), 80) if m else (title.split("|")[0].split("â€“")[0].strip()[:80] or None)
             desc_m = _META_DESC_RE.search(html) or _META_DESC_RE2.search(html)
             if desc_m:
                 profile["meta_description"] = _clean(desc_m.group(1))
@@ -313,7 +330,7 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
             if lang_m:
                 profile["language"] = lang_m.group(1)[:8]
 
-            # Commercial signals for lead scoring — proof of budget/marketing
+            # Commercial signals for lead scoring â€” proof of budget/marketing
             # maturity + a contact. Extracted from the homepage we already have,
             # so near-zero added cost.
             commercial = extract_commercial_signals(html, domain)
@@ -323,9 +340,10 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
             profile["sells_wholesale"] = commercial["sells_wholesale"]
             profile["multi_market"] = commercial["multi_market"]
 
-        # 2. /cart.js — storefront API marker
+        # 2. /cart.js â€” storefront API marker
         try:
             r = _get(client, f"https://{domain}/cart.js", timeout=8)
+            cart_status = r.status_code
             if r.status_code == 200 and "json" in r.headers.get("content-type", ""):
                 data = r.json()
                 if isinstance(data, dict) and "token" in data:
@@ -337,27 +355,51 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
         except Exception:
             pass
 
-        # 3. /products.json — catalog sample (also the "monitorable" signal)
+        # 3. /products.json â€” catalog sample (also the "monitorable" signal)
         products: List[dict] = []
         try:
             r = _get(client, f"https://{domain}/products.json?limit=250", timeout=15)
             ct = r.headers.get("content-type", "")
             if r.status_code == 200 and "application/json" in ct:
                 data = r.json()
-                if (isinstance(data, dict) and isinstance(data.get("products"), list)
-                        and data["products"] and all(isinstance(p, dict) and p.get("id") and p.get("handle")
-                                                     and isinstance(p.get("variants"), list) and p["variants"] for p in data["products"])):
+                if isinstance(data, dict) and lifecycle.valid_products(data.get("products")):
                     reachable = True
                     products_ok = True
                     confidence += 55
                     signals.append("Product catalog accessible")
                     products = data.get("products") or []
-            elif r.status_code == 403:
-                # Bot-protected probe — Shopify-shaped; full scanner usually gets in
+                    catalog_observation = lifecycle.successful_catalog(products, datetime.now(timezone.utc), "index_probe")
+                else:
+                    access_state = "no_readable_catalog"
+            elif r.status_code in (401, 403, 429):
                 reachable = True
+                access_state = "blocked"
                 signals.append("Storefront responds (bot-protected)")
+            elif r.status_code == 402:
+                access_state = "storefront_unavailable"
+            elif r.status_code >= 500:
+                access_state = "temporarily_unreachable"
+            else:
+                access_state = "no_readable_catalog"
+                lower_catalog = (getattr(r, "text", "") or "")[:400_000].lower()
+                if 'action="/password"' in lower_catalog or "shopify-section-main-password" in lower_catalog:
+                    access_state = "password_protected"
+                elif "cf-chl-" in lower_catalog or "challenge-platform" in lower_catalog:
+                    access_state = "blocked"
+                # No markers is not enough. Require an accessible competing
+                # commerce platform plus both Shopify API endpoints missing.
+                if (r.status_code == 404 and cart_status == 404 and home_status == 200
+                        and not signals and "woocommerce" in html.lower()):
+                    access_state = "non_shopify"
         except Exception:
-            pass
+            access_state = "temporarily_unreachable"
+
+        if home_password:
+            access_state, products_ok = "password_protected", False
+        elif home_challenge:
+            access_state, products_ok = "blocked", False
+        elif home_status == 402:
+            access_state, products_ok = "storefront_unavailable", False
 
         if products:
             prices: List[float] = []
@@ -401,13 +443,13 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
                     if t:
                         tags[t] = tags.get(t, 0) + 1
 
-            # 250 returned means the catalog is AT LEAST 250 — rough count by design
+            # 250 returned means the catalog is AT LEAST 250 â€” rough count by design
             profile["product_count"] = len(products)
             if prices:
                 profile["median_price"] = round(statistics.median(prices), 2)
                 profile["min_price"] = round(min(prices), 2)
                 profile["max_price"] = round(max(prices), 2)
-                # Persist price quartiles now — the knowledge stage classifies
+                # Persist price quartiles now â€” the knowledge stage classifies
                 # from stored data and never re-fetches, so price bands have to
                 # be captured here while the sample is in hand.
                 _sp = sorted(prices)
@@ -421,7 +463,7 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
             profile["vendors"] = top(vendors, 10)
             profile["product_titles"] = titles
 
-        # 4. /collections.json — taxonomy hints (only worth it on a live catalog)
+        # 4. /collections.json â€” taxonomy hints (only worth it on a live catalog)
         if products_ok:
             try:
                 r = _get(client, f"https://{domain}/collections.json?limit=50", timeout=10)
@@ -433,23 +475,29 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
             except Exception:
                 pass
 
+    from app.services.verification_canary import probe_context
+    guard = probe_context.get()
+    if guard is not None and guard.stop_state:
+        access_state, products_ok = guard.stop_state, False
     confidence = min(100, confidence)
     return {
         "reachable": reachable,
         "confidence": confidence,
         "signals": signals,
         "monitorable": products_ok,
+        "access_state": access_state,
+        "catalog_observation": catalog_observation if products_ok else None,
         "profile": profile,
         "failure_reason": None if reachable else "unreachable_or_dns",
     }
 
 
-# ── Commercial signals (lead-quality intelligence) ─────────────────────────
+# â”€â”€ Commercial signals (lead-quality intelligence) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # What a merchant spends money on tells us far more about whether they'll BUY
 # than how big their catalog is. These footprints are the highest-signal, and
-# they're free — the homepage is already fetched for verification.
+# they're free â€” the homepage is already fetched for verification.
 
-# marker substrings → (signal key, category). Category groups feed scoring.
+# marker substrings â†’ (signal key, category). Category groups feed scoring.
 _TECH_MARKERS: List[tuple] = [
     ("klaviyo", ("klaviyo", "email_marketing")),
     ("attentive", ("attentive", "sms_marketing")),
@@ -502,7 +550,7 @@ def extract_commercial_signals(html: str, domain: str) -> Dict[str, Any]:
             tech.append(key)
             cats.add(cat)
 
-    # Contact email — prefer a mailto, then a role inbox on the brand's domain,
+    # Contact email â€” prefer a mailto, then a role inbox on the brand's domain,
     # then any plausible address; drop obvious junk/vendor addresses.
     email = None
     source = None
@@ -543,11 +591,11 @@ def extract_commercial_signals(html: str, domain: str) -> Dict[str, Any]:
     }
 
 
-# ── Market context ─────────────────────────────────────────────────────────
+# â”€â”€ Market context â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def derive_market_context(product_count: Optional[int], median_price: Optional[float]) -> Dict[str, Optional[str]]:
     """
-    Honest heuristics from the light sample — estimates, not claims.
+    Honest heuristics from the light sample â€” estimates, not claims.
 
     product_count from the light pass caps at 250 (the products.json sample
     limit), so hitting the cap reads as a very large catalog. Tracked-store
@@ -578,7 +626,7 @@ def derive_market_context(product_count: Optional[int], median_price: Optional[f
     return {"business_stage": stage, "pricing_tier": tier}
 
 
-# ── Classification ─────────────────────────────────────────────────────────
+# â”€â”€ Classification â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def classify_store(
     title: str = "",
@@ -604,7 +652,7 @@ def classify_store(
         if keyword in haystack:
             return {"category": cat, "subcategory": sub, "description": _clean(description, 200) or None, "method": "rules"}
 
-    # AI fallback — tiny, single-store call
+    # AI fallback â€” tiny, single-store call
     try:
         from app.core.config import get_settings
         settings = get_settings()
@@ -647,9 +695,9 @@ def classify_store(
     return {"category": "Other", "subcategory": "General", "description": _clean(description, 200) or None, "method": "fallback"}
 
 
-# ── Multi-signal classification (confidence + evidence) ────────────────────
+# â”€â”€ Multi-signal classification (confidence + evidence) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # The old classifier took the FIRST keyword hit anywhere in the text, so a
-# single stray word ("gift" on a pet store) could misclassify — that's how
+# single stray word ("gift" on a pet store) could misclassify â€” that's how
 # Everlane ends up recommended for pet accessories. v2 SCORES every category
 # by weighted evidence across distinct signals and only commits when the
 # winner clearly leads, recording exactly why.
@@ -664,6 +712,39 @@ _SIGNAL_WEIGHT = {
     "homepage": 1,
 }
 
+# Product nouns omitted from the original small seed vocabulary. These map to
+# existing taxonomy entries; ambiguous brands/model names remain unclassified.
+_PRODUCT_NOUNS = [
+    ('wallet', ('Accessories', 'Wallets')), ('money clip', ('Accessories', 'Wallets')),
+    ('handkerchief', ('Accessories', 'Scarves')), ('handbag', ('Accessories', 'Bags')),
+    ('bandana', ('Accessories', 'Scarves')),
+    ('championship belt', ('Sporting Goods', 'Combat Sports')),
+    ('jeans', ('Fashion', 'Denim')), ('shorts', ('Fashion', 'Womenswear')),
+    ('skirt', ('Fashion', 'Womenswear')), ('shirt', ('Fashion', 'Womenswear')),
+    ('tee', ('Fashion', 'Streetwear')), ('hoodie', ('Fashion', 'Streetwear')),
+    ('sweater', ('Fashion', 'Womenswear')), ('cardigan', ('Fashion', 'Womenswear')),
+    ('pants', ('Fashion', 'Womenswear')), ('jacket', ('Fashion', 'Outerwear')),
+    ('vestido', ('Fashion', 'Womenswear')),
+    ('compression sleeve', ('Fitness Apparel', 'Gym Accessories')),
+    ('compression shorts', ('Fitness Apparel', 'Activewear')),
+    ('cardstock', ('Arts & Crafts', 'Craft Supplies')), ('stencil', ('Arts & Crafts', 'Craft Supplies')),
+    ('embroidery', ('Arts & Crafts', 'Sewing')), ('scrapbooking', ('Arts & Crafts', 'Craft Supplies')),
+    ('embossing', ('Arts & Crafts', 'Craft Supplies')), ('stamp', ('Arts & Crafts', 'Craft Supplies')),
+    ('planner', ('Arts & Crafts', 'Stationery')), ('notebook', ('Arts & Crafts', 'Stationery')),
+    ('pipe fitting', ('Home Improvement', 'Hardware')), ('grinder', ('Home Improvement', 'Tools')),
+    ('welding', ('Home Improvement', 'Tools')), ('electrode', ('Home Improvement', 'Tools')),
+    ('brake', ('Automotive', 'Parts')), ('wheelset', ('Automotive', 'Parts')),
+    ('motor', ('Automotive', 'Parts')),
+    ('phone case', ('Tech Accessories', 'Phone Cases')),
+    ('screen protector', ('Tech Accessories', 'Screen Protectors')),
+    ('tablet case', ('Tech Accessories', 'Phone Cases')),
+    ('keyboard', ('Electronics & Gadgets', 'Computers')),
+    ('pajama', ('Fashion', 'Lingerie')), ('romper', ('Fashion', 'Womenswear')),
+    ('stroller', ('Kids & Baby', 'Baby Gear')), ('bassinet', ('Kids & Baby', 'Nursery')),
+    ('moisturizer', ('Beauty', 'Skincare')), ('cleanser', ('Beauty', 'Skincare')),
+    ('eau de parfum', ('Beauty', 'Fragrance')), ('eau de toilette', ('Beauty', 'Fragrance')),
+]
+
 
 def classify_store_v2(
     title: str = "",
@@ -673,12 +754,13 @@ def classify_store_v2(
     product_titles: Optional[List[str]] = None,
     tags: Optional[List[str]] = None,
     collections: Optional[List[dict]] = None,
+    allow_ai: bool = True,
 ) -> Dict[str, Any]:
     """
     Score every taxonomy category by weighted keyword evidence across distinct
     signals. Returns {category, subcategory, confidence (0-100),
     evidence: [{signal, detail, category}], method}. Confidence reflects how
-    decisively the winner beat the field AND how much evidence backed it —
+    decisively the winner beat the field AND how much evidence backed it â€”
     thin or contested classifications score low so callers can withhold them.
     """
     signals: List[tuple] = []  # (signal_kind, text)
@@ -699,18 +781,38 @@ def classify_store_v2(
     sub_hits: Dict[str, Dict[str, int]] = {}
     evidence: Dict[str, List[dict]] = {}
 
+    observed_catalog = bool(product_types or product_titles)
+    def hits(text):
+        vocabulary = _PRODUCT_NOUNS + _RULE_KEYWORDS if observed_catalog else _RULE_KEYWORDS
+        matches = [(kw, target) for kw, target in vocabulary
+                   if re.search(r"(?<!\w)" + re.escape(kw) + r"(?:s)?(?!\w)", text)]
+        if not observed_catalog:
+            return matches
+        # A more specific phrase owns its component words (phone case is not
+        # audio equipment; compression shorts are not generic fashion).
+        return [(kw, target) for kw, target in matches
+                if not any(kw != longer and kw in longer for longer, _ in matches)]
+    rules = {kw:target for kw,target in _RULE_KEYWORDS}
+    if observed_catalog:
+        rules.update(dict(_PRODUCT_NOUNS))
+    # Actual product signals take precedence over contradictory old home text,
+    # marketing collections and stray tags. Keep sparse/no-signal inputs honest.
+    product_support = sum(bool(hits(t)) for kind,t in signals if kind in ('product_type','product_title'))
     for kind, text in signals:
+        if product_support >= 2 and kind not in ('product_type','product_title'):
+            continue
         w = _SIGNAL_WEIGHT.get(kind, 1)
-        for keyword, (cat, sub) in _RULE_KEYWORDS:
-            if re.search(r"(?<!\w)" + re.escape(keyword) + r"(?:s)?(?!\w)", text):
-                support.setdefault(cat, set()).add((kind, text))
-                scores[cat] = scores.get(cat, 0) + w
-                sub_hits.setdefault(cat, {})
-                sub_hits[cat][sub] = sub_hits[cat].get(sub, 0) + w
-                evidence.setdefault(cat, [])
-                # keep the strongest few distinct evidence items per category
-                if len(evidence[cat]) < 6 and not any(e["detail"] == keyword for e in evidence[cat]):
-                    evidence[cat].append({"signal": kind, "detail": keyword, "weight": w})
+        for keyword in dict.fromkeys(kw for kw,_ in hits(text)):
+            cat, sub = rules[keyword]
+            if observed_catalog and cat == 'Fashion' and re.search(r"\b(?:baby|boys?|girls?|kids?|children)\b", text):
+                cat, sub = 'Kids & Baby', 'Kids Apparel'
+            support.setdefault(cat, set()).add((kind, text))
+            scores[cat] = scores.get(cat, 0) + w
+            sub_hits.setdefault(cat, {})
+            sub_hits[cat][sub] = sub_hits[cat].get(sub, 0) + w
+            evidence.setdefault(cat, [])
+            if len(evidence[cat]) < 6 and not any(e["detail"] == keyword for e in evidence[cat]):
+                evidence[cat].append({"signal": kind, "detail": keyword, "weight": w})
 
     if not scores:
         return {"category": "Other", "subcategory": "General", "confidence": 0,
@@ -734,10 +836,10 @@ def classify_store_v2(
     sub = max(sub_hits.get(winner, {"General": 1}).items(), key=lambda kv: kv[1])[0]
     ev = sorted(evidence.get(winner, []), key=lambda e: -e["weight"])[:6]
 
-    # AI tiebreak ONLY when the top two are close and confidence is middling —
+    # AI tiebreak ONLY when the top two are close and confidence is middling â€”
     # cheap, and only where the rules are genuinely uncertain.
     method = "multi_signal"
-    if confidence < 70 and runner and (top - runner) <= _SIGNAL_WEIGHT["product_type"]:
+    if allow_ai and confidence < 70 and runner and (top - runner) <= _SIGNAL_WEIGHT["product_type"]:
         ai = _ai_classify_tiebreak(hp, [winner, ranked[1][0]])
         if ai and ai in scores:
             winner = ai
@@ -766,7 +868,7 @@ def classify_store_ai(
     tags: Optional[List[str]] = None,
 ) -> Optional[Dict[str, Any]]:
     """
-    AI-primary classification — the reliable way to KNOW what a store sells.
+    AI-primary classification â€” the reliable way to KNOW what a store sells.
     Claude reads the store's actual product titles/types/collections (the ground
     truth) and assigns a category + subcategory from the fixed taxonomy, plus a
     confidence and short evidence. It is explicitly told to ignore stray words
@@ -774,6 +876,8 @@ def classify_store_ai(
     'Other' at low confidence rather than guess. Returns None on failure so the
     caller can fall back to the keyword classifier.
     """
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     from app.core.config import get_settings
     from app.services.ai import UNTRUSTED_DATA_NOTE, call_claude, parse_json
 
@@ -792,10 +896,10 @@ def classify_store_ai(
         f"DESCRIPTION: {(description or '')[:300]}\n"
         f"PRODUCT TYPES: {', '.join(ptypes) or '(none)'}\n"
         f"COLLECTIONS: {', '.join(colls) or '(none)'}\n"
-        f"PRODUCT TITLES (the ground truth — judge by these):\n"
-        + "\n".join(f"  · {t}" for t in titles[:40])
+        f"PRODUCT TITLES (the ground truth â€” judge by these):\n"
+        + "\n".join(f"  Â· {t}" for t in titles[:40])
     )
-    prompt = f"""You categorize Shopify stores. Decide what the store ACTUALLY SELLS, based on the product titles and product types — those are the ground truth.
+    prompt = f"""You categorize Shopify stores. Decide what the store ACTUALLY SELLS, based on the product titles and product types â€” those are the ground truth.
 
 {UNTRUSTED_DATA_NOTE}
 
@@ -803,7 +907,7 @@ Pick EXACTLY ONE category and one subcategory from this fixed taxonomy:
 {taxonomy}
 
 Hard rules:
-- Judge by the actual products. If the titles are men's/women's sandals and clothing, it is Footwear or Fashion — NOT Kids & Baby, even if the word "baby" appears in a colour or material.
+- Judge by the actual products. If the titles are men's/women's sandals and clothing, it is Footwear or Fashion â€” NOT Kids & Baby, even if the word "baby" appears in a colour or material.
 - IGNORE stray words: colour names ("baby blue", "kids size"), materials, marketing fluff, shipping/returns text.
 - If the products are mixed or don't clearly fit, use category "Other" with a LOW confidence. Never guess a specific category you aren't sure of.
 - confidence 0-100 = how certain you are. Be honest; a single ambiguous signal is low.
@@ -865,92 +969,110 @@ def _ai_classify_tiebreak(text: str, candidates: List[str]) -> Optional[str]:
     return None
 
 
-# ── Stage 2: Verification ──────────────────────────────────────────────────
+# â”€â”€ Stage 2: Verification â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Turn a DISCOVERED domain into VERIFIED or REJECTED. Verification fetches the
 # storefront ONCE and stores the raw signals; it does NOT classify. Every
 # rejection records a strict, machine-readable reason. Classification is a
-# separate stage that reads those stored signals with zero extra network — the
+# separate stage that reads those stored signals with zero extra network â€” the
 # memory-efficient split the pipeline is built around.
 
-# Strict rejection codes (mirror the migration comment).
-REJECT_DEAD          = "dead_domain"
-REJECT_NOT_SHOPIFY   = "not_shopify"
-REJECT_NO_PRODUCTS   = "no_products"
-REJECT_PASSWORD      = "password_protected"
-REJECT_INVALID       = "invalid_storefront"
-REJECT_DUPLICATE     = "duplicate"
+# Access-state and retry decisions live in verification_lifecycle. Absence of
+# platform evidence and transient network failures are never permanent labels.
 
 
-def _rejection_reason(result: Dict[str, Any]) -> str:
-    """Map a light-pass result onto one strict rejection code."""
-    if not result.get("reachable"):
-        return REJECT_DEAD
-    signals = result.get("signals") or []
-    profile = result.get("profile") or {}
-    shopify_marker = any(
-        s in signals for s in (
-            "Storefront API detected",
-            "Product catalog accessible",
-            "Storefront responds (bot-protected)",
-        )
-    )
-    if not shopify_marker:
-        return REJECT_NOT_SHOPIFY
-    # Shopify-shaped but the catalog came back empty.
-    if not profile.get("product_count"):
-        return REJECT_NO_PRODUCTS
-    return REJECT_INVALID
+def _claim_verification(db, domain, source, source_query, force=False, expected_row=None):
+    """Compare-and-set claim, shared by scheduled and manual verification.
+
+    Fail closed when lifecycle columns are absent. A five-minute lease outlives
+    the bounded HTTP pass; abandoned claims become retryable automatically.
+    """
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
+    from uuid import uuid4
+    from datetime import timedelta
+    now = datetime.now(timezone.utc)
+    res = db.table("shopify_store_index").select("*").eq("domain", domain).maybe_single().execute()
+    row = res.data if res else None
+    if expected_row is not None:
+        from app.services.verification_canary import same_row_version
+        if force or not same_row_version(row, expected_row):
+            return None
+    if not row:
+        domain = normalize_domain(domain)
+        upsert_index_row(db, domain, {"status": "candidate", "source": source, "source_query": source_query})
+        row = db.table("shopify_store_index").select("*").eq("domain", domain).maybe_single().execute().data
+    if lifecycle.due_at(row) > now and (not force or row.get("verification_token")):
+        return None
+    token = str(uuid4())
+    q = db.table("shopify_store_index").update({
+        "verification_token": token, "last_attempted_at": now.isoformat(),
+        "next_verification_at": (now + timedelta(minutes=5)).isoformat(), "updated_at": now.isoformat(),
+    }).eq("domain", domain)
+    q = q.eq("updated_at", row["updated_at"]) if row.get("updated_at") else q.is_("updated_at", "null")
+    q = q.eq("verification_token", row["verification_token"]) if row.get("verification_token") else q.is_("verification_token", "null")
+    if not q.execute().data:
+        return None
+    return row, token
 
 
-def verify_and_store(db, domain: str, source: str, source_query: Optional[str] = None) -> Dict[str, Any]:
+def _finish_verification(db, domain, token, payload):
+    # A late HTTP response cannot overwrite a newer tracked scan or verifier.
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
+    payload = {**payload, "updated_at": datetime.now(timezone.utc).isoformat(), "verification_token": None}
+    return bool(db.table("shopify_store_index").update(payload).eq("domain", domain)
+                .eq("verification_token", token)
+                .gt("next_verification_at", datetime.now(timezone.utc).isoformat()).execute().data)
+
+
+def verify_and_store(db, domain: str, source: str, source_query: Optional[str] = None, force: bool = False, *, expected_row=None) -> Dict[str, Any]:
     """
     Stage 2. Fetch the storefront once; persist a VERIFIED row with raw signals
     (no classification) or a REJECTED row with a reason. Returns
     {domain, outcome: verified|rejected|failed, reason}.
     """
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     from app.core.config import get_settings
     settings = get_settings()
-    domain = normalize_domain(domain)
+    # Preserve an existing row's exact hostname; www aliases are not proven
+    # interchangeable merchants and must not strand the original queue entry.
+    domain = urlparse(domain if "://" in domain else f"https://{domain}").hostname or ""
+    claim = _claim_verification(db, domain, source, source_query, force=force, expected_row=expected_row)
+    if not claim:
+        return {"domain": domain, "outcome": "skipped", "reason": "not_due_or_claimed"}
+    previous, token = claim
+    domain = previous["domain"]
     now = datetime.now(timezone.utc).isoformat()
 
-    def _reject(reason: str) -> Dict[str, Any]:
-        upsert_index_row(db, domain, {
-            "status": "rejected",
-            "rejection_reason": reason,
-            "failure_reason": reason,
-            "source": source, "source_query": source_query,
-            "last_verified_at": now, "verified_at": now,
-        })
-        return {"domain": domain, "outcome": "rejected", "reason": reason}
+    def _failure(state):
+        fields = lifecycle.retry_fields(previous, state, datetime.now(timezone.utc))
+        saved = _finish_verification(db, domain, token, fields)
+        return {"domain": domain, "outcome": ("rejected" if state in lifecycle.TERMINAL else "failed") if saved else "skipped",
+                "reason": state if saved else "superseded", "successful_catalogs": 0, "attempted": True, "confidence": 0}
 
     try:
         result = index_store_pass(domain)
     except Exception as exc:
         logger.warning("verify pass crashed for %s: %s", domain, exc)
-        upsert_index_row(db, domain, {
-            "status": "failed", "failure_reason": f"pass_error: {exc}"[:300],
-            "rejection_reason": None,
-            "source": source, "source_query": source_query,
-            "last_verified_at": now, "verified_at": now,
-        })
-        return {"domain": domain, "outcome": "failed", "reason": "pass_error"}
+        return _failure("temporarily_unreachable")
 
     confidence = result.get("confidence") or 0
     profile = result.get("profile") or {}
 
     # Reject anything that fails the storefront bar, or scores below the
     # configured Shopify-confidence threshold.
-    if not result.get("reachable") or not result.get("monitorable") or confidence < settings.shopify_index_min_confidence:
-        return _reject(_rejection_reason(result))
+    state = lifecycle.classify_probe(result, settings.shopify_index_min_confidence)
+    if state != "verified_shopify":
+        return _failure(state)
 
     # Shared brand text is not proof of canonical identity. Keep both domains
     # until redirect or Shopify shop identity evidence establishes equivalence.
 
-    # VERIFIED — store raw signals only. Classification happens in Stage 3.
+    # VERIFIED â€” store raw signals only. Classification happens in Stage 3.
     market = derive_market_context(profile.get("product_count"), profile.get("median_price"))
-    upsert_index_row(db, domain, {
+    fields = {
         "status": "verified",
-        "knowledge_at": None,
         "rejection_reason": None,
         "failure_reason": None,
         "business_stage": market["business_stage"],
@@ -989,14 +1111,21 @@ def verify_and_store(db, domain: str, source: str, source_query: Optional[str] =
         "verified_at": now,
         "last_verified_at": now,
         "last_light_scanned_at": now,
-    })
-    return {"domain": domain, "outcome": "verified", "reason": None}
+    }
+    fields.update(lifecycle.successful_fields(result["catalog_observation"], confidence, result.get("signals")))
+    fields.update(classification_transition(previous, fields))
+    saved = _finish_verification(db, domain, token, fields)
+    return {"domain": domain, "outcome": "verified" if saved else "skipped",
+            "reason": None if saved else "superseded", "successful_catalogs": int(saved),
+            "attempted": True,
+            "confidence": confidence,
+            "reverified": bool(saved and previous.get("last_verified_at"))}
 
 
-# ── Stage 3: Knowledge ─────────────────────────────────────────────────────
+# â”€â”€ Stage 3: Knowledge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Runs ONLY on verified stores. Its job is understanding, not discovery: it
 # reads the raw signals stored at verification and builds a confidence-scored
-# category (with evidence), price bands, target customer, and brand keywords —
+# category (with evidence), price bands, target customer, and brand keywords â€”
 # no network access at all.
 
 def _derive_target_customer(pricing_tier: Optional[str], category: Optional[str]) -> Optional[str]:
@@ -1010,7 +1139,7 @@ def _derive_target_customer(pricing_tier: Optional[str], category: Optional[str]
 
 
 def _brand_keywords(row: Dict[str, Any], evidence: List[dict]) -> List[str]:
-    """Compact, human-readable descriptors — the strongest distinct evidence
+    """Compact, human-readable descriptors â€” the strongest distinct evidence
     terms plus the merchant's own top product types."""
     kws: List[str] = []
     for e in evidence:
@@ -1026,6 +1155,39 @@ def _brand_keywords(row: Dict[str, Any], evidence: List[dict]) -> List[str]:
     return kws[:8]
 
 
+def classification_transition(previous, fields):
+    """First signatures are not proof of a changed business. Carry a useful
+    classification provisionally, bounded by its original verification expiry
+    and seven days, unless fresh products confidently contradict it.
+    """
+    from datetime import timedelta
+    from app.services.discovery_quality import is_recent_verified
+    observation = dict(fields['catalog_observation'])
+    old = previous.get('catalog_observation') or {}
+    if observation.get('signature') == old.get('signature'):
+        # Reverification must never reset the provisional expiry/retry clock.
+        observation.update({k:v for k,v in old.items() if k.startswith('classification_')})
+        return {'catalog_observation':observation}
+    now = lifecycle.timestamp(observation['observed_at'])
+    fallback = classify_store_v2(product_types=fields.get('product_types'), product_titles=fields.get('product_titles'),allow_ai=False)
+    from app.services.store_dna import category_relation
+    contradiction = fallback['confidence'] >= 70 and category_relation(fallback['category'],previous.get('category')) == 'contradiction'
+    until = lifecycle.timestamp(old.get('classification_valid_until'))
+    if until is None:
+        verified = lifecycle.timestamp(previous.get('last_verified_at'))
+        until = min(verified + timedelta(days=60),now + timedelta(days=7)) if verified else now
+    useful = (is_recent_verified(previous,now=now) and previous.get('category')
+              and (previous.get('category_confidence') or 0) >= 55 and until > now and not contradiction)
+    observation.update(classification_state='provisional' if useful else 'pending',
+        classification_valid_until=until.isoformat() if useful else None,
+        classification_prior_signature=old.get('signature'))
+    out={'catalog_observation':observation, 'knowledge_at':None}
+    if not useful:
+        out.update(category_confidence=0,category=None,subcategory=None,description=None,
+            store_dna=None,dna_keywords=None,dna_signature=None,dna_at=None,target_customer=None)
+    return out
+
+
 def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
     """
     Stage 3. Classify a verified store from its STORED signals (no re-fetch).
@@ -1033,7 +1195,9 @@ def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
     customer and brand keywords, and stamps knowledge_at. Returns
     {domain, category, confidence}.
     """
-    domain = normalize_domain(row.get("domain") or "")
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
+    domain = row.get("domain") or ""
     now = datetime.now(timezone.utc).isoformat()
 
     # AI-primary classification (reads the real product titles) is far more
@@ -1074,7 +1238,7 @@ def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
     brand_keywords = _brand_keywords(row, evidence)
     target_customer = _derive_target_customer(pricing_tier, classification["category"])
 
-    # Store DNA — the semantic business profile that lets the index rank TRUE
+    # Store DNA â€” the semantic business profile that lets the index rank TRUE
     # direct competitors, not just same-category stores. One cheap Haiku call,
     # cached by an input signature so it never re-runs unless the picture
     # changes. Fully guarded: DNA is a bonus layer, never a gate on knowledge.
@@ -1096,14 +1260,14 @@ def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
         }
         dna_sig = dna_signature(dna_ctx)
         if row.get("dna_signature") == dna_sig and row.get("store_dna"):
-            dna, dna_kws = row.get("store_dna"), row.get("dna_keywords")  # unchanged — reuse
+            dna, dna_kws = row.get("store_dna"), row.get("dna_keywords")  # unchanged â€” reuse
         else:
             dna = generate_store_dna(dna_ctx)
             dna_kws = (dna or {}).get("keywords")
     except Exception as dna_exc:
         logger.debug("store DNA skipped for %s: %s", domain, dna_exc)
 
-    upsert_index_row(db, domain, {
+    payload = {
         "category": classification["category"],
         "subcategory": classification["subcategory"],
         "category_confidence": classification["confidence"],
@@ -1117,19 +1281,49 @@ def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
         "dna_signature": dna_sig,
         "dna_at": now if dna else None,
         "knowledge_at": now,
-    })
+        "updated_at": now,
+    }
+    observation = dict(row.get('catalog_observation') or {})
+    if observation:
+        from datetime import timedelta
+        from app.services.discovery_quality import is_classification_usable
+        adequate = classification['confidence'] >= 55
+        carry = not adequate and observation.get('classification_state') == 'provisional' and is_classification_usable(row)
+        if carry:
+            for key in ('category','subcategory','category_confidence','category_evidence','description',
+                        'target_customer','brand_keywords','store_dna','dna_keywords','dna_signature','dna_at'):
+                payload[key] = row.get(key)
+        if not adequate:
+            payload['knowledge_at'] = None
+        observation['classification_state'] = ('current' if adequate else
+            'provisional' if carry else 'uncertain')
+        observation['classification_attempt_confidence'] = classification['confidence']
+        observation['classification_retry_at'] = ((datetime.now(timezone.utc)+timedelta(days=1)).isoformat() if not adequate else None)
+        if adequate:
+            observation['classification_valid_until'] = None
+        payload['catalog_observation'] = observation
+    q = db.table("shopify_store_index").update(payload).eq("domain", domain).eq("status", "verified")
+    q = q.eq("updated_at", row["updated_at"]) if row.get("updated_at") else q.is_("updated_at", "null")
+    q = q.is_("verification_token", "null")
+    signature = (row.get("catalog_observation") or {}).get("signature")
+    q = q.eq("catalog_observation->>signature", signature) if signature else q.is_("catalog_observation", "null")
+    if not q.execute().data:
+        return {"domain": domain, "status": "superseded"}
     return {
         "domain": domain,
         "category": classification["category"],
         "confidence": classification["confidence"],
+        "classification_state": (payload.get('catalog_observation') or {}).get('classification_state'),
     }
 
 
-# ── Competitor knowledge graph ─────────────────────────────────────────────
+# â”€â”€ Competitor knowledge graph â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def record_competitor_edge(db, source_key: str, target_domain: str, edge_source: str, delta: int = 1, set_weight: Optional[int] = None) -> None:
     """Strengthen (or, with set_weight, pin) a who-competes-with-whom edge.
-    Guarded end-to-end — graph writes must never break the caller."""
+    Guarded end-to-end â€” graph writes must never break the caller."""
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     try:
         source_key = source_key if source_key.startswith("user:") else normalize_domain(source_key)
         target_domain = normalize_domain(target_domain)
@@ -1150,11 +1344,11 @@ def record_competitor_edge(db, source_key: str, target_domain: str, edge_source:
                 "edge_source": edge_source, "created_at": now, "updated_at": now,
             }).execute()
     except Exception as exc:
-        logger.debug("competitor edge write skipped (%s→%s): %s", source_key, target_domain, exc)
+        logger.debug("competitor edge write skipped (%sâ†’%s): %s", source_key, target_domain, exc)
 
 
 def graph_neighbors(db, source_keys: List[str], limit: int = 12) -> Dict[str, int]:
-    """Positive-weight neighbors of any of the source keys → {domain: weight}.
+    """Positive-weight neighbors of any of the source keys â†’ {domain: weight}.
     Negative-weight edges are returned too (weight < 0) so callers can
     EXCLUDE confirmed non-competitors."""
     out: Dict[str, int] = {}
@@ -1175,34 +1369,49 @@ def graph_neighbors(db, source_keys: List[str], limit: int = 12) -> Dict[str, in
     return out
 
 
-# ── Upsert ─────────────────────────────────────────────────────────────────
+# â”€â”€ Upsert â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def upsert_index_row(db, domain: str, fields: Dict[str, Any]) -> str:
     """
     Upsert by domain. Returns 'inserted' | 'updated' | 'skipped'.
-    Never downgrades a verified row back to candidate — a fresher verified/
+    Never downgrades a verified row back to candidate â€” a fresher verified/
     rejected/failed result always wins, but a mere re-candidate does not.
     """
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
     domain = normalize_domain(domain)
     if not domain or "." not in domain:
         return "skipped"
 
     now = datetime.now(timezone.utc).isoformat()
-    # Drop unset fields so partial updates don't blank existing data — but keep
+    # Drop unset fields so partial updates don't blank existing data â€” but keep
     # an explicit failure_reason=None, which clears a stale reason on re-verify.
-    fields = {k: v for k, v in fields.items() if v is not None or k in {"failure_reason", "rejection_reason", "knowledge_at"}}
+    fields = {k: v for k, v in fields.items() if v is not None or k in {"failure_reason", "rejection_reason", "knowledge_at", "verification_token"}}
     fields["domain"] = domain
     fields["updated_at"] = now
 
     existing = None
     try:
-        res = db.table("shopify_store_index").select("id, status").eq("domain", domain).maybe_single().execute()
+        res = db.table("shopify_store_index").select("*").eq("domain", domain).maybe_single().execute()
         existing = res.data if res else None
     except Exception:
         # A failed existence lookup is not evidence that the row is absent.
         raise
 
-    # Columns added by later migrations may not exist yet — retry without them
+    observation = fields.get("catalog_observation")
+    if observation and existing:
+        if observation.get("signature") == (existing.get("catalog_observation") or {}).get("signature"):
+            fields.update(classification_transition(existing,fields))
+            for key in ("knowledge_at", "category_confidence", "category", "subcategory", "description"):
+                fields.pop(key, None)
+        else:
+            transition = classification_transition(existing, fields)
+            if transition['catalog_observation']['classification_state'] == 'provisional':
+                for key in ('category','subcategory','category_confidence','description'):
+                    fields.pop(key,None)
+            fields.update(transition)
+
+    # Columns added by later migrations may not exist yet â€” retry without them
     # so the index keeps working during the migration window (008:
     # business_stage/pricing_tier/expanded_at; 015: the three-stage pipeline
     # fields; 016: product_titles).
@@ -1216,37 +1425,35 @@ def upsert_index_row(db, domain: str, fields: Dict[str, Any]) -> str:
         "store_dna", "dna_keywords", "dna_signature", "dna_at",
     )
 
-    def _write(payload: Dict[str, Any]) -> None:
+    def _write(payload: Dict[str, Any]) -> bool:
         if existing:
-            db.table("shopify_store_index").update(payload).eq("domain", domain).execute()
-        else:
-            db.table("shopify_store_index").insert(payload).execute()
+            q = db.table("shopify_store_index").update(payload).eq("domain", domain)
+            q = q.eq("updated_at", existing["updated_at"]) if existing.get("updated_at") else q.is_("updated_at", "null")
+            q = q.eq("verification_token", existing["verification_token"]) if existing.get("verification_token") else q.is_("verification_token", "null")
+            return bool(q.execute().data)
+        # PostgREST emits ON CONFLICT(domain) DO NOTHING. A racing creator
+        # retains its entire row, including its lease and classification.
+        return bool(db.table("shopify_store_index").upsert(
+            payload, on_conflict="domain", ignore_duplicates=True).execute().data)
 
-    if existing and existing.get("status") == "verified" and fields.get("status") == "candidate":
+    if existing and fields.get("status") in {"candidate", "discovered"}:
         return "skipped"
 
     # Write, and if the schema is missing a column (partial migration), drop
-    # exactly the offending column named in the error and retry — so applying
+    # exactly the offending column named in the error and retry â€” so applying
     # 015 but not 016 (or vice-versa) still persists everything that DOES exist.
     payload = dict(fields)
     for _ in range(len(_NEWER_COLS) + 1):
         try:
-            _write(payload)
+            if not _write(payload):
+                return "skipped"
             return "updated" if existing else "inserted"
         except Exception as exc:
             missing = _missing_column(str(exc))
-            if missing and missing in payload and missing != "domain":
+            if missing and missing in payload and missing not in {"domain", "verification_state", "catalog_observation", "last_attempted_at", "next_verification_at", "verification_attempts", "verification_token"}:
                 payload.pop(missing, None)
                 logger.debug("upsert dropping missing column %r for %s", missing, domain)
                 continue
-            # Handle only a confirmed concurrent insert, retaining verified status.
-            if not existing and (getattr(exc, "code", None) == "23505" or "23505" in str(exc)):
-                found = db.table("shopify_store_index").select("id, status").eq("domain", domain).maybe_single().execute()
-                existing = found.data if found else None
-                if existing:
-                    if existing.get("status") == "verified" and payload.get("status") in ("candidate", "discovered"):
-                        return "skipped"
-                    continue
             raise
     return "updated" if existing else "inserted"
 
@@ -1268,81 +1475,18 @@ def _missing_column(msg: str) -> Optional[str]:
 
 def process_domain_into_index(db, domain: str, source: str, source_query: Optional[str] = None) -> Dict[str, Any]:
     """
-    Full pipeline for one domain: light pass → threshold → classify → upsert.
+    Full pipeline for one domain: light pass â†’ threshold â†’ classify â†’ upsert.
     Returns {domain, outcome: verified|rejected|failed, confidence}.
     Used by the internal endpoint (web process) and admin test runs.
     """
-    from app.core.config import get_settings
-    settings = get_settings()
-    domain = normalize_domain(domain)
-    now = datetime.now(timezone.utc).isoformat()
-
-    try:
-        result = index_store_pass(domain)
-    except Exception as exc:
-        logger.warning("index pass crashed for %s: %s", domain, exc)
-        upsert_index_row(db, domain, {
-            "status": "failed", "failure_reason": f"pass_error: {exc}"[:300],
-            "source": source, "source_query": source_query, "last_verified_at": now,
-        })
-        return {"domain": domain, "outcome": "failed", "confidence": 0}
-
-    if not result["reachable"]:
-        upsert_index_row(db, domain, {
-            "status": "failed", "failure_reason": result["failure_reason"] or "unreachable",
-            "source": source, "source_query": source_query, "last_verified_at": now,
-        })
-        return {"domain": domain, "outcome": "failed", "confidence": 0}
-
-    confidence = result["confidence"]
-    profile = result["profile"]
-
-    if confidence < settings.shopify_index_min_confidence:
-        upsert_index_row(db, domain, {
-            "status": "rejected",
-            "failure_reason": f"confidence {confidence} below threshold {settings.shopify_index_min_confidence}",
-            "verification_confidence": confidence,
-            "verification_signals": result["signals"],
-            "brand_name": profile.get("brand_name"),
-            "source": source, "source_query": source_query, "last_verified_at": now,
-        })
-        return {"domain": domain, "outcome": "rejected", "confidence": confidence}
-
-    classification = classify_store(
-        title=profile.get("page_title", ""),
-        description=profile.get("meta_description", ""),
-        product_types=profile.get("product_types"),
-        tags=profile.get("tags"),
-        collections=profile.get("collections"),
-        vendors=profile.get("vendors"),
-    )
-    market = derive_market_context(profile.get("product_count"), profile.get("median_price"))
-
-    upsert_index_row(db, domain, {
-        "status": "verified",
-        "failure_reason": None,
-        "business_stage": market["business_stage"],
-        "pricing_tier": market["pricing_tier"],
-        "brand_name": profile.get("brand_name"),
-        "homepage_url": profile.get("homepage_url"),
-        "category": classification["category"],
-        "subcategory": classification["subcategory"],
-        "description": classification["description"] or profile.get("meta_description"),
-        "language": profile.get("language"),
-        "product_count": profile.get("product_count"),
-        "median_price": profile.get("median_price"),
-        "min_price": profile.get("min_price"),
-        "max_price": profile.get("max_price"),
-        "promo_rate": profile.get("promo_rate"),
-        "collections": profile.get("collections"),
-        "product_types": profile.get("product_types"),
-        "tags": profile.get("tags"),
-        "vendors": profile.get("vendors"),
-        "verification_confidence": confidence,
-        "verification_signals": result["signals"],
-        "source": source,
-        "source_query": source_query,
-        "last_verified_at": now,
-        "last_light_scanned_at": now,
-    })
-    return {"domain": domain, "outcome": "verified", "confidence": confidence}
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
+    result = verify_and_store(db, domain, source, source_query)
+    if result.get("outcome") == "verified":
+        try:
+            row = db.table("shopify_store_index").select("*").eq("domain", result["domain"]).maybe_single().execute().data
+            if row and not row.get("knowledge_at"):
+                run_knowledge(db, row)
+        except Exception:
+            logger.exception("Knowledge pending after verification for %s", domain)
+    return result

@@ -21,6 +21,7 @@ task's cadence.
 from __future__ import annotations
 
 import functools
+from app.core.index_hold import index_writes_held, IndexDeploymentHeld
 import logging
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional
@@ -47,6 +48,8 @@ def _now_iso() -> str:
 def record_dispatch(stage: str) -> None:
     """Persist that Beat dispatched `stage` just now. Guarded — visibility must
     never break the task."""
+    if index_writes_held():
+        return
     try:
         from app.services.runtime_config import set_config
         now = _now_iso()
@@ -73,6 +76,8 @@ def record_run(stage: str, result: Dict[str, Any], *,
     `trigger` is 'scheduled:<stage>' or 'manual:<stage>'; the Celery task id is
     stored in notes for provenance. Guarded — visibility never breaks the task.
     """
+    if index_writes_held():
+        return
     try:
         from app.core.database import get_supabase
         db = get_supabase()
@@ -126,21 +131,12 @@ def record_run(stage: str, result: Dict[str, Any], *,
 
 
 def _acquire_single_flight(stage: str, ttl_s: int) -> Optional[Any]:
-    """Best-effort Redis single-flight lock for a staged task. Returns a redis
-    client holding the lock (release via _release_single_flight), or None if the
-    lock is already held (another run in progress). If Redis is unavailable we
-    fail OPEN (return a sentinel) so the pipeline still runs — the worker is
-    concurrency-1 today, the lock is defense-in-depth for when it scales."""
+    from app.services.index_lease import acquire_stage
     try:
-        import redis as _redis
-        from app.core.config import get_settings
-        r = _redis.from_url(get_settings().redis_url, socket_connect_timeout=2)
-        if r.set(f"lock:index:{stage}", "1", nx=True, ex=ttl_s):
-            return r
-        return None  # held → skip
+        return acquire_stage(stage, ttl_s)
     except Exception as exc:
-        logger.warning("single-flight lock unavailable for %s (%s) — running without lock", stage, exc)
-        return _NO_REDIS  # fail open
+        logger.error("single-flight lock unavailable for %s (%s); batch refused", stage, type(exc).__name__)
+        return _NO_REDIS
 
 
 _NO_REDIS = object()
@@ -150,9 +146,9 @@ def _release_single_flight(stage: str, holder: Any) -> None:
     if holder is None or holder is _NO_REDIS:
         return
     try:
-        holder.delete(f"lock:index:{stage}")
+        holder.release()
     except Exception:
-        pass
+        logger.warning("stage lock release failed for %s; lease will expire", stage)
 
 
 # Per-stage lock TTL (safety net if the worker dies mid-run); released in
@@ -165,18 +161,24 @@ def scheduled_index_task(stage: str) -> Callable:
     """Decorator (apply UNDER @celery.task) that:
       1. records a dispatch heartbeat before the task runs,
       2. holds a single-flight lock so a manual and a scheduled run (or two
-         dispatches) of the same stage can never process concurrently, and
+         dispatches) of the same stage coordinate through an owned lease, and
       3. writes exactly one run record after the task actually processes work
          (status == 'ok'). A skipped (lock-held) run writes NO record.
     Preserves the task's signature and return value."""
     def deco(fn: Callable) -> Callable:
         @functools.wraps(fn)
         def wrapper(*args: Any, **kwargs: Any):
+            if index_writes_held():
+                return {"status": "deployment_hold"}
             record_dispatch(stage)
             holder = _acquire_single_flight(stage, _LOCK_TTL_S.get(stage, 900))
             if holder is None:
                 logger.info("%s: single-flight lock held — skipping overlapping run", stage)
                 return {"status": "skipped_lock", "note": "another run in progress"}
+            if holder is _NO_REDIS:
+                return {"status": "lock_unavailable", "note": "coordination unavailable; no work dispatched"}
+            from app.services.index_lease import current_lease, LeaseLost
+            context_token = current_lease.set(holder)
             # Provenance: a forced run is a manual/admin invocation; a plain Beat
             # dispatch runs with force=False.
             force = kwargs.get("force")
@@ -191,14 +193,23 @@ def scheduled_index_task(stage: str) -> Callable:
             except Exception:
                 pass
             try:
+                holder.start()
+                holder.require()
                 result = fn(*args, **kwargs)
+                holder.require()
                 try:
                     if isinstance(result, dict) and result.get("status") == "ok":
                         record_run(stage, result, trigger=trigger, task_id=task_id)
                 except Exception:
                     pass
                 return result
+            except IndexDeploymentHeld:
+                return {"status": "deployment_hold", "note": "partial run stopped"}
+            except LeaseLost:
+                logger.error("%s: stage lease lost; remaining work stopped", stage)
+                return {"status": "lock_lost", "note": "partial run; inspect persisted row outcomes"}
             finally:
+                current_lease.reset(context_token)
                 _release_single_flight(stage, holder)
         return wrapper
     return deco

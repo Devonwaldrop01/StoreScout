@@ -37,9 +37,8 @@ def _headers() -> dict:
 def _enforce_domain_rate_limit(hostname: str) -> None:
     """Enforce a brief gap between requests to the same domain using Redis if available."""
     try:
-        from app.core.config import get_settings
-        import redis as redis_lib
-        r = redis_lib.from_url(get_settings().redis_url, socket_connect_timeout=1)
+        from app.core.redis_connection import coordination_redis
+        r = coordination_redis()
         key = f"ratelimit:domain:{hostname}"
         if r.exists(key):
             time.sleep(1)  # Brief wait — scheduler won't send same domain twice quickly

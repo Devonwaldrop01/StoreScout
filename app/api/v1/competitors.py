@@ -387,7 +387,7 @@ async def discover_ai(
     db = get_supabase()
     settings = get_settings()
 
-    from app.services.discovery_quality import relevance, is_recent_verified
+    from app.services.discovery_quality import relevance, is_recent_verified, is_classification_usable
 
     FREE_LIMIT = 1
 
@@ -625,8 +625,11 @@ Rules:
     # ── Stage 0b: index-first — search our own verified store index before
     # asking Claude. Every hit here is pre-verified, instant, and free.
     # Guarded end-to-end so discovery works identically before migration 007.
+    index_available = False
     try:
         terms = normalize_keywords(body.description, limit=8)
+        if not terms:
+            index_available = True  # Nothing searchable, rather than a failed query.
         if terms:
             ors = ",".join(
                 f"{col}.ilike.%{t}%"
@@ -635,7 +638,7 @@ Rules:
             )
             def _idx_query(with_cat_conf: bool, by_category: bool):
                 cols = ("domain, brand_name, category, subcategory, description, "
-                        "verification_confidence, verification_signals, business_stage, pricing_tier, status, last_verified_at")
+                        "verification_confidence, verification_signals, business_stage, pricing_tier, status, last_verified_at, catalog_observation, verification_state")
                 if with_cat_conf:
                     # DNA columns (022) ride with the richer select — a missing
                     # column here just drops us to the leaner variant below.
@@ -660,12 +663,17 @@ Rules:
                         res = _idx_query(False, by_cat)
                     except Exception:
                         continue
+                index_available = True
                 for r in (res.data or []):
                     r["_by_category"] = by_cat
                     idx_rows.append(r)
             try:
                 extra = db.table("shopify_store_index").select("*").eq("status", "verified")
-                extra = extra.overlaps("dna_keywords", terms).order("last_verified_at", desc=True).limit(200).execute()
+                # dna_keywords is JSONB, not a PostgreSQL array. OR singleton
+                # containment preserves any-keyword semantics without invalid &&.
+                import json as _json
+                extra = extra.or_(','.join('dna_keywords.cs.' + _json.dumps([t]) for t in terms)).order("last_verified_at", desc=True).limit(200).execute()
+                index_available = True
                 idx_rows.extend(extra.data or [])
                 if positive:
                     graph_rows = db.table("shopify_store_index").select("*").in_("domain", positive[:12]).execute()
@@ -694,11 +702,10 @@ Rules:
                 if d in seen or d in blocked or len(verified) >= TARGET_VERIFIED:
                     continue
                 match = relevance(row, user_match_ctx)
-                if not is_recent_verified(row, settings.shopify_index_min_confidence) or not match["matched_terms"]:
+                if not is_recent_verified(row, settings.shopify_index_min_confidence) or not match["matched_terms"] or not match['intent']['supported']:
                     continue
                 # Withhold low-confidence classifications — quality over padding.
-                cc = row.get("category_confidence")
-                if cc is not None and cc < cat_floor:
+                if not is_classification_usable(row,cat_floor):
                     continue
                 seen.add(d)
                 dna = row.get("store_dna") if isinstance(row.get("store_dna"), dict) else None
@@ -719,7 +726,9 @@ Rules:
         logger.debug("discover-ai index-first lookup skipped: %s", idx_exc)
 
     loop_error: Exception | None = None
-    for batch in range(MAX_BATCHES if settings.anthropic_api_key and len(verified) < TARGET_VERIFIED else 0):
+    from app.core.index_hold import index_writes_held, require_index_writes
+    for batch in range(MAX_BATCHES if not index_writes_held() and settings.anthropic_api_key and len(verified) < TARGET_VERIFIED else 0):
+        require_index_writes()
         try:
             suggestions = await asyncio.get_event_loop().run_in_executor(
                 None, _call_claude, _discovery_prompt(sorted(seen))
@@ -743,14 +752,15 @@ Rules:
         cached_rows: dict = {}
         try:
             cache_res = db.table("shopify_store_index")\
-                .select("domain, status, verification_confidence, verification_signals, last_verified_at")\
+                .select("domain, status, verification_confidence, verification_signals, last_verified_at, catalog_observation, verification_state, next_verification_at")\
                 .in_("domain", [s["domain"] for s in fresh])\
                 .execute()
             cached_rows = {r["domain"]: r for r in (cache_res.data or [])}
         except Exception:
             pass
 
-        recent_cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+        from app.services.verification_lifecycle import timestamp as verification_timestamp
+        probe_clock = datetime.now(timezone.utc)
         to_probe = []
         for s in fresh:
             row = cached_rows.get(s["domain"])
@@ -761,11 +771,14 @@ Rules:
                     "signals": row.get("verification_signals") or [],
                     "source": "index",
                 })
-            elif row and row.get("status") in ("rejected", "failed") and (row.get("last_verified_at") or "") >= recent_cutoff:
+            elif (row and row.get("status") in ("rejected", "failed")
+                  and verification_timestamp(row.get("next_verification_at"))
+                  and verification_timestamp(row["next_verification_at"]) > probe_clock):
                 relevant_other.append({**s, "note": "Catalog access could not be verified; platform and relevance need review"})
             else:
                 to_probe.append(s)
 
+        require_index_writes()
         results = await asyncio.gather(*[_verify(s["domain"]) for s in to_probe])
         writeback_rows = []
         probe_now = datetime.now(timezone.utc).isoformat()
@@ -777,23 +790,18 @@ Rules:
                 relevant_other.append({**s, "note": "Shopify signals found, but catalog access could not be verified"})
             else:
                 relevant_other.append({**s, "note": "Catalog access could not be verified; platform and relevance need review"})
-            # Write every probe back into the index — discovery compounds it for free
+            # The quick UI probe has no dated raw-catalog contract. Queue new
+            # domains for the shared verifier; never overwrite prior index facts.
             writeback_rows.append({
                 "domain": s["domain"],
-                "status": "verified" if (v["verified"] and v["monitorable"]) else "rejected",
-                "verification_confidence": v["confidence"],
-                "verification_signals": v["signals"],
-                "failure_reason": None if (v["verified"] and v["monitorable"]) else "discovery probe below threshold or catalog locked",
+                "status": "candidate",
                 "source": "discovery",
                 "source_query": body.description.strip()[:200],
-                "last_verified_at": probe_now,
                 "updated_at": probe_now,
             })
         if writeback_rows:
             try:
-                # These domains had no fresh verified index row (else they'd have
-                # been served from cache), so a blind upsert can't downgrade one.
-                db.table("shopify_store_index").upsert(writeback_rows, on_conflict="domain").execute()
+                db.table("shopify_store_index").upsert(writeback_rows, on_conflict="domain", ignore_duplicates=True).execute()
             except Exception as wb_exc:
                 logger.debug("discover-ai index write-back skipped: %s", wb_exc)
 
@@ -805,12 +813,16 @@ Rules:
             break
 
     if not verified and not relevant_other:
-        # Nothing at all came back — surface the real failure instead of an empty list
+        # An exhausted search is a valid empty state. Preserve actual provider
+        # failures, but do not invent a server failure when no candidates match.
         if isinstance(loop_error, _anthropic.AuthenticationError):
             raise HTTPException(status_code=500, detail="AI service authentication failed — contact support.")
         if isinstance(loop_error, _anthropic.RateLimitError):
             raise HTTPException(status_code=429, detail="AI service is busy — please try again in a moment.")
-        raise HTTPException(status_code=500, detail="Failed to generate suggestions — please try again.")
+        if loop_error is not None:
+            raise HTTPException(status_code=500, detail="Failed to generate suggestions — please try again.")
+        if not settings.anthropic_api_key and not index_available:
+            raise HTTPException(status_code=503, detail="Discovery is temporarily unavailable — please try again.")
 
     # ── Final relevance guard: index rows are already contradiction-ranked, but
     # the Claude batches are appended in the model's own order and can float a
@@ -831,7 +843,7 @@ Rules:
     # NEXT person searching this niche gets real matches. Fire-and-forget, gated,
     # and de-duped by a 24h per-niche cooldown so we never spam the generator.
     try:
-        if len(verified) < 4 and settings.anthropic_api_key:
+        if not index_writes_held() and (verified or relevant_other) and len(verified) < 4 and settings.anthropic_api_key:
             import re as _re2, hashlib as _hl
             niche = " ".join(_re2.findall(r"[a-z0-9]+", body.description.lower()))[:120].strip()
             if len(niche) >= 4:

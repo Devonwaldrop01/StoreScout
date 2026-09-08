@@ -232,17 +232,15 @@ def test_known_product_handle_rename_is_not_addition_and_removal():
 
 def test_confirmed_concurrent_index_insert_preserves_verified_row():
     from app.services.store_index import upsert_index_row
-    reads=0
     class Query:
-        def __init__(self): self.inserting=False
+        def __init__(self): self.writing=False
         def __getattr__(self,name): return lambda *a,**k:self
-        def insert(self,payload): self.inserting=True;return self
-        def update(self,payload): raise AssertionError('verified row must not be downgraded')
-        def execute(self):
-            nonlocal reads
-            if self.inserting: raise RuntimeError('23505 duplicate domain')
-            reads+=1
-            return SimpleNamespace(data=None if reads==1 else {'id':'existing','status':'verified'})
+        def upsert(self,payload, *, on_conflict, ignore_duplicates):
+            assert on_conflict == 'domain' and ignore_duplicates
+            self.writing=True
+            return self
+        def update(self,payload): raise AssertionError('racing row must not be overwritten')
+        def execute(self): return SimpleNamespace(data=[] if self.writing else None)
     assert upsert_index_row(SimpleNamespace(table=lambda _:Query()),'shop.test',{'status':'candidate','category':'Fashion'})=='skipped'
 
 

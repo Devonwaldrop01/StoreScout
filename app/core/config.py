@@ -95,6 +95,8 @@ class Settings(BaseSettings):
 
     # Shopify store index (background discovery worker) — off unless explicitly enabled
     shopify_index_enabled: bool = False
+    store_index_canary_enabled: bool = False
+    store_index_canary_manifest_sha256: str = ""
     # The worker optimizes for NEW VERIFIED stores per day, not candidates
     # processed. candidate_limit stays as the hard request budget.
     # Dev 25–50 / early prod 50–100 / scaled 100–250.

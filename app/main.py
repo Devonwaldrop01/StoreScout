@@ -60,6 +60,13 @@ resend.api_key = RESEND_API_KEY
 
 app = FastAPI(title="StoreScout")
 
+from app.core.index_hold import IndexDeploymentHeld
+
+
+@app.exception_handler(IndexDeploymentHeld)
+async def index_deployment_held(request: Request, exc: IndexDeploymentHeld):
+    return JSONResponse(status_code=503, content={"detail": "Index maintenance in progress", "code": "deployment_hold"})
+
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
