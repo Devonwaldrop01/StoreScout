@@ -12,3 +12,4 @@ docs/quality-audit
 *.bundle
 *.log
 .github
+.claude

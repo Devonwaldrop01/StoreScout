@@ -71,6 +71,12 @@ as an Actions artifact for 14 days. No image is deployed by this workflow.
 The image gate remains pending until the exact published SHA finishes all these
 checks. A successful local suite alone does not authorize rollout.
 
+The first isolated run exposed an inherited orphan Git submodule entry at
+`.claude/worktrees/laughing-dewdney-a9b2f0`, without any .gitmodules mapping.
+It prevented Actions checkout cleanup. The release removes only this stale Git
+index entry, preserving the local directory, and ignores local Claude worktrees
+in Git and Docker packaging. No application source was removed.
+
 ## Remaining production gates
 
 After image success, recheck deployed source/configuration, migration checksum,

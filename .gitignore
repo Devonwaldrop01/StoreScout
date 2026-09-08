@@ -10,6 +10,7 @@ outputs/
 celerybeat-schedule
 celerybeat.pid
 .celery/
+.claude/worktrees/
 node_modules/
 frontend/.next/
 frontend/out/
