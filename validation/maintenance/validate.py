@@ -7,6 +7,7 @@ from pathlib import Path
 import shlex
 import subprocess
 import time
+from single_line import build, encode
 
 SHA = "667dea6e3eb35c53116e349758d4606e08a5adb0"
 IMAGE = "sha256:b55cac6642281d6d755b43144dab4639e2fcc18accee69ae1fb1b8240ac9ca6a"
@@ -57,21 +58,7 @@ def stop_clean(name, signal="SIGTERM", bound=30):
     assert not inspect(name)["State"]["OOMKilled"]
     results["shutdown"][name + "-" + signal] = {"signal": signal, "exit_code": code, "seconds": elapsed}
 
-commands = {}
-for mode in ("web", "idle"):
-    source = (ROOT / (mode + ".py")).read_text()
-    imports = []
-    for n in ast.walk(ast.parse(source)):
-        if isinstance(n, ast.Import):
-            imports.extend(a.name for a in n.names)
-        elif isinstance(n, ast.ImportFrom):
-            imports.append(n.module)
-    assert set(imports) <= {"os", "signal", "threading", "http.server"}
-    argv = ["python", "-I", "-S", "-B", "-u", "-c", source]
-    command = shlex.join(argv)
-    assert shlex.split(command) == argv
-    commands[mode] = {"argv": argv, "linux_command": command,
-                      "source_sha256": hashlib.sha256(source.encode()).hexdigest(), "imports": imports}
+commands = build(ROOT)
 normal = {
     "web": ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "10000"],
     "worker": ["celery", "-A", "app.tasks.celery_app.celery", "worker", "--loglevel=info", "-Q", "default,priority", "--concurrency=2"],
@@ -110,10 +97,31 @@ try:
     mount_baseline = docker("diff", "inert-control")
     results["docker_mount_baseline"] = mount_baseline
     assert all(l in ("A /validation",) for l in mount_baseline.splitlines()), mount_baseline
-    for role in ("beat", "worker", "web"):
-        name = "inert-" + role
-        argv = commands["web" if role == "web" else "idle"]["argv"]
-        start(name, argv, {"PORT": "10000"}, extra=("--read-only",))
+    # Exercise POSIX tokenization and actual dash/bash command parsing. All
+    # hostile shell syntax must remain literal data, never commands or env reads.
+    probe = "quotes '\" dollar $PORT ${HOME} $(false) `false` ; & | < > \\ newline\n"
+    probe_source = "import json;print(json.dumps(" + repr(probe) + "))"
+    probe_argv, probe_command = encode(probe_source)
+    results["quoting"] = {}
+    for parser, prefix in (("argv", []), ("dash", ["/bin/sh", "-c"]), ("bash", ["/bin/bash", "-c"])):
+        argv = prefix + ["exec " + probe_command] if prefix else shlex.split(probe_command)
+        output = docker("run", "--rm", "--network", "none", "--read-only",
+                        "-e", "PORT=must-not-expand", IMAGE, *argv)
+        assert json.loads(output) == probe, (parser, output)
+        results["quoting"][parser] = "literal bytes preserved; no expansion or command chain"
+
+    # Original source provides a same-run reference. Both single-line launch
+    # paths must preserve PID 1, responses, no writes, and signal handling.
+    for variant, role in [(v, r) for v in ("multiline", "single-argv", "single-shell")
+                          for r in ("beat", "worker", "web")]:
+        name = "inert-" + variant + "-" + role
+        spec = commands["web" if role == "web" else "idle"]
+        argv = (spec["multiline_argv"] if variant == "multiline" else
+                shlex.split(spec["linux_command"]) if variant == "single-argv" else
+                ["/bin/sh", "-c", "exec " + spec["linux_command"]])
+        start(name, argv, {"PORT": "10000", "STORE_INDEX_DEPLOYMENT_HOLD": "true",
+                          "STORE_INDEX_CANARY_ENABLED": "false",
+                          "PYTHONPATH": "/must-not-be-imported"}, extra=("--read-only",))
         for _ in range(30):
             if "application not imported" in logs(name):
                 break
@@ -128,9 +136,9 @@ with socket.create_connection(('127.0.0.1',10000),timeout=2): pass
 for method,path in [('GET','/'),('HEAD','/'),('POST','/api/v1/internal/store-index/verify'),('GET','/.env'),('GET','/../Dockerfile'),('PATCH','/'),('DELETE','/'),('OPTIONS','/')]:
  c=http.client.HTTPConnection('127.0.0.1',10000,timeout=2);c.request(method,path);r=c.getresponse();b=r.read();assert r.status==503 and r.getheader('Retry-After')=='60';assert b==(b'' if method=='HEAD' else b'StoreScout maintenance. Please retry later.\\n');c.close()
 print('8 maintenance responses passed')"""
-            results["inert"][role] = docker("exec", name, "python", "-I", "-S", "-B", "-c", check)
+            results["inert"][variant + "-" + role] = docker("exec", name, "python", "-I", "-S", "-B", "-c", check)
         else:
-            results["inert"][role] = "one idle process, no network, no application startup"
+            results["inert"][variant + "-" + role] = "one idle process, no network, no application startup"
         assert docker("diff", name) == mount_baseline, docker("diff", name)
         stop_clean(name)
         assert "clean exit" in logs(name)
