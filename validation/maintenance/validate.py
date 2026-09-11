@@ -102,6 +102,14 @@ try:
     (EVIDENCE / "inventory-packages.json").write_text(out)
     (EVIDENCE / "pip-check.txt").write_text(docker("run", "--rm", "--network", "none", IMAGE, "python", "-m", "pip", "check"))
 
+    # Docker can add the bind-mount target itself to the writable layer even
+    # when the process has a read-only root. Measure that with an inert control.
+    start("inert-control", ["python", "-I", "-S", "-B", "-c", "pass"],
+          {"PORT": "10000"}, extra=("--read-only",))
+    assert int(docker("wait", "inert-control")) == 0
+    mount_baseline = docker("diff", "inert-control")
+    results["docker_mount_baseline"] = mount_baseline
+    assert all(l in ("A /validation",) for l in mount_baseline.splitlines()), mount_baseline
     for role in ("beat", "worker", "web"):
         name = "inert-" + role
         argv = commands["web" if role == "web" else "idle"]["argv"]
@@ -123,14 +131,14 @@ print('8 maintenance responses passed')"""
             results["inert"][role] = docker("exec", name, "python", "-I", "-S", "-B", "-c", check)
         else:
             results["inert"][role] = "one idle process, no network, no application startup"
-        assert docker("diff", name) == ""
+        assert docker("diff", name) == mount_baseline, docker("diff", name)
         stop_clean(name)
         assert "clean exit" in logs(name)
         # Restart the same command, then exercise SIGINT as a second clean path.
         docker("start", name)
         time.sleep(1)
         stop_clean(name, "SIGINT")
-        assert docker("diff", name) == ""
+        assert docker("diff", name) == mount_baseline, docker("diff", name)
 
     tls = TEMP / "maintenance-tls"
     tls.mkdir(exist_ok=True)
@@ -192,6 +200,7 @@ finally:
     for name in names:
         (EVIDENCE / (name + ".log")).write_text(logs(name))
         try:
+            (EVIDENCE / (name + "-diff.txt")).write_text(docker("diff", name))
             (EVIDENCE / (name + "-inspect.json")).write_text(json.dumps(inspect(name), indent=2))
         except Exception:
             pass
