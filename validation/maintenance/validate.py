@@ -58,7 +58,13 @@ def stop_clean(name, signal="SIGTERM", bound=30):
     assert not inspect(name)["State"]["OOMKilled"]
     results["shutdown"][name + "-" + signal] = {"signal": signal, "exit_code": code, "seconds": elapsed}
 
-commands = build(ROOT)
+SHELL_PROGRAM = "stop() { trap \"\" TERM INT; kill \"$child\" 2>/dev/null; wait \"$child\" 2>/dev/null; echo \"STORE_INDEX_MAINTENANCE_BRIDGE clean exit\"; exit 0; }; sleep infinity & child=$!; trap stop TERM INT; echo \"STORE_INDEX_MAINTENANCE_BRIDGE idle; application not imported\"; wait \"$child\"; exit 1"
+RENDER_COMMAND = "/bin/sh -c '" + SHELL_PROGRAM + "'"
+assert shlex.split(RENDER_COMMAND) == ["/bin/sh", "-c", SHELL_PROGRAM]
+assert not any(c in RENDER_COMMAND for c in "\r\n\t\x00")
+commands = {"render_command": RENDER_COMMAND, "argv": shlex.split(RENDER_COMMAND),
+            "command_sha256": hashlib.sha256(RENDER_COMMAND.encode()).hexdigest()}
+(EVIDENCE / "render-beat-command.txt").write_text(RENDER_COMMAND)
 normal = {
     "web": ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "10000"],
     "worker": ["celery", "-A", "app.tasks.celery_app.celery", "worker", "--loglevel=info", "-Q", "default,priority", "--concurrency=2"],
@@ -97,56 +103,60 @@ try:
     mount_baseline = docker("diff", "inert-control")
     results["docker_mount_baseline"] = mount_baseline
     assert all(l in ("A /validation",) for l in mount_baseline.splitlines()), mount_baseline
-    # Exercise POSIX tokenization and actual dash/bash command parsing. All
-    # hostile shell syntax must remain literal data, never commands or env reads.
-    probe = "quotes '\" dollar $PORT ${HOME} $(false) `false` ; & | < > \\ newline\n"
-    probe_source = "import json;print(json.dumps(" + repr(probe) + "))"
-    probe_argv, probe_command = encode(probe_source)
-    results["quoting"] = {}
-    for parser, prefix in (("argv", []), ("dash", ["/bin/sh", "-c"]), ("bash", ["/bin/bash", "-c"])):
-        argv = prefix + ["exec " + probe_command] if prefix else shlex.split(probe_command)
-        output = docker("run", "--rm", "--network", "none", "--read-only",
-                        "-e", "PORT=must-not-expand", IMAGE, *argv)
-        assert json.loads(output) == probe, (parser, output)
-        results["quoting"][parser] = "literal bytes preserved; no expansion or command chain"
+    # Render documents /bin/sh -c for shell commands. Test the exact submitted
+    # text via POSIX tokenization, and through an additional outer POSIX shell.
+    # The maintenance payload itself is shell + sleep, never Python/app code.
+    results["shell_contract"] = {"render_command": RENDER_COMMAND,
+        "argv": shlex.split(RENDER_COMMAND), "new_release_required": False}
+    for transport in ("documented-argv", "outer-shell"):
+        argv = (shlex.split(RENDER_COMMAND) if transport == "documented-argv"
+                else ["/bin/sh", "-c", "exec " + RENDER_COMMAND])
+        for value in (None, "true", "", "unknown", "false"):
+            suffix = "missing" if value is None else value or "empty"
+            name = "shell-" + transport + "-" + suffix
+            env = {"STORE_INDEX_CANARY_ENABLED": "false",
+                   "PYTHONPATH": "/must-not-be-imported"}
+            if value is not None:
+                env["STORE_INDEX_DEPLOYMENT_HOLD"] = value
+            start(name, argv, env, extra=("--read-only",))
+            for _ in range(30):
+                if "application not imported" in logs(name):
+                    break
+                time.sleep(0.2)
+            assert "application not imported" in logs(name)
+            time.sleep(2)
+            assert inspect(name)["State"]["Running"]
+            top = docker("top", name, "-eo", "pid,comm")
+            process_names = sorted(line.split()[-1] for line in top.splitlines()[1:])
+            assert process_names == ["sh", "sleep"], top
+            assert docker("diff", name) == mount_baseline
+            assert inspect(name)["HostConfig"]["NetworkMode"] == "none"
+            results["inert"][name] = {"processes": process_names,
+                "network": "none", "hold": value, "app_initializations": 0}
+            stop_clean(name)
+            assert "clean exit" in logs(name)
+            assert inspect(name)["State"]["Running"] is False
+            docker("start", name)
+            time.sleep(1)
+            assert inspect(name)["State"]["Running"]
+            stop_clean(name, "SIGINT")
+            assert logs(name).count("clean exit") == 2
+            assert docker("diff", name) == mount_baseline
 
-    # Original source provides a same-run reference. Both single-line launch
-    # paths must preserve PID 1, responses, no writes, and signal handling.
-    for variant, role in [(v, r) for v in ("multiline", "single-argv", "single-shell")
-                          for r in ("beat", "worker", "web")]:
-        name = "inert-" + variant + "-" + role
-        spec = commands["web" if role == "web" else "idle"]
-        argv = (spec["multiline_argv"] if variant == "multiline" else
-                shlex.split(spec["linux_command"]) if variant == "single-argv" else
-                ["/bin/sh", "-c", "exec " + spec["linux_command"]])
-        start(name, argv, {"PORT": "10000", "STORE_INDEX_DEPLOYMENT_HOLD": "true",
-                          "STORE_INDEX_CANARY_ENABLED": "false",
-                          "PYTHONPATH": "/must-not-be-imported"}, extra=("--read-only",))
-        for _ in range(30):
-            if "application not imported" in logs(name):
-                break
-            time.sleep(0.2)
-        assert "application not imported" in logs(name)
-        assert inspect(name)["State"]["Running"]
-        top = docker("top", name, "-eo", "pid,comm")
-        assert len(top.splitlines()) == 2, top  # Only PID 1, no worker children.
-        if role == "web":
-            check = """import http.client,json,socket
-with socket.create_connection(('127.0.0.1',10000),timeout=2): pass
-for method,path in [('GET','/'),('HEAD','/'),('POST','/api/v1/internal/store-index/verify'),('GET','/.env'),('GET','/../Dockerfile'),('PATCH','/'),('DELETE','/'),('OPTIONS','/')]:
- c=http.client.HTTPConnection('127.0.0.1',10000,timeout=2);c.request(method,path);r=c.getresponse();b=r.read();assert r.status==503 and r.getheader('Retry-After')=='60';assert b==(b'' if method=='HEAD' else b'StoreScout maintenance. Please retry later.\\n');c.close()
-print('8 maintenance responses passed')"""
-            results["inert"][variant + "-" + role] = docker("exec", name, "python", "-I", "-S", "-B", "-c", check)
-        else:
-            results["inert"][variant + "-" + role] = "one idle process, no network, no application startup"
-        assert docker("diff", name) == mount_baseline, docker("diff", name)
-        stop_clean(name)
-        assert "clean exit" in logs(name)
-        # Restart the same command, then exercise SIGINT as a second clean path.
-        docker("start", name)
-        time.sleep(1)
-        stop_clean(name, "SIGINT")
-        assert docker("diff", name) == mount_baseline, docker("diff", name)
+    # The wait child must not silently disappear while the container looks live.
+    # Kill ONLY the disposable test container's sleep process from inside it.
+    start("shell-child-failure", shlex.split(RENDER_COMMAND),
+          {"STORE_INDEX_DEPLOYMENT_HOLD": "true"}, extra=("--read-only",))
+    time.sleep(1)
+    child_probe = """from pathlib import Path
+import os,signal
+children=Path('/proc/1/task/1/children').read_text().split()
+assert len(children)==1
+os.kill(int(children[0]),signal.SIGTERM)
+"""
+    docker("exec", "shell-child-failure", "python", "-I", "-S", "-B", "-c", child_probe)
+    assert int(docker("wait", "shell-child-failure", timeout=10)) == 1
+    results["child_failure"] = "unexpected sleep exit terminates container with status 1"
 
     tls = TEMP / "maintenance-tls"
     tls.mkdir(exist_ok=True)
@@ -194,7 +204,7 @@ print('8 maintenance responses passed')"""
                       "from pathlib import Path;p=Path('/tmp/requests.jsonl');print(p.read_text() if p.exists() else '')")
     recorded = [json.loads(l) for l in requests.splitlines() if l]
     protected = ("shopify_store_index", "discovery_queue", "discovery_cursors", "store_index_runs", "competitor_edges")
-    assert not [r for r in recorded if r["method"] != "GET" and any(t in r["path"] for t in protected)], recorded
+    assert recorded == [], recorded  # No fake DB requests, including reads.
     results["fake_db_requests"] = recorded
     for role in ("web", "worker", "beat"):
         log = logs("normal-" + role)
