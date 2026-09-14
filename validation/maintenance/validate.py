@@ -165,10 +165,20 @@ try:
 import os,signal
 children=Path('/proc/1/task/1/children').read_text().split()
 assert len(children)==1
+print("test-child-selected", flush=True)
 os.kill(int(children[0]),signal.SIGTERM)
 """
-    docker("exec", "shell-child-failure", "python", "-I", "-S", "-B", "-c", child_probe)
+    # PID 1 exits as intended after the child signal. Docker may kill this
+    # diagnostic exec helper during container teardown; judge the container
+    # exit independently instead of requiring the helper to outlive PID 1.
+    probe = subprocess.run(["docker", "exec", "shell-child-failure", "python",
+                            "-I", "-S", "-B", "-c", child_probe],
+                           capture_output=True, text=True, timeout=10)
+    assert probe.returncode in (0, 137), (probe.returncode, probe.stderr)
+    assert "test-child-selected" in probe.stdout
     assert int(docker("wait", "shell-child-failure", timeout=10)) == 1
+    assert not inspect("shell-child-failure")["State"]["OOMKilled"]
+    results["child_failure_probe_exit"] = probe.returncode
     results["child_failure"] = "unexpected sleep exit terminates container with status 1"
 
     tls = TEMP / "maintenance-tls"
