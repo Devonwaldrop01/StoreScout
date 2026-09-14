@@ -143,6 +143,19 @@ try:
             assert logs(name).count("clean exit") == 2
             assert docker("diff", name) == mount_baseline
 
+    # Observe one instance beyond the first failed Render restart interval.
+    start("shell-sustained", shlex.split(RENDER_COMMAND),
+          {"STORE_INDEX_DEPLOYMENT_HOLD": "true",
+           "STORE_INDEX_CANARY_ENABLED": "false"}, extra=("--read-only",))
+    begun = time.monotonic()
+    for _ in range(12):
+        time.sleep(5)
+        assert inspect("shell-sustained")["State"]["Running"]
+    assert "application not imported" in logs("shell-sustained")
+    assert docker("diff", "shell-sustained") == mount_baseline
+    results["sustained_idle_seconds"] = round(time.monotonic() - begun, 3)
+    stop_clean("shell-sustained")
+
     # The wait child must not silently disappear while the container looks live.
     # Kill ONLY the disposable test container's sleep process from inside it.
     start("shell-child-failure", shlex.split(RENDER_COMMAND),
