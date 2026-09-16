@@ -59,6 +59,9 @@ c.close()
     assert response["headers"]["Cache-Control"] == "no-store"
     if method != "HEAD":
         assert "maintenance" in response["body"].lower()
+        if expected == 503:
+            assert json.loads(response["body"])["detail"] == "StoreScout is temporarily undergoing maintenance."
+            assert response["headers"]["Content-Type"] == "application/json"
     else:
         assert not response["body"]
     return response
@@ -94,7 +97,7 @@ try:
         assert ("00000000:%04X" % port) in proof["tcp"], proof
         responses = []
         for method in ("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"):
-            for path in ("/", "/health", "/api/v1/internal/store-index/verify"):
+            for path in ("/", "/health", "/check_store", "/api/v1/internal/store-index/verify"):
                 responses.append(request(name, port, method, path, 503))
         responses.append(request(name, port, "GET", "/__maintenance/ready", 200))
         responses.append(request(name, port, "POST", "/__maintenance/ready", 503))

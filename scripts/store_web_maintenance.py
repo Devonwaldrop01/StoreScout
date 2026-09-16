@@ -4,7 +4,7 @@ import os
 import signal
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-MESSAGE = b"StoreScout is temporarily undergoing maintenance.\n"
+MESSAGE = b'{"detail":"StoreScout is temporarily undergoing maintenance."}\n'
 READY = b"StoreScout maintenance listener ready; application unavailable.\n"
 READY_PATH = "/__maintenance/ready"
 
@@ -22,7 +22,7 @@ class Handler(BaseHTTPRequestHandler):
         ready = self.command in ("GET", "HEAD") and self.path == READY_PATH
         body = READY if ready else MESSAGE
         self.send_response(200 if ready else 503)
-        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Type", "text/plain; charset=utf-8" if ready else "application/json")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-StoreScout-Mode", "maintenance")
