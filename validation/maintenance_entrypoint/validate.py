@@ -107,7 +107,6 @@ try:
     modes = {
         "cmd": ([COMMAND], ()),
         "shell": (["/bin/sh", "-c", "exec " + COMMAND], ()),
-        "literal-string": (["/bin/sh", "-c", COMMAND], ()),
         "entrypoint": ([], ("--entrypoint", COMMAND)),
     }
     for mode, (argv, extra) in modes.items():
@@ -131,6 +130,24 @@ try:
             running(name)
             stop(name, "SIGINT")
             assert logs(name).splitlines().count(MARKER) == 2
+
+    # A non-exec outer shell is a negative control, not a supported launch
+    # interface: it owns PID 1 and does not forward TERM to the script.
+    start("bridge-nonexec-negative", ["/bin/sh", "-c", COMMAND],
+          extra=("--read-only",))
+    time.sleep(1)
+    top = docker("top", "bridge-nonexec-negative", "-eo", "pid,comm")
+    processes = [line.split()[-1] for line in top.splitlines()[1:]]
+    assert sorted(processes) == sorted(["sh", "store_index_mai", "sleep"]), top
+    docker("kill", "--signal", "SIGTERM", "bridge-nonexec-negative")
+    time.sleep(2)
+    running("bridge-nonexec-negative")
+    assert logs("bridge-nonexec-negative").splitlines() == [MARKER]
+    docker("kill", "--signal", "SIGKILL", "bridge-nonexec-negative")
+    assert int(docker("wait", "bridge-nonexec-negative")) == 137
+    results["nonexec_wrapper_negative_control"] = {
+        "rejected": True, "reason": "extra PID 1 shell does not forward TERM",
+        "production_gate": "direct executable or exec-equivalent invocation required"}
 
     start("bridge-sustained", [COMMAND], {"STORE_INDEX_DEPLOYMENT_HOLD": "true",
           "STORE_INDEX_CANARY_ENABLED": "false"}, extra=("--read-only",))
