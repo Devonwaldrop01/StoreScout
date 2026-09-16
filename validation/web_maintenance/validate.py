@@ -111,7 +111,9 @@ try:
             results["sustained_seconds"] = round(time.monotonic() - begun, 3)
         assert not docker("diff", name)
         top = docker("top", name, "-eo", "pid,ppid,comm")
-        assert len(top.splitlines()) == 2 and "python" in top, top
+        # Linux comm retains the executable script basename; argv above proves
+        # the interpreter and absence of a parent shell.
+        assert len(top.splitlines()) == 2 and "store_web_maint" in top, top
         results["cases"].append({"port": port, "signal": sig, "proof": proof,
             "response_cases": len(responses), "restart_count": info(name)["RestartCount"],
             "shutdown_seconds": stop(name, sig)})
@@ -169,7 +171,9 @@ try:
 finally:
     for name in names:
         try:
-            (OUT / (name + ".log")).write_text(logs(name))
+            output = logs(name)
+            (OUT / (name + ".log")).write_text(output)
+            print("CONTAINER_LOG " + name + " " + output[-4000:])
             (OUT / (name + ".json")).write_text(json.dumps(info(name), indent=2))
             docker("rm", "-f", name)
         except Exception as exc:
