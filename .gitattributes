@@ -1,3 +1,4 @@
 # The approved canary digest covers exact bytes, including CRLF line endings.
 config/verification-canary.json -text whitespace=cr-at-eol
 scripts/store_index_maintenance_bridge.sh text eol=lf
+scripts/store_web_maintenance.py text eol=lf
