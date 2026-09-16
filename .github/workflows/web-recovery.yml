@@ -16,18 +16,14 @@ jobs:
         with:
           persist-credentials: false
           path: validation-source
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          persist-credentials: false
-          ref: 288223a2acb62bd6893e3370268f854bb2e16b12
-          path: recovery-source
       - name: Verify exact source and build unchanged Linux recovery image
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git -C recovery-source rev-parse HEAD)" = 288223a2acb62bd6893e3370268f854bb2e16b12
+          git -C validation-source fetch --no-tags --depth=1 origin 288223a2acb62bd6893e3370268f854bb2e16b12
+          test "$(git -C validation-source rev-parse FETCH_HEAD)" = 288223a2acb62bd6893e3370268f854bb2e16b12
           mkdir -p "$RUNNER_TEMP/recovery-context" "$RUNNER_TEMP/recovery-evidence"
-          git -C recovery-source archive HEAD | tar -x -C "$RUNNER_TEMP/recovery-context"
+          git -C validation-source archive 288223a2acb62bd6893e3370268f854bb2e16b12 | tar -x -C "$RUNNER_TEMP/recovery-context"
           test ! -e "$RUNNER_TEMP/recovery-context/.env"
           docker build --platform linux/amd64 --label org.opencontainers.image.revision=288223a2acb62bd6893e3370268f854bb2e16b12 -t storescout-recovery:test "$RUNNER_TEMP/recovery-context"
       - name: Validate exact normal command and guarded idle runtime
@@ -42,4 +38,3 @@ jobs:
           path: ${{ runner.temp }}/recovery-evidence/
           retention-days: 14
           if-no-files-found: error
-
