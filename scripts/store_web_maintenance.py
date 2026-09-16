@@ -1,4 +1,4 @@
-#!/usr/local/bin/python -ISB
+#!/usr/bin/python -ISB
 """Standalone maintenance listener. Never import StoreScout or contact services."""
 import os
 import signal

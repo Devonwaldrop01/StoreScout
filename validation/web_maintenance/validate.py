@@ -80,7 +80,7 @@ try:
     results["image_config"] = cfg["Config"]
     assert run("git", "ls-tree", "HEAD", "scripts/store_web_maintenance.py").startswith("100755 ")
     data = Path("scripts/store_web_maintenance.py").read_bytes()
-    assert data.startswith(b"#!/usr/local/bin/python -ISB\n") and b"\r" not in data
+    assert data.startswith(b"#!/usr/bin/python -ISB\n") and b"\r" not in data
     # Direct CMD override is precisely the proposed Render string.
     for number, (port, sig) in enumerate(((10000, "SIGTERM"), (18765, "SIGINT"))):
         name = "web-maint-" + str(number)
@@ -90,7 +90,7 @@ try:
         proof = json.loads(docker("exec", name, "python", "-ISB", "-c",
             'import pathlib,json; p=pathlib.Path("/proc/1"); s=dict(x.split(":",1) for x in (p/"status").read_text().splitlines()); print(json.dumps({"argv":(p/"cmdline").read_bytes().decode().split(chr(0))[:-1],"ppid":s["PPid"].strip(),"term":bool(int(s["SigCgt"],16)&16384),"int":bool(int(s["SigCgt"],16)&2),"tcp":pathlib.Path("/proc/1/net/tcp").read_text()}))'))
         assert proof["ppid"] == "0" and proof["term"] and proof["int"]
-        assert proof["argv"] == ["/usr/local/bin/python", "-ISB", CMD], proof
+        assert proof["argv"] == ["/usr/bin/python", "-ISB", CMD], proof
         assert ("00000000:%04X" % port) in proof["tcp"], proof
         responses = []
         for method in ("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"):
@@ -133,25 +133,38 @@ try:
         assert "STORE_WEB_MAINTENANCE ready" not in logs(name)
     # Uvicorn's graceful drain is distinct from maintenance readiness.
     # Synthetic synchronous request performs a delayed simulated commit.
-    name = "web-drain-fixture"
-    start(name, 10000, ["uvicorn", "fixture:app", "--host", "0.0.0.0",
-          "--port", "10000", "--app-dir", "/validation"],
-          ("-v", str(ROOT / "fixture.py") + ":/validation/fixture.py:ro",
-           "-e", "PYTHONDONTWRITEBYTECODE=1"))
-    waitfor(lambda: "Application startup complete" in logs(name))
-    code = 'import http.client; c=http.client.HTTPConnection("127.0.0.1",10000,timeout=15); c.request("POST","/write"); r=c.getresponse(); print(r.status,r.read().decode())'
-    with concurrent.futures.ThreadPoolExecutor() as pool:
-        request_future = pool.submit(docker, "exec", name, "python", "-ISB", "-c", code)
-        waitfor(lambda: "FIXTURE_WRITE_BEGIN" in logs(name))
-        begun = time.monotonic()
-        docker("kill", "--signal", "SIGTERM", name)
-        assert request_future.result().startswith("200 ")
-        assert int(docker("wait", name, timeout=15)) == 0
-        output = logs(name)
-        assert output.index("FIXTURE_WRITE_COMMIT") < output.index("Application shutdown complete")
-        assert "Finished server process" in output
-        results["synthetic_drain"] = {"seconds":round(time.monotonic()-begun,3),
-                                      "commit_before_shutdown":True,"exit":0}
+    legacy = OUT / "legacy-server-packages"
+    legacy.mkdir()
+    # Test-only mounts reproduce the live Web server stack; never alter image.
+    docker("run", "--rm", "-v", str(legacy) + ":/legacy", IMAGE, "python", "-m", "pip",
+           "install", "--no-deps", "--target", "/legacy", "starlette==1.3.1", "anyio==4.14.1")
+    results["synthetic_drain"] = {}
+    for stack in ("release", "legacy"):
+        name = "web-drain-" + stack
+        extra = ["-v", str(ROOT / "fixture.py") + ":/validation/fixture.py:ro",
+                 "-e", "PYTHONDONTWRITEBYTECODE=1"]
+        if stack == "legacy":
+            extra += ["-v", str(legacy) + ":/legacy:ro", "-e", "PYTHONPATH=/legacy"]
+        start(name, 10000, ["uvicorn", "fixture:app", "--host", "0.0.0.0",
+              "--port", "10000", "--app-dir", "/validation"], tuple(extra))
+        waitfor(lambda: "Application startup complete" in logs(name))
+        versions = json.loads(docker("exec", name, "python", "-B", "-c",
+            'import importlib.metadata as m,json; print(json.dumps({n:m.version(n) for n in ("uvicorn","fastapi","starlette","anyio")}))'))
+        if stack == "legacy":
+            assert versions == {"uvicorn":"0.51.0","fastapi":"0.139.0","starlette":"1.3.1","anyio":"4.14.1"}, versions
+        code = 'import http.client; c=http.client.HTTPConnection("127.0.0.1",10000,timeout=15); c.request("POST","/write"); r=c.getresponse(); print(r.status,r.read().decode())'
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            request_future = pool.submit(docker, "exec", name, "python", "-ISB", "-c", code)
+            waitfor(lambda: "FIXTURE_WRITE_BEGIN" in logs(name))
+            begun = time.monotonic()
+            docker("kill", "--signal", "SIGTERM", name)
+            assert request_future.result().startswith("200 ")
+            assert int(docker("wait", name, timeout=15)) == 0
+            output = logs(name)
+            assert output.index("FIXTURE_WRITE_COMMIT") < output.index("Application shutdown complete")
+            assert "Finished server process" in output
+            results["synthetic_drain"][stack] = {"seconds":round(time.monotonic()-begun,3),
+                "commit_before_shutdown":True,"exit":0,"versions":versions}
     results["passed"] = True
 finally:
     for name in names:
