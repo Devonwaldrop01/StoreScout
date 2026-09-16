@@ -53,8 +53,8 @@ def idle(name):
     running(name)
     lines = logs(name).splitlines()
     assert lines == [MARKER], lines
-    top = docker("top", name, "-eo", "comm")
-    processes = top.splitlines()[1:]
+    top = docker("top", name, "-eo", "pid,comm")
+    processes = [line.split()[-1] for line in top.splitlines()[1:]]
     assert len(processes) == 2 and "sleep" in processes, top
     assert all(p in ("sh", "sleep", "store_index_mai") for p in processes), top
     assert not docker("diff", name), docker("diff", name)
