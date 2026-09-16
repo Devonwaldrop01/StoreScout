@@ -1,0 +1,35 @@
+name: Isolated retained-image Web retirement validation
+on:
+  push:
+    branches: [codex/web-retirement-validation-2026-09-16]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  retirement:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          artifact-ids: 10473149929
+          run-id: 35163437137
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/retained
+          merge-multiple: true
+      - name: Load exact retained image without rebuilding
+        run: |
+          gzip -dc "$RUNNER_TEMP/retained/recovery-image.tar.gz" | docker load
+          test "$(docker image inspect storescout-recovery:test --format '{{.Id}}')" = sha256:bd54189c67f7ce0154b0c1ca8bd21b2f57f4bab0f18eb5e8e55b995ea155f0c9
+      - name: Exercise real legacy HTTP route and executor shutdown
+        run: python3 -B validation/web_retirement/validate.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: web-retirement-evidence
+          path: ${{ runner.temp }}/retirement-evidence/
+          retention-days: 14
+          if-no-files-found: error
