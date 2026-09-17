@@ -107,6 +107,16 @@ import redis
 import uvicorn
 from fastapi import FastAPI
 from postgrest.constants import DEFAULT_POSTGREST_CLIENT_TIMEOUT
+from curl_cffi import Curl
+import curl_cffi.requests.utils
+import httpcore._backends.sync
+OUT.joinpath('library-source-evidence.txt').write_text('\n\n'.join([
+    inspect.getsource(redis.connection.Connection._connect),
+    inspect.getsource(redis.connection.SSLConnection._connect),
+    inspect.getsource(redis.connection.SSLConnection._wrap_socket_with_ssl),
+    inspect.getsource(curl_cffi.requests.utils.set_curl_options),
+    inspect.getsource(httpcore._backends.sync.SyncBackend.connect_tcp),
+    inspect.getsource(httpcore._backends.sync.SyncStream.read)]))
 
 class Query:
     def __init__(self): self.operation='read'
@@ -194,6 +204,7 @@ redis_server.shutdown();redis_server.server_close()
 client=redis.Redis.from_url(redis_url,socket_connect_timeout=1)
 kwargs=client.connection_pool.connection_kwargs
 summary=dict(passed=True,source='288223a2acb62bd6893e3370268f854bb2e16b12',
+    curl_version=Curl().version().decode(),
     versions={n:importlib.metadata.version(n) for n in
         ['redis','httpx','httpcore','curl-cffi','supabase','postgrest','anyio','fastapi','uvicorn']},
     redis_response_timeout=kwargs.get('socket_timeout'),
