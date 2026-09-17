@@ -39,6 +39,7 @@ def trial(case):
    assert len([e for e in events(name) if e['event']=='request_verification_timeout'])==len(case['durations'])
   assert not any(e['event']=='verify_complete' for e in events(name))
   r['process_before_term']=docker('top',name,'-eo','pid,ppid,comm')
+  assert len(r['process_before_term'].splitlines())<= (3 if case.get('early') else 2), r['process_before_term']
   # The extra docker-exec HTTP probe process is fixture-only and may still be present in the early case.
   r['term_sent_wall']=time.time();docker('kill','--signal','SIGTERM',name)
   waitfor(lambda:any(e['event']=='term_received' for e in events(name)))

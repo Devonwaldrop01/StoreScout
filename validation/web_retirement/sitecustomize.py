@@ -4,7 +4,11 @@ from types import SimpleNamespace
 
 started=time.monotonic()
 def event(kind, **data):
-    print('DRAIN_EVENT '+json.dumps(dict(event=kind,wall=time.time(),elapsed=round(time.monotonic()-started,6),pid=os.getpid(),**data)),flush=True)
+    # One <=PIPE_BUF write keeps concurrent-thread records atomic without a
+    # lock that a signal handler could interrupt while held by the main thread.
+    line=('DRAIN_EVENT '+json.dumps(dict(event=kind,wall=time.time(),elapsed=round(time.monotonic()-started,6),pid=os.getpid(),**data))+'\n').encode()
+    assert len(line)<4096
+    os.write(1,line)
 
 violations=[]
 def audit(kind,args):
