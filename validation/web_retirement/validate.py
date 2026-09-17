@@ -45,7 +45,7 @@ def trial(case):
   time.sleep(1)
   assert info(name)['State']['Running'], 'process exited with outstanding executor work'
   if case.get('force'):
-   time.sleep(2)
+   time.sleep(29)
    r['forced_kill_wall']=time.time();docker('kill','--signal','SIGKILL',name)
   code=int(docker('wait',name,timeout=40));r['exit_observed_wall']=time.time();r['exit']=code
   r['state']=info(name)['State'];r['events']=events(name)
@@ -82,7 +82,7 @@ assert image['Config']['Labels']['org.opencontainers.image.revision']=='288223a2
 assert image['Config']['Entrypoint'] is None
 cases=[{'name':'timeout-single-'+str(i),'durations':[21]} for i in range(3)]
 cases += [{'name':'timeout-multi-'+str(i),'durations':[21,23,25]} for i in range(2)]
-cases += [{'name':'active-term','durations':[7,9,11],'early':True}, {'name':'forced-negative','durations':[60],'force':True}]
+cases += [{'name':'active-term','durations':[7,9,11],'early':True}, {'name':'long-grace-required','durations':[47]}, {'name':'forced-negative','durations':[47],'force':True}]
 with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:results=list(pool.map(trial,cases))
 summary={'image_id':IMAGE,'passed':all(x['passed'] for x in results),'cases':[{'name':x['case']['name'],'passed':x['passed'],'exit':x.get('exit'),'error':x.get('error'),'diagnostic_log_tail':x.get('diagnostic_log_tail'),'term_sent_wall':x.get('term_sent_wall'),'exit_observed_wall':x.get('exit_observed_wall'),'events':[e for e in x.get('events',[]) if e['event']!='executor_activity']} for x in results]}
 (OUT/'summary.json').write_text(json.dumps(summary,indent=2));print('RETIREMENT_RESULTS '+json.dumps(summary),flush=True)

@@ -81,21 +81,27 @@ class Response:
     status_code=200
     headers={'content-type':'application/json'}
     text='cdn.shopify.com window.Shopify'
-    def __init__(self,url):self.url=url
+    def __init__(self,url,status=200):self.url=url;self.status_code=status
     def json(self):return {'products':[{'id':1}]} if '/products.json' in self.url else {'token':'synthetic'}
 class Catalog:
     def __init__(self,*a,**kw):pass
     def __enter__(self):return self
     def __exit__(self,*a):pass
     def get(self,url,**kwargs):
-        if '/products.json' in url:
-            index=int(url.split('fixture')[1].split('.')[0]);end=time.monotonic()+durations[index]
-            while time.monotonic()<end:
-                event('executor_activity',operation=index)
-                time.sleep(min(.5,max(.001,end-time.monotonic())))
-            # Represents a final operation performed by the still-live executor.
-            event('fixture_write_capability',operation=index)
-        return Response(url)
+        index=int(url.split('fixture')[1].split('.')[0]);duration=durations[index]
+        catalog='/products.json' in url;cart='/cart.js' in url
+        # Respect each real call's timeout: ordinary case one catalog+home+cart;
+        # long case two unsuccessful catalog probes, then home+cart (<15/10/8s).
+        fraction=(.315 if catalog else .165 if cart else .205) if duration>30 else (.5 if catalog else .2 if cart else .3)
+        delay=duration*fraction
+        assert delay<kwargs['timeout'],(delay,kwargs)
+        end=time.monotonic()+delay
+        while time.monotonic()<end:
+            event('executor_activity',operation=index)
+            time.sleep(min(.5,max(.001,end-time.monotonic())))
+        # Simulated side-effect capability, not a real DB/network write.
+        event('fixture_write_capability',operation=index)
+        return Response(url,404 if catalog and duration>30 else 200)
 assert fetch._USE_CURL_CFFI is True
 fetch.CurlSession=Catalog
 
