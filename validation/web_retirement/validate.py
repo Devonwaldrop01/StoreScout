@@ -65,7 +65,7 @@ def trial(case):
    assert any(x['event']=='executor_shutdown_end' for x in e)
   r['passed']=True
  except Exception:
-  r['error']=traceback.format_exc()
+  r['error']=traceback.format_exc();r['diagnostic_log_tail']=logs(name)[-4000:]
  finally:
   if proc:
    try:r['http_stdout'],r['http_stderr']=proc.communicate(timeout=5)
@@ -84,6 +84,6 @@ cases=[{'name':'timeout-single-'+str(i),'durations':[21]} for i in range(3)]
 cases += [{'name':'timeout-multi-'+str(i),'durations':[21,23,25]} for i in range(2)]
 cases += [{'name':'active-term','durations':[7,9,11],'early':True}, {'name':'forced-negative','durations':[60],'force':True}]
 with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:results=list(pool.map(trial,cases))
-summary={'image_id':IMAGE,'passed':all(x['passed'] for x in results),'cases':[{'name':x['case']['name'],'passed':x['passed'],'exit':x.get('exit'),'error':x.get('error'),'term_sent_wall':x.get('term_sent_wall'),'exit_observed_wall':x.get('exit_observed_wall'),'events':[e for e in x.get('events',[]) if e['event']!='executor_activity']} for x in results]}
+summary={'image_id':IMAGE,'passed':all(x['passed'] for x in results),'cases':[{'name':x['case']['name'],'passed':x['passed'],'exit':x.get('exit'),'error':x.get('error'),'diagnostic_log_tail':x.get('diagnostic_log_tail'),'term_sent_wall':x.get('term_sent_wall'),'exit_observed_wall':x.get('exit_observed_wall'),'events':[e for e in x.get('events',[]) if e['event']!='executor_activity']} for x in results]}
 (OUT/'summary.json').write_text(json.dumps(summary,indent=2));print('RETIREMENT_RESULTS '+json.dumps(summary),flush=True)
 assert summary['passed']

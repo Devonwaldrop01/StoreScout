@@ -9,7 +9,7 @@ def event(kind, **data):
 violations=[]
 def audit(kind,args):
     if kind in ('socket.connect','subprocess.Popen','os.system','os.fork','os.posix_spawn'):
-        violations.append(kind);event('forbidden_operation',kind=kind)
+        violations.append(kind);event('forbidden_operation',operation_kind=kind)
         raise RuntimeError('offline test forbids network/process operations')
 sys.addaudithook(audit)
 
@@ -35,6 +35,9 @@ def profile(frame,what,arg):
         if what=='return':event('verify_complete',domain=frame.f_locals.get('domain'))
 threading.setprofile(profile)
 
+# Uvicorn adds its app-dir later; the test hook runs earlier during site startup.
+# Match that same /app import directory without modifying the retained image.
+sys.path.insert(0,'/app')
 import app.main
 import app.api.v1.competitors as competitors
 import app.services.fetch as fetch
