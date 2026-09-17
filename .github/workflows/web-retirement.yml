@@ -24,8 +24,10 @@ jobs:
         run: |
           gzip -dc "$RUNNER_TEMP/retained/recovery-image.tar.gz" | docker load
           test "$(docker image inspect storescout-recovery:test --format '{{.Id}}')" = sha256:bd54189c67f7ce0154b0c1ca8bd21b2f57f4bab0f18eb5e8e55b995ea155f0c9
-      - name: Exercise real legacy HTTP route and executor shutdown
-        run: python3 -B validation/web_retirement/validate.py
+      - name: Exercise legacy Redis wait and post-disconnect write lifetime
+        run: |
+          mkdir -p "$RUNNER_TEMP/retirement-evidence"
+          docker run --rm --network none --read-only --tmpfs /tmp -e PYTHONDONTWRITEBYTECODE=1 -v "$PWD/validation/web_retirement:/validation:ro" -v "$RUNNER_TEMP/retirement-evidence:/evidence" sha256:bd54189c67f7ce0154b0c1ca8bd21b2f57f4bab0f18eb5e8e55b995ea155f0c9 python -ISB /validation/lifetime_counterexample.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
