@@ -1,0 +1,482 @@
+{
+  "warning": "Scenario assumptions, not confidence intervals or completion promises. New merchant I/O not performed. Retries add load but no credited yield.",
+  "capacity": {
+    "verification_slots_daily": 9600,
+    "classification_slots_daily": 7200,
+    "batch": 100,
+    "merchant_concurrency": 3,
+    "celery_process_concurrency": 2,
+    "utilization_range": [
+      0.5,
+      1
+    ]
+  },
+  "cost_assumption": "Optional paid path: 2,000 combined input tokens + maximum 720 combined output tokens per classification/DNA pair, $1/$5 per million; $0.0056. Inputs/latency unmeasured; retries/longer inputs can cost more. Free path $0.",
+  "pricing_source": "https://platform.claude.com/docs/en/about-claude/pricing",
+  "models": {
+    "adverse_sample": {
+      "assumptions": {
+        "verify": 0.0967741935483871,
+        "classify": 0.5555555555555556,
+        "extra_verification_attempts": 1
+      },
+      "runs": [
+        {
+          "unique_domains": 1000,
+          "verification_attempt_budget": 2000,
+          "extra_attempt_budget": 1000,
+          "expected_verified_first_pass": 97,
+          "expected_new_usable_first_pass": 54,
+          "classification_attempt_budget": 140,
+          "dispatch_capacity_days_at_100pct": 0.21,
+          "dispatch_capacity_days_at_50pct": 0.42,
+          "merchant_logical_requests_range": [
+            2000,
+            8000
+          ],
+          "illustrative_paid_AI_usd": 0.78
+        },
+        {
+          "unique_domains": 5000,
+          "verification_attempt_budget": 10000,
+          "extra_attempt_budget": 5000,
+          "expected_verified_first_pass": 484,
+          "expected_new_usable_first_pass": 269,
+          "classification_attempt_budget": 699,
+          "dispatch_capacity_days_at_100pct": 1.04,
+          "dispatch_capacity_days_at_50pct": 2.08,
+          "merchant_logical_requests_range": [
+            10000,
+            40000
+          ],
+          "illustrative_paid_AI_usd": 3.91
+        },
+        {
+          "unique_domains": 10000,
+          "verification_attempt_budget": 20000,
+          "extra_attempt_budget": 10000,
+          "expected_verified_first_pass": 968,
+          "expected_new_usable_first_pass": 538,
+          "classification_attempt_budget": 1398,
+          "dispatch_capacity_days_at_100pct": 2.08,
+          "dispatch_capacity_days_at_50pct": 4.17,
+          "merchant_logical_requests_range": [
+            20000,
+            80000
+          ],
+          "illustrative_paid_AI_usd": 7.83
+        },
+        {
+          "unique_domains": 25000,
+          "verification_attempt_budget": 50000,
+          "extra_attempt_budget": 25000,
+          "expected_verified_first_pass": 2419,
+          "expected_new_usable_first_pass": 1344,
+          "classification_attempt_budget": 3495,
+          "dispatch_capacity_days_at_100pct": 5.21,
+          "dispatch_capacity_days_at_50pct": 10.42,
+          "merchant_logical_requests_range": [
+            50000,
+            200000
+          ],
+          "illustrative_paid_AI_usd": 19.57
+        },
+        {
+          "unique_domains": 37877,
+          "verification_attempt_budget": 75754,
+          "extra_attempt_budget": 37877,
+          "expected_verified_first_pass": 3666,
+          "expected_new_usable_first_pass": 2036,
+          "classification_attempt_budget": 5295,
+          "dispatch_capacity_days_at_100pct": 7.89,
+          "dispatch_capacity_days_at_50pct": 15.78,
+          "merchant_logical_requests_range": [
+            75754,
+            303016
+          ],
+          "illustrative_paid_AI_usd": 29.65
+        }
+      ]
+    },
+    "planning_assumption": {
+      "assumptions": {
+        "verify": 0.4,
+        "classify": 0.6,
+        "extra_verification_attempts": 0.5
+      },
+      "runs": [
+        {
+          "unique_domains": 1000,
+          "verification_attempt_budget": 1500,
+          "extra_attempt_budget": 500,
+          "expected_verified_first_pass": 400,
+          "expected_new_usable_first_pass": 240,
+          "classification_attempt_budget": 560,
+          "dispatch_capacity_days_at_100pct": 0.16,
+          "dispatch_capacity_days_at_50pct": 0.31,
+          "merchant_logical_requests_range": [
+            1500,
+            6000
+          ],
+          "illustrative_paid_AI_usd": 3.14
+        },
+        {
+          "unique_domains": 5000,
+          "verification_attempt_budget": 7500,
+          "extra_attempt_budget": 2500,
+          "expected_verified_first_pass": 2000,
+          "expected_new_usable_first_pass": 1200,
+          "classification_attempt_budget": 2800,
+          "dispatch_capacity_days_at_100pct": 0.78,
+          "dispatch_capacity_days_at_50pct": 1.56,
+          "merchant_logical_requests_range": [
+            7500,
+            30000
+          ],
+          "illustrative_paid_AI_usd": 15.68
+        },
+        {
+          "unique_domains": 10000,
+          "verification_attempt_budget": 15000,
+          "extra_attempt_budget": 5000,
+          "expected_verified_first_pass": 4000,
+          "expected_new_usable_first_pass": 2400,
+          "classification_attempt_budget": 5600,
+          "dispatch_capacity_days_at_100pct": 1.56,
+          "dispatch_capacity_days_at_50pct": 3.12,
+          "merchant_logical_requests_range": [
+            15000,
+            60000
+          ],
+          "illustrative_paid_AI_usd": 31.36
+        },
+        {
+          "unique_domains": 25000,
+          "verification_attempt_budget": 37500,
+          "extra_attempt_budget": 12500,
+          "expected_verified_first_pass": 10000,
+          "expected_new_usable_first_pass": 6000,
+          "classification_attempt_budget": 14000,
+          "dispatch_capacity_days_at_100pct": 3.91,
+          "dispatch_capacity_days_at_50pct": 7.81,
+          "merchant_logical_requests_range": [
+            37500,
+            150000
+          ],
+          "illustrative_paid_AI_usd": 78.4
+        },
+        {
+          "unique_domains": 37877,
+          "verification_attempt_budget": 56816,
+          "extra_attempt_budget": 18939,
+          "expected_verified_first_pass": 15151,
+          "expected_new_usable_first_pass": 9090,
+          "classification_attempt_budget": 21212,
+          "dispatch_capacity_days_at_100pct": 5.92,
+          "dispatch_capacity_days_at_50pct": 11.84,
+          "merchant_logical_requests_range": [
+            56816,
+            227264
+          ],
+          "illustrative_paid_AI_usd": 118.79
+        }
+      ]
+    },
+    "favorable_sample": {
+      "assumptions": {
+        "verify": 0.7346938775510204,
+        "classify": 0.5555555555555556,
+        "extra_verification_attempts": 0.25
+      },
+      "runs": [
+        {
+          "unique_domains": 1000,
+          "verification_attempt_budget": 1250,
+          "extra_attempt_budget": 250,
+          "expected_verified_first_pass": 735,
+          "expected_new_usable_first_pass": 408,
+          "classification_attempt_budget": 1062,
+          "dispatch_capacity_days_at_100pct": 0.15,
+          "dispatch_capacity_days_at_50pct": 0.29,
+          "merchant_logical_requests_range": [
+            1250,
+            5000
+          ],
+          "illustrative_paid_AI_usd": 5.95
+        },
+        {
+          "unique_domains": 5000,
+          "verification_attempt_budget": 6250,
+          "extra_attempt_budget": 1250,
+          "expected_verified_first_pass": 3673,
+          "expected_new_usable_first_pass": 2041,
+          "classification_attempt_budget": 5307,
+          "dispatch_capacity_days_at_100pct": 0.74,
+          "dispatch_capacity_days_at_50pct": 1.47,
+          "merchant_logical_requests_range": [
+            6250,
+            25000
+          ],
+          "illustrative_paid_AI_usd": 29.72
+        },
+        {
+          "unique_domains": 10000,
+          "verification_attempt_budget": 12500,
+          "extra_attempt_budget": 2500,
+          "expected_verified_first_pass": 7347,
+          "expected_new_usable_first_pass": 4082,
+          "classification_attempt_budget": 10613,
+          "dispatch_capacity_days_at_100pct": 1.47,
+          "dispatch_capacity_days_at_50pct": 2.95,
+          "merchant_logical_requests_range": [
+            12500,
+            50000
+          ],
+          "illustrative_paid_AI_usd": 59.43
+        },
+        {
+          "unique_domains": 25000,
+          "verification_attempt_budget": 31250,
+          "extra_attempt_budget": 6250,
+          "expected_verified_first_pass": 18367,
+          "expected_new_usable_first_pass": 10204,
+          "classification_attempt_budget": 26531,
+          "dispatch_capacity_days_at_100pct": 3.68,
+          "dispatch_capacity_days_at_50pct": 7.37,
+          "merchant_logical_requests_range": [
+            31250,
+            125000
+          ],
+          "illustrative_paid_AI_usd": 148.57
+        },
+        {
+          "unique_domains": 37877,
+          "verification_attempt_budget": 47347,
+          "extra_attempt_budget": 9470,
+          "expected_verified_first_pass": 27828,
+          "expected_new_usable_first_pass": 15460,
+          "classification_attempt_budget": 40196,
+          "dispatch_capacity_days_at_100pct": 5.58,
+          "dispatch_capacity_days_at_50pct": 11.17,
+          "merchant_logical_requests_range": [
+            47347,
+            189388
+          ],
+          "illustrative_paid_AI_usd": 225.1
+        }
+      ]
+    }
+  },
+  "targets": {
+    "adverse_sample": [
+      {
+        "target_usable": 1000,
+        "unique_domains": 17968,
+        "verification_attempt_budget": 35936,
+        "extra_attempt_budget": 17968,
+        "expected_verified_first_pass": 1739,
+        "expected_new_usable_first_pass": 966,
+        "classification_attempt_budget": 2512,
+        "dispatch_capacity_days_at_100pct": 3.74,
+        "dispatch_capacity_days_at_50pct": 7.49,
+        "merchant_logical_requests_range": [
+          35936,
+          143744
+        ],
+        "illustrative_paid_AI_usd": 14.07,
+        "fits_current_37877_backlog": true
+      },
+      {
+        "target_usable": 5000,
+        "unique_domains": 92368,
+        "verification_attempt_budget": 184736,
+        "extra_attempt_budget": 92368,
+        "expected_verified_first_pass": 8939,
+        "expected_new_usable_first_pass": 4966,
+        "classification_attempt_budget": 12912,
+        "dispatch_capacity_days_at_100pct": 19.24,
+        "dispatch_capacity_days_at_50pct": 38.49,
+        "merchant_logical_requests_range": [
+          184736,
+          738944
+        ],
+        "illustrative_paid_AI_usd": 72.31,
+        "fits_current_37877_backlog": false
+      },
+      {
+        "target_usable": 10000,
+        "unique_domains": 185368,
+        "verification_attempt_budget": 370736,
+        "extra_attempt_budget": 185368,
+        "expected_verified_first_pass": 17939,
+        "expected_new_usable_first_pass": 9966,
+        "classification_attempt_budget": 25912,
+        "dispatch_capacity_days_at_100pct": 38.62,
+        "dispatch_capacity_days_at_50pct": 77.24,
+        "merchant_logical_requests_range": [
+          370736,
+          1482944
+        ],
+        "illustrative_paid_AI_usd": 145.11,
+        "fits_current_37877_backlog": false
+      },
+      {
+        "target_usable": 25000,
+        "unique_domains": 464368,
+        "verification_attempt_budget": 928736,
+        "extra_attempt_budget": 464368,
+        "expected_verified_first_pass": 44939,
+        "expected_new_usable_first_pass": 24966,
+        "classification_attempt_budget": 64912,
+        "dispatch_capacity_days_at_100pct": 96.74,
+        "dispatch_capacity_days_at_50pct": 193.49,
+        "merchant_logical_requests_range": [
+          928736,
+          3714944
+        ],
+        "illustrative_paid_AI_usd": 363.51,
+        "fits_current_37877_backlog": false
+      }
+    ],
+    "planning_assumption": [
+      {
+        "target_usable": 1000,
+        "unique_domains": 4025,
+        "verification_attempt_budget": 6038,
+        "extra_attempt_budget": 2013,
+        "expected_verified_first_pass": 1610,
+        "expected_new_usable_first_pass": 966,
+        "classification_attempt_budget": 2254,
+        "dispatch_capacity_days_at_100pct": 0.63,
+        "dispatch_capacity_days_at_50pct": 1.26,
+        "merchant_logical_requests_range": [
+          6038,
+          24152
+        ],
+        "illustrative_paid_AI_usd": 12.62,
+        "fits_current_37877_backlog": true
+      },
+      {
+        "target_usable": 5000,
+        "unique_domains": 20692,
+        "verification_attempt_budget": 31038,
+        "extra_attempt_budget": 10346,
+        "expected_verified_first_pass": 8277,
+        "expected_new_usable_first_pass": 4966,
+        "classification_attempt_budget": 11588,
+        "dispatch_capacity_days_at_100pct": 3.23,
+        "dispatch_capacity_days_at_50pct": 6.47,
+        "merchant_logical_requests_range": [
+          31038,
+          124152
+        ],
+        "illustrative_paid_AI_usd": 64.89,
+        "fits_current_37877_backlog": true
+      },
+      {
+        "target_usable": 10000,
+        "unique_domains": 41525,
+        "verification_attempt_budget": 62288,
+        "extra_attempt_budget": 20763,
+        "expected_verified_first_pass": 16610,
+        "expected_new_usable_first_pass": 9966,
+        "classification_attempt_budget": 23254,
+        "dispatch_capacity_days_at_100pct": 6.49,
+        "dispatch_capacity_days_at_50pct": 12.98,
+        "merchant_logical_requests_range": [
+          62288,
+          249152
+        ],
+        "illustrative_paid_AI_usd": 130.22,
+        "fits_current_37877_backlog": false
+      },
+      {
+        "target_usable": 25000,
+        "unique_domains": 104025,
+        "verification_attempt_budget": 156038,
+        "extra_attempt_budget": 52013,
+        "expected_verified_first_pass": 41610,
+        "expected_new_usable_first_pass": 24966,
+        "classification_attempt_budget": 58254,
+        "dispatch_capacity_days_at_100pct": 16.25,
+        "dispatch_capacity_days_at_50pct": 32.51,
+        "merchant_logical_requests_range": [
+          156038,
+          624152
+        ],
+        "illustrative_paid_AI_usd": 326.22,
+        "fits_current_37877_backlog": false
+      }
+    ],
+    "favorable_sample": [
+      {
+        "target_usable": 1000,
+        "unique_domains": 2367,
+        "verification_attempt_budget": 2959,
+        "extra_attempt_budget": 592,
+        "expected_verified_first_pass": 1739,
+        "expected_new_usable_first_pass": 966,
+        "classification_attempt_budget": 2512,
+        "dispatch_capacity_days_at_100pct": 0.35,
+        "dispatch_capacity_days_at_50pct": 0.7,
+        "merchant_logical_requests_range": [
+          2959,
+          11836
+        ],
+        "illustrative_paid_AI_usd": 14.07,
+        "fits_current_37877_backlog": true
+      },
+      {
+        "target_usable": 5000,
+        "unique_domains": 12167,
+        "verification_attempt_budget": 15209,
+        "extra_attempt_budget": 3042,
+        "expected_verified_first_pass": 8939,
+        "expected_new_usable_first_pass": 4966,
+        "classification_attempt_budget": 12912,
+        "dispatch_capacity_days_at_100pct": 1.79,
+        "dispatch_capacity_days_at_50pct": 3.59,
+        "merchant_logical_requests_range": [
+          15209,
+          60836
+        ],
+        "illustrative_paid_AI_usd": 72.31,
+        "fits_current_37877_backlog": true
+      },
+      {
+        "target_usable": 10000,
+        "unique_domains": 24417,
+        "verification_attempt_budget": 30522,
+        "extra_attempt_budget": 6105,
+        "expected_verified_first_pass": 17939,
+        "expected_new_usable_first_pass": 9966,
+        "classification_attempt_budget": 25912,
+        "dispatch_capacity_days_at_100pct": 3.6,
+        "dispatch_capacity_days_at_50pct": 7.2,
+        "merchant_logical_requests_range": [
+          30522,
+          122088
+        ],
+        "illustrative_paid_AI_usd": 145.11,
+        "fits_current_37877_backlog": true
+      },
+      {
+        "target_usable": 25000,
+        "unique_domains": 61167,
+        "verification_attempt_budget": 76459,
+        "extra_attempt_budget": 15292,
+        "expected_verified_first_pass": 44939,
+        "expected_new_usable_first_pass": 24966,
+        "classification_attempt_budget": 64912,
+        "dispatch_capacity_days_at_100pct": 9.02,
+        "dispatch_capacity_days_at_50pct": 18.03,
+        "merchant_logical_requests_range": [
+          76459,
+          305836
+        ],
+        "illustrative_paid_AI_usd": 363.51,
+        "fits_current_37877_backlog": false
+      }
+    ]
+  }
+}

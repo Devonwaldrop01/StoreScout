@@ -1,0 +1,4 @@
+{
+  "query": "SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='shopify_store_index' AND column_name IN ('verification_state','next_verification_at','last_attempted_at','verification_attempts','verification_token','catalog_observation')",
+  "rows": []
+}

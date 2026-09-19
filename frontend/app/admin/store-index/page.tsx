@@ -14,6 +14,7 @@ import { EngineControls } from "@/components/admin/EngineControls";
 import { StoreInspector } from "@/components/admin/StoreInspector";
 import { useToast } from "@/components/ui/Toast";
 import { Skeleton, SkeletonStats } from "@/components/ui/Skeleton";
+import { workerStatusLabel, type WorkerEvidence } from "@/lib/indexOperations";
 
 const TOKEN_KEY = "ss_admin_token";
 
@@ -89,7 +90,7 @@ interface Ops {
   categories: { name: string; count: number }[];
   top_failures: { reason: string; count: number }[];
   sources: { source: string; cursor: Record<string, unknown> | null; enabled: boolean; last_run_at: string | null; discovered: number }[];
-  worker: { enabled: boolean; last_activity: string | null };
+  worker: WorkerEvidence;
 }
 
 const STATUS_COLOR: Record<string, string> = {
@@ -597,14 +598,18 @@ export default function StoreIndexAdminPage() {
             <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
               <p className="label-caps">Pipeline · discovered → resolved → verified → classified</p>
               <span className="flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded"
-                    style={{ background: "var(--bg3)", color: ops.worker.enabled ? "#4CC38A" : "var(--muted)" }}>
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: ops.worker.enabled ? "#4CC38A" : "var(--muted)" }} />
-                {ops.worker.enabled ? "Worker running daily" : "Worker paused (manual runs only)"}
-                {ops.worker.last_activity ? ` · last verify ${new Date(ops.worker.last_activity).toLocaleDateString()}` : ""}
+                    style={{ background: "var(--bg3)", color: "var(--muted)" }}>
+                {workerStatusLabel(ops.worker)}
               </span>
             </div>
 
             {/* Four stages as a flowing funnel: cheap discovery → quality index */}
+            <div className="text-xs mb-4 space-y-1" style={{color: "var(--muted)"}}>
+              <p>Last successful pipeline run: {ops.worker.last_successful_run ? new Date(ops.worker.last_successful_run).toLocaleString() : "Unknown / not recorded"}</p>
+              <p>Last recorded verification: {ops.worker.last_verification ? new Date(ops.worker.last_verification).toLocaleString() : "Unknown / not recorded"} · Last classification: {ops.worker.last_classification ? new Date(ops.worker.last_classification).toLocaleString() : "Unknown / not recorded"}</p>
+              <p>Verification backlog: {(ops.pipeline.discovered + ops.pipeline.candidates).toLocaleString()} awaiting an outcome; {(ops.pipeline.failed + ops.pipeline.rejected).toLocaleString()} failed/rejected records need lifecycle review.</p>
+              <p>Last 60 minutes: {ops.worker.throughput ? `${ops.worker.throughput.attempts} recorded attempts, ${ops.worker.throughput.successful_catalogs} successful outcomes (includes renewals)` : "Throughput unavailable"}</p>
+            </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[
                 { icon: Radar, name: "1 · Discovered", color: "#7DB8C9",
@@ -617,7 +622,7 @@ export default function StoreIndexAdminPage() {
                   big: ops.pipeline.verified, bigLabel: "verified Shopify stores",
                   sub: ops.success_rate != null ? `${ops.success_rate}% success · +${ops.today.verified} today` : `+${ops.today.verified} today` },
                 { icon: Brain, name: "4 · Classified", color: "var(--accent)",
-                  big: ops.pipeline.knowledge_done, bigLabel: "classified (user-facing)",
+                  big: ops.pipeline.knowledge_done, bigLabel: "classification recorded; eligibility checked separately",
                   sub: ops.knowledge_completion != null ? `${ops.knowledge_completion}% complete · ${ops.pipeline.knowledge_pending} pending` : `${ops.pipeline.knowledge_pending} pending` },
               ].map((st) => {
                 const Icon = st.icon;

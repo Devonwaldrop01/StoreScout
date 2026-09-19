@@ -1,0 +1,12 @@
+{
+  "query": "WITH head AS (SELECT domain,status,created_at FROM shopify_store_index WHERE status IN ('discovered','candidate') ORDER BY created_at LIMIT 100) SELECT count(*) AS head_rows,count(*) FILTER (WHERE h.domain LIKE 'www.%') AS head_www,count(*) FILTER (WHERE b.domain IS NOT NULL) AS head_canonical_exists,count(*) FILTER (WHERE b.status='verified') AS canonical_verified,count(*) FILTER (WHERE b.status IN ('rejected','failed')) AS canonical_failed_or_rejected FROM head h LEFT JOIN shopify_store_index b ON b.domain=regexp_replace(h.domain,'^www\\.','') AND h.domain LIKE 'www.%'",
+  "rows": [
+    {
+      "head_rows": 100,
+      "head_www": 100,
+      "head_canonical_exists": 100,
+      "canonical_verified": 78,
+      "canonical_failed_or_rejected": 22
+    }
+  ]
+}

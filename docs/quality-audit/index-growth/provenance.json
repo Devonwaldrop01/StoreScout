@@ -1,0 +1,34 @@
+{
+  "inputs": {
+    "..\\storescout-phase1\\outputs\\bounded-cycle\\index-after.json": {
+      "sha256": "31233f1915b80c98cb100982f4be7d0842cb0d4ad9528c2a45ce3149c18542dd",
+      "bytes": 18846848
+    },
+    "..\\storescout-phase1\\outputs\\production-access\\index-after.json": {
+      "sha256": "24aa5aa7c451d4c9f3af0d3314802ae96fe12ec6a93b7b479cdf7567e938f55b",
+      "bytes": 19146400
+    },
+    "..\\storescout-phase1\\outputs\\production-access\\outcomes.json": {
+      "sha256": "0c0eb11f9fbb6adc16a98f733caee82bec805482dbeea161a07ea060498bfa91",
+      "bytes": 911897
+    },
+    "..\\storescout-phase1\\outputs\\controlled-validation\\outcomes.json": {
+      "sha256": "e4e99ba5bf897c967b880a436c011276f99cc51be562d04249f1fc5f04373b70",
+      "bytes": 1749161
+    },
+    "docs\\quality-audit\\index-growth\\current-public-index.json": {
+      "sha256": "5e14228ab4bef6108a8d5e50669e04f22d01a492636b61633caff1f937b418d6",
+      "bytes": 2064836
+    },
+    "docs\\quality-audit\\real-world\\evidence\\replay-plan.json": {
+      "sha256": "957b6dd8d5be257190c610552a67bf73d92d84d69dda385c58ef68ddbb7ecb98",
+      "bytes": 44758
+    }
+  },
+  "preserved_result_lists": 100,
+  "compared_lists": 100,
+  "all_new_placements_adjudicated": 27,
+  "schema_changed": false,
+  "production_writes": 0,
+  "paid_AI_calls": 0
+}

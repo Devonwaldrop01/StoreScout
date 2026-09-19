@@ -1,0 +1,60 @@
+{
+  "query": "SELECT trigger,count(*) AS runs,sum(processed) AS processed,sum(verified) AS verified,sum(reverified) AS reverified,sum(failed) AS failed,sum(rejected) AS rejected,min(ran_at) AS first_run,max(ran_at) AS last_run FROM store_index_runs WHERE ran_at>=now()-interval '30 days' GROUP BY trigger ORDER BY trigger",
+  "rows": [
+    {
+      "trigger": "scheduled:stage_candidates",
+      "runs": 61,
+      "processed": 0,
+      "verified": 0,
+      "reverified": 0,
+      "failed": 0,
+      "rejected": 0,
+      "first_run": "2026-08-21 00:52:12.042395+00",
+      "last_run": "2026-09-11 12:40:01.604168+00"
+    },
+    {
+      "trigger": "scheduled:stage_discovery",
+      "runs": 91,
+      "processed": 68807,
+      "verified": 0,
+      "reverified": 0,
+      "failed": 0,
+      "rejected": 0,
+      "first_run": "2026-08-21 00:48:37.517824+00",
+      "last_run": "2026-09-11 12:10:02.968041+00"
+    },
+    {
+      "trigger": "scheduled:stage_knowledge",
+      "runs": 1106,
+      "processed": 13988,
+      "verified": 0,
+      "reverified": 0,
+      "failed": 0,
+      "rejected": 0,
+      "first_run": "2026-08-20 21:20:00.459392+00",
+      "last_run": "2026-09-11 15:20:46.352839+00"
+    },
+    {
+      "trigger": "scheduled:stage_resolution",
+      "runs": 1842,
+      "processed": 110520,
+      "verified": 0,
+      "reverified": 0,
+      "failed": 0,
+      "rejected": 0,
+      "first_run": "2026-08-20 21:27:03.686659+00",
+      "last_run": "2026-09-11 15:27:05.834799+00"
+    },
+    {
+      "trigger": "scheduled:stage_verification",
+      "runs": 1471,
+      "processed": 147100,
+      "verified": 59690,
+      "reverified": 0,
+      "failed": 1283,
+      "rejected": 86127,
+      "first_run": "2026-08-20 21:31:43.965104+00",
+      "last_run": "2026-09-11 15:17:56.729113+00"
+    }
+  ]
+}

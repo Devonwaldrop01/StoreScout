@@ -1,0 +1,1562 @@
+[
+  {
+    "case_id": "durstongear",
+    "mode": "description_only",
+    "query": "We sell ultralight backpacking tents and packs for long-distance hikers.",
+    "niche": "ultralight",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "zpacks.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "gossamergear.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "zpacks",
+    "mode": "description_only",
+    "query": "We sell ultralight two-person backpacking tents.",
+    "niche": "ultralight",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "durstongear.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "gossamergear.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "gossamergear",
+    "mode": "description_only",
+    "query": "We sell lightweight hiking backpacks and shelters.",
+    "niche": "ultralight",
+    "role": "core",
+    "returned_domains": [
+      "hydrusboardtech.com"
+    ],
+    "references": [
+      {
+        "domain": "durstongear.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "zpacks.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "iliabeauty",
+    "mode": "description_only",
+    "query": "We sell light-coverage skin tint with mineral SPF for adults.",
+    "niche": "tinted_complexion",
+    "role": "core",
+    "returned_domains": [
+      "peachandlily.com",
+      "tower28beauty.com"
+    ],
+    "references": [
+      {
+        "domain": "tower28beauty.com",
+        "stage": "returned",
+        "index_domain": "tower28beauty.com",
+        "index_status": "verified",
+        "rank": {
+          "domain": "tower28beauty.com",
+          "pre_filter_rank": 5,
+          "match": {
+            "score": 9.47,
+            "matched_terms": [
+              "spf"
+            ],
+            "intent": {
+              "supported": true,
+              "requested_families": [
+                "complexion"
+              ],
+              "child_audience_required": false,
+              "child_audience_evidenced": false,
+              "observed_families": [
+                "bags",
+                "complexion",
+                "skincare"
+              ],
+              "reason": null
+            },
+            "product_evidence": true,
+            "query_coverage": 0.143,
+            "assessment": "candidate for review"
+          },
+          "exclusions": [],
+          "returned_rank": 2
+        }
+      },
+      {
+        "domain": "saiehello.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "tower28beauty",
+    "mode": "description_only",
+    "query": "We sell tinted sunscreen and everyday complexion makeup.",
+    "niche": "tinted_complexion",
+    "role": "core",
+    "returned_domains": [
+      "tower28beauty.com",
+      "peachandlily.com"
+    ],
+    "references": [
+      {
+        "domain": "iliabeauty.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "saiehello.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "saiehello",
+    "mode": "description_only",
+    "query": "We sell tinted moisturizer with SPF and everyday makeup.",
+    "niche": "tinted_complexion",
+    "role": "core",
+    "returned_domains": [
+      "tower28beauty.com",
+      "peachandlily.com"
+    ],
+    "references": [
+      {
+        "domain": "iliabeauty.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "tower28beauty.com",
+        "stage": "returned",
+        "index_domain": "tower28beauty.com",
+        "index_status": "verified",
+        "rank": {
+          "domain": "tower28beauty.com",
+          "pre_filter_rank": 2,
+          "match": {
+            "score": 33.41,
+            "matched_terms": [
+              "makeup",
+              "spf",
+              "tinted"
+            ],
+            "intent": {
+              "supported": true,
+              "requested_families": [
+                "complexion"
+              ],
+              "child_audience_required": false,
+              "child_audience_evidenced": false,
+              "observed_families": [
+                "bags",
+                "complexion",
+                "skincare"
+              ],
+              "reason": null
+            },
+            "product_evidence": true,
+            "query_coverage": 0.429,
+            "assessment": "candidate for review"
+          },
+          "exclusions": [],
+          "returned_rank": 1
+        }
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "pipettebaby",
+    "mode": "description_only",
+    "query": "We sell fragrance-free baby lotion for sensitive skin.",
+    "niche": "baby_skin",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "tubbytodd.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "babobotanicals.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "tubbytodd",
+    "mode": "description_only",
+    "query": "We sell fragrance-free ointment and skin care for babies.",
+    "niche": "baby_skin",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "pipettebaby.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "babobotanicals.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "babobotanicals",
+    "mode": "description_only",
+    "query": "We sell fragrance-free sensitive baby skin care.",
+    "niche": "baby_skin",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "pipettebaby.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "tubbytodd.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "onyxcoffeelab",
+    "mode": "description_only",
+    "query": "We roast specialty coffee for home brewers and sell subscriptions.",
+    "niche": "specialty_coffee",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "counterculturecoffee.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "vervecoffee.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "counterculturecoffee",
+    "mode": "description_only",
+    "query": "We sell specialty coffee beans and recurring home deliveries.",
+    "niche": "specialty_coffee",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "onyxcoffeelab.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "vervecoffee.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "vervecoffee",
+    "mode": "description_only",
+    "query": "We sell freshly roasted specialty coffee and subscriptions.",
+    "niche": "specialty_coffee",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "onyxcoffeelab.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "counterculturecoffee.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "littlesleepies",
+    "mode": "description_only",
+    "query": "We sell bamboo pajamas for babies and matching families.",
+    "niche": "bamboo_family_sleepwear",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "kytebaby.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "birdiebean.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "kytebaby",
+    "mode": "description_only",
+    "query": "We sell bamboo baby sleep bags and sleepwear.",
+    "niche": "bamboo_family_sleepwear",
+    "role": "core",
+    "returned_domains": [
+      "shopluxelifeboutique.com"
+    ],
+    "references": [
+      {
+        "domain": "littlesleepies.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "birdiebean.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "birdiebean",
+    "mode": "description_only",
+    "query": "We sell printed bamboo pajamas and clothing for children.",
+    "niche": "bamboo_family_sleepwear",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "littlesleepies.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "kytebaby.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "purebites",
+    "mode": "description_only",
+    "query": "We sell freeze-dried single-protein dog treats.",
+    "niche": "dog_freeze_dried_treats",
+    "role": "core",
+    "returned_domains": [
+      "fetchyourpetneeds.ie",
+      "redbarn.com",
+      "freezbone.com"
+    ],
+    "references": [
+      {
+        "domain": "stewartpet.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "stellaandchewys.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "stewartpet",
+    "mode": "description_only",
+    "query": "We sell freeze-dried raw dog treats and toppers.",
+    "niche": "dog_freeze_dried_treats",
+    "role": "off-platform uncertainty control; report separately",
+    "returned_domains": [
+      "fetchyourpetneeds.ie",
+      "redbarn.com",
+      "freezbone.com"
+    ],
+    "references": [
+      {
+        "domain": "purebites.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "stellaandchewys.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "stellaandchewys",
+    "mode": "description_only",
+    "query": "We sell freeze-dried raw training treats for dogs.",
+    "niche": "dog_freeze_dried_treats",
+    "role": "core",
+    "returned_domains": [
+      "fetchyourpetneeds.ie",
+      "redbarn.com",
+      "freezbone.com"
+    ],
+    "references": [
+      {
+        "domain": "purebites.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "stewartpet.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "quince",
+    "mode": "description_only",
+    "query": "We sell affordable clothing, home essentials, bedding, bags and jewelry.",
+    "niche": "bedding_and_broad_store",
+    "role": "core",
+    "returned_domains": [
+      "shopelvis.com",
+      "broadrivermercantile.com",
+      "sandmarc.com",
+      "accessprive.com",
+      "elevateyoursole.co.uk",
+      "blueingreensoho.com",
+      "fetchyourpetneeds.ie"
+    ],
+    "references": [
+      {
+        "domain": "brooklinen.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "parachutehome.com",
+        "stage": "fresh_catalog_gate",
+        "index_domain": "parachutehome.com",
+        "index_status": "verified",
+        "rank": {
+          "domain": "parachutehome.com",
+          "pre_filter_rank": 75,
+          "match": {
+            "score": 0,
+            "matched_terms": [],
+            "intent": {
+              "supported": true,
+              "requested_families": [
+                "apparel",
+                "bags",
+                "bedding",
+                "jewelry"
+              ],
+              "child_audience_required": false,
+              "child_audience_evidenced": true,
+              "observed_families": [
+                "bedding",
+                "nursery"
+              ],
+              "reason": null
+            },
+            "product_evidence": true,
+            "query_coverage": 0.0,
+            "assessment": "insufficient product evidence"
+          },
+          "exclusions": [
+            "fresh_catalog_gate",
+            "no_matched_product_terms"
+          ],
+          "returned_rank": null
+        }
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "brooklinen",
+    "mode": "description_only",
+    "query": "We sell bedding, sheets and comforters directly to consumers.",
+    "niche": "bedding_and_broad_store",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "quince.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "parachutehome.com",
+        "stage": "fresh_catalog_gate",
+        "index_domain": "parachutehome.com",
+        "index_status": "verified",
+        "rank": {
+          "domain": "parachutehome.com",
+          "pre_filter_rank": 3,
+          "match": {
+            "score": 14.63,
+            "matched_terms": [
+              "sheet"
+            ],
+            "intent": {
+              "supported": true,
+              "requested_families": [
+                "bedding"
+              ],
+              "child_audience_required": false,
+              "child_audience_evidenced": true,
+              "observed_families": [
+                "bedding",
+                "nursery"
+              ],
+              "reason": null
+            },
+            "product_evidence": true,
+            "query_coverage": 0.143,
+            "assessment": "candidate for review"
+          },
+          "exclusions": [
+            "fresh_catalog_gate"
+          ],
+          "returned_rank": null
+        }
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "parachutehome",
+    "mode": "description_only",
+    "query": "We sell linen bedding and bath linens for the home.",
+    "niche": "bedding_and_broad_store",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "quince.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "brooklinen.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "keychron",
+    "mode": "description_only",
+    "query": "We sell customizable mechanical keyboards for Mac and Windows.",
+    "niche": "mechanical_keyboards",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "nuphy.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "epomaker.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "nuphy",
+    "mode": "description_only",
+    "query": "We sell low-profile wireless mechanical keyboards.",
+    "niche": "mechanical_keyboards",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "keychron.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "epomaker.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "epomaker",
+    "mode": "description_only",
+    "query": "We sell mechanical keyboards including low-profile models.",
+    "niche": "mechanical_keyboards",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "keychron.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "nuphy.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "colourpop",
+    "mode": "description_only",
+    "query": "We sell affordable eye palettes, lip products and face makeup.",
+    "niche": "tinted_complexion",
+    "role": "core",
+    "returned_domains": [
+      "tower28beauty.com",
+      "peachandlily.com"
+    ],
+    "references": [
+      {
+        "domain": "elfcosmetics.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "revolutionbeauty.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "durstongear",
+    "mode": "structured_profile",
+    "query": "We sell ultralight backpacking tents and packs for long-distance hikers.",
+    "niche": "ultralight",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "zpacks.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "gossamergear.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "zpacks",
+    "mode": "structured_profile",
+    "query": "We sell ultralight two-person backpacking tents.",
+    "niche": "ultralight",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "durstongear.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "gossamergear.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "gossamergear",
+    "mode": "structured_profile",
+    "query": "We sell lightweight hiking backpacks and shelters.",
+    "niche": "ultralight",
+    "role": "core",
+    "returned_domains": [
+      "hydrusboardtech.com"
+    ],
+    "references": [
+      {
+        "domain": "durstongear.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "zpacks.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "iliabeauty",
+    "mode": "structured_profile",
+    "query": "We sell light-coverage skin tint with mineral SPF for adults.",
+    "niche": "tinted_complexion",
+    "role": "core",
+    "returned_domains": [
+      "peachandlily.com",
+      "tower28beauty.com"
+    ],
+    "references": [
+      {
+        "domain": "tower28beauty.com",
+        "stage": "returned",
+        "index_domain": "tower28beauty.com",
+        "index_status": "verified",
+        "rank": {
+          "domain": "tower28beauty.com",
+          "pre_filter_rank": 3,
+          "match": {
+            "score": 9.66,
+            "matched_terms": [
+              "serum",
+              "spf"
+            ],
+            "intent": {
+              "supported": true,
+              "requested_families": [
+                "complexion"
+              ],
+              "child_audience_required": false,
+              "child_audience_evidenced": false,
+              "observed_families": [
+                "bags",
+                "complexion",
+                "skincare"
+              ],
+              "reason": null
+            },
+            "product_evidence": true,
+            "query_coverage": 0.143,
+            "assessment": "candidate for review"
+          },
+          "exclusions": [],
+          "returned_rank": 2
+        }
+      },
+      {
+        "domain": "saiehello.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "tower28beauty",
+    "mode": "structured_profile",
+    "query": "We sell tinted sunscreen and everyday complexion makeup.",
+    "niche": "tinted_complexion",
+    "role": "core",
+    "returned_domains": [
+      "tower28beauty.com",
+      "peachandlily.com"
+    ],
+    "references": [
+      {
+        "domain": "iliabeauty.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "saiehello.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "saiehello",
+    "mode": "structured_profile",
+    "query": "We sell tinted moisturizer with SPF and everyday makeup.",
+    "niche": "tinted_complexion",
+    "role": "core",
+    "returned_domains": [
+      "tower28beauty.com",
+      "peachandlily.com"
+    ],
+    "references": [
+      {
+        "domain": "iliabeauty.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "tower28beauty.com",
+        "stage": "returned",
+        "index_domain": "tower28beauty.com",
+        "index_status": "verified",
+        "rank": {
+          "domain": "tower28beauty.com",
+          "pre_filter_rank": 2,
+          "match": {
+            "score": 30.93,
+            "matched_terms": [
+              "complexion",
+              "lip",
+              "makeup",
+              "spf",
+              "tinted"
+            ],
+            "intent": {
+              "supported": true,
+              "requested_families": [
+                "complexion"
+              ],
+              "child_audience_required": false,
+              "child_audience_evidenced": false,
+              "observed_families": [
+                "bags",
+                "complexion",
+                "skincare"
+              ],
+              "reason": null
+            },
+            "product_evidence": true,
+            "query_coverage": 0.385,
+            "assessment": "candidate for review"
+          },
+          "exclusions": [],
+          "returned_rank": 1
+        }
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "pipettebaby",
+    "mode": "structured_profile",
+    "query": "We sell fragrance-free baby lotion for sensitive skin.",
+    "niche": "baby_skin",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "tubbytodd.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "babobotanicals.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "tubbytodd",
+    "mode": "structured_profile",
+    "query": "We sell fragrance-free ointment and skin care for babies.",
+    "niche": "baby_skin",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "pipettebaby.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "babobotanicals.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "babobotanicals",
+    "mode": "structured_profile",
+    "query": "We sell fragrance-free sensitive baby skin care.",
+    "niche": "baby_skin",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "pipettebaby.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "tubbytodd.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "onyxcoffeelab",
+    "mode": "structured_profile",
+    "query": "We roast specialty coffee for home brewers and sell subscriptions.",
+    "niche": "specialty_coffee",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "counterculturecoffee.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "vervecoffee.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "counterculturecoffee",
+    "mode": "structured_profile",
+    "query": "We sell specialty coffee beans and recurring home deliveries.",
+    "niche": "specialty_coffee",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "onyxcoffeelab.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "vervecoffee.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "vervecoffee",
+    "mode": "structured_profile",
+    "query": "We sell freshly roasted specialty coffee and subscriptions.",
+    "niche": "specialty_coffee",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "onyxcoffeelab.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "counterculturecoffee.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "littlesleepies",
+    "mode": "structured_profile",
+    "query": "We sell bamboo pajamas for babies and matching families.",
+    "niche": "bamboo_family_sleepwear",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "kytebaby.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "birdiebean.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "kytebaby",
+    "mode": "structured_profile",
+    "query": "We sell bamboo baby sleep bags and sleepwear.",
+    "niche": "bamboo_family_sleepwear",
+    "role": "core",
+    "returned_domains": [
+      "shopluxelifeboutique.com"
+    ],
+    "references": [
+      {
+        "domain": "littlesleepies.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "birdiebean.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "birdiebean",
+    "mode": "structured_profile",
+    "query": "We sell printed bamboo pajamas and clothing for children.",
+    "niche": "bamboo_family_sleepwear",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "littlesleepies.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "kytebaby.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "purebites",
+    "mode": "structured_profile",
+    "query": "We sell freeze-dried single-protein dog treats.",
+    "niche": "dog_freeze_dried_treats",
+    "role": "core",
+    "returned_domains": [
+      "fetchyourpetneeds.ie",
+      "redbarn.com",
+      "freezbone.com"
+    ],
+    "references": [
+      {
+        "domain": "stewartpet.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "stellaandchewys.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "stewartpet",
+    "mode": "structured_profile",
+    "query": "We sell freeze-dried raw dog treats and toppers.",
+    "niche": "dog_freeze_dried_treats",
+    "role": "off-platform uncertainty control; report separately",
+    "returned_domains": [
+      "fetchyourpetneeds.ie",
+      "redbarn.com",
+      "freezbone.com"
+    ],
+    "references": [
+      {
+        "domain": "purebites.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "stellaandchewys.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "stellaandchewys",
+    "mode": "structured_profile",
+    "query": "We sell freeze-dried raw training treats for dogs.",
+    "niche": "dog_freeze_dried_treats",
+    "role": "core",
+    "returned_domains": [
+      "fetchyourpetneeds.ie",
+      "redbarn.com",
+      "freezbone.com"
+    ],
+    "references": [
+      {
+        "domain": "purebites.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "stewartpet.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "query": "We sell affordable clothing, home essentials, bedding, bags and jewelry.",
+    "niche": "bedding_and_broad_store",
+    "role": "core",
+    "returned_domains": [
+      "shopelvis.com",
+      "fetchyourpetneeds.ie"
+    ],
+    "references": [
+      {
+        "domain": "brooklinen.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "parachutehome.com",
+        "stage": "fresh_catalog_gate",
+        "index_domain": "parachutehome.com",
+        "index_status": "verified",
+        "rank": {
+          "domain": "parachutehome.com",
+          "pre_filter_rank": 7,
+          "match": {
+            "score": 11.86,
+            "matched_terms": [
+              "baby",
+              "linen",
+              "sheet"
+            ],
+            "intent": {
+              "supported": true,
+              "requested_families": [
+                "apparel",
+                "bags",
+                "bedding",
+                "jewelry"
+              ],
+              "child_audience_required": true,
+              "child_audience_evidenced": true,
+              "observed_families": [
+                "bedding",
+                "nursery"
+              ],
+              "reason": null
+            },
+            "product_evidence": true,
+            "query_coverage": 0.167,
+            "assessment": "candidate for review"
+          },
+          "exclusions": [
+            "fresh_catalog_gate"
+          ],
+          "returned_rank": null
+        }
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "brooklinen",
+    "mode": "structured_profile",
+    "query": "We sell bedding, sheets and comforters directly to consumers.",
+    "niche": "bedding_and_broad_store",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "quince.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "parachutehome.com",
+        "stage": "fresh_catalog_gate",
+        "index_domain": "parachutehome.com",
+        "index_status": "verified",
+        "rank": {
+          "domain": "parachutehome.com",
+          "pre_filter_rank": 2,
+          "match": {
+            "score": 14.35,
+            "matched_terms": [
+              "linen",
+              "sheet"
+            ],
+            "intent": {
+              "supported": true,
+              "requested_families": [
+                "bedding"
+              ],
+              "child_audience_required": false,
+              "child_audience_evidenced": true,
+              "observed_families": [
+                "bedding",
+                "nursery"
+              ],
+              "reason": null
+            },
+            "product_evidence": true,
+            "query_coverage": 0.133,
+            "assessment": "candidate for review"
+          },
+          "exclusions": [
+            "fresh_catalog_gate"
+          ],
+          "returned_rank": null
+        }
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "parachutehome",
+    "mode": "structured_profile",
+    "query": "We sell linen bedding and bath linens for the home.",
+    "niche": "bedding_and_broad_store",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "quince.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "brooklinen.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "keychron",
+    "mode": "structured_profile",
+    "query": "We sell customizable mechanical keyboards for Mac and Windows.",
+    "niche": "mechanical_keyboards",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "nuphy.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "epomaker.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "nuphy",
+    "mode": "structured_profile",
+    "query": "We sell low-profile wireless mechanical keyboards.",
+    "niche": "mechanical_keyboards",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "keychron.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "epomaker.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "epomaker",
+    "mode": "structured_profile",
+    "query": "We sell mechanical keyboards including low-profile models.",
+    "niche": "mechanical_keyboards",
+    "role": "core",
+    "returned_domains": [],
+    "references": [
+      {
+        "domain": "keychron.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "nuphy.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  },
+  {
+    "case_id": "colourpop",
+    "mode": "structured_profile",
+    "query": "We sell affordable eye palettes, lip products and face makeup.",
+    "niche": "tinted_complexion",
+    "role": "core",
+    "returned_domains": [
+      "tower28beauty.com",
+      "peachandlily.com"
+    ],
+    "references": [
+      {
+        "domain": "elfcosmetics.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      },
+      {
+        "domain": "revolutionbeauty.com",
+        "stage": "absent_from_verified_export",
+        "index_domain": null,
+        "index_status": null,
+        "rank": null
+      }
+    ],
+    "error": null
+  }
+]

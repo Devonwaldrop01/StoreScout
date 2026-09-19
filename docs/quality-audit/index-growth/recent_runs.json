@@ -1,0 +1,113 @@
+{
+  "query": "SELECT ran_at,trigger,processed,verified,reverified,rejected,failed FROM store_index_runs WHERE trigger='scheduled:stage_verification' ORDER BY ran_at DESC LIMIT 12",
+  "rows": [
+    {
+      "ran_at": "2026-09-11 15:17:56.729113+00",
+      "trigger": "scheduled:stage_verification",
+      "processed": 100,
+      "verified": 78,
+      "reverified": 0,
+      "rejected": 22,
+      "failed": 0
+    },
+    {
+      "ran_at": "2026-09-11 15:02:12.102919+00",
+      "trigger": "scheduled:stage_verification",
+      "processed": 100,
+      "verified": 45,
+      "reverified": 0,
+      "rejected": 55,
+      "failed": 0
+    },
+    {
+      "ran_at": "2026-09-11 14:47:00.082422+00",
+      "trigger": "scheduled:stage_verification",
+      "processed": 100,
+      "verified": 44,
+      "reverified": 0,
+      "rejected": 56,
+      "failed": 0
+    },
+    {
+      "ran_at": "2026-09-11 14:31:00.433417+00",
+      "trigger": "scheduled:stage_verification",
+      "processed": 100,
+      "verified": 22,
+      "reverified": 0,
+      "rejected": 78,
+      "failed": 0
+    },
+    {
+      "ran_at": "2026-09-11 14:16:33.022659+00",
+      "trigger": "scheduled:stage_verification",
+      "processed": 100,
+      "verified": 42,
+      "reverified": 0,
+      "rejected": 56,
+      "failed": 2
+    },
+    {
+      "ran_at": "2026-09-11 14:02:16.395423+00",
+      "trigger": "scheduled:stage_verification",
+      "processed": 100,
+      "verified": 53,
+      "reverified": 0,
+      "rejected": 47,
+      "failed": 0
+    },
+    {
+      "ran_at": "2026-09-11 13:46:01.310247+00",
+      "trigger": "scheduled:stage_verification",
+      "processed": 100,
+      "verified": 25,
+      "reverified": 0,
+      "rejected": 75,
+      "failed": 0
+    },
+    {
+      "ran_at": "2026-09-11 13:31:32.75065+00",
+      "trigger": "scheduled:stage_verification",
+      "processed": 100,
+      "verified": 45,
+      "reverified": 0,
+      "rejected": 55,
+      "failed": 0
+    },
+    {
+      "ran_at": "2026-09-11 13:16:39.902362+00",
+      "trigger": "scheduled:stage_verification",
+      "processed": 100,
+      "verified": 40,
+      "reverified": 0,
+      "rejected": 58,
+      "failed": 2
+    },
+    {
+      "ran_at": "2026-09-11 13:00:59.73686+00",
+      "trigger": "scheduled:stage_verification",
+      "processed": 100,
+      "verified": 19,
+      "reverified": 0,
+      "rejected": 81,
+      "failed": 0
+    },
+    {
+      "ran_at": "2026-09-11 12:46:39.07177+00",
+      "trigger": "scheduled:stage_verification",
+      "processed": 100,
+      "verified": 54,
+      "reverified": 0,
+      "rejected": 46,
+      "failed": 0
+    },
+    {
+      "ran_at": "2026-09-11 12:31:12.569118+00",
+      "trigger": "scheduled:stage_verification",
+      "processed": 100,
+      "verified": 19,
+      "reverified": 0,
+      "rejected": 81,
+      "failed": 0
+    }
+  ]
+}

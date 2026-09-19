@@ -1,0 +1,65 @@
+{
+  "query": "SELECT status,attempts,count(*) AS rows,count(*) FILTER(WHERE resolved_domain IS NOT NULL) AS with_domain FROM discovery_queue GROUP BY status,attempts ORDER BY status,attempts",
+  "rows": [
+    {
+      "status": "failed",
+      "attempts": 4,
+      "rows": 80148,
+      "with_domain": 87
+    },
+    {
+      "status": "pending",
+      "attempts": 0,
+      "rows": 180371,
+      "with_domain": 0
+    },
+    {
+      "status": "pending",
+      "attempts": 1,
+      "rows": 13,
+      "with_domain": 0
+    },
+    {
+      "status": "pending",
+      "attempts": 2,
+      "rows": 10,
+      "with_domain": 0
+    },
+    {
+      "status": "pending",
+      "attempts": 3,
+      "rows": 3,
+      "with_domain": 0
+    },
+    {
+      "status": "resolved",
+      "attempts": 0,
+      "rows": 14359,
+      "with_domain": 14359
+    },
+    {
+      "status": "resolved",
+      "attempts": 1,
+      "rows": 10485,
+      "with_domain": 10485
+    },
+    {
+      "status": "resolved",
+      "attempts": 2,
+      "rows": 7077,
+      "with_domain": 7077
+    },
+    {
+      "status": "resolved",
+      "attempts": 3,
+      "rows": 6153,
+      "with_domain": 6153
+    },
+    {
+      "status": "resolved",
+      "attempts": 4,
+      "rows": 14,
+      "with_domain": 14
+    }
+  ]
+}

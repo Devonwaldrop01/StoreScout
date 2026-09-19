@@ -1,0 +1,25 @@
+{
+  "query": "SELECT i.status,count(*) AS queue_refs,count(DISTINCT q.resolved_domain) AS distinct_domains FROM discovery_queue q LEFT JOIN shopify_store_index i ON i.domain=q.resolved_domain WHERE q.resolved_domain IS NOT NULL GROUP BY i.status ORDER BY i.status",
+  "rows": [
+    {
+      "status": "candidate",
+      "queue_refs": 17,
+      "distinct_domains": 17
+    },
+    {
+      "status": "discovered",
+      "queue_refs": 37877,
+      "distinct_domains": 37868
+    },
+    {
+      "status": "rejected",
+      "queue_refs": 29,
+      "distinct_domains": 29
+    },
+    {
+      "status": "verified",
+      "queue_refs": 252,
+      "distinct_domains": 252
+    }
+  ]
+}

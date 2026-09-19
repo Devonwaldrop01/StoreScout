@@ -247,6 +247,38 @@ def _get(client, url: str, timeout: int = 12):
     return client.get(url, timeout=timeout)
 
 
+def _protection_result(response, profile, now=None):
+    """Stop this pass on a protection response; never try another endpoint."""
+    from email.utils import parsedate_to_datetime
+    now = now or datetime.now(timezone.utc)
+    status = response.status_code
+    headers = response.headers
+    body = (getattr(response, "text", "") or "")[:400_000].lower()
+    state = None
+    if status in (401, 403, 429) or headers.get("cf-mitigated") == "challenge" or any(
+        marker in body for marker in ("cf-chl-", "challenge-platform", "<title>verifying your connection")
+    ):
+        state = "blocked"
+    elif 'action="/password"' in body or "shopify-section-main-password" in body:
+        state = "password_protected"
+    elif status == 402:
+        state = "storefront_unavailable"
+    if state is None:
+        return None
+    retry_at = None
+    value = headers.get("retry-after", "")
+    try:
+        from datetime import timedelta
+        retry_at = (now + timedelta(seconds=int(value))) if str(value).isdigit() else parsedate_to_datetime(value)
+        if retry_at.tzinfo is None or retry_at <= now:
+            retry_at = None
+    except (ValueError, TypeError, OverflowError):
+        pass
+    return {"reachable": True, "confidence": 0, "signals": [], "monitorable": False,
+            "access_state": state, "catalog_observation": None, "profile": profile,
+            "failure_reason": state, "retry_after_at": retry_at.isoformat() if retry_at else None}
+
+
 _TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
 _META_DESC_RE = re.compile(
     r'<meta[^>]+name=["\']description["\'][^>]+content=["\'](.*?)["\']', re.IGNORECASE | re.DOTALL
@@ -293,6 +325,9 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
         html = ""
         try:
             r = _get(client, f"https://{domain}/")
+            protection = _protection_result(r, profile)
+            if protection:
+                return protection
             home_status = r.status_code
             if r.status_code in (200, 403):
                 reachable = True
@@ -343,6 +378,9 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
         # 2. /cart.js â€” storefront API marker
         try:
             r = _get(client, f"https://{domain}/cart.js", timeout=8)
+            protection = _protection_result(r, profile)
+            if protection:
+                return protection
             cart_status = r.status_code
             if r.status_code == 200 and "json" in r.headers.get("content-type", ""):
                 data = r.json()
@@ -359,6 +397,9 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
         products: List[dict] = []
         try:
             r = _get(client, f"https://{domain}/products.json?limit=250", timeout=15)
+            protection = _protection_result(r, profile)
+            if protection:
+                return protection
             ct = r.headers.get("content-type", "")
             if r.status_code == 200 and "application/json" in ct:
                 data = r.json()
@@ -1045,8 +1086,11 @@ def verify_and_store(db, domain: str, source: str, source_query: Optional[str] =
     domain = previous["domain"]
     now = datetime.now(timezone.utc).isoformat()
 
-    def _failure(state):
+    def _failure(state, retry_after_at=None):
         fields = lifecycle.retry_fields(previous, state, datetime.now(timezone.utc))
+        retry_at = lifecycle.timestamp(retry_after_at)
+        if retry_at and retry_at > lifecycle.timestamp(fields["next_verification_at"]):
+            fields["next_verification_at"] = retry_at.isoformat()
         saved = _finish_verification(db, domain, token, fields)
         return {"domain": domain, "outcome": ("rejected" if state in lifecycle.TERMINAL else "failed") if saved else "skipped",
                 "reason": state if saved else "superseded", "successful_catalogs": 0, "attempted": True, "confidence": 0}
@@ -1064,7 +1108,7 @@ def verify_and_store(db, domain: str, source: str, source_query: Optional[str] =
     # configured Shopify-confidence threshold.
     state = lifecycle.classify_probe(result, settings.shopify_index_min_confidence)
     if state != "verified_shopify":
-        return _failure(state)
+        return _failure(state, result.get("retry_after_at"))
 
     # Shared brand text is not proof of canonical identity. Keep both domains
     # until redirect or Shopify shop identity evidence establishes equivalence.

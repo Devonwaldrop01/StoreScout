@@ -1,0 +1,26 @@
+{
+  "query": "SELECT now() AS measured_at,(SELECT count(*) FROM discovery_queue) AS discovered_refs,(SELECT count(*) FROM discovery_queue WHERE nullif(resolved_domain,'') IS NULL) AS unresolved_refs,(SELECT count(DISTINCT lower(resolved_domain)) FROM discovery_queue WHERE nullif(resolved_domain,'') IS NOT NULL) AS unique_resolved_domains,count(*) AS index_rows,count(DISTINCT domain) AS index_domains,count(*) FILTER (WHERE status='discovered') AS discovered_index,count(*) FILTER (WHERE status='candidate') AS candidate_index,count(*) FILTER (WHERE status='verified') AS verified,count(*) FILTER (WHERE last_verified_at IS NULL AND verified_at IS NULL) AS no_recorded_verification_timestamp,count(*) FILTER (WHERE status='verified' AND knowledge_at IS NULL) AS verified_unclassified,count(*) FILTER (WHERE status='verified' AND knowledge_at IS NOT NULL) AS verified_classified,count(*) FILTER (WHERE status='verified' AND category_confidence<55) AS verified_below55,count(*) FILTER (WHERE status='verified' AND category_confidence IS NULL) AS verified_confidence_unknown,count(*) FILTER (WHERE status='verified' AND verification_confidence>=60 AND last_verified_at BETWEEN now()-interval '60 days' AND now() AND verification_signals @> '[\"Product catalog accessible\"]'::jsonb) AS fresh_readable_verified,count(*) FILTER (WHERE status='verified' AND verification_confidence>=60 AND last_verified_at BETWEEN now()-interval '60 days' AND now() AND verification_signals @> '[\"Product catalog accessible\"]'::jsonb AND (category_confidence IS NULL OR category_confidence>=55)) AS lifecycle_discovery_eligible,max(last_verified_at) AS last_verification,max(knowledge_at) AS last_classification,count(*) FILTER (WHERE status='verified' AND last_verified_at<now()-interval '60 days') AS stale_verified FROM shopify_store_index",
+  "rows": [
+    {
+      "measured_at": "2026-09-19 21:16:05.328373+00",
+      "discovered_refs": 298633,
+      "unresolved_refs": 260458,
+      "unique_resolved_domains": 38166,
+      "index_rows": 40010,
+      "index_domains": 40010,
+      "discovered_index": 37877,
+      "candidate_index": 1323,
+      "verified": 411,
+      "no_recorded_verification_timestamp": 39190,
+      "verified_unclassified": 0,
+      "verified_classified": 411,
+      "verified_below55": 55,
+      "verified_confidence_unknown": 0,
+      "fresh_readable_verified": 78,
+      "lifecycle_discovery_eligible": 34,
+      "last_verification": "2026-09-11 15:17:55.920437+00",
+      "last_classification": "2026-09-11 15:20:45.893961+00",
+      "stale_verified": 320
+    }
+  ]
+}

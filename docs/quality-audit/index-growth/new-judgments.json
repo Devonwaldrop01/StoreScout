@@ -1,0 +1,272 @@
+[
+  {
+    "case_id": "kytebaby",
+    "mode": "description_only",
+    "domain": "shopluxelifeboutique.com",
+    "label": 0,
+    "rationale": "Captured catalog is adult fashion, including baby-blue dresses and babydoll rompers; no bamboo infant sleep product evidence.",
+    "evidence": "current captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "broadrivermercantile.com",
+    "label": 1,
+    "rationale": "Apparel, bags and jewelry overlap partially, but catalog primarily premium outdoor/hunting retail; affordable home/bedding business fit unestablished.",
+    "evidence": "current captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "sandmarc.com",
+    "label": 0,
+    "rationale": "Catalog is phone camera lenses/cases and technology accessories; incidental bags do not establish affordable clothing/home/bedding competitor fit.",
+    "evidence": "current captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "accessprive.com",
+    "label": 1,
+    "rationale": "Designer luxury footwear/clothing is adjacent to apparel but price and assortment differ from affordable multi-category essentials.",
+    "evidence": "current captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "elevateyoursole.co.uk",
+    "label": 1,
+    "rationale": "Footwear/accessory retailer is adjacent; captured assortment does not support comparable affordable home/bedding and apparel offering.",
+    "evidence": "current captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "blueingreensoho.com",
+    "label": 1,
+    "rationale": "Specialist Japanese denim/apparel overlaps clothing; affordable broad essentials positioning is unsupported.",
+    "evidence": "current captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "fetchyourpetneeds.ie",
+    "label": 0,
+    "rationale": "Pet food, veterinary care and pet accessories; pet clothing does not satisfy the human apparel/home-essentials business intent.",
+    "evidence": "current captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "kytebaby",
+    "mode": "structured_profile",
+    "domain": "shopluxelifeboutique.com",
+    "label": 0,
+    "rationale": "Captured catalog is adult fashion, including baby-blue dresses and babydoll rompers; no bamboo infant sleep product evidence.",
+    "evidence": "current captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "fetchyourpetneeds.ie",
+    "label": 0,
+    "rationale": "Pet food, veterinary care and pet accessories; pet clothing does not satisfy the human apparel/home-essentials business intent.",
+    "evidence": "current captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "iliabeauty",
+    "mode": "description_only",
+    "domain": "glamglobal.com",
+    "label": 2,
+    "rationale": "250-product capture includes MISSHA tinted SPF, BB creams and tone-cover sun products: useful product-functional overlap despite multi-brand K-beauty retail positioning.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "tower28beauty",
+    "mode": "description_only",
+    "domain": "glamglobal.com",
+    "label": 2,
+    "rationale": "250-product capture includes MISSHA tinted SPF, BB creams and tone-cover sun products: useful product-functional overlap despite multi-brand K-beauty retail positioning.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "saiehello",
+    "mode": "description_only",
+    "domain": "glamglobal.com",
+    "label": 2,
+    "rationale": "250-product capture includes MISSHA tinted SPF, BB creams and tone-cover sun products: useful product-functional overlap despite multi-brand K-beauty retail positioning.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "pipettebaby",
+    "mode": "description_only",
+    "domain": "tevqa.com",
+    "label": 0,
+    "rationale": "250-product capture shows adult fashion and intimate-care skin products, not fragrance-free infant skincare; toddler shortalls do not establish baby skincare.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "tubbytodd",
+    "mode": "description_only",
+    "domain": "tevqa.com",
+    "label": 0,
+    "rationale": "250-product capture shows adult fashion and intimate-care skin products, not fragrance-free infant skincare; toddler shortalls do not establish baby skincare.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "babobotanicals",
+    "mode": "description_only",
+    "domain": "tevqa.com",
+    "label": 0,
+    "rationale": "250-product capture shows adult fashion and intimate-care skin products, not fragrance-free infant skincare; toddler shortalls do not establish baby skincare.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "kytebaby",
+    "mode": "description_only",
+    "domain": "tevqa.com",
+    "label": 1,
+    "rationale": "Adult satin/lace sleepwear and one toddler shortall provide only adjacent clothing evidence; bamboo infant sleep bags/child pajamas not established.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "birdiebean",
+    "mode": "description_only",
+    "domain": "tevqa.com",
+    "label": 1,
+    "rationale": "Adult satin/lace sleepwear and one toddler shortall provide only adjacent clothing evidence; bamboo infant sleep bags/child pajamas not established.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "colourpop",
+    "mode": "description_only",
+    "domain": "glamglobal.com",
+    "label": 1,
+    "rationale": "250-product capture supports BB complexion products and skincare; comparable eye palette/lip makeup assortment not established.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "iliabeauty",
+    "mode": "structured_profile",
+    "domain": "glamglobal.com",
+    "label": 2,
+    "rationale": "250-product capture includes MISSHA tinted SPF, BB creams and tone-cover sun products: useful product-functional overlap despite multi-brand K-beauty retail positioning.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "tower28beauty",
+    "mode": "structured_profile",
+    "domain": "glamglobal.com",
+    "label": 2,
+    "rationale": "250-product capture includes MISSHA tinted SPF, BB creams and tone-cover sun products: useful product-functional overlap despite multi-brand K-beauty retail positioning.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "saiehello",
+    "mode": "structured_profile",
+    "domain": "glamglobal.com",
+    "label": 2,
+    "rationale": "250-product capture includes MISSHA tinted SPF, BB creams and tone-cover sun products: useful product-functional overlap despite multi-brand K-beauty retail positioning.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "pipettebaby",
+    "mode": "structured_profile",
+    "domain": "tevqa.com",
+    "label": 0,
+    "rationale": "250-product capture shows adult fashion and intimate-care skin products, not fragrance-free infant skincare; toddler shortalls do not establish baby skincare.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "tubbytodd",
+    "mode": "structured_profile",
+    "domain": "tevqa.com",
+    "label": 0,
+    "rationale": "250-product capture shows adult fashion and intimate-care skin products, not fragrance-free infant skincare; toddler shortalls do not establish baby skincare.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "babobotanicals",
+    "mode": "structured_profile",
+    "domain": "tevqa.com",
+    "label": 0,
+    "rationale": "250-product capture shows adult fashion and intimate-care skin products, not fragrance-free infant skincare; toddler shortalls do not establish baby skincare.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "kytebaby",
+    "mode": "structured_profile",
+    "domain": "tevqa.com",
+    "label": 1,
+    "rationale": "Adult satin/lace sleepwear and one toddler shortall provide only adjacent clothing evidence; bamboo infant sleep bags/child pajamas not established.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "birdiebean",
+    "mode": "structured_profile",
+    "domain": "tevqa.com",
+    "label": 1,
+    "rationale": "Adult satin/lace sleepwear and one toddler shortall provide only adjacent clothing evidence; bamboo infant sleep bags/child pajamas not established.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  },
+  {
+    "case_id": "colourpop",
+    "mode": "structured_profile",
+    "domain": "glamglobal.com",
+    "label": 1,
+    "rationale": "250-product capture supports BB complexion products and skincare; comparable eye palette/lip makeup assortment not established.",
+    "evidence": "expanded captured public catalog snapshot; no new web research",
+    "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+    "checked_at": "2026-09-19"
+  }
+]

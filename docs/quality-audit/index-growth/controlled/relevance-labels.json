@@ -1,0 +1,2910 @@
+[
+  {
+    "label": 0,
+    "rationale": "Observed trading cards, denim, paddleboards, children school goods, cycling components or industrial abrasives do not satisfy the hiking-pack/shelter query.",
+    "case_id": "gossamergear",
+    "mode": "description_only",
+    "domain": "funwaterboard.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T20:56:29.011677+00:00",
+    "public_urls": [
+      "https://www.funwaterboard.com/",
+      "https://funwaterboard.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Outdoor retailer with tents and hiking backpacks; useful partial assortment comparison, Canadian retail positioning and product weights need review.",
+    "case_id": "gossamergear",
+    "mode": "description_only",
+    "domain": "scouttech.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:01:02.148154+00:00",
+    "public_urls": [
+      "https://scouttech.com",
+      "https://scouttech.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Military surplus packs and shelters are adjacent; heavy/surplus equipment is not established as a lightweight long-distance substitute.",
+    "case_id": "gossamergear",
+    "mode": "description_only",
+    "domain": "otsurplus.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T20:58:10.260467+00:00",
+    "public_urls": [
+      "https://otsurplus.com",
+      "https://otsurplus.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Adjacent surf/hunting/footwear/camping-blanket assortment, without verified lightweight shelter or backpack substitution for this query.",
+    "case_id": "gossamergear",
+    "mode": "description_only",
+    "domain": "beachinsurf.com.au",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:01:46.756923+00:00",
+    "public_urls": [
+      "https://beachinsurf.com.au",
+      "https://beachinsurf.com.au/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 0,
+    "rationale": "Observed trading cards, denim, paddleboards, children school goods, cycling components or industrial abrasives do not satisfy the hiking-pack/shelter query.",
+    "case_id": "gossamergear",
+    "mode": "description_only",
+    "domain": "hydrusboardtech.com",
+    "rank": 5,
+    "checked_at": "2026-09-05T21:04:26.288569+00:00",
+    "public_urls": [
+      "https://www.hydrusboardtech.com/",
+      "https://hydrusboardtech.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Travel, camera or leather/laptop bags; adjacent carrying function without supported ultralight trail-pack fit.",
+    "case_id": "gossamergear",
+    "mode": "description_only",
+    "domain": "knomo.com",
+    "rank": 6,
+    "checked_at": "2026-09-05T20:58:10.326729+00:00",
+    "public_urls": [
+      "https://knomo.com",
+      "https://knomo.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Adjacent surf/hunting/footwear/camping-blanket assortment, without verified lightweight shelter or backpack substitution for this query.",
+    "case_id": "gossamergear",
+    "mode": "description_only",
+    "domain": "bagsandshoes.net",
+    "rank": 7,
+    "checked_at": "2026-09-05T20:56:46.839173+00:00",
+    "public_urls": [
+      "https://bagsandshoes.net",
+      "https://bagsandshoes.net/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 0,
+    "rationale": "Observed trading cards, denim, paddleboards, children school goods, cycling components or industrial abrasives do not satisfy the hiking-pack/shelter query.",
+    "case_id": "gossamergear",
+    "mode": "description_only",
+    "domain": "wildkin.com",
+    "rank": 8,
+    "checked_at": "2026-09-05T21:01:49.304187+00:00",
+    "public_urls": [
+      "https://wildkin.com",
+      "https://wildkin.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 3,
+    "rationale": "Official Sun Cover is a lightly tinted mineral SPF product, directly overlapping the stated ILIA use case.",
+    "case_id": "iliabeauty",
+    "mode": "description_only",
+    "domain": "peachandlily.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:03:38.655404+00:00",
+    "public_urls": [
+      "https://www.peachandlily.com/",
+      "https://peachandlily.com/products.json?limit=50&page=1",
+      "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 3,
+    "rationale": "Independent official evidence supports tinted SPF and complexion makeup; price equivalence is not assumed.",
+    "case_id": "iliabeauty",
+    "mode": "description_only",
+    "domain": "tower28beauty.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:04:46.944417+00:00",
+    "public_urls": [
+      "https://www.tower28beauty.com/",
+      "https://tower28beauty.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official retailer pages list tinted face SPF and CC cream; useful partial product comparison, retailer/UK positioning differs and mineral-only formulation is not established.",
+    "case_id": "iliabeauty",
+    "mode": "description_only",
+    "domain": "gracebeautybox.co.uk",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:01:39.481141+00:00",
+    "public_urls": [
+      "https://gracebeautybox.co.uk/products.json?limit=50&page=1",
+      "https://www.gracebeautybox.co.uk/products/bondi-sands",
+      "https://www.gracebeautybox.co.uk/products/embryolisse-complexion-correcting-care-cc-cream-30-ml"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 0,
+    "rationale": "Own business returned as its own competitor in the empty-profile description-only scenario; the request supplies no explicit own-domain exclusion.",
+    "case_id": "tower28beauty",
+    "mode": "description_only",
+    "domain": "tower28beauty.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:04:46.944417+00:00",
+    "public_urls": [
+      "https://www.tower28beauty.com/",
+      "https://tower28beauty.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official retailer pages list tinted face SPF and CC cream; useful partial product comparison, retailer/UK positioning differs and mineral-only formulation is not established.",
+    "case_id": "tower28beauty",
+    "mode": "description_only",
+    "domain": "gracebeautybox.co.uk",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:01:39.481141+00:00",
+    "public_urls": [
+      "https://gracebeautybox.co.uk/products.json?limit=50&page=1",
+      "https://www.gracebeautybox.co.uk/products/bondi-sands",
+      "https://www.gracebeautybox.co.uk/products/embryolisse-complexion-correcting-care-cc-cream-30-ml"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Observed face/lip makeup assortment overlaps part of the query; SPF, formulation, full portfolio and price comparability require review.",
+    "case_id": "tower28beauty",
+    "mode": "description_only",
+    "domain": "redaspenlove.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:01:58.125101+00:00",
+    "public_urls": [
+      "https://redaspenlove.com",
+      "https://redaspenlove.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official Sun Cover mineral tinted SPF overlaps complexion/suncare; full makeup portfolio or price parity is not assumed.",
+    "case_id": "tower28beauty",
+    "mode": "description_only",
+    "domain": "peachandlily.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:03:38.655404+00:00",
+    "public_urls": [
+      "https://www.peachandlily.com/",
+      "https://peachandlily.com/products.json?limit=50&page=1",
+      "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 3,
+    "rationale": "Independent official evidence supports tinted SPF and complexion makeup; price equivalence is not assumed.",
+    "case_id": "saiehello",
+    "mode": "description_only",
+    "domain": "tower28beauty.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:04:46.944417+00:00",
+    "public_urls": [
+      "https://www.tower28beauty.com/",
+      "https://tower28beauty.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official retailer pages list tinted face SPF and CC cream; useful partial product comparison, retailer/UK positioning differs and mineral-only formulation is not established.",
+    "case_id": "saiehello",
+    "mode": "description_only",
+    "domain": "gracebeautybox.co.uk",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:01:39.481141+00:00",
+    "public_urls": [
+      "https://gracebeautybox.co.uk/products.json?limit=50&page=1",
+      "https://www.gracebeautybox.co.uk/products/bondi-sands",
+      "https://www.gracebeautybox.co.uk/products/embryolisse-complexion-correcting-care-cc-cream-30-ml"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Observed face/lip makeup assortment overlaps part of the query; SPF, formulation, full portfolio and price comparability require review.",
+    "case_id": "saiehello",
+    "mode": "description_only",
+    "domain": "redaspenlove.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:01:58.125101+00:00",
+    "public_urls": [
+      "https://redaspenlove.com",
+      "https://redaspenlove.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official Sun Cover mineral tinted SPF overlaps complexion/suncare; full makeup portfolio or price parity is not assumed.",
+    "case_id": "saiehello",
+    "mode": "description_only",
+    "domain": "peachandlily.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:03:38.655404+00:00",
+    "public_urls": [
+      "https://www.peachandlily.com/",
+      "https://peachandlily.com/products.json?limit=50&page=1",
+      "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 3,
+    "rationale": "Official specialty roasted coffee and subscription offerings directly match; no same-price assertion.",
+    "case_id": "onyxcoffeelab",
+    "mode": "description_only",
+    "domain": "volcanicacoffee.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:00:33.928728+00:00",
+    "public_urls": [
+      "https://volcanicacoffee.com",
+      "https://volcanicacoffee.com/pages/coffee-club"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Regional retailer carries packaged coffee alongside a broad New Mexico food/gift range; useful coffee-assortment comparison, not equivalent roaster/subscription positioning.",
+    "case_id": "onyxcoffeelab",
+    "mode": "description_only",
+    "domain": "madeinnewmexico.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:03:02.145072+00:00",
+    "public_urls": [
+      "https://madeinnewmexico.com",
+      "https://madeinnewmexico.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Drinkware/kitchenware or broad imported groceries are adjacent; no demonstrated specialty-roasted-bean/subscription substitute.",
+    "case_id": "onyxcoffeelab",
+    "mode": "description_only",
+    "domain": "ztshpt-cs.myshopify.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:00:24.548418+00:00",
+    "public_urls": [
+      "https://www.creativekitchenfargo.com/",
+      "https://ztshpt-cs.myshopify.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Drinkware/kitchenware or broad imported groceries are adjacent; no demonstrated specialty-roasted-bean/subscription substitute.",
+    "case_id": "onyxcoffeelab",
+    "mode": "description_only",
+    "domain": "corkcicle.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:03:48.534968+00:00",
+    "public_urls": [
+      "https://corkcicle.com",
+      "https://corkcicle.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 3,
+    "rationale": "Official specialty roasted coffee and subscription offerings directly match; no same-price assertion.",
+    "case_id": "counterculturecoffee",
+    "mode": "description_only",
+    "domain": "volcanicacoffee.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:00:33.928728+00:00",
+    "public_urls": [
+      "https://volcanicacoffee.com",
+      "https://volcanicacoffee.com/pages/coffee-club"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Regional retailer carries packaged coffee alongside a broad New Mexico food/gift range; useful coffee-assortment comparison, not equivalent roaster/subscription positioning.",
+    "case_id": "counterculturecoffee",
+    "mode": "description_only",
+    "domain": "madeinnewmexico.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:03:02.145072+00:00",
+    "public_urls": [
+      "https://madeinnewmexico.com",
+      "https://madeinnewmexico.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Drinkware/kitchenware or broad imported groceries are adjacent; no demonstrated specialty-roasted-bean/subscription substitute.",
+    "case_id": "counterculturecoffee",
+    "mode": "description_only",
+    "domain": "ztshpt-cs.myshopify.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:00:24.548418+00:00",
+    "public_urls": [
+      "https://www.creativekitchenfargo.com/",
+      "https://ztshpt-cs.myshopify.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Drinkware/kitchenware or broad imported groceries are adjacent; no demonstrated specialty-roasted-bean/subscription substitute.",
+    "case_id": "counterculturecoffee",
+    "mode": "description_only",
+    "domain": "corkcicle.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:03:48.534968+00:00",
+    "public_urls": [
+      "https://corkcicle.com",
+      "https://corkcicle.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 3,
+    "rationale": "Official specialty roasted coffee and subscription offerings directly match; no same-price assertion.",
+    "case_id": "vervecoffee",
+    "mode": "description_only",
+    "domain": "volcanicacoffee.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:00:33.928728+00:00",
+    "public_urls": [
+      "https://volcanicacoffee.com",
+      "https://volcanicacoffee.com/pages/coffee-club"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Regional retailer carries packaged coffee alongside a broad New Mexico food/gift range; useful coffee-assortment comparison, not equivalent roaster/subscription positioning.",
+    "case_id": "vervecoffee",
+    "mode": "description_only",
+    "domain": "madeinnewmexico.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:03:02.145072+00:00",
+    "public_urls": [
+      "https://madeinnewmexico.com",
+      "https://madeinnewmexico.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Drinkware/kitchenware or broad imported groceries are adjacent; no demonstrated specialty-roasted-bean/subscription substitute.",
+    "case_id": "vervecoffee",
+    "mode": "description_only",
+    "domain": "ztshpt-cs.myshopify.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:00:24.548418+00:00",
+    "public_urls": [
+      "https://www.creativekitchenfargo.com/",
+      "https://ztshpt-cs.myshopify.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Drinkware/kitchenware or broad imported groceries are adjacent; no demonstrated specialty-roasted-bean/subscription substitute.",
+    "case_id": "vervecoffee",
+    "mode": "description_only",
+    "domain": "corkcicle.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:03:48.534968+00:00",
+    "public_urls": [
+      "https://corkcicle.com",
+      "https://corkcicle.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "littlesleepies",
+    "mode": "description_only",
+    "domain": "luxechiccouture.com",
+    "rank": 1,
+    "query": "We sell bamboo pajamas for babies and matching families.",
+    "label": 0,
+    "rationale": "Public boutique offers adult fashion rompers and event outfits, not bamboo infant/family sleepwear.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://luxechiccouture.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "label": null,
+    "rationale": "Current domain checks return 502; historical MORI description alone cannot independently establish the current redirected business or catalog.",
+    "case_id": "kytebaby",
+    "mode": "description_only",
+    "domain": "babymel.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:05:03.562212+00:00",
+    "public_urls": [
+      "https://babymel.com",
+      "https://babymel.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": true,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official baby pajamas/sleepwear (and Pehr sleep bags) overlap the sleep use case; cotton/modal differs from bamboo and adult matching is not established.",
+    "case_id": "kytebaby",
+    "mode": "description_only",
+    "domain": "primary.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:03:27.595692+00:00",
+    "public_urls": [
+      "https://www.primary.com/",
+      "https://primary.com/products.json?limit=50&page=1",
+      "https://www.primary.com/collections/baby-pajamas/color-family-reds"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Adjacent kids bedding/daywear or adult silk sleepwear, without evidenced bamboo infant/family sleepwear substitution.",
+    "case_id": "kytebaby",
+    "mode": "description_only",
+    "domain": "shop.marigoldmodern.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:05:03.571394+00:00",
+    "public_urls": [
+      "https://shop.marigoldmodern.com",
+      "https://shop.marigoldmodern.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Adjacent kids bedding/daywear or adult silk sleepwear, without evidenced bamboo infant/family sleepwear substitution.",
+    "case_id": "kytebaby",
+    "mode": "description_only",
+    "domain": "apolina-kids.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:00:29.140717+00:00",
+    "public_urls": [
+      "https://apolina-kids.com",
+      "https://apolina-kids.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "kytebaby",
+    "mode": "description_only",
+    "domain": "pehr.com",
+    "rank": 5,
+    "query": "We sell bamboo baby sleep bags and sleepwear.",
+    "label": 2,
+    "rationale": "Official infant sleepwear and sleep bags overlap the sleep use case. Cotton/modal differs from bamboo; adult matching is not established.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://pehr.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "kytebaby",
+    "mode": "description_only",
+    "domain": "babyelaine.com",
+    "rank": 6,
+    "query": "We sell bamboo baby sleep bags and sleepwear.",
+    "label": 1,
+    "rationale": "Designer children daywear and rompers are adjacent; captured evidence does not establish bamboo pajamas or sleep bags.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://babyelaine.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "kytebaby",
+    "mode": "description_only",
+    "domain": "babysprouts.com",
+    "rank": 7,
+    "query": "We sell bamboo baby sleep bags and sleepwear.",
+    "label": 2,
+    "rationale": "Captured catalog and merchant description establish baby/children clothing, bamboo and sleep/play garments. Useful partial overlap; adult matching and every requested sleep-bag type are not established.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://babysprouts.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "birdiebean",
+    "mode": "description_only",
+    "domain": "babyelaine.com",
+    "rank": 1,
+    "query": "We sell printed bamboo pajamas and clothing for children.",
+    "label": 1,
+    "rationale": "Designer children daywear and rompers are adjacent; captured evidence does not establish bamboo pajamas or sleep bags.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://babyelaine.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "birdiebean",
+    "mode": "description_only",
+    "domain": "pehr.com",
+    "rank": 2,
+    "query": "We sell printed bamboo pajamas and clothing for children.",
+    "label": 2,
+    "rationale": "Official infant sleepwear and sleep bags overlap the sleep use case. Cotton/modal differs from bamboo; adult matching is not established.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://pehr.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "label": 2,
+    "rationale": "Official stores offer freeze-dried/raw dog treats; useful retailer assortment comparison, but geography and reseller-versus-brand positioning differ. A reseller of the query brand is not a newly discovered competing manufacturer.",
+    "case_id": "purebites",
+    "mode": "description_only",
+    "domain": "petland.ca",
+    "rank": 1,
+    "checked_at": "2026-09-05T20:55:45.975925+00:00",
+    "public_urls": [
+      "https://www.petland.ca/",
+      "https://petland.ca/products.json?limit=50&page=1",
+      "https://www.petland.ca/products/purebites-freeze-dried-mini-training-lamb-liver-dog-treats"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "purebites",
+    "mode": "description_only",
+    "domain": "muttluks.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:04:44.874796+00:00",
+    "public_urls": [
+      "https://muttluks.com",
+      "https://muttluks.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official single-meat air-dried training treats overlap rewarding/training use; process differs from freeze-dried raw and ingredient equivalence is not assumed.",
+    "case_id": "purebites",
+    "mode": "description_only",
+    "domain": "redbarn.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T20:57:24.501049+00:00",
+    "public_urls": [
+      "https://www.redbarn.com/",
+      "https://redbarn.com/products.json?limit=50&page=1",
+      "https://www.redbarn.com/products/air-dried-chicken-training-treats"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "purebites",
+    "mode": "description_only",
+    "domain": "ruffwear.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:01:50.498888+00:00",
+    "public_urls": [
+      "https://ruffwear.com"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "purebites",
+    "mode": "description_only",
+    "domain": "freezbone.com",
+    "rank": 5,
+    "checked_at": "2026-09-05T20:59:33.848158+00:00",
+    "public_urls": [
+      "https://www.freezbone.com/",
+      "https://freezbone.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "stewartpet",
+    "mode": "description_only",
+    "domain": "ruffwear.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:01:50.498888+00:00",
+    "public_urls": [
+      "https://ruffwear.com"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official stores offer freeze-dried/raw dog treats; useful retailer assortment comparison, but geography and reseller-versus-brand positioning differ. A reseller of the query brand is not a newly discovered competing manufacturer.",
+    "case_id": "stewartpet",
+    "mode": "description_only",
+    "domain": "petland.ca",
+    "rank": 2,
+    "checked_at": "2026-09-05T20:55:45.975925+00:00",
+    "public_urls": [
+      "https://www.petland.ca/",
+      "https://petland.ca/products.json?limit=50&page=1",
+      "https://www.petland.ca/products/purebites-freeze-dried-mini-training-lamb-liver-dog-treats"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "stewartpet",
+    "mode": "description_only",
+    "domain": "muttluks.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:04:44.874796+00:00",
+    "public_urls": [
+      "https://muttluks.com",
+      "https://muttluks.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official single-meat air-dried training treats overlap rewarding/training use; process differs from freeze-dried raw and ingredient equivalence is not assumed.",
+    "case_id": "stewartpet",
+    "mode": "description_only",
+    "domain": "redbarn.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T20:57:24.501049+00:00",
+    "public_urls": [
+      "https://www.redbarn.com/",
+      "https://redbarn.com/products.json?limit=50&page=1",
+      "https://www.redbarn.com/products/air-dried-chicken-training-treats"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "stewartpet",
+    "mode": "description_only",
+    "domain": "freezbone.com",
+    "rank": 5,
+    "checked_at": "2026-09-05T20:59:33.848158+00:00",
+    "public_urls": [
+      "https://www.freezbone.com/",
+      "https://freezbone.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official single-meat air-dried training treats overlap rewarding/training use; process differs from freeze-dried raw and ingredient equivalence is not assumed.",
+    "case_id": "stellaandchewys",
+    "mode": "description_only",
+    "domain": "redbarn.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T20:57:24.501049+00:00",
+    "public_urls": [
+      "https://www.redbarn.com/",
+      "https://redbarn.com/products.json?limit=50&page=1",
+      "https://www.redbarn.com/products/air-dried-chicken-training-treats"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "stellaandchewys",
+    "mode": "description_only",
+    "domain": "ruffwear.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:01:50.498888+00:00",
+    "public_urls": [
+      "https://ruffwear.com"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "stellaandchewys",
+    "mode": "description_only",
+    "domain": "freezbone.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T20:59:33.848158+00:00",
+    "public_urls": [
+      "https://www.freezbone.com/",
+      "https://freezbone.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official stores offer freeze-dried/raw dog treats; useful retailer assortment comparison, but geography and reseller-versus-brand positioning differ. A reseller of the query brand is not a newly discovered competing manufacturer.",
+    "case_id": "stellaandchewys",
+    "mode": "description_only",
+    "domain": "petland.ca",
+    "rank": 4,
+    "checked_at": "2026-09-05T20:55:45.975925+00:00",
+    "public_urls": [
+      "https://www.petland.ca/",
+      "https://petland.ca/products.json?limit=50&page=1",
+      "https://www.petland.ca/products/purebites-freeze-dried-mini-training-lamb-liver-dog-treats"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "stellaandchewys",
+    "mode": "description_only",
+    "domain": "muttluks.com",
+    "rank": 5,
+    "checked_at": "2026-09-05T21:04:44.874796+00:00",
+    "public_urls": [
+      "https://muttluks.com",
+      "https://muttluks.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "vessi.com",
+    "rank": 1,
+    "query": "We sell affordable clothing, home essentials, bedding, bags and jewelry.",
+    "label": 1,
+    "rationale": "Waterproof footwear with accessory apparel/bags is adjacent to broad clothing/home retail; broad household or bedding overlap is not evidenced.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://vessi.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "label": 2,
+    "rationale": "For Quince only: limited bag/accessory/apparel segment overlap. This does not represent its whole broad business or establish equal price, audience or material.",
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "petunia.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:01:16.481393+00:00",
+    "public_urls": [
+      "https://petunia.com"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "For Quince only: limited bag/accessory/apparel segment overlap. This does not represent its whole broad business or establish equal price, audience or material.",
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "shopleatherworld.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T20:55:48.048356+00:00",
+    "public_urls": [
+      "https://shopleatherworld.com",
+      "https://shopleatherworld.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Licensed Elvis merchandise differs materially in purchase motivation from Quince general essentials.",
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "shopelvis.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:04:26.008981+00:00",
+    "public_urls": [
+      "https://www.shopelvis.com/",
+      "https://shopelvis.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "For Quince only: limited bag/accessory/apparel segment overlap. This does not represent its whole broad business or establish equal price, audience or material.",
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "kallureskloset.com",
+    "rank": 5,
+    "checked_at": "2026-09-05T21:02:34.199153+00:00",
+    "public_urls": [
+      "https://kallureskloset.com",
+      "https://kallureskloset.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 0,
+    "rationale": "Sexual-wellness positioning and products do not establish useful competition for Quince everyday apparel/home essentials.",
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "thebizzbybabs.com",
+    "rank": 6,
+    "checked_at": "2026-09-05T21:01:37.639522+00:00",
+    "public_urls": [
+      "https://thebizzbybabs.com",
+      "https://thebizzbybabs.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Nursery furniture/bedding overlaps a limited part of Quince home/baby assortment; not a whole-business comparator.",
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "babyletto.com",
+    "rank": 7,
+    "checked_at": "2026-09-05T21:00:57.059574+00:00",
+    "public_urls": [
+      "https://babyletto.com",
+      "https://babyletto.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "For Quince only: limited bag/accessory/apparel segment overlap. This does not represent its whole broad business or establish equal price, audience or material.",
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "robertsonmadison.com",
+    "rank": 8,
+    "checked_at": "2026-09-05T21:03:35.156091+00:00",
+    "public_urls": [
+      "https://www.robertsonmadison.com/",
+      "https://robertsonmadison.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": null,
+    "rationale": "Bedding navigation persists but the sampled current catalog is dominated by jewelry/storage products and the homepage contains template copy. Actual comparable bedding could not be confidently established from this bounded observation.",
+    "case_id": "brooklinen",
+    "mode": "description_only",
+    "domain": "rest-ment.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T20:57:23.676110+00:00",
+    "public_urls": [
+      "https://rest-ment.com",
+      "https://rest-ment.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 3,
+    "rationale": "Official bedding/sheet/comforter assortment overlaps the bedding use case; no sales or price equivalence claimed.",
+    "case_id": "brooklinen",
+    "mode": "description_only",
+    "domain": "madisonpark2010.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T20:56:36.499493+00:00",
+    "public_urls": [
+      "https://madisonpark2010.com",
+      "https://madisonpark2010.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 0,
+    "rationale": "Current hobby supplies, vinyl records, printed signage, denim or cosmetics do not satisfy the bedding/bath-linen query.",
+    "case_id": "brooklinen",
+    "mode": "description_only",
+    "domain": "smile-cleanworks.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T20:57:10.620321+00:00",
+    "public_urls": [
+      "https://smile-cleanworks.com",
+      "https://smile-cleanworks.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Children twin/full bedding supplies partial sheet/comforter overlap; audience, designs and material differ.",
+    "case_id": "brooklinen",
+    "mode": "description_only",
+    "domain": "wildkin.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:01:49.304187+00:00",
+    "public_urls": [
+      "https://wildkin.com",
+      "https://wildkin.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "brooklinen",
+    "mode": "description_only",
+    "rank": 5,
+    "domain": "www.bambibaby.com",
+    "query": "We sell bedding, sheets and comforters directly to consumers.",
+    "label": 1,
+    "rationale": "Crib sheets and nursery quilts are adjacent bedding. Adult linen/bath collections or a broad adult home-and-apparel substitute are not established.",
+    "checked_at": "2026-09-06T00:44:25.913469+00:00",
+    "public_urls": [
+      "https://www.bambibaby.com/",
+      "https://www.bambibaby.com/products.json?limit=250"
+    ],
+    "label_provenance": "explicit controlled-validation analyst adjudication",
+    "reviewer": "single analyst; not an independent blind human panel",
+    "access_unknown": false
+  },
+  {
+    "label": 1,
+    "rationale": "Nursery-size bedding/furniture or broader home decor is adjacent; standard-size linen sheet/bath overlap is not established.",
+    "case_id": "brooklinen",
+    "mode": "description_only",
+    "domain": "babyletto.com",
+    "rank": 6,
+    "checked_at": "2026-09-05T21:00:57.059574+00:00",
+    "public_urls": [
+      "https://babyletto.com",
+      "https://babyletto.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 0,
+    "rationale": "Current hobby supplies, vinyl records, printed signage, denim or cosmetics do not satisfy the bedding/bath-linen query.",
+    "case_id": "parachutehome",
+    "mode": "description_only",
+    "domain": "smile-cleanworks.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T20:57:10.620321+00:00",
+    "public_urls": [
+      "https://smile-cleanworks.com",
+      "https://smile-cleanworks.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": null,
+    "rationale": "Bedding navigation persists but the sampled current catalog is dominated by jewelry/storage products and the homepage contains template copy. Actual comparable bedding could not be confidently established from this bounded observation.",
+    "case_id": "parachutehome",
+    "mode": "description_only",
+    "domain": "rest-ment.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T20:57:23.676110+00:00",
+    "public_urls": [
+      "https://rest-ment.com",
+      "https://rest-ment.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Bedding and bath assortment is useful partial overlap; exact linen material comparability remains unverified.",
+    "case_id": "parachutehome",
+    "mode": "description_only",
+    "domain": "madisonpark2010.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T20:56:36.499493+00:00",
+    "public_urls": [
+      "https://madisonpark2010.com",
+      "https://madisonpark2010.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Nursery-size bedding/furniture or broader home decor is adjacent; standard-size linen sheet/bath overlap is not established.",
+    "case_id": "parachutehome",
+    "mode": "description_only",
+    "domain": "babyletto.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:00:57.059574+00:00",
+    "public_urls": [
+      "https://babyletto.com",
+      "https://babyletto.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Instrument/equipment covers, keyboard/device cases or broad secondhand electronics are adjacent; no evidenced comparable mechanical keyboard model.",
+    "case_id": "keychron",
+    "mode": "description_only",
+    "domain": "bestampcovers.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:00:55.835668+00:00",
+    "public_urls": [
+      "https://bestampcovers.com",
+      "https://bestampcovers.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Instrument/equipment covers, keyboard/device cases or broad secondhand electronics are adjacent; no evidenced comparable mechanical keyboard model.",
+    "case_id": "nuphy",
+    "mode": "description_only",
+    "domain": "bestampcovers.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:00:55.835668+00:00",
+    "public_urls": [
+      "https://bestampcovers.com",
+      "https://bestampcovers.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Instrument/equipment covers, keyboard/device cases or broad secondhand electronics are adjacent; no evidenced comparable mechanical keyboard model.",
+    "case_id": "epomaker",
+    "mode": "description_only",
+    "domain": "bestampcovers.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:00:55.835668+00:00",
+    "public_urls": [
+      "https://bestampcovers.com",
+      "https://bestampcovers.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official retailer pages list tinted face SPF and CC cream; useful partial product comparison, retailer/UK positioning differs and mineral-only formulation is not established.",
+    "case_id": "colourpop",
+    "mode": "description_only",
+    "domain": "gracebeautybox.co.uk",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:01:39.481141+00:00",
+    "public_urls": [
+      "https://gracebeautybox.co.uk/products.json?limit=50&page=1",
+      "https://www.gracebeautybox.co.uk/products/bondi-sands",
+      "https://www.gracebeautybox.co.uk/products/embryolisse-complexion-correcting-care-cc-cream-30-ml"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 3,
+    "rationale": "Observed eyes, lips and face makeup directly overlaps the stated product portfolio; pricing still requires comparable-product review.",
+    "case_id": "colourpop",
+    "mode": "description_only",
+    "domain": "redaspenlove.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:01:58.125101+00:00",
+    "public_urls": [
+      "https://redaspenlove.com",
+      "https://redaspenlove.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Useful face/lip makeup overlap; full affordable eye-palette assortment not established.",
+    "case_id": "colourpop",
+    "mode": "description_only",
+    "domain": "tower28beauty.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:04:46.944417+00:00",
+    "public_urls": [
+      "https://www.tower28beauty.com/",
+      "https://tower28beauty.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Observed face/lip makeup assortment overlaps part of the query; SPF, formulation, full portfolio and price comparability require review.",
+    "case_id": "colourpop",
+    "mode": "description_only",
+    "domain": "besamecosmetics.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:04:22.493739+00:00",
+    "public_urls": [
+      "https://besamecosmetics.com",
+      "https://besamecosmetics.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official Sun Cover mineral tinted SPF overlaps complexion/suncare; full makeup portfolio or price parity is not assumed.",
+    "case_id": "colourpop",
+    "mode": "description_only",
+    "domain": "peachandlily.com",
+    "rank": 5,
+    "checked_at": "2026-09-05T21:03:38.655404+00:00",
+    "public_urls": [
+      "https://www.peachandlily.com/",
+      "https://peachandlily.com/products.json?limit=50&page=1",
+      "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "colourpop",
+    "mode": "description_only",
+    "domain": "dlacosmetics.com",
+    "rank": 6,
+    "query": "We sell affordable eye palettes, lip products and face makeup.",
+    "label": 2,
+    "rationale": "Captured lip gloss, lip liner and lip oils overlap everyday lip makeup; perfume-heavy assortment makes this a partial competitor.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://dlacosmetics.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "colourpop",
+    "mode": "description_only",
+    "domain": "thebizzbybabs.com",
+    "rank": 7,
+    "query": "We sell affordable eye palettes, lip products and face makeup.",
+    "label": 0,
+    "rationale": "Adult intimacy and personal-care products do not satisfy fragrance-free infant skincare intent.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://thebizzbybabs.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "colourpop",
+    "mode": "description_only",
+    "domain": "tailoredcanvases.com",
+    "rank": 8,
+    "query": "We sell affordable eye palettes, lip products and face makeup.",
+    "label": 0,
+    "rationale": "Canvas wall art uses blush as a color, not a makeup product.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://tailoredcanvases.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "label": 2,
+    "rationale": "Outdoor retailer with tents and hiking backpacks; useful partial assortment comparison, Canadian retail positioning and product weights need review.",
+    "case_id": "gossamergear",
+    "mode": "structured_profile",
+    "domain": "scouttech.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:01:02.148154+00:00",
+    "public_urls": [
+      "https://scouttech.com",
+      "https://scouttech.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Military surplus packs and shelters are adjacent; heavy/surplus equipment is not established as a lightweight long-distance substitute.",
+    "case_id": "gossamergear",
+    "mode": "structured_profile",
+    "domain": "otsurplus.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T20:58:10.260467+00:00",
+    "public_urls": [
+      "https://otsurplus.com",
+      "https://otsurplus.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 0,
+    "rationale": "Observed trading cards, denim, paddleboards, children school goods, cycling components or industrial abrasives do not satisfy the hiking-pack/shelter query.",
+    "case_id": "gossamergear",
+    "mode": "structured_profile",
+    "domain": "funwaterboard.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T20:56:29.011677+00:00",
+    "public_urls": [
+      "https://www.funwaterboard.com/",
+      "https://funwaterboard.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "gossamergear",
+    "mode": "structured_profile",
+    "rank": 4,
+    "domain": "beachinsurf.com.au",
+    "query": "We sell lightweight hiking backpacks and shelters.",
+    "label": 1,
+    "rationale": "Surf hardware, wetsuits and general backpacks are adjacent outdoor goods; lightweight hiking packs or shelters are not established.",
+    "checked_at": "2026-09-06T00:44:25.913469+00:00",
+    "public_urls": [
+      "https://beachinsurf.com.au/",
+      "https://beachinsurf.com.au/products.json?limit=250"
+    ],
+    "label_provenance": "explicit controlled-validation analyst adjudication",
+    "reviewer": "single analyst; not an independent blind human panel",
+    "access_unknown": false
+  },
+  {
+    "case_id": "gossamergear",
+    "mode": "structured_profile",
+    "domain": "hydrusboardtech.com",
+    "rank": 5,
+    "query": "We sell lightweight hiking backpacks and shelters.",
+    "label": 1,
+    "rationale": "Paddleboards and carry accessories share an outdoor audience, without evidenced lightweight hiking shelters or hiking pack substitution.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://hydrusboardtech.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "gossamergear",
+    "mode": "structured_profile",
+    "domain": "bagsandshoes.net",
+    "rank": 6,
+    "query": "We sell lightweight hiking backpacks and shelters.",
+    "label": 1,
+    "rationale": "General backpacks and footwear are adjacent; lightweight hiking shelter/pack functionality is not established.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://bagsandshoes.net"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "gossamergear",
+    "mode": "structured_profile",
+    "domain": "wildkin.com",
+    "rank": 7,
+    "query": "We sell lightweight hiking backpacks and shelters.",
+    "label": 1,
+    "rationale": "Children school backpacks are adjacent bags, not demonstrated lightweight hiking packs or shelters.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://wildkin.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "gossamergear",
+    "mode": "structured_profile",
+    "domain": "jamesleather.com",
+    "rank": 8,
+    "query": "We sell lightweight hiking backpacks and shelters.",
+    "label": 1,
+    "rationale": "Leather/canvas backpacks and travel luggage are adjacent, without lightweight hiking-pack functionality.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://jamesleather.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "label": 3,
+    "rationale": "Official Sun Cover is a lightly tinted mineral SPF product, directly overlapping the stated ILIA use case.",
+    "case_id": "iliabeauty",
+    "mode": "structured_profile",
+    "domain": "peachandlily.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:03:38.655404+00:00",
+    "public_urls": [
+      "https://www.peachandlily.com/",
+      "https://peachandlily.com/products.json?limit=50&page=1",
+      "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official retailer pages list tinted face SPF and CC cream; useful partial product comparison, retailer/UK positioning differs and mineral-only formulation is not established.",
+    "case_id": "iliabeauty",
+    "mode": "structured_profile",
+    "domain": "gracebeautybox.co.uk",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:01:39.481141+00:00",
+    "public_urls": [
+      "https://gracebeautybox.co.uk/products.json?limit=50&page=1",
+      "https://www.gracebeautybox.co.uk/products/bondi-sands",
+      "https://www.gracebeautybox.co.uk/products/embryolisse-complexion-correcting-care-cc-cream-30-ml"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 3,
+    "rationale": "Independent official evidence supports tinted SPF and complexion makeup; price equivalence is not assumed.",
+    "case_id": "iliabeauty",
+    "mode": "structured_profile",
+    "domain": "tower28beauty.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:04:46.944417+00:00",
+    "public_urls": [
+      "https://www.tower28beauty.com/",
+      "https://tower28beauty.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 0,
+    "rationale": "Own business returned as its own competitor in the empty-profile description-only scenario; the request supplies no explicit own-domain exclusion.",
+    "case_id": "tower28beauty",
+    "mode": "structured_profile",
+    "domain": "tower28beauty.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:04:46.944417+00:00",
+    "public_urls": [
+      "https://www.tower28beauty.com/",
+      "https://tower28beauty.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official retailer pages list tinted face SPF and CC cream; useful partial product comparison, retailer/UK positioning differs and mineral-only formulation is not established.",
+    "case_id": "tower28beauty",
+    "mode": "structured_profile",
+    "domain": "gracebeautybox.co.uk",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:01:39.481141+00:00",
+    "public_urls": [
+      "https://gracebeautybox.co.uk/products.json?limit=50&page=1",
+      "https://www.gracebeautybox.co.uk/products/bondi-sands",
+      "https://www.gracebeautybox.co.uk/products/embryolisse-complexion-correcting-care-cc-cream-30-ml"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Observed face/lip makeup assortment overlaps part of the query; SPF, formulation, full portfolio and price comparability require review.",
+    "case_id": "tower28beauty",
+    "mode": "structured_profile",
+    "domain": "redaspenlove.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:01:58.125101+00:00",
+    "public_urls": [
+      "https://redaspenlove.com",
+      "https://redaspenlove.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official Sun Cover mineral tinted SPF overlaps complexion/suncare; full makeup portfolio or price parity is not assumed.",
+    "case_id": "tower28beauty",
+    "mode": "structured_profile",
+    "domain": "peachandlily.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:03:38.655404+00:00",
+    "public_urls": [
+      "https://www.peachandlily.com/",
+      "https://peachandlily.com/products.json?limit=50&page=1",
+      "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 3,
+    "rationale": "Independent official evidence supports tinted SPF and complexion makeup; price equivalence is not assumed.",
+    "case_id": "saiehello",
+    "mode": "structured_profile",
+    "domain": "tower28beauty.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:04:46.944417+00:00",
+    "public_urls": [
+      "https://www.tower28beauty.com/",
+      "https://tower28beauty.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official retailer pages list tinted face SPF and CC cream; useful partial product comparison, retailer/UK positioning differs and mineral-only formulation is not established.",
+    "case_id": "saiehello",
+    "mode": "structured_profile",
+    "domain": "gracebeautybox.co.uk",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:01:39.481141+00:00",
+    "public_urls": [
+      "https://gracebeautybox.co.uk/products.json?limit=50&page=1",
+      "https://www.gracebeautybox.co.uk/products/bondi-sands",
+      "https://www.gracebeautybox.co.uk/products/embryolisse-complexion-correcting-care-cc-cream-30-ml"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official Sun Cover mineral tinted SPF overlaps complexion/suncare; full makeup portfolio or price parity is not assumed.",
+    "case_id": "saiehello",
+    "mode": "structured_profile",
+    "domain": "peachandlily.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:03:38.655404+00:00",
+    "public_urls": [
+      "https://www.peachandlily.com/",
+      "https://peachandlily.com/products.json?limit=50&page=1",
+      "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Lip cosmetics supply a limited overlap with everyday makeup; does not cover the tinted-SPF/eye-palette intent.",
+    "case_id": "saiehello",
+    "mode": "structured_profile",
+    "domain": "dlacosmetics.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:04:49.823846+00:00",
+    "public_urls": [
+      "https://www.dlacosmetics.com/",
+      "https://dlacosmetics.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Observed face/lip makeup assortment overlaps part of the query; SPF, formulation, full portfolio and price comparability require review.",
+    "case_id": "saiehello",
+    "mode": "structured_profile",
+    "domain": "besamecosmetics.com",
+    "rank": 5,
+    "checked_at": "2026-09-05T21:04:22.493739+00:00",
+    "public_urls": [
+      "https://besamecosmetics.com",
+      "https://besamecosmetics.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Observed face/lip makeup assortment overlaps part of the query; SPF, formulation, full portfolio and price comparability require review.",
+    "case_id": "saiehello",
+    "mode": "structured_profile",
+    "domain": "redaspenlove.com",
+    "rank": 6,
+    "checked_at": "2026-09-05T21:01:58.125101+00:00",
+    "public_urls": [
+      "https://redaspenlove.com",
+      "https://redaspenlove.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "saiehello",
+    "mode": "structured_profile",
+    "domain": "thebizzbybabs.com",
+    "rank": 7,
+    "query": "We sell tinted moisturizer with SPF and everyday makeup.",
+    "label": 0,
+    "rationale": "Adult intimacy and personal-care products do not satisfy fragrance-free infant skincare intent.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://thebizzbybabs.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "label": 3,
+    "rationale": "Official specialty roasted coffee and subscription offerings directly match; no same-price assertion.",
+    "case_id": "onyxcoffeelab",
+    "mode": "structured_profile",
+    "domain": "volcanicacoffee.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:00:33.928728+00:00",
+    "public_urls": [
+      "https://volcanicacoffee.com",
+      "https://volcanicacoffee.com/pages/coffee-club"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Regional retailer carries packaged coffee alongside a broad New Mexico food/gift range; useful coffee-assortment comparison, not equivalent roaster/subscription positioning.",
+    "case_id": "onyxcoffeelab",
+    "mode": "structured_profile",
+    "domain": "madeinnewmexico.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:03:02.145072+00:00",
+    "public_urls": [
+      "https://madeinnewmexico.com",
+      "https://madeinnewmexico.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Drinkware/kitchenware or broad imported groceries are adjacent; no demonstrated specialty-roasted-bean/subscription substitute.",
+    "case_id": "onyxcoffeelab",
+    "mode": "structured_profile",
+    "domain": "ztshpt-cs.myshopify.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:00:24.548418+00:00",
+    "public_urls": [
+      "https://www.creativekitchenfargo.com/",
+      "https://ztshpt-cs.myshopify.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "onyxcoffeelab",
+    "mode": "structured_profile",
+    "domain": "lheureuxinc.com",
+    "rank": 4,
+    "query": "We roast specialty coffee for home brewers and sell subscriptions.",
+    "label": 2,
+    "rationale": "Previously adjudicated merchant sells whole-bean coffee with recurring delivery; equipment-led Canadian retail is a partial competitor.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://lheureuxinc.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "onyxcoffeelab",
+    "mode": "structured_profile",
+    "domain": "corkcicle.com",
+    "rank": 5,
+    "query": "We roast specialty coffee for home brewers and sell subscriptions.",
+    "label": 1,
+    "rationale": "Coffee drinkware serves the audience but does not substitute for specialty-roasted beans/subscriptions.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://corkcicle.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "label": 3,
+    "rationale": "Official specialty roasted coffee and subscription offerings directly match; no same-price assertion.",
+    "case_id": "counterculturecoffee",
+    "mode": "structured_profile",
+    "domain": "volcanicacoffee.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:00:33.928728+00:00",
+    "public_urls": [
+      "https://volcanicacoffee.com",
+      "https://volcanicacoffee.com/pages/coffee-club"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Regional retailer carries packaged coffee alongside a broad New Mexico food/gift range; useful coffee-assortment comparison, not equivalent roaster/subscription positioning.",
+    "case_id": "counterculturecoffee",
+    "mode": "structured_profile",
+    "domain": "madeinnewmexico.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:03:02.145072+00:00",
+    "public_urls": [
+      "https://madeinnewmexico.com",
+      "https://madeinnewmexico.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Drinkware/kitchenware or broad imported groceries are adjacent; no demonstrated specialty-roasted-bean/subscription substitute.",
+    "case_id": "counterculturecoffee",
+    "mode": "structured_profile",
+    "domain": "ztshpt-cs.myshopify.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:00:24.548418+00:00",
+    "public_urls": [
+      "https://www.creativekitchenfargo.com/",
+      "https://ztshpt-cs.myshopify.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "counterculturecoffee",
+    "mode": "structured_profile",
+    "rank": 4,
+    "domain": "lheureuxinc.com",
+    "query": "We sell specialty coffee beans and recurring home deliveries.",
+    "label": 2,
+    "rationale": "Merchant offers whole-bean Ursae \u00c9clipse with a subscribe-and-save delivery option. This is real recurring coffee supply; equipment-led retail and Canadian delivery make it a partial competitor.",
+    "checked_at": "2026-09-06T00:44:25.913469+00:00",
+    "public_urls": [
+      "https://lheureuxinc.com/en/products/ursae-eclipse"
+    ],
+    "label_provenance": "explicit controlled-validation analyst adjudication",
+    "reviewer": "single analyst; not an independent blind human panel",
+    "access_unknown": false
+  },
+  {
+    "case_id": "counterculturecoffee",
+    "mode": "structured_profile",
+    "domain": "corkcicle.com",
+    "rank": 5,
+    "query": "We sell specialty coffee beans and recurring home deliveries.",
+    "label": 1,
+    "rationale": "Coffee drinkware serves the audience but does not substitute for specialty-roasted beans/subscriptions.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://corkcicle.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "label": 3,
+    "rationale": "Official specialty roasted coffee and subscription offerings directly match; no same-price assertion.",
+    "case_id": "vervecoffee",
+    "mode": "structured_profile",
+    "domain": "volcanicacoffee.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:00:33.928728+00:00",
+    "public_urls": [
+      "https://volcanicacoffee.com",
+      "https://volcanicacoffee.com/pages/coffee-club"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Regional retailer carries packaged coffee alongside a broad New Mexico food/gift range; useful coffee-assortment comparison, not equivalent roaster/subscription positioning.",
+    "case_id": "vervecoffee",
+    "mode": "structured_profile",
+    "domain": "madeinnewmexico.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:03:02.145072+00:00",
+    "public_urls": [
+      "https://madeinnewmexico.com",
+      "https://madeinnewmexico.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Drinkware/kitchenware or broad imported groceries are adjacent; no demonstrated specialty-roasted-bean/subscription substitute.",
+    "case_id": "vervecoffee",
+    "mode": "structured_profile",
+    "domain": "ztshpt-cs.myshopify.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:00:24.548418+00:00",
+    "public_urls": [
+      "https://www.creativekitchenfargo.com/",
+      "https://ztshpt-cs.myshopify.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "vervecoffee",
+    "mode": "structured_profile",
+    "rank": 4,
+    "domain": "corkcicle.com",
+    "query": "We sell freshly roasted specialty coffee and subscriptions.",
+    "label": 1,
+    "rationale": "Insulated cups and coffee mugs serve the coffee audience but do not replace freshly roasted coffee subscriptions.",
+    "checked_at": "2026-09-06T00:44:25.913469+00:00",
+    "public_urls": [
+      "https://corkcicle.com/",
+      "https://corkcicle.com/products.json?limit=250"
+    ],
+    "label_provenance": "explicit controlled-validation analyst adjudication",
+    "reviewer": "single analyst; not an independent blind human panel",
+    "access_unknown": false
+  },
+  {
+    "label": 2,
+    "rationale": "Official baby pajamas/sleepwear (and Pehr sleep bags) overlap the sleep use case; cotton/modal differs from bamboo and adult matching is not established.",
+    "case_id": "littlesleepies",
+    "mode": "structured_profile",
+    "domain": "primary.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:03:27.595692+00:00",
+    "public_urls": [
+      "https://www.primary.com/",
+      "https://primary.com/products.json?limit=50&page=1",
+      "https://www.primary.com/collections/baby-pajamas/color-family-reds"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "littlesleepies",
+    "mode": "structured_profile",
+    "domain": "luxechiccouture.com",
+    "rank": 2,
+    "query": "We sell bamboo pajamas for babies and matching families.",
+    "label": 0,
+    "rationale": "Public boutique offers adult fashion rompers and event outfits, not bamboo infant/family sleepwear.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://luxechiccouture.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "label": null,
+    "rationale": "Current domain checks return 502; historical MORI description alone cannot independently establish the current redirected business or catalog.",
+    "case_id": "kytebaby",
+    "mode": "structured_profile",
+    "domain": "babymel.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:05:03.562212+00:00",
+    "public_urls": [
+      "https://babymel.com",
+      "https://babymel.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": true,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official baby pajamas/sleepwear (and Pehr sleep bags) overlap the sleep use case; cotton/modal differs from bamboo and adult matching is not established.",
+    "case_id": "kytebaby",
+    "mode": "structured_profile",
+    "domain": "pehr.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:02:18.570441+00:00",
+    "public_urls": [
+      "https://pehr.com",
+      "https://pehr.com/products.json?limit=50&page=1",
+      "https://pehr.com/pages/sleepwear"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Adjacent kids bedding/daywear or adult silk sleepwear, without evidenced bamboo infant/family sleepwear substitution.",
+    "case_id": "kytebaby",
+    "mode": "structured_profile",
+    "domain": "apolina-kids.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:00:29.140717+00:00",
+    "public_urls": [
+      "https://apolina-kids.com",
+      "https://apolina-kids.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official baby pajamas/sleepwear (and Pehr sleep bags) overlap the sleep use case; cotton/modal differs from bamboo and adult matching is not established.",
+    "case_id": "kytebaby",
+    "mode": "structured_profile",
+    "domain": "primary.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:03:27.595692+00:00",
+    "public_urls": [
+      "https://www.primary.com/",
+      "https://primary.com/products.json?limit=50&page=1",
+      "https://www.primary.com/collections/baby-pajamas/color-family-reds"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Adjacent kids bedding/daywear or adult silk sleepwear, without evidenced bamboo infant/family sleepwear substitution.",
+    "case_id": "kytebaby",
+    "mode": "structured_profile",
+    "domain": "shop.marigoldmodern.com",
+    "rank": 5,
+    "checked_at": "2026-09-05T21:05:03.571394+00:00",
+    "public_urls": [
+      "https://shop.marigoldmodern.com",
+      "https://shop.marigoldmodern.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false
+  },
+  {
+    "case_id": "kytebaby",
+    "mode": "structured_profile",
+    "domain": "babyelaine.com",
+    "rank": 6,
+    "query": "We sell bamboo baby sleep bags and sleepwear.",
+    "label": 1,
+    "rationale": "Designer children daywear and rompers are adjacent; captured evidence does not establish bamboo pajamas or sleep bags.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://babyelaine.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "kytebaby",
+    "mode": "structured_profile",
+    "domain": "babysprouts.com",
+    "rank": 7,
+    "query": "We sell bamboo baby sleep bags and sleepwear.",
+    "label": 2,
+    "rationale": "Captured catalog and merchant description establish baby/children clothing, bamboo and sleep/play garments. Useful partial overlap; adult matching and every requested sleep-bag type are not established.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://babysprouts.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "birdiebean",
+    "mode": "structured_profile",
+    "domain": "luxechiccouture.com",
+    "rank": 1,
+    "query": "We sell printed bamboo pajamas and clothing for children.",
+    "label": 0,
+    "rationale": "Public boutique offers adult fashion rompers and event outfits, not bamboo infant/family sleepwear.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://luxechiccouture.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "birdiebean",
+    "mode": "structured_profile",
+    "domain": "babyelaine.com",
+    "rank": 2,
+    "query": "We sell printed bamboo pajamas and clothing for children.",
+    "label": 1,
+    "rationale": "Designer children daywear and rompers are adjacent; captured evidence does not establish bamboo pajamas or sleep bags.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://babyelaine.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "birdiebean",
+    "mode": "structured_profile",
+    "domain": "pehr.com",
+    "rank": 3,
+    "query": "We sell printed bamboo pajamas and clothing for children.",
+    "label": 2,
+    "rationale": "Official infant sleepwear and sleep bags overlap the sleep use case. Cotton/modal differs from bamboo; adult matching is not established.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://pehr.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "birdiebean",
+    "mode": "structured_profile",
+    "domain": "babymel.com",
+    "rank": 4,
+    "query": "We sell printed bamboo pajamas and clothing for children.",
+    "label": null,
+    "rationale": "Preserved public checks fail with 502. Historical MORI products are insufficient to establish the current merchant/redirect identity; original uncertainty retained.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://babymel.com"
+    ],
+    "access_unknown": true,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "label": 2,
+    "rationale": "Official stores offer freeze-dried/raw dog treats; useful retailer assortment comparison, but geography and reseller-versus-brand positioning differ. A reseller of the query brand is not a newly discovered competing manufacturer.",
+    "case_id": "purebites",
+    "mode": "structured_profile",
+    "domain": "petland.ca",
+    "rank": 1,
+    "checked_at": "2026-09-05T20:55:45.975925+00:00",
+    "public_urls": [
+      "https://www.petland.ca/",
+      "https://petland.ca/products.json?limit=50&page=1",
+      "https://www.petland.ca/products/purebites-freeze-dried-mini-training-lamb-liver-dog-treats"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official single-meat air-dried training treats overlap rewarding/training use; process differs from freeze-dried raw and ingredient equivalence is not assumed.",
+    "case_id": "purebites",
+    "mode": "structured_profile",
+    "domain": "redbarn.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T20:57:24.501049+00:00",
+    "public_urls": [
+      "https://www.redbarn.com/",
+      "https://redbarn.com/products.json?limit=50&page=1",
+      "https://www.redbarn.com/products/air-dried-chicken-training-treats"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "purebites",
+    "mode": "structured_profile",
+    "domain": "freezbone.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T20:59:33.848158+00:00",
+    "public_urls": [
+      "https://www.freezbone.com/",
+      "https://freezbone.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "purebites",
+    "mode": "structured_profile",
+    "domain": "ruffwear.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:01:50.498888+00:00",
+    "public_urls": [
+      "https://ruffwear.com"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "purebites",
+    "mode": "structured_profile",
+    "rank": 5,
+    "domain": "muttluks.com",
+    "query": "We sell freeze-dried single-protein dog treats.",
+    "label": 1,
+    "rationale": "Public products are dog boots, harnesses and paw care. Same dog-owner audience, without edible freeze-dried treat substitution.",
+    "checked_at": "2026-09-06T00:44:25.913469+00:00",
+    "public_urls": [
+      "https://muttluks.com/",
+      "https://muttluks.com/products.json?limit=250"
+    ],
+    "label_provenance": "explicit controlled-validation analyst adjudication",
+    "reviewer": "single analyst; not an independent blind human panel",
+    "access_unknown": false
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "stewartpet",
+    "mode": "structured_profile",
+    "domain": "ruffwear.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:01:50.498888+00:00",
+    "public_urls": [
+      "https://ruffwear.com"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official stores offer freeze-dried/raw dog treats; useful retailer assortment comparison, but geography and reseller-versus-brand positioning differ. A reseller of the query brand is not a newly discovered competing manufacturer.",
+    "case_id": "stewartpet",
+    "mode": "structured_profile",
+    "domain": "petland.ca",
+    "rank": 2,
+    "checked_at": "2026-09-05T20:55:45.975925+00:00",
+    "public_urls": [
+      "https://www.petland.ca/",
+      "https://petland.ca/products.json?limit=50&page=1",
+      "https://www.petland.ca/products/purebites-freeze-dried-mini-training-lamb-liver-dog-treats"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official single-meat air-dried training treats overlap rewarding/training use; process differs from freeze-dried raw and ingredient equivalence is not assumed.",
+    "case_id": "stewartpet",
+    "mode": "structured_profile",
+    "domain": "redbarn.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T20:57:24.501049+00:00",
+    "public_urls": [
+      "https://www.redbarn.com/",
+      "https://redbarn.com/products.json?limit=50&page=1",
+      "https://www.redbarn.com/products/air-dried-chicken-training-treats"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "stewartpet",
+    "mode": "structured_profile",
+    "domain": "muttluks.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:04:44.874796+00:00",
+    "public_urls": [
+      "https://muttluks.com",
+      "https://muttluks.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "stewartpet",
+    "mode": "structured_profile",
+    "domain": "freezbone.com",
+    "rank": 5,
+    "checked_at": "2026-09-05T20:59:33.848158+00:00",
+    "public_urls": [
+      "https://www.freezbone.com/",
+      "https://freezbone.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official single-meat air-dried training treats overlap rewarding/training use; process differs from freeze-dried raw and ingredient equivalence is not assumed.",
+    "case_id": "stellaandchewys",
+    "mode": "structured_profile",
+    "domain": "redbarn.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T20:57:24.501049+00:00",
+    "public_urls": [
+      "https://www.redbarn.com/",
+      "https://redbarn.com/products.json?limit=50&page=1",
+      "https://www.redbarn.com/products/air-dried-chicken-training-treats"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "stellaandchewys",
+    "mode": "structured_profile",
+    "domain": "ruffwear.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:01:50.498888+00:00",
+    "public_urls": [
+      "https://ruffwear.com"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "stellaandchewys",
+    "mode": "structured_profile",
+    "domain": "freezbone.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T20:59:33.848158+00:00",
+    "public_urls": [
+      "https://www.freezbone.com/",
+      "https://freezbone.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official stores offer freeze-dried/raw dog treats; useful retailer assortment comparison, but geography and reseller-versus-brand positioning differ. A reseller of the query brand is not a newly discovered competing manufacturer.",
+    "case_id": "stellaandchewys",
+    "mode": "structured_profile",
+    "domain": "petland.ca",
+    "rank": 4,
+    "checked_at": "2026-09-05T20:55:45.975925+00:00",
+    "public_urls": [
+      "https://www.petland.ca/",
+      "https://petland.ca/products.json?limit=50&page=1",
+      "https://www.petland.ca/products/purebites-freeze-dried-mini-training-lamb-liver-dog-treats"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+    "case_id": "stellaandchewys",
+    "mode": "structured_profile",
+    "domain": "muttluks.com",
+    "rank": 5,
+    "checked_at": "2026-09-05T21:04:44.874796+00:00",
+    "public_urls": [
+      "https://muttluks.com",
+      "https://muttluks.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "For Quince only: limited bag/accessory/apparel segment overlap. This does not represent its whole broad business or establish equal price, audience or material.",
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "petunia.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:01:16.481393+00:00",
+    "public_urls": [
+      "https://petunia.com"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Licensed Elvis merchandise differs materially in purchase motivation from Quince general essentials.",
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "shopelvis.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:04:26.008981+00:00",
+    "public_urls": [
+      "https://www.shopelvis.com/",
+      "https://shopelvis.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "rank": 3,
+    "domain": "www.bambibaby.com",
+    "query": "We sell affordable clothing, home essentials, bedding, bags and jewelry.",
+    "label": 1,
+    "rationale": "Crib sheets and nursery quilts are adjacent bedding. Adult linen/bath collections or a broad adult home-and-apparel substitute are not established.",
+    "checked_at": "2026-09-06T00:44:25.913469+00:00",
+    "public_urls": [
+      "https://www.bambibaby.com/",
+      "https://www.bambibaby.com/products.json?limit=250"
+    ],
+    "label_provenance": "explicit controlled-validation analyst adjudication",
+    "reviewer": "single analyst; not an independent blind human panel",
+    "access_unknown": false
+  },
+  {
+    "label": 2,
+    "rationale": "For Quince only: limited bag/accessory/apparel segment overlap. This does not represent its whole broad business or establish equal price, audience or material.",
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "herschel.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:01:49.588501+00:00",
+    "public_urls": [
+      "https://herschel.com",
+      "https://herschel.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "fuegodance.com",
+    "rank": 5,
+    "query": "We sell affordable clothing, home essentials, bedding, bags and jewelry.",
+    "label": 1,
+    "rationale": "Dance sneakers and accessory apparel are adjacent to broad clothing/home retail, without meaningful household overlap.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://fuegodance.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "babymel.com",
+    "rank": 6,
+    "query": "We sell affordable clothing, home essentials, bedding, bags and jewelry.",
+    "label": null,
+    "rationale": "Preserved public checks fail with 502. Historical MORI products are insufficient to establish the current merchant/redirect identity; original uncertainty retained.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://babymel.com"
+    ],
+    "access_unknown": true,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "babyletto.com",
+    "rank": 7,
+    "query": "We sell affordable clothing, home essentials, bedding, bags and jewelry.",
+    "label": 1,
+    "rationale": "Crib bedding and nursery furniture are adjacent; adult linen bedding and bath-linen substitution is not established.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://babyletto.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "bmilourban.com",
+    "rank": 8,
+    "query": "We sell affordable clothing, home essentials, bedding, bags and jewelry.",
+    "label": 1,
+    "rationale": "Character/streetwear merchandise, collectibles and logo bags overlap apparel/accessories broadly; everyday household/bedding and affordable-basics substitution are not established.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://bmilourban.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "label": null,
+    "rationale": "Bedding navigation persists but the sampled current catalog is dominated by jewelry/storage products and the homepage contains template copy. Actual comparable bedding could not be confidently established from this bounded observation.",
+    "case_id": "brooklinen",
+    "mode": "structured_profile",
+    "domain": "rest-ment.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T20:57:23.676110+00:00",
+    "public_urls": [
+      "https://rest-ment.com",
+      "https://rest-ment.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 3,
+    "rationale": "Official bedding/sheet/comforter assortment overlaps the bedding use case; no sales or price equivalence claimed.",
+    "case_id": "brooklinen",
+    "mode": "structured_profile",
+    "domain": "madisonpark2010.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T20:56:36.499493+00:00",
+    "public_urls": [
+      "https://madisonpark2010.com",
+      "https://madisonpark2010.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 0,
+    "rationale": "Current hobby supplies, vinyl records, printed signage, denim or cosmetics do not satisfy the bedding/bath-linen query.",
+    "case_id": "brooklinen",
+    "mode": "structured_profile",
+    "domain": "smile-cleanworks.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T20:57:10.620321+00:00",
+    "public_urls": [
+      "https://smile-cleanworks.com",
+      "https://smile-cleanworks.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "brooklinen",
+    "mode": "structured_profile",
+    "rank": 4,
+    "domain": "www.bambibaby.com",
+    "query": "We sell bedding, sheets and comforters directly to consumers.",
+    "label": 1,
+    "rationale": "Crib sheets and nursery quilts are adjacent bedding. Adult linen/bath collections or a broad adult home-and-apparel substitute are not established.",
+    "checked_at": "2026-09-06T00:44:25.913469+00:00",
+    "public_urls": [
+      "https://www.bambibaby.com/",
+      "https://www.bambibaby.com/products.json?limit=250"
+    ],
+    "label_provenance": "explicit controlled-validation analyst adjudication",
+    "reviewer": "single analyst; not an independent blind human panel",
+    "access_unknown": false
+  },
+  {
+    "label": 2,
+    "rationale": "Children twin/full bedding supplies partial sheet/comforter overlap; audience, designs and material differ.",
+    "case_id": "brooklinen",
+    "mode": "structured_profile",
+    "domain": "wildkin.com",
+    "rank": 5,
+    "checked_at": "2026-09-05T21:01:49.304187+00:00",
+    "public_urls": [
+      "https://wildkin.com",
+      "https://wildkin.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Nursery-size bedding/furniture or broader home decor is adjacent; standard-size linen sheet/bath overlap is not established.",
+    "case_id": "brooklinen",
+    "mode": "structured_profile",
+    "domain": "babyletto.com",
+    "rank": 6,
+    "checked_at": "2026-09-05T21:00:57.059574+00:00",
+    "public_urls": [
+      "https://babyletto.com",
+      "https://babyletto.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Bedding and bath assortment is useful partial overlap; exact linen material comparability remains unverified.",
+    "case_id": "parachutehome",
+    "mode": "structured_profile",
+    "domain": "madisonpark2010.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T20:56:36.499493+00:00",
+    "public_urls": [
+      "https://madisonpark2010.com",
+      "https://madisonpark2010.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": null,
+    "rationale": "Bedding navigation persists but the sampled current catalog is dominated by jewelry/storage products and the homepage contains template copy. Actual comparable bedding could not be confidently established from this bounded observation.",
+    "case_id": "parachutehome",
+    "mode": "structured_profile",
+    "domain": "rest-ment.com",
+    "rank": 2,
+    "checked_at": "2026-09-05T20:57:23.676110+00:00",
+    "public_urls": [
+      "https://rest-ment.com",
+      "https://rest-ment.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 0,
+    "rationale": "Current hobby supplies, vinyl records, printed signage, denim or cosmetics do not satisfy the bedding/bath-linen query.",
+    "case_id": "parachutehome",
+    "mode": "structured_profile",
+    "domain": "smile-cleanworks.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T20:57:10.620321+00:00",
+    "public_urls": [
+      "https://smile-cleanworks.com",
+      "https://smile-cleanworks.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "parachutehome",
+    "mode": "structured_profile",
+    "rank": 4,
+    "domain": "www.bambibaby.com",
+    "query": "We sell linen bedding and bath linens for the home.",
+    "label": 1,
+    "rationale": "Crib sheets and nursery quilts are adjacent bedding. Adult linen/bath collections or a broad adult home-and-apparel substitute are not established.",
+    "checked_at": "2026-09-06T00:44:25.913469+00:00",
+    "public_urls": [
+      "https://www.bambibaby.com/",
+      "https://www.bambibaby.com/products.json?limit=250"
+    ],
+    "label_provenance": "explicit controlled-validation analyst adjudication",
+    "reviewer": "single analyst; not an independent blind human panel",
+    "access_unknown": false
+  },
+  {
+    "label": 1,
+    "rationale": "Child-focused bedding does not establish linen sheet and bath-linen substitution.",
+    "case_id": "parachutehome",
+    "mode": "structured_profile",
+    "domain": "wildkin.com",
+    "rank": 5,
+    "checked_at": "2026-09-05T21:01:49.304187+00:00",
+    "public_urls": [
+      "https://wildkin.com",
+      "https://wildkin.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false
+  },
+  {
+    "case_id": "parachutehome",
+    "mode": "structured_profile",
+    "domain": "babyletto.com",
+    "rank": 6,
+    "query": "We sell linen bedding and bath linens for the home.",
+    "label": 1,
+    "rationale": "Crib bedding and nursery furniture are adjacent; adult linen bedding and bath-linen substitution is not established.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://babyletto.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "label": 1,
+    "rationale": "Instrument/equipment covers, keyboard/device cases or broad secondhand electronics are adjacent; no evidenced comparable mechanical keyboard model.",
+    "case_id": "keychron",
+    "mode": "structured_profile",
+    "domain": "bestampcovers.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:00:55.835668+00:00",
+    "public_urls": [
+      "https://bestampcovers.com",
+      "https://bestampcovers.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Instrument/equipment covers, keyboard/device cases or broad secondhand electronics are adjacent; no evidenced comparable mechanical keyboard model.",
+    "case_id": "nuphy",
+    "mode": "structured_profile",
+    "domain": "bestampcovers.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:00:55.835668+00:00",
+    "public_urls": [
+      "https://bestampcovers.com",
+      "https://bestampcovers.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 1,
+    "rationale": "Instrument/equipment covers, keyboard/device cases or broad secondhand electronics are adjacent; no evidenced comparable mechanical keyboard model.",
+    "case_id": "epomaker",
+    "mode": "structured_profile",
+    "domain": "bestampcovers.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:00:55.835668+00:00",
+    "public_urls": [
+      "https://bestampcovers.com",
+      "https://bestampcovers.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 3,
+    "rationale": "Observed eyes, lips and face makeup directly overlaps the stated product portfolio; pricing still requires comparable-product review.",
+    "case_id": "colourpop",
+    "mode": "structured_profile",
+    "domain": "redaspenlove.com",
+    "rank": 1,
+    "checked_at": "2026-09-05T21:01:58.125101+00:00",
+    "public_urls": [
+      "https://redaspenlove.com",
+      "https://redaspenlove.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official retailer pages list tinted face SPF and CC cream; useful partial product comparison, retailer/UK positioning differs and mineral-only formulation is not established.",
+    "case_id": "colourpop",
+    "mode": "structured_profile",
+    "domain": "gracebeautybox.co.uk",
+    "rank": 2,
+    "checked_at": "2026-09-05T21:01:39.481141+00:00",
+    "public_urls": [
+      "https://gracebeautybox.co.uk/products.json?limit=50&page=1",
+      "https://www.gracebeautybox.co.uk/products/bondi-sands",
+      "https://www.gracebeautybox.co.uk/products/embryolisse-complexion-correcting-care-cc-cream-30-ml"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Lip cosmetics supply a limited overlap with everyday makeup; does not cover the tinted-SPF/eye-palette intent.",
+    "case_id": "colourpop",
+    "mode": "structured_profile",
+    "domain": "dlacosmetics.com",
+    "rank": 3,
+    "checked_at": "2026-09-05T21:04:49.823846+00:00",
+    "public_urls": [
+      "https://www.dlacosmetics.com/",
+      "https://dlacosmetics.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Useful face/lip makeup overlap; full affordable eye-palette assortment not established.",
+    "case_id": "colourpop",
+    "mode": "structured_profile",
+    "domain": "tower28beauty.com",
+    "rank": 4,
+    "checked_at": "2026-09-05T21:04:46.944417+00:00",
+    "public_urls": [
+      "https://www.tower28beauty.com/",
+      "https://tower28beauty.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Observed face/lip makeup assortment overlaps part of the query; SPF, formulation, full portfolio and price comparability require review.",
+    "case_id": "colourpop",
+    "mode": "structured_profile",
+    "domain": "besamecosmetics.com",
+    "rank": 5,
+    "checked_at": "2026-09-05T21:04:22.493739+00:00",
+    "public_urls": [
+      "https://besamecosmetics.com",
+      "https://besamecosmetics.com/products.json?limit=50&page=1"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "label": 2,
+    "rationale": "Official Sun Cover mineral tinted SPF overlaps complexion/suncare; full makeup portfolio or price parity is not assumed.",
+    "case_id": "colourpop",
+    "mode": "structured_profile",
+    "domain": "peachandlily.com",
+    "rank": 6,
+    "checked_at": "2026-09-05T21:03:38.655404+00:00",
+    "public_urls": [
+      "https://www.peachandlily.com/",
+      "https://peachandlily.com/products.json?limit=50&page=1",
+      "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+    ],
+    "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+    "access_unknown": false,
+    "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+  },
+  {
+    "case_id": "colourpop",
+    "mode": "structured_profile",
+    "domain": "thebizzbybabs.com",
+    "rank": 7,
+    "query": "We sell affordable eye palettes, lip products and face makeup.",
+    "label": 0,
+    "rationale": "Adult intimacy and personal-care products do not satisfy fragrance-free infant skincare intent.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://thebizzbybabs.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  },
+  {
+    "case_id": "colourpop",
+    "mode": "structured_profile",
+    "domain": "tailoredcanvases.com",
+    "rank": 8,
+    "query": "We sell affordable eye palettes, lip products and face makeup.",
+    "label": 0,
+    "rationale": "Canvas wall art uses blush as a color, not a makeup product.",
+    "reviewer": "single analyst, not blind independent review",
+    "checked_at": "2026-09-06T01:17:34.834600+00:00",
+    "public_urls": [
+      "https://tailoredcanvases.com"
+    ],
+    "access_unknown": false,
+    "provenance": "bounded cycle explicit product-evidence adjudication"
+  }
+]

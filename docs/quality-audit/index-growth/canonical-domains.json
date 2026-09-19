@@ -1,0 +1,11 @@
+{
+  "query": "SELECT count(*) FILTER (WHERE domain LIKE 'www.%') AS www_rows,count(*) FILTER (WHERE status IN ('discovered','candidate') AND domain LIKE 'www.%') AS pending_www_rows,count(*) FILTER (WHERE status IN ('discovered','candidate') AND domain<>lower(btrim(domain))) AS pending_noncanonical_case_or_space,(SELECT count(*) FROM shopify_store_index a JOIN shopify_store_index b ON b.domain=regexp_replace(a.domain,'^www\\.','') WHERE a.domain LIKE 'www.%' AND a.status IN ('discovered','candidate')) AS pending_www_with_canonical_twin FROM shopify_store_index",
+  "rows": [
+    {
+      "www_rows": 9731,
+      "pending_www_rows": 9731,
+      "pending_noncanonical_case_or_space": 0,
+      "pending_www_with_canonical_twin": 138
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "query": "SELECT status,coalesce(rejection_reason,failure_reason,'unspecified') AS reason,count(*) AS rows, count(*) FILTER(WHERE last_verified_at IS NOT NULL) AS with_attempt_timestamp FROM shopify_store_index GROUP BY status,coalesce(rejection_reason,failure_reason,'unspecified') ORDER BY rows DESC",
+  "rows": [
+    {
+      "status": "discovered",
+      "reason": "unspecified",
+      "rows": 37877,
+      "with_attempt_timestamp": 10
+    },
+    {
+      "status": "candidate",
+      "reason": "unspecified",
+      "rows": 1323,
+      "with_attempt_timestamp": 0
+    },
+    {
+      "status": "verified",
+      "reason": "unspecified",
+      "rows": 402,
+      "with_attempt_timestamp": 402
+    },
+    {
+      "status": "rejected",
+      "reason": "discovery probe below threshold or catalog locked",
+      "rows": 209,
+      "with_attempt_timestamp": 209
+    },
+    {
+      "status": "failed",
+      "reason": "unreachable_or_dns",
+      "rows": 61,
+      "with_attempt_timestamp": 61
+    },
+    {
+      "status": "rejected",
+      "reason": "confidence 0 below threshold 60",
+      "rows": 47,
+      "with_attempt_timestamp": 47
+    },
+    {
+      "status": "rejected",
+      "reason": "dead_domain",
+      "rows": 30,
+      "with_attempt_timestamp": 30
+    },
+    {
+      "status": "rejected",
+      "reason": "invalid_storefront",
+      "rows": 20,
+      "with_attempt_timestamp": 20
+    },
+    {
+      "status": "rejected",
+      "reason": "not_shopify",
+      "rows": 18,
+      "with_attempt_timestamp": 18
+    },
+    {
+      "status": "verified",
+      "reason": "invalid_storefront",
+      "rows": 6,
+      "with_attempt_timestamp": 6
+    },
+    {
+      "status": "rejected",
+      "reason": "confidence 35 below threshold 60",
+      "rows": 5,
+      "with_attempt_timestamp": 5
+    },
+    {
+      "status": "verified",
+      "reason": "dead_domain",
+      "rows": 3,
+      "with_attempt_timestamp": 3
+    },
+    {
+      "status": "rejected",
+      "reason": "no_products",
+      "rows": 3,
+      "with_attempt_timestamp": 3
+    },
+    {
+      "status": "rejected",
+      "reason": "confidence 50 below threshold 60",
+      "rows": 2,
+      "with_attempt_timestamp": 2
+    },
+    {
+      "status": "rejected",
+      "reason": "confidence 25 below threshold 60",
+      "rows": 2,
+      "with_attempt_timestamp": 2
+    },
+    {
+      "status": "rejected",
+      "reason": "confidence 15 below threshold 60",
+      "rows": 1,
+      "with_attempt_timestamp": 1
+    },
+    {
+      "status": "rejected",
+      "reason": "confidence 40 below threshold 60",
+      "rows": 1,
+      "with_attempt_timestamp": 1
+    }
+  ]
+}

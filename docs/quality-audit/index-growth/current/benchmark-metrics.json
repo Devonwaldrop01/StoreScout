@@ -1,0 +1,3622 @@
+{
+  "summary": {
+    "description_only": {
+      "all25": {
+        "cases": 25,
+        "returned": 26,
+        "useful": 13,
+        "wrong": 5,
+        "unknown": 0,
+        "precision_at_5": 0.10400000000000001,
+        "precision_at_10": 0.052000000000000005,
+        "strong_precision_at_5": 0.024000000000000004,
+        "useful_result_rate": 0.5,
+        "obviously_wrong_rate": 0.19230769230769232,
+        "unknown_rate": 0.0,
+        "three_useful_searches": 0,
+        "three_useful_rate": 0.0,
+        "wrong_top5_search_rate": 0.16,
+        "known_reference_recall": 0.04,
+        "known_reference_hits": 2,
+        "known_reference_total": 50,
+        "errors": 0,
+        "reference_stages": {
+          "absent_from_verified_export": 46,
+          "returned": 2,
+          "fresh_catalog_gate": 2
+        }
+      },
+      "core24": {
+        "cases": 24,
+        "returned": 23,
+        "useful": 11,
+        "wrong": 5,
+        "unknown": 0,
+        "precision_at_5": 0.09166666666666667,
+        "precision_at_10": 0.04583333333333334,
+        "strong_precision_at_5": 0.025000000000000005,
+        "useful_result_rate": 0.4782608695652174,
+        "obviously_wrong_rate": 0.21739130434782608,
+        "unknown_rate": 0.0,
+        "three_useful_searches": 0,
+        "three_useful_rate": 0.0,
+        "wrong_top5_search_rate": 0.16666666666666666,
+        "known_reference_recall": 0.041666666666666664,
+        "known_reference_hits": 2,
+        "known_reference_total": 48,
+        "errors": 0,
+        "reference_stages": {
+          "absent_from_verified_export": 44,
+          "returned": 2,
+          "fresh_catalog_gate": 2
+        }
+      },
+      "control": {
+        "cases": 1,
+        "returned": 3,
+        "useful": 2,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.4,
+        "precision_at_10": 0.2,
+        "strong_precision_at_5": 0.0,
+        "useful_result_rate": 0.6666666666666666,
+        "obviously_wrong_rate": 0.0,
+        "unknown_rate": 0.0,
+        "three_useful_searches": 0,
+        "three_useful_rate": 0.0,
+        "wrong_top5_search_rate": 0.0,
+        "known_reference_recall": 0.0,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "errors": 0,
+        "reference_stages": {
+          "absent_from_verified_export": 2
+        }
+      },
+      "core_by_niche": {
+        "baby_skin": {
+          "cases": 3,
+          "returned": 0,
+          "useful": 0,
+          "wrong": 0,
+          "unknown": 0,
+          "precision_at_5": 0.0,
+          "precision_at_10": 0.0,
+          "strong_precision_at_5": 0.0,
+          "useful_result_rate": null,
+          "obviously_wrong_rate": null,
+          "unknown_rate": null,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.0,
+          "known_reference_recall": 0.0,
+          "known_reference_hits": 0,
+          "known_reference_total": 6,
+          "errors": 0,
+          "reference_stages": {
+            "absent_from_verified_export": 6
+          }
+        },
+        "bamboo_family_sleepwear": {
+          "cases": 3,
+          "returned": 1,
+          "useful": 0,
+          "wrong": 1,
+          "unknown": 0,
+          "precision_at_5": 0.0,
+          "precision_at_10": 0.0,
+          "strong_precision_at_5": 0.0,
+          "useful_result_rate": 0.0,
+          "obviously_wrong_rate": 1.0,
+          "unknown_rate": 0.0,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.3333333333333333,
+          "known_reference_recall": 0.0,
+          "known_reference_hits": 0,
+          "known_reference_total": 6,
+          "errors": 0,
+          "reference_stages": {
+            "absent_from_verified_export": 6
+          }
+        },
+        "bedding_and_broad_store": {
+          "cases": 3,
+          "returned": 7,
+          "useful": 0,
+          "wrong": 2,
+          "unknown": 0,
+          "precision_at_5": 0.0,
+          "precision_at_10": 0.0,
+          "strong_precision_at_5": 0.0,
+          "useful_result_rate": 0.0,
+          "obviously_wrong_rate": 0.2857142857142857,
+          "unknown_rate": 0.0,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.3333333333333333,
+          "known_reference_recall": 0.0,
+          "known_reference_hits": 0,
+          "known_reference_total": 6,
+          "errors": 0,
+          "reference_stages": {
+            "absent_from_verified_export": 4,
+            "fresh_catalog_gate": 2
+          }
+        },
+        "dog_freeze_dried_treats": {
+          "cases": 2,
+          "returned": 6,
+          "useful": 4,
+          "wrong": 0,
+          "unknown": 0,
+          "precision_at_5": 0.4,
+          "precision_at_10": 0.2,
+          "strong_precision_at_5": 0.0,
+          "useful_result_rate": 0.6666666666666666,
+          "obviously_wrong_rate": 0.0,
+          "unknown_rate": 0.0,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.0,
+          "known_reference_recall": 0.0,
+          "known_reference_hits": 0,
+          "known_reference_total": 4,
+          "errors": 0,
+          "reference_stages": {
+            "absent_from_verified_export": 4
+          }
+        },
+        "mechanical_keyboards": {
+          "cases": 3,
+          "returned": 0,
+          "useful": 0,
+          "wrong": 0,
+          "unknown": 0,
+          "precision_at_5": 0.0,
+          "precision_at_10": 0.0,
+          "strong_precision_at_5": 0.0,
+          "useful_result_rate": null,
+          "obviously_wrong_rate": null,
+          "unknown_rate": null,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.0,
+          "known_reference_recall": 0.0,
+          "known_reference_hits": 0,
+          "known_reference_total": 6,
+          "errors": 0,
+          "reference_stages": {
+            "absent_from_verified_export": 6
+          }
+        },
+        "specialty_coffee": {
+          "cases": 3,
+          "returned": 0,
+          "useful": 0,
+          "wrong": 0,
+          "unknown": 0,
+          "precision_at_5": 0.0,
+          "precision_at_10": 0.0,
+          "strong_precision_at_5": 0.0,
+          "useful_result_rate": null,
+          "obviously_wrong_rate": null,
+          "unknown_rate": null,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.0,
+          "known_reference_recall": 0.0,
+          "known_reference_hits": 0,
+          "known_reference_total": 6,
+          "errors": 0,
+          "reference_stages": {
+            "absent_from_verified_export": 6
+          }
+        },
+        "tinted_complexion": {
+          "cases": 4,
+          "returned": 8,
+          "useful": 7,
+          "wrong": 1,
+          "unknown": 0,
+          "precision_at_5": 0.35000000000000003,
+          "precision_at_10": 0.17500000000000002,
+          "strong_precision_at_5": 0.15000000000000002,
+          "useful_result_rate": 0.875,
+          "obviously_wrong_rate": 0.125,
+          "unknown_rate": 0.0,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.25,
+          "known_reference_recall": 0.25,
+          "known_reference_hits": 2,
+          "known_reference_total": 8,
+          "errors": 0,
+          "reference_stages": {
+            "returned": 2,
+            "absent_from_verified_export": 6
+          }
+        },
+        "ultralight": {
+          "cases": 3,
+          "returned": 1,
+          "useful": 0,
+          "wrong": 1,
+          "unknown": 0,
+          "precision_at_5": 0.0,
+          "precision_at_10": 0.0,
+          "strong_precision_at_5": 0.0,
+          "useful_result_rate": 0.0,
+          "obviously_wrong_rate": 1.0,
+          "unknown_rate": 0.0,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.3333333333333333,
+          "known_reference_recall": 0.0,
+          "known_reference_hits": 0,
+          "known_reference_total": 6,
+          "errors": 0,
+          "reference_stages": {
+            "absent_from_verified_export": 6
+          }
+        }
+      },
+      "family_macro_p5": 0.09375
+    },
+    "structured_profile": {
+      "all25": {
+        "cases": 25,
+        "returned": 21,
+        "useful": 13,
+        "wrong": 3,
+        "unknown": 0,
+        "precision_at_5": 0.10400000000000001,
+        "precision_at_10": 0.052000000000000005,
+        "strong_precision_at_5": 0.024000000000000004,
+        "useful_result_rate": 0.6190476190476191,
+        "obviously_wrong_rate": 0.14285714285714285,
+        "unknown_rate": 0.0,
+        "three_useful_searches": 0,
+        "three_useful_rate": 0.0,
+        "wrong_top5_search_rate": 0.12,
+        "known_reference_recall": 0.04,
+        "known_reference_hits": 2,
+        "known_reference_total": 50,
+        "errors": 0,
+        "reference_stages": {
+          "absent_from_verified_export": 46,
+          "returned": 2,
+          "fresh_catalog_gate": 2
+        }
+      },
+      "core24": {
+        "cases": 24,
+        "returned": 18,
+        "useful": 11,
+        "wrong": 3,
+        "unknown": 0,
+        "precision_at_5": 0.09166666666666667,
+        "precision_at_10": 0.04583333333333334,
+        "strong_precision_at_5": 0.025000000000000005,
+        "useful_result_rate": 0.6111111111111112,
+        "obviously_wrong_rate": 0.16666666666666666,
+        "unknown_rate": 0.0,
+        "three_useful_searches": 0,
+        "three_useful_rate": 0.0,
+        "wrong_top5_search_rate": 0.125,
+        "known_reference_recall": 0.041666666666666664,
+        "known_reference_hits": 2,
+        "known_reference_total": 48,
+        "errors": 0,
+        "reference_stages": {
+          "absent_from_verified_export": 44,
+          "returned": 2,
+          "fresh_catalog_gate": 2
+        }
+      },
+      "control": {
+        "cases": 1,
+        "returned": 3,
+        "useful": 2,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.4,
+        "precision_at_10": 0.2,
+        "strong_precision_at_5": 0.0,
+        "useful_result_rate": 0.6666666666666666,
+        "obviously_wrong_rate": 0.0,
+        "unknown_rate": 0.0,
+        "three_useful_searches": 0,
+        "three_useful_rate": 0.0,
+        "wrong_top5_search_rate": 0.0,
+        "known_reference_recall": 0.0,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "errors": 0,
+        "reference_stages": {
+          "absent_from_verified_export": 2
+        }
+      },
+      "core_by_niche": {
+        "baby_skin": {
+          "cases": 3,
+          "returned": 0,
+          "useful": 0,
+          "wrong": 0,
+          "unknown": 0,
+          "precision_at_5": 0.0,
+          "precision_at_10": 0.0,
+          "strong_precision_at_5": 0.0,
+          "useful_result_rate": null,
+          "obviously_wrong_rate": null,
+          "unknown_rate": null,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.0,
+          "known_reference_recall": 0.0,
+          "known_reference_hits": 0,
+          "known_reference_total": 6,
+          "errors": 0,
+          "reference_stages": {
+            "absent_from_verified_export": 6
+          }
+        },
+        "bamboo_family_sleepwear": {
+          "cases": 3,
+          "returned": 1,
+          "useful": 0,
+          "wrong": 1,
+          "unknown": 0,
+          "precision_at_5": 0.0,
+          "precision_at_10": 0.0,
+          "strong_precision_at_5": 0.0,
+          "useful_result_rate": 0.0,
+          "obviously_wrong_rate": 1.0,
+          "unknown_rate": 0.0,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.3333333333333333,
+          "known_reference_recall": 0.0,
+          "known_reference_hits": 0,
+          "known_reference_total": 6,
+          "errors": 0,
+          "reference_stages": {
+            "absent_from_verified_export": 6
+          }
+        },
+        "bedding_and_broad_store": {
+          "cases": 3,
+          "returned": 2,
+          "useful": 0,
+          "wrong": 1,
+          "unknown": 0,
+          "precision_at_5": 0.0,
+          "precision_at_10": 0.0,
+          "strong_precision_at_5": 0.0,
+          "useful_result_rate": 0.0,
+          "obviously_wrong_rate": 0.5,
+          "unknown_rate": 0.0,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.3333333333333333,
+          "known_reference_recall": 0.0,
+          "known_reference_hits": 0,
+          "known_reference_total": 6,
+          "errors": 0,
+          "reference_stages": {
+            "absent_from_verified_export": 4,
+            "fresh_catalog_gate": 2
+          }
+        },
+        "dog_freeze_dried_treats": {
+          "cases": 2,
+          "returned": 6,
+          "useful": 4,
+          "wrong": 0,
+          "unknown": 0,
+          "precision_at_5": 0.4,
+          "precision_at_10": 0.2,
+          "strong_precision_at_5": 0.0,
+          "useful_result_rate": 0.6666666666666666,
+          "obviously_wrong_rate": 0.0,
+          "unknown_rate": 0.0,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.0,
+          "known_reference_recall": 0.0,
+          "known_reference_hits": 0,
+          "known_reference_total": 4,
+          "errors": 0,
+          "reference_stages": {
+            "absent_from_verified_export": 4
+          }
+        },
+        "mechanical_keyboards": {
+          "cases": 3,
+          "returned": 0,
+          "useful": 0,
+          "wrong": 0,
+          "unknown": 0,
+          "precision_at_5": 0.0,
+          "precision_at_10": 0.0,
+          "strong_precision_at_5": 0.0,
+          "useful_result_rate": null,
+          "obviously_wrong_rate": null,
+          "unknown_rate": null,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.0,
+          "known_reference_recall": 0.0,
+          "known_reference_hits": 0,
+          "known_reference_total": 6,
+          "errors": 0,
+          "reference_stages": {
+            "absent_from_verified_export": 6
+          }
+        },
+        "specialty_coffee": {
+          "cases": 3,
+          "returned": 0,
+          "useful": 0,
+          "wrong": 0,
+          "unknown": 0,
+          "precision_at_5": 0.0,
+          "precision_at_10": 0.0,
+          "strong_precision_at_5": 0.0,
+          "useful_result_rate": null,
+          "obviously_wrong_rate": null,
+          "unknown_rate": null,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.0,
+          "known_reference_recall": 0.0,
+          "known_reference_hits": 0,
+          "known_reference_total": 6,
+          "errors": 0,
+          "reference_stages": {
+            "absent_from_verified_export": 6
+          }
+        },
+        "tinted_complexion": {
+          "cases": 4,
+          "returned": 8,
+          "useful": 7,
+          "wrong": 1,
+          "unknown": 0,
+          "precision_at_5": 0.35000000000000003,
+          "precision_at_10": 0.17500000000000002,
+          "strong_precision_at_5": 0.15000000000000002,
+          "useful_result_rate": 0.875,
+          "obviously_wrong_rate": 0.125,
+          "unknown_rate": 0.0,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.25,
+          "known_reference_recall": 0.25,
+          "known_reference_hits": 2,
+          "known_reference_total": 8,
+          "errors": 0,
+          "reference_stages": {
+            "returned": 2,
+            "absent_from_verified_export": 6
+          }
+        },
+        "ultralight": {
+          "cases": 3,
+          "returned": 1,
+          "useful": 0,
+          "wrong": 0,
+          "unknown": 0,
+          "precision_at_5": 0.0,
+          "precision_at_10": 0.0,
+          "strong_precision_at_5": 0.0,
+          "useful_result_rate": 0.0,
+          "obviously_wrong_rate": 0.0,
+          "unknown_rate": 0.0,
+          "three_useful_searches": 0,
+          "three_useful_rate": 0.0,
+          "wrong_top5_search_rate": 0.0,
+          "known_reference_recall": 0.0,
+          "known_reference_hits": 0,
+          "known_reference_total": 6,
+          "errors": 0,
+          "reference_stages": {
+            "absent_from_verified_export": 6
+          }
+        }
+      },
+      "family_macro_p5": 0.09375
+    }
+  },
+  "cases": [
+    {
+      "case_id": "durstongear",
+      "business": "Durston",
+      "mode": "description_only",
+      "niche": "ultralight",
+      "role": "core",
+      "query": "We sell ultralight backpacking tents and packs for long-distance hikers.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "zpacks.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "gossamergear.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "zpacks",
+      "business": "Zpacks",
+      "mode": "description_only",
+      "niche": "ultralight",
+      "role": "core",
+      "query": "We sell ultralight two-person backpacking tents.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "durstongear.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "gossamergear.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "gossamergear",
+      "business": "Gossamer Gear",
+      "mode": "description_only",
+      "niche": "ultralight",
+      "role": "core",
+      "query": "We sell lightweight hiking backpacks and shelters.",
+      "metrics": {
+        "returned": 1,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 1,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": true,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 0,
+          "rationale": "Observed trading cards, denim, paddleboards, children school goods, cycling components or industrial abrasives do not satisfy the hiking-pack/shelter query.",
+          "case_id": "gossamergear",
+          "mode": "description_only",
+          "domain": "hydrusboardtech.com",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:04:26.288569+00:00",
+          "public_urls": [
+            "https://www.hydrusboardtech.com/",
+            "https://hydrusboardtech.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "durstongear.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "zpacks.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "iliabeauty",
+      "business": "ILIA",
+      "mode": "description_only",
+      "niche": "tinted_complexion",
+      "role": "core",
+      "query": "We sell light-coverage skin tint with mineral SPF for adults.",
+      "metrics": {
+        "returned": 2,
+        "useful": 2,
+        "strong": 2,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.4,
+        "precision_at_10": 0.2,
+        "precision_at_8": 0.25,
+        "strong_precision_at_5": 0.4,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 1,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.5,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 3,
+          "rationale": "Official Sun Cover is a lightly tinted mineral SPF product, directly overlapping the stated ILIA use case.",
+          "case_id": "iliabeauty",
+          "mode": "description_only",
+          "domain": "peachandlily.com",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:03:38.655404+00:00",
+          "public_urls": [
+            "https://www.peachandlily.com/",
+            "https://peachandlily.com/products.json?limit=50&page=1",
+            "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "label": 3,
+          "rationale": "Independent official evidence supports tinted SPF and complexion makeup; price equivalence is not assumed.",
+          "case_id": "iliabeauty",
+          "mode": "description_only",
+          "domain": "tower28beauty.com",
+          "rank": 2,
+          "checked_at": "2026-09-05T21:04:46.944417+00:00",
+          "public_urls": [
+            "https://www.tower28beauty.com/",
+            "https://tower28beauty.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "tower28beauty.com",
+          "stage": "returned",
+          "index_domain": "tower28beauty.com",
+          "index_status": "verified",
+          "rank": {
+            "domain": "tower28beauty.com",
+            "pre_filter_rank": 5,
+            "match": {
+              "score": 9.47,
+              "matched_terms": [
+                "spf"
+              ],
+              "intent": {
+                "supported": true,
+                "requested_families": [
+                  "complexion"
+                ],
+                "child_audience_required": false,
+                "child_audience_evidenced": false,
+                "observed_families": [
+                  "bags",
+                  "complexion",
+                  "skincare"
+                ],
+                "reason": null
+              },
+              "product_evidence": true,
+              "query_coverage": 0.143,
+              "assessment": "candidate for review"
+            },
+            "exclusions": [],
+            "returned_rank": 2
+          }
+        },
+        {
+          "domain": "saiehello.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "tower28beauty",
+      "business": "Tower 28",
+      "mode": "description_only",
+      "niche": "tinted_complexion",
+      "role": "core",
+      "query": "We sell tinted sunscreen and everyday complexion makeup.",
+      "metrics": {
+        "returned": 2,
+        "useful": 1,
+        "strong": 0,
+        "wrong": 1,
+        "unknown": 0,
+        "precision_at_5": 0.2,
+        "precision_at_10": 0.1,
+        "precision_at_8": 0.125,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": true,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 0,
+          "rationale": "Own business returned as its own competitor in the empty-profile description-only scenario; the request supplies no explicit own-domain exclusion.",
+          "case_id": "tower28beauty",
+          "mode": "description_only",
+          "domain": "tower28beauty.com",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:04:46.944417+00:00",
+          "public_urls": [
+            "https://www.tower28beauty.com/",
+            "https://tower28beauty.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "label": 2,
+          "rationale": "Official Sun Cover mineral tinted SPF overlaps complexion/suncare; full makeup portfolio or price parity is not assumed.",
+          "case_id": "tower28beauty",
+          "mode": "description_only",
+          "domain": "peachandlily.com",
+          "rank": 2,
+          "checked_at": "2026-09-05T21:03:38.655404+00:00",
+          "public_urls": [
+            "https://www.peachandlily.com/",
+            "https://peachandlily.com/products.json?limit=50&page=1",
+            "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "iliabeauty.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "saiehello.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "saiehello",
+      "business": "Saie",
+      "mode": "description_only",
+      "niche": "tinted_complexion",
+      "role": "core",
+      "query": "We sell tinted moisturizer with SPF and everyday makeup.",
+      "metrics": {
+        "returned": 2,
+        "useful": 2,
+        "strong": 1,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.4,
+        "precision_at_10": 0.2,
+        "precision_at_8": 0.25,
+        "strong_precision_at_5": 0.2,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 1,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.5,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 3,
+          "rationale": "Independent official evidence supports tinted SPF and complexion makeup; price equivalence is not assumed.",
+          "case_id": "saiehello",
+          "mode": "description_only",
+          "domain": "tower28beauty.com",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:04:46.944417+00:00",
+          "public_urls": [
+            "https://www.tower28beauty.com/",
+            "https://tower28beauty.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "label": 2,
+          "rationale": "Official Sun Cover mineral tinted SPF overlaps complexion/suncare; full makeup portfolio or price parity is not assumed.",
+          "case_id": "saiehello",
+          "mode": "description_only",
+          "domain": "peachandlily.com",
+          "rank": 2,
+          "checked_at": "2026-09-05T21:03:38.655404+00:00",
+          "public_urls": [
+            "https://www.peachandlily.com/",
+            "https://peachandlily.com/products.json?limit=50&page=1",
+            "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "iliabeauty.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "tower28beauty.com",
+          "stage": "returned",
+          "index_domain": "tower28beauty.com",
+          "index_status": "verified",
+          "rank": {
+            "domain": "tower28beauty.com",
+            "pre_filter_rank": 2,
+            "match": {
+              "score": 33.41,
+              "matched_terms": [
+                "makeup",
+                "spf",
+                "tinted"
+              ],
+              "intent": {
+                "supported": true,
+                "requested_families": [
+                  "complexion"
+                ],
+                "child_audience_required": false,
+                "child_audience_evidenced": false,
+                "observed_families": [
+                  "bags",
+                  "complexion",
+                  "skincare"
+                ],
+                "reason": null
+              },
+              "product_evidence": true,
+              "query_coverage": 0.429,
+              "assessment": "candidate for review"
+            },
+            "exclusions": [],
+            "returned_rank": 1
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "pipettebaby",
+      "business": "Pipette",
+      "mode": "description_only",
+      "niche": "baby_skin",
+      "role": "core",
+      "query": "We sell fragrance-free baby lotion for sensitive skin.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "tubbytodd.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "babobotanicals.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "tubbytodd",
+      "business": "Tubby Todd",
+      "mode": "description_only",
+      "niche": "baby_skin",
+      "role": "core",
+      "query": "We sell fragrance-free ointment and skin care for babies.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "pipettebaby.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "babobotanicals.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "babobotanicals",
+      "business": "Babo Botanicals",
+      "mode": "description_only",
+      "niche": "baby_skin",
+      "role": "core",
+      "query": "We sell fragrance-free sensitive baby skin care.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "pipettebaby.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "tubbytodd.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "onyxcoffeelab",
+      "business": "Onyx Coffee Lab",
+      "mode": "description_only",
+      "niche": "specialty_coffee",
+      "role": "core",
+      "query": "We roast specialty coffee for home brewers and sell subscriptions.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "counterculturecoffee.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "vervecoffee.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "counterculturecoffee",
+      "business": "Counter Culture",
+      "mode": "description_only",
+      "niche": "specialty_coffee",
+      "role": "core",
+      "query": "We sell specialty coffee beans and recurring home deliveries.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "onyxcoffeelab.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "vervecoffee.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "vervecoffee",
+      "business": "Verve",
+      "mode": "description_only",
+      "niche": "specialty_coffee",
+      "role": "core",
+      "query": "We sell freshly roasted specialty coffee and subscriptions.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "onyxcoffeelab.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "counterculturecoffee.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "littlesleepies",
+      "business": "Little Sleepies",
+      "mode": "description_only",
+      "niche": "bamboo_family_sleepwear",
+      "role": "core",
+      "query": "We sell bamboo pajamas for babies and matching families.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "kytebaby.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "birdiebean.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "kytebaby",
+      "business": "Kyte Baby",
+      "mode": "description_only",
+      "niche": "bamboo_family_sleepwear",
+      "role": "core",
+      "query": "We sell bamboo baby sleep bags and sleepwear.",
+      "metrics": {
+        "returned": 1,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 1,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": true,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "case_id": "kytebaby",
+          "mode": "description_only",
+          "domain": "shopluxelifeboutique.com",
+          "label": 0,
+          "rationale": "Captured catalog is adult fashion, including baby-blue dresses and babydoll rompers; no bamboo infant sleep product evidence.",
+          "evidence": "current captured public catalog snapshot; no new web research",
+          "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+          "checked_at": "2026-09-19",
+          "rank": 1
+        }
+      ],
+      "references": [
+        {
+          "domain": "littlesleepies.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "birdiebean.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "birdiebean",
+      "business": "Birdie Bean",
+      "mode": "description_only",
+      "niche": "bamboo_family_sleepwear",
+      "role": "core",
+      "query": "We sell printed bamboo pajamas and clothing for children.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "littlesleepies.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "kytebaby.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "purebites",
+      "business": "PureBites",
+      "mode": "description_only",
+      "niche": "dog_freeze_dried_treats",
+      "role": "core",
+      "query": "We sell freeze-dried single-protein dog treats.",
+      "metrics": {
+        "returned": 3,
+        "useful": 2,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.4,
+        "precision_at_10": 0.2,
+        "precision_at_8": 0.25,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 2,
+          "rationale": "Official stores offer freeze-dried/raw dog treats; useful retailer assortment comparison, but geography and reseller-versus-brand positioning differ. A reseller of the query brand is not a newly discovered competing manufacturer.",
+          "case_id": "purebites",
+          "mode": "description_only",
+          "domain": "fetchyourpetneeds.ie",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:02:01.780110+00:00",
+          "public_urls": [
+            "https://www.fetchyourpetneeds.ie/",
+            "https://fetchyourpetneeds.ie/products.json?limit=50&page=1",
+            "https://www.fetchyourpetneeds.ie/collections/pet-brushes"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false
+        },
+        {
+          "label": 2,
+          "rationale": "Official single-meat air-dried training treats overlap rewarding/training use; process differs from freeze-dried raw and ingredient equivalence is not assumed.",
+          "case_id": "purebites",
+          "mode": "description_only",
+          "domain": "redbarn.com",
+          "rank": 2,
+          "checked_at": "2026-09-05T20:57:24.501049+00:00",
+          "public_urls": [
+            "https://www.redbarn.com/",
+            "https://redbarn.com/products.json?limit=50&page=1",
+            "https://www.redbarn.com/products/air-dried-chicken-training-treats"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "label": 1,
+          "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+          "case_id": "purebites",
+          "mode": "description_only",
+          "domain": "freezbone.com",
+          "rank": 3,
+          "checked_at": "2026-09-05T20:59:33.848158+00:00",
+          "public_urls": [
+            "https://www.freezbone.com/",
+            "https://freezbone.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "stewartpet.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "stellaandchewys.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "stewartpet",
+      "business": "Stewart",
+      "mode": "description_only",
+      "niche": "dog_freeze_dried_treats",
+      "role": "off-platform uncertainty control; report separately",
+      "query": "We sell freeze-dried raw dog treats and toppers.",
+      "metrics": {
+        "returned": 3,
+        "useful": 2,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.4,
+        "precision_at_10": 0.2,
+        "precision_at_8": 0.25,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 2,
+          "rationale": "Official stores offer freeze-dried/raw dog treats; useful retailer assortment comparison, but geography and reseller-versus-brand positioning differ. A reseller of the query brand is not a newly discovered competing manufacturer.",
+          "case_id": "stewartpet",
+          "mode": "description_only",
+          "domain": "fetchyourpetneeds.ie",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:02:01.780110+00:00",
+          "public_urls": [
+            "https://www.fetchyourpetneeds.ie/",
+            "https://fetchyourpetneeds.ie/products.json?limit=50&page=1",
+            "https://www.fetchyourpetneeds.ie/collections/pet-brushes"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false
+        },
+        {
+          "label": 2,
+          "rationale": "Official single-meat air-dried training treats overlap rewarding/training use; process differs from freeze-dried raw and ingredient equivalence is not assumed.",
+          "case_id": "stewartpet",
+          "mode": "description_only",
+          "domain": "redbarn.com",
+          "rank": 2,
+          "checked_at": "2026-09-05T20:57:24.501049+00:00",
+          "public_urls": [
+            "https://www.redbarn.com/",
+            "https://redbarn.com/products.json?limit=50&page=1",
+            "https://www.redbarn.com/products/air-dried-chicken-training-treats"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "label": 1,
+          "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+          "case_id": "stewartpet",
+          "mode": "description_only",
+          "domain": "freezbone.com",
+          "rank": 3,
+          "checked_at": "2026-09-05T20:59:33.848158+00:00",
+          "public_urls": [
+            "https://www.freezbone.com/",
+            "https://freezbone.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "purebites.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "stellaandchewys.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "stellaandchewys",
+      "business": "Stella & Chewy's",
+      "mode": "description_only",
+      "niche": "dog_freeze_dried_treats",
+      "role": "core",
+      "query": "We sell freeze-dried raw training treats for dogs.",
+      "metrics": {
+        "returned": 3,
+        "useful": 2,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.4,
+        "precision_at_10": 0.2,
+        "precision_at_8": 0.25,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 2,
+          "rationale": "Official stores offer freeze-dried/raw dog treats; useful retailer assortment comparison, but geography and reseller-versus-brand positioning differ. A reseller of the query brand is not a newly discovered competing manufacturer.",
+          "case_id": "stellaandchewys",
+          "mode": "description_only",
+          "domain": "fetchyourpetneeds.ie",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:02:01.780110+00:00",
+          "public_urls": [
+            "https://www.fetchyourpetneeds.ie/",
+            "https://fetchyourpetneeds.ie/products.json?limit=50&page=1",
+            "https://www.fetchyourpetneeds.ie/collections/pet-brushes"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false
+        },
+        {
+          "label": 2,
+          "rationale": "Official single-meat air-dried training treats overlap rewarding/training use; process differs from freeze-dried raw and ingredient equivalence is not assumed.",
+          "case_id": "stellaandchewys",
+          "mode": "description_only",
+          "domain": "redbarn.com",
+          "rank": 2,
+          "checked_at": "2026-09-05T20:57:24.501049+00:00",
+          "public_urls": [
+            "https://www.redbarn.com/",
+            "https://redbarn.com/products.json?limit=50&page=1",
+            "https://www.redbarn.com/products/air-dried-chicken-training-treats"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "label": 1,
+          "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+          "case_id": "stellaandchewys",
+          "mode": "description_only",
+          "domain": "freezbone.com",
+          "rank": 3,
+          "checked_at": "2026-09-05T20:59:33.848158+00:00",
+          "public_urls": [
+            "https://www.freezbone.com/",
+            "https://freezbone.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "purebites.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "stewartpet.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "quince",
+      "business": "Quince",
+      "mode": "description_only",
+      "niche": "bedding_and_broad_store",
+      "role": "core",
+      "query": "We sell affordable clothing, home essentials, bedding, bags and jewelry.",
+      "metrics": {
+        "returned": 7,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 2,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": true,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 1,
+          "rationale": "Licensed Elvis merchandise differs materially in purchase motivation from Quince general essentials.",
+          "case_id": "quince",
+          "mode": "description_only",
+          "domain": "shopelvis.com",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:04:26.008981+00:00",
+          "public_urls": [
+            "https://www.shopelvis.com/",
+            "https://shopelvis.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "case_id": "quince",
+          "mode": "description_only",
+          "domain": "broadrivermercantile.com",
+          "label": 1,
+          "rationale": "Apparel, bags and jewelry overlap partially, but catalog primarily premium outdoor/hunting retail; affordable home/bedding business fit unestablished.",
+          "evidence": "current captured public catalog snapshot; no new web research",
+          "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+          "checked_at": "2026-09-19",
+          "rank": 2
+        },
+        {
+          "case_id": "quince",
+          "mode": "description_only",
+          "domain": "sandmarc.com",
+          "label": 0,
+          "rationale": "Catalog is phone camera lenses/cases and technology accessories; incidental bags do not establish affordable clothing/home/bedding competitor fit.",
+          "evidence": "current captured public catalog snapshot; no new web research",
+          "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+          "checked_at": "2026-09-19",
+          "rank": 3
+        },
+        {
+          "case_id": "quince",
+          "mode": "description_only",
+          "domain": "accessprive.com",
+          "label": 1,
+          "rationale": "Designer luxury footwear/clothing is adjacent to apparel but price and assortment differ from affordable multi-category essentials.",
+          "evidence": "current captured public catalog snapshot; no new web research",
+          "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+          "checked_at": "2026-09-19",
+          "rank": 4
+        },
+        {
+          "case_id": "quince",
+          "mode": "description_only",
+          "domain": "elevateyoursole.co.uk",
+          "label": 1,
+          "rationale": "Footwear/accessory retailer is adjacent; captured assortment does not support comparable affordable home/bedding and apparel offering.",
+          "evidence": "current captured public catalog snapshot; no new web research",
+          "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+          "checked_at": "2026-09-19",
+          "rank": 5
+        },
+        {
+          "case_id": "quince",
+          "mode": "description_only",
+          "domain": "blueingreensoho.com",
+          "label": 1,
+          "rationale": "Specialist Japanese denim/apparel overlaps clothing; affordable broad essentials positioning is unsupported.",
+          "evidence": "current captured public catalog snapshot; no new web research",
+          "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+          "checked_at": "2026-09-19",
+          "rank": 6
+        },
+        {
+          "case_id": "quince",
+          "mode": "description_only",
+          "domain": "fetchyourpetneeds.ie",
+          "label": 0,
+          "rationale": "Pet food, veterinary care and pet accessories; pet clothing does not satisfy the human apparel/home-essentials business intent.",
+          "evidence": "current captured public catalog snapshot; no new web research",
+          "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+          "checked_at": "2026-09-19",
+          "rank": 7
+        }
+      ],
+      "references": [
+        {
+          "domain": "brooklinen.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "parachutehome.com",
+          "stage": "fresh_catalog_gate",
+          "index_domain": "parachutehome.com",
+          "index_status": "verified",
+          "rank": {
+            "domain": "parachutehome.com",
+            "pre_filter_rank": 75,
+            "match": {
+              "score": 0,
+              "matched_terms": [],
+              "intent": {
+                "supported": true,
+                "requested_families": [
+                  "apparel",
+                  "bags",
+                  "bedding",
+                  "jewelry"
+                ],
+                "child_audience_required": false,
+                "child_audience_evidenced": true,
+                "observed_families": [
+                  "bedding",
+                  "nursery"
+                ],
+                "reason": null
+              },
+              "product_evidence": true,
+              "query_coverage": 0.0,
+              "assessment": "insufficient product evidence"
+            },
+            "exclusions": [
+              "fresh_catalog_gate",
+              "no_matched_product_terms"
+            ],
+            "returned_rank": null
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "brooklinen",
+      "business": "Brooklinen",
+      "mode": "description_only",
+      "niche": "bedding_and_broad_store",
+      "role": "core",
+      "query": "We sell bedding, sheets and comforters directly to consumers.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "quince.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "parachutehome.com",
+          "stage": "fresh_catalog_gate",
+          "index_domain": "parachutehome.com",
+          "index_status": "verified",
+          "rank": {
+            "domain": "parachutehome.com",
+            "pre_filter_rank": 3,
+            "match": {
+              "score": 14.63,
+              "matched_terms": [
+                "sheet"
+              ],
+              "intent": {
+                "supported": true,
+                "requested_families": [
+                  "bedding"
+                ],
+                "child_audience_required": false,
+                "child_audience_evidenced": true,
+                "observed_families": [
+                  "bedding",
+                  "nursery"
+                ],
+                "reason": null
+              },
+              "product_evidence": true,
+              "query_coverage": 0.143,
+              "assessment": "candidate for review"
+            },
+            "exclusions": [
+              "fresh_catalog_gate"
+            ],
+            "returned_rank": null
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "parachutehome",
+      "business": "Parachute",
+      "mode": "description_only",
+      "niche": "bedding_and_broad_store",
+      "role": "core",
+      "query": "We sell linen bedding and bath linens for the home.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "quince.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "brooklinen.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "keychron",
+      "business": "Keychron",
+      "mode": "description_only",
+      "niche": "mechanical_keyboards",
+      "role": "core",
+      "query": "We sell customizable mechanical keyboards for Mac and Windows.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "nuphy.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "epomaker.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "nuphy",
+      "business": "NuPhy",
+      "mode": "description_only",
+      "niche": "mechanical_keyboards",
+      "role": "core",
+      "query": "We sell low-profile wireless mechanical keyboards.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "keychron.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "epomaker.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "epomaker",
+      "business": "EPOMAKER",
+      "mode": "description_only",
+      "niche": "mechanical_keyboards",
+      "role": "core",
+      "query": "We sell mechanical keyboards including low-profile models.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "keychron.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "nuphy.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "colourpop",
+      "business": "ColourPop",
+      "mode": "description_only",
+      "niche": "tinted_complexion",
+      "role": "core",
+      "query": "We sell affordable eye palettes, lip products and face makeup.",
+      "metrics": {
+        "returned": 2,
+        "useful": 2,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.4,
+        "precision_at_10": 0.2,
+        "precision_at_8": 0.25,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 2,
+          "rationale": "Useful face/lip makeup overlap; full affordable eye-palette assortment not established.",
+          "case_id": "colourpop",
+          "mode": "description_only",
+          "domain": "tower28beauty.com",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:04:46.944417+00:00",
+          "public_urls": [
+            "https://www.tower28beauty.com/",
+            "https://tower28beauty.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "label": 2,
+          "rationale": "Official Sun Cover mineral tinted SPF overlaps complexion/suncare; full makeup portfolio or price parity is not assumed.",
+          "case_id": "colourpop",
+          "mode": "description_only",
+          "domain": "peachandlily.com",
+          "rank": 2,
+          "checked_at": "2026-09-05T21:03:38.655404+00:00",
+          "public_urls": [
+            "https://www.peachandlily.com/",
+            "https://peachandlily.com/products.json?limit=50&page=1",
+            "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "elfcosmetics.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "revolutionbeauty.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "durstongear",
+      "business": "Durston",
+      "mode": "structured_profile",
+      "niche": "ultralight",
+      "role": "core",
+      "query": "We sell ultralight backpacking tents and packs for long-distance hikers.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "zpacks.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "gossamergear.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "zpacks",
+      "business": "Zpacks",
+      "mode": "structured_profile",
+      "niche": "ultralight",
+      "role": "core",
+      "query": "We sell ultralight two-person backpacking tents.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "durstongear.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "gossamergear.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "gossamergear",
+      "business": "Gossamer Gear",
+      "mode": "structured_profile",
+      "niche": "ultralight",
+      "role": "core",
+      "query": "We sell lightweight hiking backpacks and shelters.",
+      "metrics": {
+        "returned": 1,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "case_id": "gossamergear",
+          "mode": "structured_profile",
+          "domain": "hydrusboardtech.com",
+          "rank": 1,
+          "query": "We sell lightweight hiking backpacks and shelters.",
+          "label": 1,
+          "rationale": "Paddleboards and carry accessories share an outdoor audience, without evidenced lightweight hiking shelters or hiking pack substitution.",
+          "reviewer": "single analyst, not blind independent review",
+          "checked_at": "2026-09-06T01:17:34.834600+00:00",
+          "public_urls": [
+            "https://hydrusboardtech.com"
+          ],
+          "access_unknown": false,
+          "provenance": "bounded cycle explicit product-evidence adjudication"
+        }
+      ],
+      "references": [
+        {
+          "domain": "durstongear.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "zpacks.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "iliabeauty",
+      "business": "ILIA",
+      "mode": "structured_profile",
+      "niche": "tinted_complexion",
+      "role": "core",
+      "query": "We sell light-coverage skin tint with mineral SPF for adults.",
+      "metrics": {
+        "returned": 2,
+        "useful": 2,
+        "strong": 2,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.4,
+        "precision_at_10": 0.2,
+        "precision_at_8": 0.25,
+        "strong_precision_at_5": 0.4,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 1,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.5,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 3,
+          "rationale": "Official Sun Cover is a lightly tinted mineral SPF product, directly overlapping the stated ILIA use case.",
+          "case_id": "iliabeauty",
+          "mode": "structured_profile",
+          "domain": "peachandlily.com",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:03:38.655404+00:00",
+          "public_urls": [
+            "https://www.peachandlily.com/",
+            "https://peachandlily.com/products.json?limit=50&page=1",
+            "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "label": 3,
+          "rationale": "Independent official evidence supports tinted SPF and complexion makeup; price equivalence is not assumed.",
+          "case_id": "iliabeauty",
+          "mode": "structured_profile",
+          "domain": "tower28beauty.com",
+          "rank": 2,
+          "checked_at": "2026-09-05T21:04:46.944417+00:00",
+          "public_urls": [
+            "https://www.tower28beauty.com/",
+            "https://tower28beauty.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "tower28beauty.com",
+          "stage": "returned",
+          "index_domain": "tower28beauty.com",
+          "index_status": "verified",
+          "rank": {
+            "domain": "tower28beauty.com",
+            "pre_filter_rank": 3,
+            "match": {
+              "score": 9.66,
+              "matched_terms": [
+                "serum",
+                "spf"
+              ],
+              "intent": {
+                "supported": true,
+                "requested_families": [
+                  "complexion"
+                ],
+                "child_audience_required": false,
+                "child_audience_evidenced": false,
+                "observed_families": [
+                  "bags",
+                  "complexion",
+                  "skincare"
+                ],
+                "reason": null
+              },
+              "product_evidence": true,
+              "query_coverage": 0.143,
+              "assessment": "candidate for review"
+            },
+            "exclusions": [],
+            "returned_rank": 2
+          }
+        },
+        {
+          "domain": "saiehello.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "tower28beauty",
+      "business": "Tower 28",
+      "mode": "structured_profile",
+      "niche": "tinted_complexion",
+      "role": "core",
+      "query": "We sell tinted sunscreen and everyday complexion makeup.",
+      "metrics": {
+        "returned": 2,
+        "useful": 1,
+        "strong": 0,
+        "wrong": 1,
+        "unknown": 0,
+        "precision_at_5": 0.2,
+        "precision_at_10": 0.1,
+        "precision_at_8": 0.125,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": true,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 0,
+          "rationale": "Own business returned as its own competitor in the empty-profile description-only scenario; the request supplies no explicit own-domain exclusion.",
+          "case_id": "tower28beauty",
+          "mode": "structured_profile",
+          "domain": "tower28beauty.com",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:04:46.944417+00:00",
+          "public_urls": [
+            "https://www.tower28beauty.com/",
+            "https://tower28beauty.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "label": 2,
+          "rationale": "Official Sun Cover mineral tinted SPF overlaps complexion/suncare; full makeup portfolio or price parity is not assumed.",
+          "case_id": "tower28beauty",
+          "mode": "structured_profile",
+          "domain": "peachandlily.com",
+          "rank": 2,
+          "checked_at": "2026-09-05T21:03:38.655404+00:00",
+          "public_urls": [
+            "https://www.peachandlily.com/",
+            "https://peachandlily.com/products.json?limit=50&page=1",
+            "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "iliabeauty.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "saiehello.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "saiehello",
+      "business": "Saie",
+      "mode": "structured_profile",
+      "niche": "tinted_complexion",
+      "role": "core",
+      "query": "We sell tinted moisturizer with SPF and everyday makeup.",
+      "metrics": {
+        "returned": 2,
+        "useful": 2,
+        "strong": 1,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.4,
+        "precision_at_10": 0.2,
+        "precision_at_8": 0.25,
+        "strong_precision_at_5": 0.2,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 1,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.5,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 3,
+          "rationale": "Independent official evidence supports tinted SPF and complexion makeup; price equivalence is not assumed.",
+          "case_id": "saiehello",
+          "mode": "structured_profile",
+          "domain": "tower28beauty.com",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:04:46.944417+00:00",
+          "public_urls": [
+            "https://www.tower28beauty.com/",
+            "https://tower28beauty.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "label": 2,
+          "rationale": "Official Sun Cover mineral tinted SPF overlaps complexion/suncare; full makeup portfolio or price parity is not assumed.",
+          "case_id": "saiehello",
+          "mode": "structured_profile",
+          "domain": "peachandlily.com",
+          "rank": 2,
+          "checked_at": "2026-09-05T21:03:38.655404+00:00",
+          "public_urls": [
+            "https://www.peachandlily.com/",
+            "https://peachandlily.com/products.json?limit=50&page=1",
+            "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "iliabeauty.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "tower28beauty.com",
+          "stage": "returned",
+          "index_domain": "tower28beauty.com",
+          "index_status": "verified",
+          "rank": {
+            "domain": "tower28beauty.com",
+            "pre_filter_rank": 2,
+            "match": {
+              "score": 30.93,
+              "matched_terms": [
+                "complexion",
+                "lip",
+                "makeup",
+                "spf",
+                "tinted"
+              ],
+              "intent": {
+                "supported": true,
+                "requested_families": [
+                  "complexion"
+                ],
+                "child_audience_required": false,
+                "child_audience_evidenced": false,
+                "observed_families": [
+                  "bags",
+                  "complexion",
+                  "skincare"
+                ],
+                "reason": null
+              },
+              "product_evidence": true,
+              "query_coverage": 0.385,
+              "assessment": "candidate for review"
+            },
+            "exclusions": [],
+            "returned_rank": 1
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "pipettebaby",
+      "business": "Pipette",
+      "mode": "structured_profile",
+      "niche": "baby_skin",
+      "role": "core",
+      "query": "We sell fragrance-free baby lotion for sensitive skin.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "tubbytodd.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "babobotanicals.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "tubbytodd",
+      "business": "Tubby Todd",
+      "mode": "structured_profile",
+      "niche": "baby_skin",
+      "role": "core",
+      "query": "We sell fragrance-free ointment and skin care for babies.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "pipettebaby.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "babobotanicals.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "babobotanicals",
+      "business": "Babo Botanicals",
+      "mode": "structured_profile",
+      "niche": "baby_skin",
+      "role": "core",
+      "query": "We sell fragrance-free sensitive baby skin care.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "pipettebaby.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "tubbytodd.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "onyxcoffeelab",
+      "business": "Onyx Coffee Lab",
+      "mode": "structured_profile",
+      "niche": "specialty_coffee",
+      "role": "core",
+      "query": "We roast specialty coffee for home brewers and sell subscriptions.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "counterculturecoffee.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "vervecoffee.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "counterculturecoffee",
+      "business": "Counter Culture",
+      "mode": "structured_profile",
+      "niche": "specialty_coffee",
+      "role": "core",
+      "query": "We sell specialty coffee beans and recurring home deliveries.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "onyxcoffeelab.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "vervecoffee.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "vervecoffee",
+      "business": "Verve",
+      "mode": "structured_profile",
+      "niche": "specialty_coffee",
+      "role": "core",
+      "query": "We sell freshly roasted specialty coffee and subscriptions.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "onyxcoffeelab.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "counterculturecoffee.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "littlesleepies",
+      "business": "Little Sleepies",
+      "mode": "structured_profile",
+      "niche": "bamboo_family_sleepwear",
+      "role": "core",
+      "query": "We sell bamboo pajamas for babies and matching families.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "kytebaby.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "birdiebean.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "kytebaby",
+      "business": "Kyte Baby",
+      "mode": "structured_profile",
+      "niche": "bamboo_family_sleepwear",
+      "role": "core",
+      "query": "We sell bamboo baby sleep bags and sleepwear.",
+      "metrics": {
+        "returned": 1,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 1,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": true,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "case_id": "kytebaby",
+          "mode": "structured_profile",
+          "domain": "shopluxelifeboutique.com",
+          "label": 0,
+          "rationale": "Captured catalog is adult fashion, including baby-blue dresses and babydoll rompers; no bamboo infant sleep product evidence.",
+          "evidence": "current captured public catalog snapshot; no new web research",
+          "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+          "checked_at": "2026-09-19",
+          "rank": 1
+        }
+      ],
+      "references": [
+        {
+          "domain": "littlesleepies.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "birdiebean.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "birdiebean",
+      "business": "Birdie Bean",
+      "mode": "structured_profile",
+      "niche": "bamboo_family_sleepwear",
+      "role": "core",
+      "query": "We sell printed bamboo pajamas and clothing for children.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "littlesleepies.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "kytebaby.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "purebites",
+      "business": "PureBites",
+      "mode": "structured_profile",
+      "niche": "dog_freeze_dried_treats",
+      "role": "core",
+      "query": "We sell freeze-dried single-protein dog treats.",
+      "metrics": {
+        "returned": 3,
+        "useful": 2,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.4,
+        "precision_at_10": 0.2,
+        "precision_at_8": 0.25,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 2,
+          "rationale": "Official stores offer freeze-dried/raw dog treats; useful retailer assortment comparison, but geography and reseller-versus-brand positioning differ. A reseller of the query brand is not a newly discovered competing manufacturer.",
+          "case_id": "purebites",
+          "mode": "structured_profile",
+          "domain": "fetchyourpetneeds.ie",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:02:01.780110+00:00",
+          "public_urls": [
+            "https://www.fetchyourpetneeds.ie/",
+            "https://fetchyourpetneeds.ie/products.json?limit=50&page=1",
+            "https://www.fetchyourpetneeds.ie/collections/pet-brushes"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false
+        },
+        {
+          "label": 2,
+          "rationale": "Official single-meat air-dried training treats overlap rewarding/training use; process differs from freeze-dried raw and ingredient equivalence is not assumed.",
+          "case_id": "purebites",
+          "mode": "structured_profile",
+          "domain": "redbarn.com",
+          "rank": 2,
+          "checked_at": "2026-09-05T20:57:24.501049+00:00",
+          "public_urls": [
+            "https://www.redbarn.com/",
+            "https://redbarn.com/products.json?limit=50&page=1",
+            "https://www.redbarn.com/products/air-dried-chicken-training-treats"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "label": 1,
+          "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+          "case_id": "purebites",
+          "mode": "structured_profile",
+          "domain": "freezbone.com",
+          "rank": 3,
+          "checked_at": "2026-09-05T20:59:33.848158+00:00",
+          "public_urls": [
+            "https://www.freezbone.com/",
+            "https://freezbone.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "stewartpet.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "stellaandchewys.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "stewartpet",
+      "business": "Stewart",
+      "mode": "structured_profile",
+      "niche": "dog_freeze_dried_treats",
+      "role": "off-platform uncertainty control; report separately",
+      "query": "We sell freeze-dried raw dog treats and toppers.",
+      "metrics": {
+        "returned": 3,
+        "useful": 2,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.4,
+        "precision_at_10": 0.2,
+        "precision_at_8": 0.25,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 2,
+          "rationale": "Official stores offer freeze-dried/raw dog treats; useful retailer assortment comparison, but geography and reseller-versus-brand positioning differ. A reseller of the query brand is not a newly discovered competing manufacturer.",
+          "case_id": "stewartpet",
+          "mode": "structured_profile",
+          "domain": "fetchyourpetneeds.ie",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:02:01.780110+00:00",
+          "public_urls": [
+            "https://www.fetchyourpetneeds.ie/",
+            "https://fetchyourpetneeds.ie/products.json?limit=50&page=1",
+            "https://www.fetchyourpetneeds.ie/collections/pet-brushes"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false
+        },
+        {
+          "label": 2,
+          "rationale": "Official single-meat air-dried training treats overlap rewarding/training use; process differs from freeze-dried raw and ingredient equivalence is not assumed.",
+          "case_id": "stewartpet",
+          "mode": "structured_profile",
+          "domain": "redbarn.com",
+          "rank": 2,
+          "checked_at": "2026-09-05T20:57:24.501049+00:00",
+          "public_urls": [
+            "https://www.redbarn.com/",
+            "https://redbarn.com/products.json?limit=50&page=1",
+            "https://www.redbarn.com/products/air-dried-chicken-training-treats"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "label": 1,
+          "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+          "case_id": "stewartpet",
+          "mode": "structured_profile",
+          "domain": "freezbone.com",
+          "rank": 3,
+          "checked_at": "2026-09-05T20:59:33.848158+00:00",
+          "public_urls": [
+            "https://www.freezbone.com/",
+            "https://freezbone.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "purebites.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "stellaandchewys.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "stellaandchewys",
+      "business": "Stella & Chewy's",
+      "mode": "structured_profile",
+      "niche": "dog_freeze_dried_treats",
+      "role": "core",
+      "query": "We sell freeze-dried raw training treats for dogs.",
+      "metrics": {
+        "returned": 3,
+        "useful": 2,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.4,
+        "precision_at_10": 0.2,
+        "precision_at_8": 0.25,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 2,
+          "rationale": "Official stores offer freeze-dried/raw dog treats; useful retailer assortment comparison, but geography and reseller-versus-brand positioning differ. A reseller of the query brand is not a newly discovered competing manufacturer.",
+          "case_id": "stellaandchewys",
+          "mode": "structured_profile",
+          "domain": "fetchyourpetneeds.ie",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:02:01.780110+00:00",
+          "public_urls": [
+            "https://www.fetchyourpetneeds.ie/",
+            "https://fetchyourpetneeds.ie/products.json?limit=50&page=1",
+            "https://www.fetchyourpetneeds.ie/collections/pet-brushes"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false
+        },
+        {
+          "label": 2,
+          "rationale": "Official single-meat air-dried training treats overlap rewarding/training use; process differs from freeze-dried raw and ingredient equivalence is not assumed.",
+          "case_id": "stellaandchewys",
+          "mode": "structured_profile",
+          "domain": "redbarn.com",
+          "rank": 2,
+          "checked_at": "2026-09-05T20:57:24.501049+00:00",
+          "public_urls": [
+            "https://www.redbarn.com/",
+            "https://redbarn.com/products.json?limit=50&page=1",
+            "https://www.redbarn.com/products/air-dried-chicken-training-treats"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "label": 1,
+          "rationale": "Dog gear, paw-care or refillable enrichment products are adjacent; no evidenced freeze-dried edible dog-treat substitution.",
+          "case_id": "stellaandchewys",
+          "mode": "structured_profile",
+          "domain": "freezbone.com",
+          "rank": 3,
+          "checked_at": "2026-09-05T20:59:33.848158+00:00",
+          "public_urls": [
+            "https://www.freezbone.com/",
+            "https://freezbone.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "purebites.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "stewartpet.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "quince",
+      "business": "Quince",
+      "mode": "structured_profile",
+      "niche": "bedding_and_broad_store",
+      "role": "core",
+      "query": "We sell affordable clothing, home essentials, bedding, bags and jewelry.",
+      "metrics": {
+        "returned": 2,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 1,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": true,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 1,
+          "rationale": "Licensed Elvis merchandise differs materially in purchase motivation from Quince general essentials.",
+          "case_id": "quince",
+          "mode": "structured_profile",
+          "domain": "shopelvis.com",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:04:26.008981+00:00",
+          "public_urls": [
+            "https://www.shopelvis.com/",
+            "https://shopelvis.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "case_id": "quince",
+          "mode": "structured_profile",
+          "domain": "fetchyourpetneeds.ie",
+          "label": 0,
+          "rationale": "Pet food, veterinary care and pet accessories; pet clothing does not satisfy the human apparel/home-essentials business intent.",
+          "evidence": "current captured public catalog snapshot; no new web research",
+          "reviewer": "single analyst, product evidence adjudication; original independent reference panel unchanged",
+          "checked_at": "2026-09-19",
+          "rank": 2
+        }
+      ],
+      "references": [
+        {
+          "domain": "brooklinen.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "parachutehome.com",
+          "stage": "fresh_catalog_gate",
+          "index_domain": "parachutehome.com",
+          "index_status": "verified",
+          "rank": {
+            "domain": "parachutehome.com",
+            "pre_filter_rank": 7,
+            "match": {
+              "score": 11.86,
+              "matched_terms": [
+                "baby",
+                "linen",
+                "sheet"
+              ],
+              "intent": {
+                "supported": true,
+                "requested_families": [
+                  "apparel",
+                  "bags",
+                  "bedding",
+                  "jewelry"
+                ],
+                "child_audience_required": true,
+                "child_audience_evidenced": true,
+                "observed_families": [
+                  "bedding",
+                  "nursery"
+                ],
+                "reason": null
+              },
+              "product_evidence": true,
+              "query_coverage": 0.167,
+              "assessment": "candidate for review"
+            },
+            "exclusions": [
+              "fresh_catalog_gate"
+            ],
+            "returned_rank": null
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "brooklinen",
+      "business": "Brooklinen",
+      "mode": "structured_profile",
+      "niche": "bedding_and_broad_store",
+      "role": "core",
+      "query": "We sell bedding, sheets and comforters directly to consumers.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "quince.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "parachutehome.com",
+          "stage": "fresh_catalog_gate",
+          "index_domain": "parachutehome.com",
+          "index_status": "verified",
+          "rank": {
+            "domain": "parachutehome.com",
+            "pre_filter_rank": 2,
+            "match": {
+              "score": 14.35,
+              "matched_terms": [
+                "linen",
+                "sheet"
+              ],
+              "intent": {
+                "supported": true,
+                "requested_families": [
+                  "bedding"
+                ],
+                "child_audience_required": false,
+                "child_audience_evidenced": true,
+                "observed_families": [
+                  "bedding",
+                  "nursery"
+                ],
+                "reason": null
+              },
+              "product_evidence": true,
+              "query_coverage": 0.133,
+              "assessment": "candidate for review"
+            },
+            "exclusions": [
+              "fresh_catalog_gate"
+            ],
+            "returned_rank": null
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "parachutehome",
+      "business": "Parachute",
+      "mode": "structured_profile",
+      "niche": "bedding_and_broad_store",
+      "role": "core",
+      "query": "We sell linen bedding and bath linens for the home.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "quince.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "brooklinen.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "keychron",
+      "business": "Keychron",
+      "mode": "structured_profile",
+      "niche": "mechanical_keyboards",
+      "role": "core",
+      "query": "We sell customizable mechanical keyboards for Mac and Windows.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "nuphy.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "epomaker.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "nuphy",
+      "business": "NuPhy",
+      "mode": "structured_profile",
+      "niche": "mechanical_keyboards",
+      "role": "core",
+      "query": "We sell low-profile wireless mechanical keyboards.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "keychron.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "epomaker.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "epomaker",
+      "business": "EPOMAKER",
+      "mode": "structured_profile",
+      "niche": "mechanical_keyboards",
+      "role": "core",
+      "query": "We sell mechanical keyboards including low-profile models.",
+      "metrics": {
+        "returned": 0,
+        "useful": 0,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.0,
+        "precision_at_10": 0.0,
+        "precision_at_8": 0.0,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [],
+      "references": [
+        {
+          "domain": "keychron.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "nuphy.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    },
+    {
+      "case_id": "colourpop",
+      "business": "ColourPop",
+      "mode": "structured_profile",
+      "niche": "tinted_complexion",
+      "role": "core",
+      "query": "We sell affordable eye palettes, lip products and face makeup.",
+      "metrics": {
+        "returned": 2,
+        "useful": 2,
+        "strong": 0,
+        "wrong": 0,
+        "unknown": 0,
+        "precision_at_5": 0.4,
+        "precision_at_10": 0.2,
+        "precision_at_8": 0.25,
+        "strong_precision_at_5": 0.0,
+        "three_useful_top5": false,
+        "wrong_top5": false,
+        "known_reference_hits": 0,
+        "known_reference_total": 2,
+        "known_reference_recall": 0.0,
+        "error": null
+      },
+      "labels": [
+        {
+          "label": 2,
+          "rationale": "Useful face/lip makeup overlap; full affordable eye-palette assortment not established.",
+          "case_id": "colourpop",
+          "mode": "structured_profile",
+          "domain": "tower28beauty.com",
+          "rank": 1,
+          "checked_at": "2026-09-05T21:04:46.944417+00:00",
+          "public_urls": [
+            "https://www.tower28beauty.com/",
+            "https://tower28beauty.com/products.json?limit=50&page=1"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        },
+        {
+          "label": 2,
+          "rationale": "Official Sun Cover mineral tinted SPF overlaps complexion/suncare; full makeup portfolio or price parity is not assumed.",
+          "case_id": "colourpop",
+          "mode": "structured_profile",
+          "domain": "peachandlily.com",
+          "rank": 2,
+          "checked_at": "2026-09-05T21:03:38.655404+00:00",
+          "public_urls": [
+            "https://www.peachandlily.com/",
+            "https://peachandlily.com/products.json?limit=50&page=1",
+            "https://www.peachandlily.com/products/sun-cover-mineral-sunscreen"
+          ],
+          "reviewer": "single analyst; shuffled source review after debugging, not a fully blinded second reviewer",
+          "access_unknown": false,
+          "label_provenance": "frozen merchant/case/mode label, remapped by identity"
+        }
+      ],
+      "references": [
+        {
+          "domain": "elfcosmetics.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        },
+        {
+          "domain": "revolutionbeauty.com",
+          "stage": "absent_from_verified_export",
+          "index_domain": null,
+          "index_status": null,
+          "rank": null
+        }
+      ]
+    }
+  ],
+  "label_status": "single-analyst evidence-adjudicated, not an independent blind human panel",
+  "benchmark": "Unchanged reviewed retrieval/ranking; current captured supply; clock=2026-09-19 21:16:05.328373+00",
+  "usable_supply": 34,
+  "unadjudicated_placements": 0
+}

@@ -437,6 +437,11 @@ def index_ops(x_admin_token: Optional[str] = Header(default=None)):
     _top = lambda d, n: sorted(d.items(), key=lambda kv: -kv[1])[:n]
     from app.services.runtime_config import get_config
     settings = get_settings()
+    from app.services.index_operations import operational_evidence
+    from app.core.index_hold import index_writes_held
+    worker_evidence = operational_evidence(
+        db, enabled=bool(get_config("shopify_index_enabled", settings.shopify_index_enabled)),
+        held=index_writes_held(), last_dispatch=get_config("scheduler_last_dispatch", None))
     return {
         "data": {
             "pipeline": {
@@ -467,10 +472,7 @@ def index_ops(x_admin_token: Optional[str] = Header(default=None)):
             "top_failures": [{"reason": k, "count": v} for k, v in _top(reasons, 8)],
             "sources": sources,
             "runs": runs,
-            "worker": {
-                "enabled": bool(get_config("shopify_index_enabled", settings.shopify_index_enabled)),
-                "last_activity": last_activity,
-            },
+            "worker": {**worker_evidence, "last_activity": last_activity},
         }
     }
 

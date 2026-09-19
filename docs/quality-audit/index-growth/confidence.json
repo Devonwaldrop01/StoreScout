@@ -1,0 +1,25 @@
+{
+  "query": "SELECT CASE WHEN category_confidence IS NULL THEN 'unknown' WHEN category_confidence<55 THEN '0-54' WHEN category_confidence<70 THEN '55-69' WHEN category_confidence<85 THEN '70-84' ELSE '85-100' END AS band,count(*) AS rows,count(*) FILTER(WHERE last_verified_at>=now()-interval '60 days') AS fresh FROM shopify_store_index WHERE status='verified' GROUP BY 1 ORDER BY 1",
+  "rows": [
+    {
+      "band": "0-54",
+      "rows": 55,
+      "fresh": 46
+    },
+    {
+      "band": "55-69",
+      "rows": 7,
+      "fresh": 6
+    },
+    {
+      "band": "70-84",
+      "rows": 67,
+      "fresh": 9
+    },
+    {
+      "band": "85-100",
+      "rows": 282,
+      "fresh": 30
+    }
+  ]
+}

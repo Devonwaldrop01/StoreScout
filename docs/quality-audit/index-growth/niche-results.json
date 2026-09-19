@@ -1,0 +1,347 @@
+{
+  "states": {
+    "frozen": {
+      "description_only": {
+        "zero_results": [
+          "durstongear",
+          "zpacks",
+          "pipettebaby",
+          "tubbytodd",
+          "babobotanicals"
+        ],
+        "zero_useful": [
+          "durstongear",
+          "zpacks",
+          "pipettebaby",
+          "tubbytodd",
+          "babobotanicals",
+          "littlesleepies",
+          "keychron",
+          "nuphy",
+          "epomaker"
+        ]
+      },
+      "structured_profile": {
+        "zero_results": [
+          "durstongear",
+          "zpacks",
+          "pipettebaby",
+          "tubbytodd",
+          "babobotanicals"
+        ],
+        "zero_useful": [
+          "durstongear",
+          "zpacks",
+          "pipettebaby",
+          "tubbytodd",
+          "babobotanicals",
+          "keychron",
+          "nuphy",
+          "epomaker"
+        ]
+      }
+    },
+    "controlled": {
+      "description_only": {
+        "zero_results": [
+          "durstongear",
+          "zpacks",
+          "pipettebaby",
+          "tubbytodd",
+          "babobotanicals"
+        ],
+        "zero_useful": [
+          "durstongear",
+          "zpacks",
+          "pipettebaby",
+          "tubbytodd",
+          "babobotanicals",
+          "littlesleepies",
+          "keychron",
+          "nuphy",
+          "epomaker"
+        ]
+      },
+      "structured_profile": {
+        "zero_results": [
+          "durstongear",
+          "zpacks",
+          "pipettebaby",
+          "tubbytodd",
+          "babobotanicals"
+        ],
+        "zero_useful": [
+          "durstongear",
+          "zpacks",
+          "pipettebaby",
+          "tubbytodd",
+          "babobotanicals",
+          "keychron",
+          "nuphy",
+          "epomaker"
+        ]
+      }
+    },
+    "expanded": {
+      "description_only": {
+        "zero_results": [
+          "durstongear",
+          "zpacks"
+        ],
+        "zero_useful": [
+          "durstongear",
+          "zpacks",
+          "pipettebaby",
+          "tubbytodd",
+          "babobotanicals",
+          "littlesleepies",
+          "keychron",
+          "nuphy",
+          "epomaker"
+        ]
+      },
+      "structured_profile": {
+        "zero_results": [
+          "durstongear",
+          "zpacks"
+        ],
+        "zero_useful": [
+          "durstongear",
+          "zpacks",
+          "pipettebaby",
+          "tubbytodd",
+          "babobotanicals",
+          "keychron",
+          "nuphy",
+          "epomaker"
+        ]
+      }
+    },
+    "current": {
+      "description_only": {
+        "zero_results": [
+          "durstongear",
+          "zpacks",
+          "pipettebaby",
+          "tubbytodd",
+          "babobotanicals",
+          "onyxcoffeelab",
+          "counterculturecoffee",
+          "vervecoffee",
+          "littlesleepies",
+          "birdiebean",
+          "brooklinen",
+          "parachutehome",
+          "keychron",
+          "nuphy",
+          "epomaker"
+        ],
+        "zero_useful": [
+          "durstongear",
+          "zpacks",
+          "gossamergear",
+          "pipettebaby",
+          "tubbytodd",
+          "babobotanicals",
+          "onyxcoffeelab",
+          "counterculturecoffee",
+          "vervecoffee",
+          "littlesleepies",
+          "kytebaby",
+          "birdiebean",
+          "quince",
+          "brooklinen",
+          "parachutehome",
+          "keychron",
+          "nuphy",
+          "epomaker"
+        ]
+      },
+      "structured_profile": {
+        "zero_results": [
+          "durstongear",
+          "zpacks",
+          "pipettebaby",
+          "tubbytodd",
+          "babobotanicals",
+          "onyxcoffeelab",
+          "counterculturecoffee",
+          "vervecoffee",
+          "littlesleepies",
+          "birdiebean",
+          "brooklinen",
+          "parachutehome",
+          "keychron",
+          "nuphy",
+          "epomaker"
+        ],
+        "zero_useful": [
+          "durstongear",
+          "zpacks",
+          "gossamergear",
+          "pipettebaby",
+          "tubbytodd",
+          "babobotanicals",
+          "onyxcoffeelab",
+          "counterculturecoffee",
+          "vervecoffee",
+          "littlesleepies",
+          "kytebaby",
+          "birdiebean",
+          "quince",
+          "brooklinen",
+          "parachutehome",
+          "keychron",
+          "nuphy",
+          "epomaker"
+        ]
+      }
+    }
+  },
+  "controlled_to_expanded": [
+    {
+      "case_id": "iliabeauty",
+      "mode": "description_only",
+      "p5_before": 0.6,
+      "p5_after": 0.8,
+      "wrong_before": 0,
+      "wrong_after": 0
+    },
+    {
+      "case_id": "tower28beauty",
+      "mode": "description_only",
+      "p5_before": 0.6,
+      "p5_after": 0.8,
+      "wrong_before": 1,
+      "wrong_after": 1
+    },
+    {
+      "case_id": "saiehello",
+      "mode": "description_only",
+      "p5_before": 0.8,
+      "p5_after": 1.0,
+      "wrong_before": 0,
+      "wrong_after": 0
+    },
+    {
+      "case_id": "pipettebaby",
+      "mode": "description_only",
+      "p5_before": 0.0,
+      "p5_after": 0.0,
+      "wrong_before": 0,
+      "wrong_after": 1
+    },
+    {
+      "case_id": "tubbytodd",
+      "mode": "description_only",
+      "p5_before": 0.0,
+      "p5_after": 0.0,
+      "wrong_before": 0,
+      "wrong_after": 1
+    },
+    {
+      "case_id": "babobotanicals",
+      "mode": "description_only",
+      "p5_before": 0.0,
+      "p5_after": 0.0,
+      "wrong_before": 0,
+      "wrong_after": 1
+    },
+    {
+      "case_id": "kytebaby",
+      "mode": "description_only",
+      "p5_before": 0.4,
+      "p5_after": 0.4,
+      "wrong_before": 0,
+      "wrong_after": 0
+    },
+    {
+      "case_id": "birdiebean",
+      "mode": "description_only",
+      "p5_before": 0.2,
+      "p5_after": 0.2,
+      "wrong_before": 0,
+      "wrong_after": 0
+    },
+    {
+      "case_id": "colourpop",
+      "mode": "description_only",
+      "p5_before": 1.0,
+      "p5_after": 0.8,
+      "wrong_before": 2,
+      "wrong_after": 1
+    },
+    {
+      "case_id": "iliabeauty",
+      "mode": "structured_profile",
+      "p5_before": 0.6,
+      "p5_after": 0.8,
+      "wrong_before": 0,
+      "wrong_after": 0
+    },
+    {
+      "case_id": "tower28beauty",
+      "mode": "structured_profile",
+      "p5_before": 0.6,
+      "p5_after": 0.8,
+      "wrong_before": 1,
+      "wrong_after": 1
+    },
+    {
+      "case_id": "saiehello",
+      "mode": "structured_profile",
+      "p5_before": 1.0,
+      "p5_after": 1.0,
+      "wrong_before": 1,
+      "wrong_after": 1
+    },
+    {
+      "case_id": "pipettebaby",
+      "mode": "structured_profile",
+      "p5_before": 0.0,
+      "p5_after": 0.0,
+      "wrong_before": 0,
+      "wrong_after": 1
+    },
+    {
+      "case_id": "tubbytodd",
+      "mode": "structured_profile",
+      "p5_before": 0.0,
+      "p5_after": 0.0,
+      "wrong_before": 0,
+      "wrong_after": 1
+    },
+    {
+      "case_id": "babobotanicals",
+      "mode": "structured_profile",
+      "p5_before": 0.0,
+      "p5_after": 0.0,
+      "wrong_before": 0,
+      "wrong_after": 1
+    },
+    {
+      "case_id": "kytebaby",
+      "mode": "structured_profile",
+      "p5_before": 0.4,
+      "p5_after": 0.4,
+      "wrong_before": 0,
+      "wrong_after": 0
+    },
+    {
+      "case_id": "birdiebean",
+      "mode": "structured_profile",
+      "p5_before": 0.2,
+      "p5_after": 0.2,
+      "wrong_before": 1,
+      "wrong_after": 1
+    },
+    {
+      "case_id": "colourpop",
+      "mode": "structured_profile",
+      "p5_before": 1.0,
+      "p5_after": 0.8,
+      "wrong_before": 2,
+      "wrong_after": 1
+    }
+  ]
+}

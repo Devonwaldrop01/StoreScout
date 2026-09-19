@@ -1,0 +1,78 @@
+{
+  "classification": {
+    "before_missing_version": {
+      "batch": {
+        "status": "ok",
+        "processed": 36,
+        "classified": 0,
+        "below_threshold": 0
+      },
+      "seconds": 0.9772125000017695,
+      "persisted": 0,
+      "confidence_distribution": {},
+      "confidence_pass": 0,
+      "classification_usable": 0
+    },
+    "after_version_preserved": {
+      "batch": {
+        "status": "ok",
+        "processed": 36,
+        "classified": 36,
+        "below_threshold": 16
+      },
+      "seconds": 0.9481218000000808,
+      "persisted": 36,
+      "confidence_distribution": {
+        "0": 5,
+        "90": 2,
+        "54": 4,
+        "26": 1,
+        "92": 4,
+        "65": 2,
+        "29": 1,
+        "39": 1,
+        "91": 1,
+        "95": 1,
+        "33": 1,
+        "97": 2,
+        "76": 1,
+        "61": 1,
+        "44": 1,
+        "100": 1,
+        "94": 1,
+        "83": 1,
+        "93": 1,
+        "72": 1,
+        "42": 1,
+        "84": 1,
+        "48": 1
+      },
+      "confidence_pass": 20,
+      "classification_usable": 20
+    }
+  },
+  "protection": {
+    "controlled-validation": {
+      "assigned": 248,
+      "recorded_logical_calls": 768,
+      "domains_with_stop": 212,
+      "later_recorded_calls_suppressed": 417,
+      "previous_successes_with_stop": 0,
+      "missing_bodies": 0,
+      "scope": "offline recorded endpoint sequence; no claim about new access yield"
+    },
+    "production-access": {
+      "assigned": 96,
+      "recorded_logical_calls": 190,
+      "domains_with_stop": 38,
+      "later_recorded_calls_suppressed": 0,
+      "previous_successes_with_stop": 0,
+      "missing_bodies": 1,
+      "scope": "offline recorded endpoint sequence; no claim about new access yield"
+    }
+  },
+  "network_calls": 0,
+  "paid_AI_calls": 0,
+  "production_writes": 0,
+  "classification_sample": "36 successful public catalogs retained from prior bounded access validation; not random production yield"
+}

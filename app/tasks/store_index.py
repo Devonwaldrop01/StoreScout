@@ -390,12 +390,12 @@ def stage_knowledge(limit_override: Optional[int] = None, force: bool = False) -
     batch = max(1, min(limit_override or get_config(
         "shopify_index_knowledge_batch", settings.shopify_index_knowledge_batch), 300))
 
-    _full_cols = ("domain, category, subcategory, category_confidence, category_evidence, brand_keywords, target_customer, store_dna, dna_keywords, dna_signature, dna_at, brand_name, homepage_message, description, product_types, "
+    _full_cols = ("domain, updated_at, category, subcategory, category_confidence, category_evidence, brand_keywords, target_customer, store_dna, dna_keywords, dna_signature, dna_at, brand_name, homepage_message, description, product_types, "
                   "product_titles, tags, collections, pricing_tier, product_count, "
                   "median_price, min_price, max_price, price_bands, catalog_observation")
     # product_titles (016) may lag behind 015 â€” fall back to a select without it
     # so knowledge still runs (it just loses the product-title signal).
-    _fallback_cols = ("domain, category, subcategory, category_confidence, category_evidence, brand_keywords, target_customer, store_dna, dna_keywords, dna_signature, dna_at, brand_name, homepage_message, description, product_types, "
+    _fallback_cols = ("domain, updated_at, category, subcategory, category_confidence, category_evidence, brand_keywords, target_customer, store_dna, dna_keywords, dna_signature, dna_at, brand_name, homepage_message, description, product_types, "
                       "tags, collections, pricing_tier, product_count, "
                       "median_price, min_price, max_price, price_bands, catalog_observation")
     rows = []

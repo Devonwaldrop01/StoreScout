@@ -1,0 +1,10 @@
+{
+  "query": "SELECT key,value,updated_at FROM app_config WHERE key IN ('shopify_index_enabled','shopify_index_verify_batch','shopify_index_knowledge_batch','shopify_index_category_min_confidence','shopify_index_resolve_batch','scheduler_last_dispatch','scheduler_dispatch_stage_verification','scheduler_dispatch_stage_knowledge') ORDER BY key",
+  "rows": [
+    {
+      "key": "shopify_index_enabled",
+      "value": true,
+      "updated_at": "2026-07-12 21:43:40.703765+00"
+    }
+  ]
+}
