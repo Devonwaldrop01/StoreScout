@@ -1,0 +1,63 @@
+{
+  "kind": "Captured catalog + real isolated classification child + SQLite, not live verification",
+  "timestamp": "2026-09-20T01:45:06.044043+00:00",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.14",
+  "source_sha256": "0c0eb11f9fbb6adc16a98f733caee82bec805482dbeea161a07ea060498bfa91",
+  "captured_verified": 36,
+  "states": {
+    "eligible": 20,
+    "ineligible": 16
+  },
+  "attempts": 36,
+  "reserved_requests": 288,
+  "classification_attempted": 36,
+  "classification_saved": 36,
+  "eligible": 20,
+  "stopped_batches": {},
+  "confidence_distribution": {
+    "0.0": 5,
+    "26.0": 1,
+    "29.0": 1,
+    "33.0": 1,
+    "39.0": 1,
+    "42.0": 1,
+    "44.0": 1,
+    "48.0": 1,
+    "54.0": 4,
+    "61.0": 1,
+    "65.0": 2,
+    "72.0": 1,
+    "76.0": 1,
+    "83.0": 1,
+    "84.0": 1,
+    "90.0": 2,
+    "91.0": 1,
+    "92.0": 4,
+    "93.0": 1,
+    "94.0": 1,
+    "95.0": 1,
+    "97.0": 2,
+    "100.0": 1
+  },
+  "wall_seconds": 16.784945200000948,
+  "classification_child_mean_seconds": 0.4554004305563366,
+  "classification_child_max_seconds": 0.5233052000039606,
+  "rows_per_second_including_durable_writes": 2.1447791202796402,
+  "exports": {
+    "legacy": 0,
+    "v2": 20,
+    "combined": 20
+  },
+  "experiment_directory": "outputs\\index-v2-tool-validation\\20260920T014506",
+  "restart_idempotency": "passed; no new attempts",
+  "network_requests": 0,
+  "paid_ai_calls": 0,
+  "limitations": [
+    "Windows measurement; Linux image gate pending",
+    "Input sample selected successful captures",
+    "No fresh reachability/yield measurement",
+    "Dispatch pacing skipped with injected test clock",
+    "Observation timestamps retained; no manufactured freshness"
+  ]
+}

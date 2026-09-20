@@ -1,0 +1,36 @@
+name: Isolated V2 image validation only
+on:
+  push:
+    branches: [codex/index-v2-isolated-2026-09-19]
+  workflow_dispatch:
+    inputs:
+      approved_sha:
+        description: Exact local reviewed candidate SHA
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: storescout-index-v2-validation
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Build exact candidate and validate without production credentials
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+          APPROVED_SHA: ${{ inputs.approved_sha || github.sha }}
+        run: bash scripts/validate_index_v2_image.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: index-v2-${{ github.sha }}
+          path: ${{ runner.temp }}/index-v2-evidence/
+          retention-days: 14
+          if-no-files-found: error

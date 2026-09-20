@@ -299,16 +299,22 @@ def _clean(text: str, max_len: int = 300) -> str:
 # â”€â”€ The light pass â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def index_store_pass(domain: str) -> Dict[str, Any]:
+    """Legacy writer gate; catalog computation is reusable without DB/broker IO."""
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
+    return probe_store_catalog(domain, make_client=_make_client, get_response=_get,
+                               pace=_enforce_domain_rate_limit)
+
+
+def probe_store_catalog(domain: str, *, make_client, get_response, pace) -> Dict[str, Any]:
     """
     One polite â‰¤4-request pass over a domain: verification signals + light
     profile together. Returns a dict with:
       reachable, confidence (0-100), signals [str], monitorable (bool),
       profile {...light-scan fields}, failure_reason (when not reachable)
     """
-    from app.core.index_hold import require_index_writes
-    require_index_writes()
     domain = urlparse(domain if "://" in domain else f"https://{domain}").hostname or ""
-    _enforce_domain_rate_limit(domain)
+    pace(domain)
 
     confidence = 0
     signals: List[str] = []
@@ -320,11 +326,11 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
     home_status = cart_status = None
     home_password = home_challenge = False
 
-    with _make_client() as client:
+    with make_client() as client:
         # 1. Homepage â€” brand identity + HTML fingerprints
         html = ""
         try:
-            r = _get(client, f"https://{domain}/")
+            r = get_response(client, f"https://{domain}/")
             protection = _protection_result(r, profile)
             if protection:
                 return protection
@@ -377,7 +383,7 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
 
         # 2. /cart.js â€” storefront API marker
         try:
-            r = _get(client, f"https://{domain}/cart.js", timeout=8)
+            r = get_response(client, f"https://{domain}/cart.js", timeout=8)
             protection = _protection_result(r, profile)
             if protection:
                 return protection
@@ -396,7 +402,7 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
         # 3. /products.json â€” catalog sample (also the "monitorable" signal)
         products: List[dict] = []
         try:
-            r = _get(client, f"https://{domain}/products.json?limit=250", timeout=15)
+            r = get_response(client, f"https://{domain}/products.json?limit=250", timeout=15)
             protection = _protection_result(r, profile)
             if protection:
                 return protection
@@ -507,7 +513,7 @@ def index_store_pass(domain: str) -> Dict[str, Any]:
         # 4. /collections.json â€” taxonomy hints (only worth it on a live catalog)
         if products_ok:
             try:
-                r = _get(client, f"https://{domain}/collections.json?limit=50", timeout=10)
+                r = get_response(client, f"https://{domain}/collections.json?limit=50", timeout=10)
                 if r.status_code == 200 and "application/json" in r.headers.get("content-type", ""):
                     cols = (r.json().get("collections") or [])[:20]
                     profile["collections"] = [
@@ -1232,22 +1238,19 @@ def classification_transition(previous, fields):
     return out
 
 
-def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
+def build_knowledge_fields(row: Dict[str, Any], *, allow_paid=True):
+    """Compute classification fields; caller owns persistence and authorization.
+
+    V2 explicitly disables paid work, leaving classification thresholds unchanged.
     """
-    Stage 3. Classify a verified store from its STORED signals (no re-fetch).
-    Writes category/subcategory/confidence/evidence, price bands, target
-    customer and brand keywords, and stamps knowledge_at. Returns
-    {domain, category, confidence}.
-    """
-    from app.core.index_hold import require_index_writes
-    require_index_writes()
     domain = row.get("domain") or ""
     now = datetime.now(timezone.utc).isoformat()
 
     # AI-primary classification (reads the real product titles) is far more
     # accurate than keyword matching; fall back to the keyword scorer only if AI
     # is unavailable or errors.
-    classification = classify_store_ai(
+    classify = classify_store_ai if allow_paid else lambda **kwargs: None
+    classification = classify(
         brand=row.get("brand_name") or domain,
         description=row.get("homepage_message") or row.get("description") or "",
         product_types=row.get("product_types"),
@@ -1264,6 +1267,7 @@ def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
             product_titles=row.get("product_titles"),
             tags=row.get("tags"),
             collections=row.get("collections"),
+            allow_ai=allow_paid,
         )
 
     evidence = classification.get("evidence") or []
@@ -1288,7 +1292,7 @@ def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
     # changes. Fully guarded: DNA is a bonus layer, never a gate on knowledge.
     dna = dna_kws = dna_sig = None
     try:
-        from app.services.store_dna import dna_signature, generate_store_dna
+        from app.services.store_dna import dna_signature, generate_store_dna, _fallback_dna
         dna_ctx = {
             "brand_name": row.get("brand_name"), "domain": domain,
             "category": classification["category"],
@@ -1306,7 +1310,7 @@ def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
         if row.get("dna_signature") == dna_sig and row.get("store_dna"):
             dna, dna_kws = row.get("store_dna"), row.get("dna_keywords")  # unchanged â€” reuse
         else:
-            dna = generate_store_dna(dna_ctx)
+            dna = generate_store_dna(dna_ctx) if allow_paid else _fallback_dna(dna_ctx)
             dna_kws = (dna or {}).get("keywords")
     except Exception as dna_exc:
         logger.debug("store DNA skipped for %s: %s", domain, dna_exc)
@@ -1346,6 +1350,14 @@ def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
         if adequate:
             observation['classification_valid_until'] = None
         payload['catalog_observation'] = observation
+    return payload, classification
+
+
+def run_knowledge(db, row: Dict[str, Any]) -> Dict[str, Any]:
+    from app.core.index_hold import require_index_writes
+    require_index_writes()
+    payload, classification = build_knowledge_fields(row)
+    domain = row.get("domain") or ""
     q = db.table("shopify_store_index").update(payload).eq("domain", domain).eq("status", "verified")
     q = q.eq("updated_at", row["updated_at"]) if row.get("updated_at") else q.is_("updated_at", "null")
     q = q.is_("verification_token", "null")

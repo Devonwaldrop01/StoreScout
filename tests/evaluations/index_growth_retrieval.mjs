@@ -6,8 +6,9 @@ const prior=resolve(process.argv[2] || '../storescout-phase1');
 const {PGlite}=await import(pathToFileURL(resolve(prior,'outputs/phase1/sql-runtime/node_modules/@electric-sql/pglite/dist/index.js')));
 const load=p=>JSON.parse(readFileSync(p,'utf8'));
 const plans=load('docs/quality-audit/real-world/evidence/replay-plan.json');
-const out='outputs/index-growth/';
-const inputs={frozen:resolve(prior,'outputs/bounded-cycle/frozen/evidence/index-snapshot.json'),
+const specification=process.argv[3]?load(process.argv[3]):null;
+const out=specification?specification.output_dir+'/':'outputs/index-growth/';
+const inputs=specification?.inputs || {frozen:resolve(prior,'outputs/bounded-cycle/frozen/evidence/index-snapshot.json'),
  controlled:resolve(prior,'outputs/bounded-cycle/index-after.json'),
  expanded:resolve(prior,'outputs/production-access/index-after.json'),
  current:'docs/quality-audit/index-growth/current-public-index.json'};

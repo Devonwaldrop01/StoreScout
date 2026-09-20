@@ -1,0 +1,1218 @@
+{
+  "version": 1,
+  "enabled": false,
+  "source_sha256": "932889c6b83c856c43daf6fd480031f5042f1d837bc21af4c9cad80ff36e9eea",
+  "expires_at": "2026-09-26T23:59:59+00:00",
+  "target_eligible": 1000,
+  "concurrency": 1,
+  "attempt_cap": 300,
+  "per_domain_attempt_cap": 3,
+  "request_cap": 2400,
+  "attempt_request_cap": 8,
+  "lease_seconds": 180,
+  "child_seconds": 90,
+  "memory_ceiling_mib": 400,
+  "min_start_gap_seconds": 10,
+  "entries": [
+    {
+      "canonical": "shoppandcboutique.com",
+      "fetch_host": "shoppandcboutique.com",
+      "provenance": [
+        {
+          "hostname": "shoppandcboutique.com",
+          "source": "shop_app",
+          "source_ref": "ef6ba664-7bc7-4915-9754-04288f9ff413",
+          "updated_at": "2026-09-07T11:18:16.868643+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "thezerano.com",
+      "fetch_host": "thezerano.com",
+      "provenance": [
+        {
+          "hostname": "thezerano.com",
+          "source": "shop_app",
+          "source_ref": "e9e2554a-15f9-4f87-855a-290b20d2d92b",
+          "updated_at": "2026-07-17T10:48:00.095627+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "waifuwu.com",
+      "fetch_host": "waifuwu.com",
+      "provenance": [
+        {
+          "hostname": "waifuwu.com",
+          "source": "shop_app",
+          "source_ref": "9ed90249-7e43-4f71-97de-97c7812c14ac",
+          "updated_at": "2026-08-11T19:48:00.336419+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "madcapcoffee.com",
+      "fetch_host": "www.madcapcoffee.com",
+      "provenance": [
+        {
+          "hostname": "www.madcapcoffee.com",
+          "source": "shop_app",
+          "source_ref": "792d55d0-b3e3-4da4-acfa-87f4da52022c",
+          "updated_at": "2026-09-09T06:48:00.258172+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "soulsla.com",
+      "fetch_host": "soulsla.com",
+      "provenance": [
+        {
+          "hostname": "soulsla.com",
+          "source": "shop_app",
+          "source_ref": "cb22098d-f4ff-42a1-89ba-2984886b121d",
+          "updated_at": "2026-07-25T18:00:00.562034+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "kgboxofficial.com",
+      "fetch_host": "kgboxofficial.com",
+      "provenance": [
+        {
+          "hostname": "kgboxofficial.com",
+          "source": "shop_app",
+          "source_ref": "7dae54d9-268b-415d-8ceb-aa9522275536",
+          "updated_at": "2026-08-13T21:12:00.261496+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "premierguncabinet.com",
+      "fetch_host": "premierguncabinet.com",
+      "provenance": [
+        {
+          "hostname": "premierguncabinet.com",
+          "source": "shop_app",
+          "source_ref": "50e64ef0-7f1c-4a33-a818-fe67b83fdf6e",
+          "updated_at": "2026-08-07T04:36:00.601764+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "poppyssecret.com",
+      "fetch_host": "www.poppyssecret.com",
+      "provenance": [
+        {
+          "hostname": "www.poppyssecret.com",
+          "source": "shop_app",
+          "source_ref": "2a38303a-7ad6-4e6c-87a2-08660c59b506",
+          "updated_at": "2026-07-11T18:36:00.466149+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "zerowastecartel.com",
+      "fetch_host": "zerowastecartel.com",
+      "provenance": [
+        {
+          "hostname": "zerowastecartel.com",
+          "source": "shop_app",
+          "source_ref": "a8c721ea-050a-4509-8e7f-a20a0d9bfdc2",
+          "updated_at": "2026-08-24T20:36:00.504724+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "eu.kendamil.com",
+      "fetch_host": "eu.kendamil.com",
+      "provenance": [
+        {
+          "hostname": "eu.kendamil.com",
+          "source": "shop_app",
+          "source_ref": "2466d4b4-d85a-4be9-9347-0ffaf98d7709",
+          "updated_at": "2026-08-30T15:36:00.533603+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "1bossco.com",
+      "fetch_host": "www.1bossco.com",
+      "provenance": [
+        {
+          "hostname": "www.1bossco.com",
+          "source": "shop_app",
+          "source_ref": "b15b3677-e902-40b4-a372-da8993cbdb0e",
+          "updated_at": "2026-07-30T21:36:00.428692+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "merchantsofthesun.com.au",
+      "fetch_host": "merchantsofthesun.com.au",
+      "provenance": [
+        {
+          "hostname": "merchantsofthesun.com.au",
+          "source": "shop_app",
+          "source_ref": "bc58a560-42d5-4fb5-95e3-e3fe98fe18c9",
+          "updated_at": "2026-08-05T10:48:00.106772+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "keeprtuned.com",
+      "fetch_host": "keeprtuned.com",
+      "provenance": [
+        {
+          "hostname": "keeprtuned.com",
+          "source": "shop_app",
+          "source_ref": "443e624f-57d8-4f8e-8c89-9b28336a41de",
+          "updated_at": "2026-08-15T05:48:00.105387+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "birduyen.com",
+      "fetch_host": "birduyen.com",
+      "provenance": [
+        {
+          "hostname": "birduyen.com",
+          "source": "shop_app",
+          "source_ref": "1656e769-4d11-4d45-8f3c-06a2041d1087",
+          "updated_at": "2026-08-14T12:24:00.872809+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "wragal.com",
+      "fetch_host": "www.wragal.com",
+      "provenance": [
+        {
+          "hostname": "www.wragal.com",
+          "source": "shop_app",
+          "source_ref": "9c885c88-1af4-44c6-b885-2f12c245fabe",
+          "updated_at": "2026-07-13T05:00:01.08042+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "supernovacalzature.com",
+      "fetch_host": "www.supernovacalzature.com",
+      "provenance": [
+        {
+          "hostname": "www.supernovacalzature.com",
+          "source": "shop_app",
+          "source_ref": "2cae41f9-4d02-403c-8829-c7bcadd5b2f2",
+          "updated_at": "2026-08-18T06:24:00.550663+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "meadow-nest.com",
+      "fetch_host": "meadow-nest.com",
+      "provenance": [
+        {
+          "hostname": "meadow-nest.com",
+          "source": "shop_app",
+          "source_ref": "bfcc4744-788e-44ff-bdeb-45ce1fbc0165",
+          "updated_at": "2026-07-12T20:48:00.270732+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "merino.tech",
+      "fetch_host": "merino.tech",
+      "provenance": [
+        {
+          "hostname": "merino.tech",
+          "source": "shop_app",
+          "source_ref": "57323e30-073f-423c-b184-50a927ef1aea",
+          "updated_at": "2026-07-18T18:48:00.235166+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "freertool.com",
+      "fetch_host": "www.freertool.com",
+      "provenance": [
+        {
+          "hostname": "www.freertool.com",
+          "source": "shop_app",
+          "source_ref": "68af8696-6810-4d37-85c6-f3ddc4cf39a9",
+          "updated_at": "2026-08-23T07:36:00.476016+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "scenttaste.com",
+      "fetch_host": "scenttaste.com",
+      "provenance": [
+        {
+          "hostname": "scenttaste.com",
+          "source": "shop_app",
+          "source_ref": "18d3442c-9192-4057-9a6f-e205fe95b759",
+          "updated_at": "2026-08-01T04:48:00.113402+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "us.thesomewhereco.com",
+      "fetch_host": "us.thesomewhereco.com",
+      "provenance": [
+        {
+          "hostname": "us.thesomewhereco.com",
+          "source": "shop_app",
+          "source_ref": "14360379-4244-470f-b03d-03ee0a428b86",
+          "updated_at": "2026-08-15T04:12:00.269228+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "genderbenderllc.com",
+      "fetch_host": "genderbenderllc.com",
+      "provenance": [
+        {
+          "hostname": "genderbenderllc.com",
+          "source": "shop_app",
+          "source_ref": "7c2750ce-4ced-4cee-84b8-22880faf3699",
+          "updated_at": "2026-08-13T20:00:01.161968+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "welcometowondervalley.com",
+      "fetch_host": "welcometowondervalley.com",
+      "provenance": [
+        {
+          "hostname": "welcometowondervalley.com",
+          "source": "shop_app",
+          "source_ref": "bdba8bfa-2ac1-4b4a-bf90-20afdb57efaf",
+          "updated_at": "2026-07-18T05:12:00.337987+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "snooop.gg",
+      "fetch_host": "snooop.gg",
+      "provenance": [
+        {
+          "hostname": "snooop.gg",
+          "source": "shop_app",
+          "source_ref": "f1bf6bc8-0b3e-49b0-906c-b058d53b0a96",
+          "updated_at": "2026-07-10T23:36:00.458412+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "nohands3d.com.au",
+      "fetch_host": "www.nohands3d.com.au",
+      "provenance": [
+        {
+          "hostname": "www.nohands3d.com.au",
+          "source": "shop_app",
+          "source_ref": "d836d1c0-0982-426d-baf4-3061952b42c4",
+          "updated_at": "2026-07-25T18:24:00.541467+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "dailyardplus.com",
+      "fetch_host": "dailyardplus.com",
+      "provenance": [
+        {
+          "hostname": "dailyardplus.com",
+          "source": "shop_app",
+          "source_ref": "496c9cdb-dac7-405e-886c-2b937ac73560",
+          "updated_at": "2026-07-29T00:36:00.578592+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "tuttifruttikidsco.com",
+      "fetch_host": "www.tuttifruttikidsco.com",
+      "provenance": [
+        {
+          "hostname": "www.tuttifruttikidsco.com",
+          "source": "shop_app",
+          "source_ref": "1806eb98-e533-4c15-bea2-f3245a485e24",
+          "updated_at": "2026-08-18T22:00:01.071223+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "dealvalley.fr",
+      "fetch_host": "dealvalley.fr",
+      "provenance": [
+        {
+          "hostname": "dealvalley.fr",
+          "source": "shop_app",
+          "source_ref": "02db1548-2210-43ea-85f3-2c0175ac9816",
+          "updated_at": "2026-08-25T17:00:00.473295+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "aubongoutboutique.com",
+      "fetch_host": "aubongoutboutique.com",
+      "provenance": [
+        {
+          "hostname": "aubongoutboutique.com",
+          "source": "shop_app",
+          "source_ref": "db51ec62-6eb9-4696-a584-5836cb2bf408",
+          "updated_at": "2026-08-13T20:48:00.428712+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "shopcasinoquest.com",
+      "fetch_host": "shopcasinoquest.com",
+      "provenance": [
+        {
+          "hostname": "shopcasinoquest.com",
+          "source": "shop_app",
+          "source_ref": "4344171d-ae50-4cb5-8bcb-d3e10a0fecf8",
+          "updated_at": "2026-08-05T09:36:00.307644+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "oscwholesale.com",
+      "fetch_host": "oscwholesale.com",
+      "provenance": [
+        {
+          "hostname": "oscwholesale.com",
+          "source": "shop_app",
+          "source_ref": "8ee1034f-de26-4e3a-8459-81576b5206cb",
+          "updated_at": "2026-08-23T14:36:00.516365+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "fragranceofarabia.com",
+      "fetch_host": "fragranceofarabia.com",
+      "provenance": [
+        {
+          "hostname": "fragranceofarabia.com",
+          "source": "shop_app",
+          "source_ref": "44c0513a-cc60-48bc-a821-4b009e61359c",
+          "updated_at": "2026-07-22T23:48:00.44501+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "stagecoachgifts.biz",
+      "fetch_host": "stagecoachgifts.biz",
+      "provenance": [
+        {
+          "hostname": "stagecoachgifts.biz",
+          "source": "shop_app",
+          "source_ref": "e744168f-72fe-40b1-90ce-58ba57002b7b",
+          "updated_at": "2026-08-22T21:36:00.429892+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "leahmaria.dk",
+      "fetch_host": "leahmaria.dk",
+      "provenance": [
+        {
+          "hostname": "leahmaria.dk",
+          "source": "shop_app",
+          "source_ref": "c6317adc-ad30-4da2-98e0-3d5068e70b6c",
+          "updated_at": "2026-08-06T15:48:00.237788+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "brillare.ca",
+      "fetch_host": "brillare.ca",
+      "provenance": [
+        {
+          "hostname": "brillare.ca",
+          "source": "shop_app",
+          "source_ref": "cbc8a024-41a2-4863-aa2d-a11a0d2a9b2f",
+          "updated_at": "2026-08-05T04:00:00.617459+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "comicnation.us",
+      "fetch_host": "comicnation.us",
+      "provenance": [
+        {
+          "hostname": "comicnation.us",
+          "source": "shop_app",
+          "source_ref": "71ab7f41-1a10-467c-bd22-9bf951eed2d8",
+          "updated_at": "2026-07-18T23:48:00.230606+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "kbeauty.us",
+      "fetch_host": "kbeauty.us",
+      "provenance": [
+        {
+          "hostname": "kbeauty.us",
+          "source": "shop_app",
+          "source_ref": "6a5e05ae-b918-4cf3-b9a3-b6db06b2ea77",
+          "updated_at": "2026-08-14T23:12:00.181294+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "wilkinsandolander.com",
+      "fetch_host": "wilkinsandolander.com",
+      "provenance": [
+        {
+          "hostname": "wilkinsandolander.com",
+          "source": "shop_app",
+          "source_ref": "9b4d7903-dddb-4c65-b1d4-117fa884b391",
+          "updated_at": "2026-07-19T12:12:00.430839+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "chemasmarket.com",
+      "fetch_host": "chemasmarket.com",
+      "provenance": [
+        {
+          "hostname": "chemasmarket.com",
+          "source": "shop_app",
+          "source_ref": "ef9a454a-4ddc-4f74-aa28-a7486e987a3c",
+          "updated_at": "2026-08-26T17:24:00.459188+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "butteriedish.com",
+      "fetch_host": "www.butteriedish.com",
+      "provenance": [
+        {
+          "hostname": "www.butteriedish.com",
+          "source": "shop_app",
+          "source_ref": "f99de990-b1b2-478b-b177-e69f5bab9791",
+          "updated_at": "2026-08-13T20:00:01.161968+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "unnamedheadwear.com",
+      "fetch_host": "unnamedheadwear.com",
+      "provenance": [
+        {
+          "hostname": "unnamedheadwear.com",
+          "source": "shop_app",
+          "source_ref": "c72bc789-e760-4825-a56c-821d28adbfd8",
+          "updated_at": "2026-08-28T22:36:00.438955+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "boomingacres.com",
+      "fetch_host": "boomingacres.com",
+      "provenance": [
+        {
+          "hostname": "boomingacres.com",
+          "source": "shop_app",
+          "source_ref": "a4a92a5a-0496-4f01-bd4e-85d2627a0491",
+          "updated_at": "2026-09-06T20:36:00.396749+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "electricpedalpower.com.au",
+      "fetch_host": "www.electricpedalpower.com.au",
+      "provenance": [
+        {
+          "hostname": "www.electricpedalpower.com.au",
+          "source": "shop_app",
+          "source_ref": "19b97e35-6541-436d-b7cc-c0021913e7fa",
+          "updated_at": "2026-07-18T05:12:00.337987+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "discounttoolsnz.co.nz",
+      "fetch_host": "www.discounttoolsnz.co.nz",
+      "provenance": [
+        {
+          "hostname": "www.discounttoolsnz.co.nz",
+          "source": "shop_app",
+          "source_ref": "71c9470d-9ea2-491a-8ddf-1503f834f2fa",
+          "updated_at": "2026-08-24T18:36:00.399317+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "aprasi.com",
+      "fetch_host": "www.aprasi.com",
+      "provenance": [
+        {
+          "hostname": "www.aprasi.com",
+          "source": "shop_app",
+          "source_ref": "fb8780d1-32b2-457d-a16b-54652b7074fd",
+          "updated_at": "2026-07-12T05:24:00.341719+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "freshkids.ca",
+      "fetch_host": "freshkids.ca",
+      "provenance": [
+        {
+          "hostname": "freshkids.ca",
+          "source": "shop_app",
+          "source_ref": "05561ace-571b-415e-a289-278948d9d2b2",
+          "updated_at": "2026-07-31T20:12:00.202106+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "vie-riche.com",
+      "fetch_host": "www.vie-riche.com",
+      "provenance": [
+        {
+          "hostname": "www.vie-riche.com",
+          "source": "shop_app",
+          "source_ref": "4d910500-68a2-4da2-a8fc-534c5643600a",
+          "updated_at": "2026-07-27T18:00:00.95414+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "shopworthandgray.com",
+      "fetch_host": "shopworthandgray.com",
+      "provenance": [
+        {
+          "hostname": "shopworthandgray.com",
+          "source": "shop_app",
+          "source_ref": "4b3f20f4-8e4b-4ece-ac14-ef8b2791d58a",
+          "updated_at": "2026-09-11T13:36:00.332731+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "abiddabling.com",
+      "fetch_host": "abiddabling.com",
+      "provenance": [
+        {
+          "hostname": "abiddabling.com",
+          "source": "shop_app",
+          "source_ref": "d1b677a8-9c83-4a89-9609-93ff55e0ef3e",
+          "updated_at": "2026-07-15T17:36:00.373007+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "factorydirecthardware.com",
+      "fetch_host": "www.factorydirecthardware.com",
+      "provenance": [
+        {
+          "hostname": "www.factorydirecthardware.com",
+          "source": "shop_app",
+          "source_ref": "49af912d-31fc-4b6a-ab74-0033cbd19110",
+          "updated_at": "2026-07-18T19:00:00.886355+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "shopsupermercadobrazil.com",
+      "fetch_host": "shopsupermercadobrazil.com",
+      "provenance": [
+        {
+          "hostname": "shopsupermercadobrazil.com",
+          "source": "shop_app",
+          "source_ref": "714fdee6-3d83-4d77-9d93-3dbe2ee94198",
+          "updated_at": "2026-07-18T22:24:00.480604+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "littlemachineshop.com",
+      "fetch_host": "littlemachineshop.com",
+      "provenance": [
+        {
+          "hostname": "littlemachineshop.com",
+          "source": "shop_app",
+          "source_ref": "8b9898b5-2a7c-4108-a2d1-9feb10059abc",
+          "updated_at": "2026-07-17T01:48:00.515458+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "sandpipers.ca",
+      "fetch_host": "www.sandpipers.ca",
+      "provenance": [
+        {
+          "hostname": "www.sandpipers.ca",
+          "source": "shop_app",
+          "source_ref": "69950e88-f73f-436d-a4ed-8351cc9c6f87",
+          "updated_at": "2026-08-08T20:48:00.49011+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "arlingtontx.clothesmentor.com",
+      "fetch_host": "arlingtontx.clothesmentor.com",
+      "provenance": [
+        {
+          "hostname": "arlingtontx.clothesmentor.com",
+          "source": "shop_app",
+          "source_ref": "b9f6f3ec-7418-4175-b1ad-d6ba77f8c747",
+          "updated_at": "2026-07-30T16:24:00.548572+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "madetheedit.com",
+      "fetch_host": "madetheedit.com",
+      "provenance": [
+        {
+          "hostname": "madetheedit.com",
+          "source": "shop_app",
+          "source_ref": "724bddb4-b4af-4554-bedf-d9b8edabb86a",
+          "updated_at": "2026-08-22T20:48:00.411564+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "cougarpaws.com",
+      "fetch_host": "www.cougarpaws.com",
+      "provenance": [
+        {
+          "hostname": "www.cougarpaws.com",
+          "source": "shop_app",
+          "source_ref": "aafcbbfc-5fc0-498d-8360-4fd87de2412a",
+          "updated_at": "2026-07-27T18:00:00.95414+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "premiercolour.com",
+      "fetch_host": "www.premiercolour.com",
+      "provenance": [
+        {
+          "hostname": "www.premiercolour.com",
+          "source": "shop_app",
+          "source_ref": "40980690-03a3-4778-9dfe-d162bbb8d356",
+          "updated_at": "2026-08-23T20:12:00.273918+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "velocartel.cc",
+      "fetch_host": "velocartel.cc",
+      "provenance": [
+        {
+          "hostname": "velocartel.cc",
+          "source": "shop_app",
+          "source_ref": "65987d34-b8fc-4034-9502-4e5f2af75370",
+          "updated_at": "2026-08-02T13:48:00.10277+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "thesocialdawg.com",
+      "fetch_host": "thesocialdawg.com",
+      "provenance": [
+        {
+          "hostname": "thesocialdawg.com",
+          "source": "shop_app",
+          "source_ref": "65539a66-c024-4646-933d-2cb5e846b890",
+          "updated_at": "2026-09-08T04:48:00.198776+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "freshieblast.com",
+      "fetch_host": "freshieblast.com",
+      "provenance": [
+        {
+          "hostname": "freshieblast.com",
+          "source": "shop_app",
+          "source_ref": "01deadea-ed2a-4c71-a3a7-886690d17531",
+          "updated_at": "2026-07-14T00:12:00.325479+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "fr-store.ifixit.com",
+      "fetch_host": "fr-store.ifixit.com",
+      "provenance": [
+        {
+          "hostname": "fr-store.ifixit.com",
+          "source": "shop_app",
+          "source_ref": "3c6fcfa3-95c8-440f-9622-06a4331ff3fa",
+          "updated_at": "2026-08-13T20:00:01.161968+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "shoutandabout.com",
+      "fetch_host": "shoutandabout.com",
+      "provenance": [
+        {
+          "hostname": "shoutandabout.com",
+          "source": "shop_app",
+          "source_ref": "40d19f89-8117-4ba2-9ae1-66756eeca8f9",
+          "updated_at": "2026-08-15T04:12:00.269228+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "theclosetinc.com",
+      "fetch_host": "www.theclosetinc.com",
+      "provenance": [
+        {
+          "hostname": "www.theclosetinc.com",
+          "source": "shop_app",
+          "source_ref": "77402525-56d6-4f10-92ab-3819369fe18d",
+          "updated_at": "2026-07-17T01:48:00.515458+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "dc2miami.com",
+      "fetch_host": "dc2miami.com",
+      "provenance": [
+        {
+          "hostname": "dc2miami.com",
+          "source": "shop_app",
+          "source_ref": "0fae0717-30c4-4133-bfda-93893a4bc86c",
+          "updated_at": "2026-08-18T01:48:00.436963+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "amorcustomgifts.com",
+      "fetch_host": "www.amorcustomgifts.com",
+      "provenance": [
+        {
+          "hostname": "www.amorcustomgifts.com",
+          "source": "shop_app",
+          "source_ref": "d0ed2675-e7de-482e-a104-8b98b8c532b3",
+          "updated_at": "2026-07-23T20:48:00.442319+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "kpopnw.com",
+      "fetch_host": "kpopnw.com",
+      "provenance": [
+        {
+          "hostname": "kpopnw.com",
+          "source": "shop_app",
+          "source_ref": "fd2c34be-4797-4cfe-9b32-c2c7a4e0ae15",
+          "updated_at": "2026-07-11T18:48:00.254205+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "claymoreshop.com",
+      "fetch_host": "claymoreshop.com",
+      "provenance": [
+        {
+          "hostname": "claymoreshop.com",
+          "source": "shop_app",
+          "source_ref": "3155e9d6-c602-4731-a2c2-8a155fb452d6",
+          "updated_at": "2026-09-09T04:36:00.193075+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "woodtonestrings.com",
+      "fetch_host": "woodtonestrings.com",
+      "provenance": [
+        {
+          "hostname": "woodtonestrings.com",
+          "source": "shop_app",
+          "source_ref": "534bd963-afc7-488d-a03d-403f35dbadf1",
+          "updated_at": "2026-08-26T23:24:00.482726+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "1036emporium.com",
+      "fetch_host": "www.1036emporium.com",
+      "provenance": [
+        {
+          "hostname": "www.1036emporium.com",
+          "source": "shop_app",
+          "source_ref": "9eb4e6bc-4afc-400e-9f6f-e488afee51ba",
+          "updated_at": "2026-08-22T21:24:00.44894+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "memery.eu",
+      "fetch_host": "memery.eu",
+      "provenance": [
+        {
+          "hostname": "memery.eu",
+          "source": "shop_app",
+          "source_ref": "7daa72d3-6ab2-46d0-888f-a25ca2ef2f4d",
+          "updated_at": "2026-08-08T11:48:00.383873+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "macromike.com.au",
+      "fetch_host": "macromike.com.au",
+      "provenance": [
+        {
+          "hostname": "macromike.com.au",
+          "source": "shop_app",
+          "source_ref": "ed11ec71-bbd4-4a78-b70c-88b17d1189dc",
+          "updated_at": "2026-07-27T14:00:00.649237+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "mojosportsbags.com",
+      "fetch_host": "mojosportsbags.com",
+      "provenance": [
+        {
+          "hostname": "mojosportsbags.com",
+          "source": "shop_app",
+          "source_ref": "9e9b64f0-c9da-414b-ad42-61fa2ea62f3f",
+          "updated_at": "2026-07-22T15:36:00.591736+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "thekimyoung.com",
+      "fetch_host": "thekimyoung.com",
+      "provenance": [
+        {
+          "hostname": "thekimyoung.com",
+          "source": "shop_app",
+          "source_ref": "11637641-ee2c-49c5-a115-99ed4959d5bd",
+          "updated_at": "2026-07-12T17:24:00.361123+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "twistedmoonboutique.com",
+      "fetch_host": "twistedmoonboutique.com",
+      "provenance": [
+        {
+          "hostname": "twistedmoonboutique.com",
+          "source": "shop_app",
+          "source_ref": "c45c77da-ca8a-4f5d-b2df-cd5fcd3b2f45",
+          "updated_at": "2026-08-11T07:48:00.058226+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "jmrhousetohome.ie",
+      "fetch_host": "jmrhousetohome.ie",
+      "provenance": [
+        {
+          "hostname": "jmrhousetohome.ie",
+          "source": "shop_app",
+          "source_ref": "d06f4d8a-a6b5-4aa2-9d9d-de6a04bab338",
+          "updated_at": "2026-08-05T16:12:00.143361+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "highspeedgear.com",
+      "fetch_host": "www.highspeedgear.com",
+      "provenance": [
+        {
+          "hostname": "www.highspeedgear.com",
+          "source": "shop_app",
+          "source_ref": "0380fd91-c2da-44c2-9368-e64d6774b1ad",
+          "updated_at": "2026-07-15T01:12:00.41907+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "fromeastart.com",
+      "fetch_host": "fromeastart.com",
+      "provenance": [
+        {
+          "hostname": "fromeastart.com",
+          "source": "shop_app",
+          "source_ref": "9480850e-f972-4b28-8a30-b778d9df5c34",
+          "updated_at": "2026-08-25T23:00:01.301254+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "vancecustomcreations.com",
+      "fetch_host": "www.vancecustomcreations.com",
+      "provenance": [
+        {
+          "hostname": "www.vancecustomcreations.com",
+          "source": "shop_app",
+          "source_ref": "a88abe7c-0aec-4f8a-b792-6cee040386fb",
+          "updated_at": "2026-08-08T20:12:00.31674+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "profilefashion.com",
+      "fetch_host": "profilefashion.com",
+      "provenance": [
+        {
+          "hostname": "profilefashion.com",
+          "source": "shop_app",
+          "source_ref": "b62e2bca-6092-4971-80f0-44955926c239",
+          "updated_at": "2026-07-11T17:00:00.380206+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "pintrill.com",
+      "fetch_host": "www.pintrill.com",
+      "provenance": [
+        {
+          "hostname": "www.pintrill.com",
+          "source": "shop_app",
+          "source_ref": "4782184a-b79e-4d4d-8d7a-6fceea15a5d6",
+          "updated_at": "2026-08-01T15:24:00.365461+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "riverbendfairhope.com",
+      "fetch_host": "riverbendfairhope.com",
+      "provenance": [
+        {
+          "hostname": "riverbendfairhope.com",
+          "source": "shop_app",
+          "source_ref": "31a8b93c-d703-4a5e-aeea-4a7dc11478cc",
+          "updated_at": "2026-07-23T06:24:00.439856+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "thatsreallycrafty.com",
+      "fetch_host": "www.thatsreallycrafty.com",
+      "provenance": [
+        {
+          "hostname": "www.thatsreallycrafty.com",
+          "source": "shop_app",
+          "source_ref": "345752fa-50db-4455-925e-5d3d09bf3300",
+          "updated_at": "2026-09-08T14:48:00.120831+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "megafootystore.com.au",
+      "fetch_host": "megafootystore.com.au",
+      "provenance": [
+        {
+          "hostname": "megafootystore.com.au",
+          "source": "shop_app",
+          "source_ref": "eede4c7d-7a84-4d2c-a6dc-c9a540f834dc",
+          "updated_at": "2026-07-16T10:12:00.262888+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "mrz6zv-hk.myshopify.com",
+      "fetch_host": "mrz6zv-hk.myshopify.com",
+      "provenance": [
+        {
+          "hostname": "mrz6zv-hk.myshopify.com",
+          "source": "shop_app",
+          "source_ref": "6356b76c-8af6-4a06-87c3-c6f0880a48ed",
+          "updated_at": "2026-07-12T04:12:00.115828+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "cutlers.com",
+      "fetch_host": "cutlers.com",
+      "provenance": [
+        {
+          "hostname": "cutlers.com",
+          "source": "shop_app",
+          "source_ref": "7f137e98-969d-403e-8728-e6c1e2206b2d",
+          "updated_at": "2026-07-18T17:48:00.38822+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "artonwheels.co",
+      "fetch_host": "artonwheels.co",
+      "provenance": [
+        {
+          "hostname": "artonwheels.co",
+          "source": "shop_app",
+          "source_ref": "7ba9e632-f5cb-4a19-aaf4-442b5de6f4ee",
+          "updated_at": "2026-08-01T09:12:00.490315+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "shoess.ca",
+      "fetch_host": "www.shoess.ca",
+      "provenance": [
+        {
+          "hostname": "www.shoess.ca",
+          "source": "shop_app",
+          "source_ref": "5f3eba35-9747-4f22-8cd8-08f334c9ebcf",
+          "updated_at": "2026-07-11T21:24:00.434339+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "74manstore.com",
+      "fetch_host": "74manstore.com",
+      "provenance": [
+        {
+          "hostname": "74manstore.com",
+          "source": "shop_app",
+          "source_ref": "50abdf0e-edd5-496a-8fb9-74fe46aff8b1",
+          "updated_at": "2026-09-10T16:12:00.211587+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "designerrevival.com",
+      "fetch_host": "www.designerrevival.com",
+      "provenance": [
+        {
+          "hostname": "www.designerrevival.com",
+          "source": "shop_app",
+          "source_ref": "ccde08e7-dae9-4b7a-8bd7-2e307e793068",
+          "updated_at": "2026-07-24T07:48:00.230578+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "andyfrisella.com",
+      "fetch_host": "andyfrisella.com",
+      "provenance": [
+        {
+          "hostname": "andyfrisella.com",
+          "source": "shop_app",
+          "source_ref": "0a718759-b16c-40cc-8c57-06899c4223ca",
+          "updated_at": "2026-07-11T23:00:00.359595+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "headingprints.com",
+      "fetch_host": "headingprints.com",
+      "provenance": [
+        {
+          "hostname": "headingprints.com",
+          "source": "shop_app",
+          "source_ref": "73af0918-b205-4d53-8516-432c87fa6a40",
+          "updated_at": "2026-07-25T19:36:00.431239+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "byume.co",
+      "fetch_host": "byume.co",
+      "provenance": [
+        {
+          "hostname": "byume.co",
+          "source": "shop_app",
+          "source_ref": "cf0b1b11-1bce-4b35-b3d9-1a27d67b30a7",
+          "updated_at": "2026-08-26T22:48:00.227713+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "suncoastaudiodirect.com",
+      "fetch_host": "www.suncoastaudiodirect.com",
+      "provenance": [
+        {
+          "hostname": "www.suncoastaudiodirect.com",
+          "source": "shop_app",
+          "source_ref": "ea5a2ae4-d013-4880-b92b-b7922d2a9c4b",
+          "updated_at": "2026-07-19T04:36:00.523401+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "mancavehobbies.ca",
+      "fetch_host": "mancavehobbies.ca",
+      "provenance": [
+        {
+          "hostname": "mancavehobbies.ca",
+          "source": "shop_app",
+          "source_ref": "f69505a7-0237-4847-8f1f-f7a88e594784",
+          "updated_at": "2026-08-10T18:48:00.425984+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "uk.sunnylife.com",
+      "fetch_host": "uk.sunnylife.com",
+      "provenance": [
+        {
+          "hostname": "uk.sunnylife.com",
+          "source": "shop_app",
+          "source_ref": "a9d842ff-2979-42f6-81b6-d0d54883f45a",
+          "updated_at": "2026-07-11T16:36:00.545286+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "aeroliteluggage.co.uk",
+      "fetch_host": "aeroliteluggage.co.uk",
+      "provenance": [
+        {
+          "hostname": "aeroliteluggage.co.uk",
+          "source": "shop_app",
+          "source_ref": "05d6daf0-ddd3-4eae-986b-0619f5b74a5f",
+          "updated_at": "2026-08-18T01:48:00.436963+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "mysupercarexpert.com",
+      "fetch_host": "mysupercarexpert.com",
+      "provenance": [
+        {
+          "hostname": "mysupercarexpert.com",
+          "source": "shop_app",
+          "source_ref": "e528d45f-9aa9-41ff-b69f-a1427c026b8f",
+          "updated_at": "2026-08-20T07:24:00.629686+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "australian-native.com.au",
+      "fetch_host": "www.australian-native.com.au",
+      "provenance": [
+        {
+          "hostname": "www.australian-native.com.au",
+          "source": "shop_app",
+          "source_ref": "5d2007f4-b3f9-4fd4-80ed-a731c798b765",
+          "updated_at": "2026-07-21T15:30:37.929696+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "thewindopal.com",
+      "fetch_host": "thewindopal.com",
+      "provenance": [
+        {
+          "hostname": "thewindopal.com",
+          "source": "shop_app",
+          "source_ref": "e99b0df5-d2c9-47d0-8c5a-638d2d575d0c",
+          "updated_at": "2026-08-15T17:00:01.864985+00:00"
+        }
+      ]
+    },
+    {
+      "canonical": "sheartak.com",
+      "fetch_host": "www.sheartak.com",
+      "provenance": [
+        {
+          "hostname": "www.sheartak.com",
+          "source": "shop_app",
+          "source_ref": "620577bc-0473-4435-b25e-037f2471fea5",
+          "updated_at": "2026-09-09T04:24:00.694712+00:00"
+        }
+      ]
+    }
+  ]
+}

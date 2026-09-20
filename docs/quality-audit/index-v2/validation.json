@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-20",
+  "scope": "local only; no production mutations or merchant verification",
+  "backend_command": "python -X utf8 -m pytest -q",
+  "backend_passed": 427,
+  "backend_skipped_linux_only": 3,
+  "existing_deprecation_warnings": 11,
+  "backend_seconds": 5.4,
+  "shell_syntax": "bash -n scripts/validate_index_v2_image.sh passed",
+  "workflow_yaml": "parsed; contents: read; no deployment permissions or production secrets",
+  "manifests": "source hash, canonical membership, fixed limits and both manifest digests validated",
+  "benchmark_tool_smoke": {
+    "input": "20 eligible historical captured catalogs, empty legacy test fixture; not current-production benchmark",
+    "variants": ["legacy", "v2", "combined"],
+    "sql_channels_per_variant": 75,
+    "case_mode_runs_per_variant": 50,
+    "endpoint_errors": 0,
+    "pending_placements": {"legacy": 0, "v2": 3, "combined": 3},
+    "quality_claim": "none; new placements remain explicitly unadjudicated"
+  },
+  "linux_image_validation": "NOT RUN: no local Docker, Podman or WSL; prepared workflow requires publication approval",
+  "image_digest": null,
+  "production_throughput": "not measured",
+  "production_actions": []
+}

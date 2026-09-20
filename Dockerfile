@@ -30,6 +30,11 @@ FROM base AS worker
 CMD ["celery", "-A", "app.tasks.celery_app.celery", "worker", "--loglevel=info", "-Q", "default,priority", "--concurrency=2"]
 
 # ──────────────────────────────────────────────────
+# Isolated queue worker (explicit target; preserve scheduler default below).
+# No Celery, Redis or legacy application entrypoint.
+FROM base AS index-v2
+CMD ["./scripts/store_index_v2.py"]
+
 # Celery Beat scheduler target
 # ──────────────────────────────────────────────────
 FROM base AS scheduler

@@ -2,3 +2,6 @@
 config/verification-canary.json -text whitespace=cr-at-eol
 scripts/store_index_maintenance_bridge.sh text eol=lf
 scripts/store_web_maintenance.py text eol=lf
+scripts/store_index_v2.py text eol=lf
+scripts/validate_index_v2_image.sh text eol=lf
+docs/quality-audit/index-v2/*.json text eol=lf
