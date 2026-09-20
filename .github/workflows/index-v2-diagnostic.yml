@@ -1,0 +1,60 @@
+name: V2 classification diagnostic only
+on:
+  push:
+    branches: [codex/index-v2-diagnostic-2026-09-20]
+permissions:
+  contents: read
+concurrency:
+  group: storescout-v2-one-diagnostic
+  cancel-in-progress: false
+jobs:
+  diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          path: diagnostic
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ff79a84d4aa59644a6cca68c33468223a3424ddb
+          path: candidate
+          persist-credentials: false
+      - name: Build unchanged candidate and capture isolated subprocess evidence
+        env:
+          CANDIDATE_SHA: ff79a84d4aa59644a6cca68c33468223a3424ddb
+        run: |
+          set -euo pipefail
+          cd candidate
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          test -z "$(git status --porcelain)"
+          EVIDENCE="$RUNNER_TEMP/v2-diagnostic-evidence"
+          TESTDEPS="$RUNNER_TEMP/v2-diagnostic-testdeps"
+          mkdir -p "$EVIDENCE" "$TESTDEPS"
+          IMAGE="storescout-v2-diagnostic:$CANDIDATE_SHA"
+          python3 scripts/release_image_check.py inventory "$CANDIDATE_SHA" "$EVIDENCE/inventory.json"
+          docker build --platform linux/amd64 --target index-v2 --label "org.opencontainers.image.revision=$CANDIDATE_SHA" -t "$IMAGE" . 2>&1 | tee "$EVIDENCE/build.log"
+          docker image inspect "$IMAGE" > "$EVIDENCE/image.json"
+          test "$(docker image inspect "$IMAGE" --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')" = "$CANDIDATE_SHA"
+          docker run --rm --network none -e PYTHONDONTWRITEBYTECODE=1 -v "$EVIDENCE/inventory.json:/validation/inventory.json:ro" "$IMAGE" python scripts/release_image_check.py verify /validation/inventory.json > "$EVIDENCE/inventory-packages.json"
+          docker run --rm --network none "$IMAGE" python -m pip check > "$EVIDENCE/pip-check.txt"
+          docker run --rm --network none --memory 512m --memory-swap 512m -e PYTHONPATH=/app -e PYTHONDONTWRITEBYTECODE=1 -e STORE_INDEX_DEPLOYMENT_HOLD=true -v "$GITHUB_WORKSPACE/diagnostic/tests/evaluations/index_v2_child_diagnostic.py:/diagnostic/driver.py:ro" -v "$EVIDENCE:/evidence" "$IMAGE" python /diagnostic/driver.py /evidence/capture 2>&1 | tee "$EVIDENCE/diagnostic.log"
+          # Re-run the unmodified candidate suite. Retain its exit status rather
+          # than treating a successfully captured failure as an application pass.
+          docker run --rm -v "$TESTDEPS:/testdeps" "$IMAGE" python -m pip install --target /testdeps pytest==9.1.1 iniconfig==2.3.0 pluggy==1.6.0 pygments==2.21.0 packaging==26.3
+          set +e
+          docker run --rm --network none --memory 512m --memory-swap 512m -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONPATH=/testdeps:/app -v "$TESTDEPS:/testdeps:ro" "$IMAGE" python -m pytest tests -q -p no:cacheprovider > "$EVIDENCE/pytest.txt" 2>&1
+          TEST_EXIT=$?
+          set -e
+          printf '%s\n' "$TEST_EXIT" > "$EVIDENCE/pytest-exit.txt"
+          tail -n 8 "$EVIDENCE/pytest.txt"
+          test -z "$(git status --porcelain)"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: v2-diagnostic-${{ github.sha }}
+          path: ${{ runner.temp }}/v2-diagnostic-evidence/
+          retention-days: 14
+          if-no-files-found: error
