@@ -1,7 +1,7 @@
 name: Isolated V2 image validation only
 on:
   push:
-    branches: [codex/index-v2-isolated-2026-09-19]
+    branches: [codex/index-v2-supervisor-fix-2026-09-21]
   workflow_dispatch:
     inputs:
       approved_sha:

@@ -26,6 +26,7 @@ docker run --rm --network none "$IMAGE" python -m pip check > "$EVIDENCE/pip-che
 # Test tools only; never added to the release layers, no production secrets.
 docker run --rm -v "$TESTDEPS:/testdeps" "$IMAGE" python -m pip install --target /testdeps pytest==9.1.1 iniconfig==2.3.0 pluggy==1.6.0 pygments==2.21.0 packaging==26.3
 docker run --rm --network none --memory 512m --memory-swap 512m -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONPATH=/testdeps:/app -v "$TESTDEPS:/testdeps:ro" "$IMAGE" python -m pytest tests -q -p no:cacheprovider 2>&1 | tee "$EVIDENCE/pytest.txt"
+bash scripts/validate_index_v2_runtime.sh "$IMAGE" "$EVIDENCE" "$TESTDEPS"
 NAME="index-v2-disabled-${GITHUB_RUN_ID:-local}"
 cleanup() { docker logs "$NAME" > "$EVIDENCE/disabled.log" 2>&1 || true; docker rm -f "$NAME" >/dev/null 2>&1 || true; }
 trap cleanup EXIT

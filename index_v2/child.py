@@ -9,9 +9,11 @@ def limits():
     if sys.platform=='linux':
         import ctypes,resource
         # If the supervisor dies, this child must not continue making requests.
-        parent=os.getppid()
+        parent=int(os.environ.get('INDEX_V2_SUPERVISOR_PID','0'))
+        if parent<1 or os.getppid()!=parent:
+            raise RuntimeError('Expected supervisor absent')
         if ctypes.CDLL(None).prctl(1,signal.SIGKILL)!=0: raise RuntimeError('Parent-death guard unavailable')
-        if os.getppid()!=parent or parent==1: raise RuntimeError('Supervisor absent')
+        if os.getppid()!=parent: raise RuntimeError('Supervisor absent')
         resource.setrlimit(resource.RLIMIT_AS,(320*1024*1024,320*1024*1024))
         resource.setrlimit(resource.RLIMIT_CPU,(60,60))
         resource.setrlimit(resource.RLIMIT_FSIZE,(2*1024*1024,2*1024*1024))

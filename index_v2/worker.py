@@ -24,6 +24,7 @@ def assert_isolated_env(env=None):
 def child_environment():
     result={k:os.environ[k] for k in ('PATH','SYSTEMROOT','WINDIR','TEMP','TMP','LANG') if k in os.environ}
     result.update(PYTHONPATH=str(ROOT),PYTHONUNBUFFERED='1',PYTHONUTF8='1',STORE_INDEX_DEPLOYMENT_HOLD='true')
+    result['INDEX_V2_SUPERVISOR_PID']=str(os.getpid())
     return result
 
 

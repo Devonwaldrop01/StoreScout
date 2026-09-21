@@ -182,6 +182,27 @@ def test_real_classification_child_no_application_lifecycle_or_writes():
     assert result['eligible'] and calls==['renew']
 
 
+def test_expected_supervisor_identity_is_not_inherited(monkeypatch):
+    import os
+    monkeypatch.setenv('INDEX_V2_SUPERVISOR_PID','incorrect')
+    assert child_environment()['INDEX_V2_SUPERVISOR_PID']==str(os.getpid())
+
+
+def test_real_classification_persists_and_reopens(store):
+    key=store.seed(manifest());job=store.claim(key)
+    store.transition(job,'verifying');store.verified(job,catalog(),{})
+    store.test_clock[0]+=181
+    job=store.claim(key)
+    process_job(store,job)
+    reopened=Store(store.path,clock=store.clock)
+    try:
+        assert reopened.summary()['eligible']==1
+        assert reopened.summary()['classification_saved']==1
+        assert reopened.rows(eligible_only=True)[0]['category_confidence']==90
+        assert reopened.claim(key) is None
+    finally: reopened.close()
+
+
 def test_retry_after_preserves_policy():
     job={'canonical':'example.com','attempts':1}
     assert retry_time(job,'blocked',(NOW+timedelta(days=4)).isoformat(),NOW)==(NOW+timedelta(days=4)).timestamp()
