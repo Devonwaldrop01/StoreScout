@@ -13,7 +13,7 @@ from .identity import canonical
 class Transport:
     def __init__(self,host):
         self.host=host;self.deadline=time.monotonic()+75
-        self.requests=[];self.stop_state=None;self.last_request=0
+        self.requests=[];self.stop_state=None;self.last_request=0;self.protection_events=[]
     def __enter__(self): return self
     def __exit__(self,*args): pass
     def pace(self,*args): pass  # actual per-request pacing below; no Redis
@@ -54,7 +54,13 @@ class Transport:
             except Exception:
                 event['error']='transport_failure';self.stop_state='temporarily_unreachable';raise
             protection=_protection_result(response,{})
-            if protection: self.stop_state=protection['access_state']
+            if protection:
+                self.stop_state=protection['access_state']
+                from .protection import observed,journal
+                evidence=observed(parsed.path,response.status_code,event['seconds'],len(body),protection)
+                if evidence:
+                    self.protection_events.append(evidence)
+                    journal(self.protection_events)
             if 300<=response.status_code<400:
                 location=response.headers.get('location')
                 if not location: self.stop_state='ambiguous';raise ValueError('Redirect missing location')

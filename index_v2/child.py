@@ -46,6 +46,13 @@ def main():
             probe['access_state']=transport.stop_state
         result={'state':classify_probe(probe,60),'row':verified_row(payload['canonical'],probe),
                 'retry_after_at':probe.get('retry_after_at'),'requests':transport.requests}
+        result['protection_events']=transport.protection_events
+        # Optional collections protection does not erase an already readable catalog.
+        advised=[e['retry_after_at'] for e in transport.protection_events if e['retry_after_at']]
+        if result['retry_after_at']: advised.append(result['retry_after_at'])
+        if advised:
+            from datetime import datetime
+            result['retry_after_at']=max(advised,key=lambda s:datetime.fromisoformat(s))
     if sys.platform=='linux':
         import resource
         result['peak_rss_kib']=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss

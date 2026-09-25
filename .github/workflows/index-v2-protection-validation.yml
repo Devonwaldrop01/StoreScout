@@ -1,0 +1,84 @@
+name: Isolated V2 protection accounting validation
+on:
+  push:
+    branches: [codex/index-v2-protection-release-2026-09-25]
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: index-v2-protection-validation
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      BASE_IMAGE: ghcr.io/devonwaldrop01/storescout-index-v2@sha256:df6965273400b2039f5417a19b2ea13ac4987a7a7433759785c1e5e5593cf176
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Build exact source over immutable retained runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          E="$RUNNER_TEMP/timeout-evidence"
+          mkdir -p "$E" "$RUNNER_TEMP/testdeps"
+          chmod 0777 "$E"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test -z "$(git status --porcelain)"
+          docker pull "$BASE_IMAGE"
+          test "$(docker image inspect "$BASE_IMAGE" --format '{{.Id}}')" = sha256:49b8ffd2d64f6eb84f8330feb61c6cc92bad78277309aea8845a7b2cf38ba7d9
+          printf 'FROM %s\nCOPY . /app\nLABEL org.opencontainers.image.revision=%s\n' "$BASE_IMAGE" "$GITHUB_SHA" > "$RUNNER_TEMP/Dockerfile.timeout"
+          docker build --network none -f "$RUNNER_TEMP/Dockerfile.timeout" -t v2-timeout-candidate . 2>&1 | tee "$E/build.log"
+          docker image inspect v2-timeout-candidate > "$E/image.json"
+          python3 scripts/release_image_check.py inventory "$GITHUB_SHA" "$E/inventory.json"
+          docker run --rm --network none -e PYTHONDONTWRITEBYTECODE=1 -v "$E/inventory.json:/validation/inventory.json:ro" v2-timeout-candidate python scripts/release_image_check.py verify /validation/inventory.json > "$E/inventory-packages.json"
+          docker run --rm --network none v2-timeout-candidate python -m pip check > "$E/pip-check.txt"
+          docker run --rm -v "$RUNNER_TEMP/testdeps:/testdeps" v2-timeout-candidate python -m pip install --target /testdeps pytest==9.1.1 iniconfig==2.3.0 pluggy==1.6.0 pygments==2.21.0 packaging==26.3
+      - name: Entire backend and Linux suite, no network or credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm --network none --cpus .5 --memory 512m --memory-swap 512m -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONPATH=/testdeps:/app -v "$RUNNER_TEMP/testdeps:/testdeps:ro" v2-timeout-candidate python -m pytest tests -q -p no:cacheprovider 2>&1 | tee "$RUNNER_TEMP/timeout-evidence/pytest.txt"
+      - name: Isolated persistent SQLite runtime and normal restart
+        shell: bash
+        run: |
+          bash scripts/validate_index_v2_runtime.sh v2-timeout-candidate "$RUNNER_TEMP/timeout-evidence" "$RUNNER_TEMP/testdeps"
+      - name: Dedicated canary entrypoint stays disabled without opening SQLite
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --name canary-disabled --network none --memory 512m --read-only --tmpfs /tmp -e PYTHONDONTWRITEBYTECODE=1 -e INDEX_V2_ENABLED=false -e STORE_INDEX_DEPLOYMENT_HOLD=true v2-timeout-candidate ./scripts/store_index_v2_protection_canary.py
+          sleep 60
+          test "$(docker inspect canary-disabled --format '{{.State.Running}}')" = true
+          docker exec canary-disabled python -c 'from pathlib import Path; p=Path("/proc/1/cmdline").read_bytes(); assert b"store_index_v2_protection_canary.py" in p and b"sh\x00-c" not in p; assert not Path("/var/data/store-index-v2.sqlite").exists(); print(p)' > "$RUNNER_TEMP/timeout-evidence/canary-disabled-process.txt"
+          docker stop --time 10 canary-disabled
+          test "$(docker inspect canary-disabled --format '{{.State.ExitCode}}')" = 0
+          docker logs canary-disabled > "$RUNNER_TEMP/timeout-evidence/canary-disabled.log"
+          docker inspect canary-disabled > "$RUNNER_TEMP/timeout-evidence/canary-disabled.json"
+      - name: Publish only the exact fully tested image
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_USER: ${{ github.actor }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="ghcr.io/devonwaldrop01/storescout-index-v2:$GITHUB_SHA"
+          test "$(docker image inspect v2-timeout-candidate --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')" = "$GITHUB_SHA"
+          test "$(docker image inspect v2-timeout-candidate --format '{{json .Config.Entrypoint}}')" = null
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GH_USER" --password-stdin
+          docker tag v2-timeout-candidate "$DEST"
+          docker push "$DEST" | tee "$RUNNER_TEMP/timeout-evidence/publication.txt"
+          docker image inspect "$DEST" > "$RUNNER_TEMP/timeout-evidence/published-image.json"
+          docker logout ghcr.io
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: v2-protection-validation-evidence
+          path: ${{ runner.temp }}/timeout-evidence
+          retention-days: 30
+      - name: Remove isolated test container
+        if: always()
+        run: docker rm -f canary-disabled || true

@@ -17,7 +17,8 @@ class LostLease(RuntimeError): pass
 
 
 class Store:
-    def __init__(self,path, *, clock=time.time):
+    def __init__(self,path, *, clock=time.time,canary=None):
+        self.canary=canary
         self.path=Path(path); self.clock=clock
         self.db=sqlite3.connect(self.path,timeout=5,isolation_level=None)
         self.db.row_factory=sqlite3.Row
@@ -75,7 +76,40 @@ class Store:
         return row
 
     def pause(self,key,reason):
+        if self.canary:
+            from .canary import marker
+            if not self.canary_stopped(): self.event(marker(self.canary),'stopped_'+reason)
+            return
         self.db.execute('UPDATE batches SET stopped_reason=? WHERE digest=?',(reason,key))
+
+    def canary_stopped(self):
+        from .canary import stopped
+        return stopped(self)
+
+    def record_protection(self,job,events):
+        from .protection import enrich
+        with self.transaction():
+            self._owned(job)
+            data=json.loads(self.db.execute('SELECT result_json FROM store_verification_v2 WHERE attempt_id=?',(job['attempt_id'],)).fetchone()[0] or '{}')
+            records=enrich(events,job,None)
+            old=data.get('protection_events',[])
+            if records[:len(old)]!=old: raise ValueError('Protection evidence changed')
+            data['protection_events']=records
+            self.db.execute('UPDATE store_verification_v2 SET result_json=? WHERE attempt_id=?',(encoded(data),job['attempt_id']))
+            if self.canary and records: self.pause(job['batch'],'first_protection_event')
+
+    def with_protection(self,job,result,succeeded=None):
+        data=json.loads(self.db.execute('SELECT result_json FROM store_verification_v2 WHERE attempt_id=?',(job['attempt_id'],)).fetchone()[0] or '{}')
+        records=data.get('protection_events',[])
+        if records:
+            result=dict(result,protection_events=[dict(e,verification_succeeded=succeeded) for e in records])
+        return result
+
+    def hold_verified(self,job):
+        with self.transaction():
+            self._owned(job)
+            self.db.execute("UPDATE jobs_v2 SET owner=NULL,lease_until=NULL WHERE canonical=? AND state='verified'",(job['canonical'],))
+            self.event(job['attempt_id'],'verified_checkpoint_held_protection')
 
     def recover_expired_attempt(self,key,attempt):
         """Explicit paused-batch reconciliation only; never enables or claims work.
@@ -109,7 +143,16 @@ class Store:
         now=self.clock();manifest=self.manifest(key)
         with self.transaction():
             b=self.db.execute('SELECT stopped_reason FROM batches WHERE digest=?',(key,)).fetchone()
-            if b[0] or now>=datetime.fromisoformat(manifest['expires_at']).timestamp(): return None
+            if now>=datetime.fromisoformat(manifest['expires_at']).timestamp(): return None
+            selected=None
+            if self.canary:
+                if b[0]!='access_failure_rate': raise ValueError('Historical pause drift')
+                if self.db.execute('SELECT 1 FROM jobs_v2 WHERE owner IS NOT NULL').fetchone():
+                    raise ValueError('Canary ownership requires explicit review')
+                from .canary import next_domain
+                selected=next_domain(self,key)
+                if selected is None: return None
+            elif b[0]: return None
             # Expired children cannot commit: no database is accessible to them.
             # Interrupted verification is quarantined, not mislabeled completed.
             expired=self.db.execute('SELECT * FROM jobs_v2 WHERE owner IS NOT NULL AND lease_until<=?',(now,)).fetchall()
@@ -126,6 +169,9 @@ class Store:
             if count>=manifest['target_eligible']: return None
             row=self.db.execute("SELECT j.*,s.fetch_host,s.row_json FROM jobs_v2 j JOIN store_index_v2 s USING(canonical) WHERE j.batch=? AND j.owner IS NULL AND j.state IN ('pending','failed','verified') AND j.next_due<=? AND (j.state='verified' OR j.attempts<?) ORDER BY CASE WHEN j.state='verified' THEN 0 ELSE 1 END,j.attempts,j.canonical LIMIT 1",
                                 (key,now,manifest['per_domain_attempt_cap'])).fetchone()
+            if selected:
+                row=self.db.execute("SELECT j.*,s.fetch_host,s.row_json FROM jobs_v2 j JOIN store_index_v2 s USING(canonical) WHERE j.batch=? AND j.canonical=? AND j.owner IS NULL AND j.state='pending' AND j.attempts=0 AND j.next_due<=?",(key,selected,now)).fetchone()
+                if not row: raise ValueError('Selected canary job no longer unattempted')
             if not row: return None
             row=dict(row);resume=row['state']=='verified'
             if not resume:
@@ -148,7 +194,8 @@ class Store:
     def renew(self,job):
         with self.transaction():
             self._owned(job)
-            if self.db.execute('SELECT stopped_reason FROM batches WHERE digest=?',(job['batch'],)).fetchone()[0]:
+            reason=self.db.execute('SELECT stopped_reason FROM batches WHERE digest=?',(job['batch'],)).fetchone()[0]
+            if reason and not (self.canary and reason=='access_failure_rate'):
                 raise LostLease('Batch stopped')
             self.db.execute('UPDATE jobs_v2 SET lease_until=? WHERE canonical=?',(self.clock()+180,job['canonical']))
 
@@ -173,6 +220,7 @@ class Store:
             self.event(job['attempt_id'],'verified')
 
     def complete(self,job,*,row=None,eligible=False,reason=None,retry_at=None,result=None,classification_metrics=None):
+        if result is not None: result=self.with_protection(job,result,False)
         payload={'row':row,'eligible':eligible,'reason':reason,'retry_at':retry_at,'result':result,'classification_metrics':classification_metrics}
         completion=encoded({'attempt':job['attempt_id'],'owner':job['owner'],'hash':digest(payload)})
         with self.transaction():
@@ -193,11 +241,12 @@ class Store:
                 self.db.execute('UPDATE store_classification_v2 SET saved_at=?,confidence=?,eligible=?,exclusion=?,result_json=?,metrics_json=? WHERE attempt_id=?',
                                 (now,row.get('category_confidence'),int(eligible),reason,encoded(row),encoded(classification_metrics or {}),job['attempt_id']))
             self.event(job['attempt_id'],state)
-            outcomes=self.db.execute('SELECT outcome FROM store_verification_v2 WHERE batch=? AND finished_at IS NOT NULL',(job['batch'],)).fetchall()
+            outcomes=self.db.execute('SELECT outcome,result_json FROM store_verification_v2 WHERE batch=? AND finished_at IS NOT NULL',(job['batch'],)).fetchall()
             if len(outcomes)>=20:
-                blocked=sum(r[0] in ('blocked','password_protected') for r in outcomes)
+                from .protection import has_protection
+                blocked=sum(has_protection(r[0],json.loads(r[1] or '{}')) for r in outcomes)
                 temporary=sum(r[0] in ('temporarily_unreachable','interrupted_unknown','child_timeout') for r in outcomes)
-                if blocked/len(outcomes)>.30 or temporary/len(outcomes)>.25:
+                if not self.canary and (blocked/len(outcomes)>.30 or temporary/len(outcomes)>.25):
                     self.pause(job['batch'],'access_failure_rate')
             # Reuse the existing 20-attempt / >25% failure budget: six
             # timeouts in the latest 20 completions pause even during startup.

@@ -14,7 +14,7 @@ from .store import Store
 
 def main(argv=None):
     parser=argparse.ArgumentParser()
-    parser.add_argument('action',choices=['prepare','init','seed','status','metrics','export','backup','run'])
+    parser.add_argument('action',choices=['prepare','init','seed','status','metrics','export','backup','run','run-canary','arm-canary'])
     parser.add_argument('--db',default='/var/data/store-index-v2.sqlite')
     parser.add_argument('--input');parser.add_argument('--output');parser.add_argument('--batch-size',type=int,default=100)
     parser.add_argument('--target',type=int,default=1000);parser.add_argument('--expires-at')
@@ -27,7 +27,7 @@ def main(argv=None):
         with Path(args.output).open('x',encoding='utf8') as f: json.dump(manifest,f,indent=2)
         print(digest(manifest));return
     if args.action=='init': Store.initialize(args.db);return
-    if args.action=='run':
+    if args.action in ('run','run-canary'):
         from .worker import assert_isolated_env,run
         assert_isolated_env()
         stopped=False
@@ -41,12 +41,22 @@ def main(argv=None):
             return
         if sys.platform!='linux' or not os.path.ismount('/var/data') or Path(args.db).resolve().parent!=Path('/var/data'):
             raise ValueError('Production execution requires the dedicated /var/data persistent Linux mount')
-        store=Store(args.db)
+        canary=None
+        if args.action=='run-canary':
+            from .canary import load
+            canary=load()
+        store=Store(args.db,canary=canary)
         try: run(store,os.environ.get('INDEX_V2_MANIFEST_SHA256',''),lambda:stopped)
         finally: store.close()
         return
     store=Store(args.db)
     try:
+        if args.action=='arm-canary':
+            from .worker import assert_isolated_env
+            from .canary import arm,load
+            assert_isolated_env()
+            if os.environ.get('INDEX_V2_ENABLED')!='false': raise ValueError('Arm only while disabled')
+            print(json.dumps({'armed':arm(store,load())}))
         if args.action=='seed': print(store.seed(json.loads(Path(args.input).read_text(encoding='utf8'))))
         elif args.action=='status': print(json.dumps(store.summary(),indent=2))
         elif args.action=='metrics': print(json.dumps(store.metrics(),indent=2))

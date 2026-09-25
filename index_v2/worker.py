@@ -73,14 +73,26 @@ def execute_child(payload,renew,stop):
         # A regular input file avoids a blocked stdin pipe before supervision starts.
         # It contains only public catalog fields and is removed with the temp directory.
         input_path=Path(folder)/'input.json';input_path.write_bytes(raw)
+        journal_path=Path(folder)/'protection.json';last_evidence=None
+        env=child_environment();env['INDEX_V2_PROTECTION_JOURNAL']=str(journal_path)
+        def collect():
+            nonlocal last_evidence
+            if journal_path.exists():
+                if journal_path.stat().st_size>8192: raise ChildFailed('invalid_child_result')
+                from .protection import validated
+                evidence=validated(json.loads(journal_path.read_text(encoding='utf8')))
+                if evidence!=last_evidence:
+                    if hasattr(renew,'protection'): renew.protection(evidence)
+                    last_evidence=evidence
         with output.open('wb') as stream, input_path.open('rb') as input_stream:
             child=subprocess.Popen([sys.executable,'-m','index_v2.child'],stdin=input_stream,
-                stdout=stream,stderr=subprocess.DEVNULL,cwd=folder,env=child_environment(),
+                stdout=stream,stderr=subprocess.DEVNULL,cwd=folder,env=env,
                 start_new_session=(os.name=='posix'))
             failure=None
             try:
                 start=last_renew=time.monotonic()
                 while child.poll() is None:
+                    collect()
                     if stop(): raise ChildFailed('interrupted_shutdown')
                     if time.monotonic()-start>=90: raise ChildFailed('child_timeout')
                     if memory_bytes()>=400*1024*1024: raise ChildFailed('memory_ceiling')
@@ -98,6 +110,7 @@ def execute_child(payload,renew,stop):
             finally:
                 terminate(child)
                 if failure is not None: failure.termination_confirmed=True
+                collect()
         renew()
         if output.stat().st_size>2*1024*1024: raise ChildFailed('invalid_child_result')
         try:
@@ -112,12 +125,15 @@ def process_job(store,job,executor=execute_child,stop=lambda:False):
     from .compute import retry_time
     from app.services.discovery_quality import is_recent_verified,is_classification_usable
     renew=lambda:store.renew(job)
+    renew.protection=lambda events:store.record_protection(job,events)
     stage='verify'
     try:
         if job['state']=='verified': row=json.loads(job['row_json'])
         else:
             store.transition(job,'verifying')
             result=executor({'stage':'verify','canonical':job['canonical'],'fetch_host':job['fetch_host']},renew,stop)
+            if result.get('protection_events'): store.record_protection(job,result['protection_events'])
+            result=store.with_protection(job,result,result.get('state')=='verified_shopify')
             row=result.get('row')
             if result.get('state')!='verified_shopify':
                 state=result.get('state') or 'temporarily_unreachable'
@@ -126,6 +142,9 @@ def process_job(store,job,executor=execute_child,stop=lambda:False):
             if not row or row.get('domain')!=job['canonical'] or not is_recent_verified(row):
                 raise ChildFailed('invalid_child_result')
             store.verified(job,row,result)
+            if store.canary_stopped():
+                store.hold_verified(job)
+                return
         stage='classify'
         store.transition(job,'classifying')
         result=executor({'stage':'classify','row':row},renew,stop)
@@ -167,7 +186,10 @@ def run(store,batch,stop):
             store.pause(batch,'memory_ceiling');return
         if shutil.disk_usage(store.path.parent).free<512*1024*1024:
             store.pause(batch,'disk_headroom');return
-        job=store.claim(batch)
+        try: job=store.claim(batch)
+        except ValueError:
+            if not store.canary: raise
+            store.pause(batch,'canary_accounting_review_required');return
         if job:
             process_job(store,job,stop=stop)
             print(json.dumps(store.summary()),flush=True)
