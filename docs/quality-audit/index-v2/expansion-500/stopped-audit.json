@@ -1,0 +1,199 @@
+{
+  "status": "STOPPED_INCOMPLETE",
+  "batch": "53a05af3f1551a12a79ade3768e011cd559e5857b847a0e4782efa54d3696c37",
+  "source_sha": "f2ae2e8ebdba902eead2aa376e845da530259c4e",
+  "matching_sha": "34b550436ca8a4bf670e17123dcdd26d03ede750",
+  "registry_digest": "sha256:9c88545592aebe38db653c4d9ffd0cad02dda767fce5e06872096d42d676f385",
+  "imported": 500,
+  "attempted": 9,
+  "completed_first_pass": 8,
+  "unattempted": 491,
+  "retries": 0,
+  "verified_readable": 7,
+  "temporarily_unreachable": 1,
+  "timeout_unknown": 1,
+  "blocked_recorded": 0,
+  "unavailable_recorded": 0,
+  "unreadable_recorded": 0,
+  "ambiguous_recorded": 0,
+  "other_recorded": 0,
+  "classification_attempted": 7,
+  "classification_saved": 7,
+  "eligible_added": 4,
+  "below_threshold": 3,
+  "eligible_fraction_of_attempted_partial": 0.4444444444444444,
+  "eligible_fraction_of_imported_not_final_yield": 0.008,
+  "final_500_domain_yield": null,
+  "confidence": {
+    "values": [
+      0.0,
+      41.0,
+      54.0,
+      55.0,
+      90.0,
+      90.0,
+      100.0
+    ],
+    "mean": 61.42857142857143,
+    "median": 55.0,
+    "bins": {
+      "0": 1,
+      "1-54": 2,
+      "55-69": 1,
+      "70-84": 0,
+      "85-100": 3
+    }
+  },
+  "recorded_requests": 30,
+  "unknown_attempt_request_reservation": 8,
+  "possible_total_requests_interval": [
+    30,
+    38
+  ],
+  "total_reserved_requests": 72,
+  "requests_per_verified_interval": [
+    4.285714285714286,
+    5.428571428571429
+  ],
+  "unknown_accounting_retained": true,
+  "budgets_refunded": false,
+  "first_attempt_at": "2026-09-25T03:21:20.973978+00:00",
+  "timeout_at": "2026-09-25T03:24:49.530624+00:00",
+  "disabled_log_at": "2026-09-25T03:25:36.537145497Z",
+  "execution_seconds_to_stop": 208.5566463470459,
+  "enabled_seconds_through_disabled_log": 255.5631673336029,
+  "completed_domains_per_hour_until_stop": 138.09197886734208,
+  "throughput_caution": "Interrupted 8-completion sample; not a completed-batch capacity estimate.",
+  "observed_memory_peak_bytes": 138526720,
+  "memory_peak_limit": "Recorded pre-restart cgroup peak; final old-cgroup peak unavailable after restart.",
+  "sampled_cpu_peak_cores": 0.35697743,
+  "sampled_cpu_mean_cores": 0.320854415,
+  "cpu_samples": 2,
+  "observed_cpu_seconds_before_restart": 53.413067,
+  "oom_events_observed": 0,
+  "unexpected_process_restarts": 1,
+  "duplicate_jobs": 0,
+  "stale_completion_events": 0,
+  "unresolved_lease_rows": 1,
+  "lease_expiry_at": "2026-09-25T03:27:39.730599+00:00",
+  "lease_note": "Retained verifying/owner row for the terminated attempt; batch pause prevents reclaim. No lease or budget reset performed.",
+  "final_disabled_at": "2026-09-25T03:31:12.153429+00:00",
+  "final_instance": "srv-dap3qh2jnfac73aedmr0-7876966d55-btkl5",
+  "final_expired_owner_rows": 1,
+  "pilot_rows_preserved_exactly": {
+    "batches": 1,
+    "store_index_v2": 100,
+    "provenance_v2": 100,
+    "jobs_v2": 100,
+    "store_verification_v2": 102,
+    "store_classification_v2": 96,
+    "events_v2": 498
+  },
+  "disk": {
+    "pilot_snapshot_bytes": 2326528,
+    "stopped_snapshot_bytes": 3211264,
+    "logical_snapshot_growth_bytes": 884736,
+    "max_observed_live_file_bytes": 9683035,
+    "live_file_caution": "Includes pre-expansion backup, manifests, main DB, WAL/SHM; do not equate with pure catalog growth."
+  },
+  "total_v2_eligible": 58,
+  "legacy_eligible": 34,
+  "combined_eligible_partial": 92,
+  "benchmark_run": false,
+  "expanded_ceiling": null,
+  "decision_ABC": null,
+  "recommendation": "Resolve the bounded verification child timeout and its unaccounted attempt offline before requesting recovery/resume. No evidence supports an A/B/C expansion decision from nine attempted domains.",
+  "events": {
+    "claimed": 9,
+    "classifying": 7,
+    "eligible": 4,
+    "failed": 1,
+    "ineligible": 3,
+    "supervisor_stopped_child_timeout": 1,
+    "verified": 7,
+    "verifying": 9
+  },
+  "per_attempt": [
+    {
+      "canonical": "105mulberrysquare.com",
+      "started_at": "2026-09-25T03:21:20.973978+00:00",
+      "finished_at": "2026-09-25T03:21:26.040450+00:00",
+      "outcome": "verified",
+      "reserved_requests": 8,
+      "recorded_requests": 4
+    },
+    {
+      "canonical": "11bravos.com",
+      "started_at": "2026-09-25T03:21:31.097609+00:00",
+      "finished_at": "2026-09-25T03:21:35.935827+00:00",
+      "outcome": "verified",
+      "reserved_requests": 8,
+      "recorded_requests": 4
+    },
+    {
+      "canonical": "12ozboxing.com",
+      "started_at": "2026-09-25T03:21:41.951702+00:00",
+      "finished_at": "2026-09-25T03:21:42.766623+00:00",
+      "outcome": "temporarily_unreachable",
+      "reserved_requests": 8,
+      "recorded_requests": 1
+    },
+    {
+      "canonical": "13e17c-2d.myshopify.com",
+      "started_at": "2026-09-25T03:21:52.792847+00:00",
+      "finished_at": "2026-09-25T03:21:57.533324+00:00",
+      "outcome": "verified",
+      "reserved_requests": 8,
+      "recorded_requests": 4
+    },
+    {
+      "canonical": "21overlays.com.au",
+      "started_at": "2026-09-25T03:22:03.551858+00:00",
+      "finished_at": "2026-09-25T03:22:47.967434+00:00",
+      "outcome": "verified",
+      "reserved_requests": 8,
+      "recorded_requests": 4
+    },
+    {
+      "canonical": "24timmardeals.se",
+      "started_at": "2026-09-25T03:22:47.971737+00:00",
+      "finished_at": "2026-09-25T03:22:54.651517+00:00",
+      "outcome": "verified",
+      "reserved_requests": 8,
+      "recorded_requests": 5
+    },
+    {
+      "canonical": "3dragons.ca",
+      "started_at": "2026-09-25T03:22:58.662795+00:00",
+      "finished_at": "2026-09-25T03:23:03.033859+00:00",
+      "outcome": "verified",
+      "reserved_requests": 8,
+      "recorded_requests": 4
+    },
+    {
+      "canonical": "3toeoutdoors.com",
+      "started_at": "2026-09-25T03:23:09.050490+00:00",
+      "finished_at": "2026-09-25T03:23:13.433558+00:00",
+      "outcome": "verified",
+      "reserved_requests": 8,
+      "recorded_requests": 4
+    },
+    {
+      "canonical": "5to9vibe.com",
+      "started_at": "2026-09-25T03:23:19.450430+00:00",
+      "finished_at": null,
+      "outcome": null,
+      "reserved_requests": 8,
+      "recorded_requests": null
+    }
+  ],
+  "hashes": {
+    "outputs/index-v2-pilot-100/pilot-results-20260922.sqlite": "6c5b00b34188892f87cba9a6a7b6ede520c4d237d547f14264236e10538c5a26",
+    "outputs/index-v2-expansion-500/expansion-stopped-20260925.sqlite": "f1cbc18c960532f2a9e9186613bbe3192175dd38fbcda685906ab5ad3f3a28f9",
+    "docs/quality-audit/index-v2/expansion-500/manifest-500.json": "0da48df0a394a6a520947c14ae02d3c4510841da501874d8fd4d0ea1d4f325db",
+    "outputs/index-v2-expansion-500/render-runtime-logs.json": "d4f341820626d84b374031760a55e8481f8f846353785b360800f10ac249b142",
+    "outputs/index-v2-expansion-500/render-metrics.json": "2e11a900e89d1bddf983488dfc3221dba5c952b5cdf357cc69a6cd162cc003e9",
+    "outputs/index-v2-expansion-500/monitor.jsonl": "84c209ac1cbaab33e54dfe5a5f8b3b8e3ab0d3c1aaf35a090b52e3778d5bf64e",
+    "outputs/index-v2-expansion-500/final-disabled.json": "d0c6d312b0d631150ccae87d77c4e610261d1a67eed2cd5df5fad0169ae63125"
+  }
+}
