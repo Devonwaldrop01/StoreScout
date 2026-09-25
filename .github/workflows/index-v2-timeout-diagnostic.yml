@@ -1,0 +1,40 @@
+name: Isolated V2 timeout diagnosis
+on:
+  push:
+    branches: [codex/index-v2-timeout-diagnosis-2026-09-25]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: index-v2-timeout-diagnostic
+  cancel-in-progress: false
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      IMAGE: ghcr.io/devonwaldrop01/storescout-index-v2@sha256:9c88545592aebe38db653c4d9ffd0cad02dda767fce5e06872096d42d676f385
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Inspect exact retained image and run one bounded public-store diagnostic
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/timeout-evidence"
+          docker pull "$IMAGE"
+          docker image inspect "$IMAGE" > "$RUNNER_TEMP/timeout-evidence/image.json"
+          test "$(docker image inspect "$IMAGE" --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')" = f2ae2e8ebdba902eead2aa376e845da530259c4e
+          test "$(docker image inspect "$IMAGE" --format '{{.Id}}')" = sha256:5d64ab78d3f73a96978f4cd2910c306247aec1382e40e676d33418b4b1232a38
+          timeout 110s docker run --name timeout-diagnosis --cpus .5 --memory 512m --memory-swap 512m --pids-limit 32 --cap-drop ALL --security-opt no-new-privileges --read-only --tmpfs /tmp:rw,noexec,nosuid,size=32m -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONPATH=/app -e STORE_INDEX_DEPLOYMENT_HOLD=true -v "$PWD/tests/evaluations/index_v2_timeout_diagnostic.py:/diagnostic.py:ro" -v "$RUNNER_TEMP/timeout-evidence:/evidence" "$IMAGE" python /diagnostic.py /evidence/real 2>&1 | tee "$RUNNER_TEMP/timeout-evidence/supervisor.log"
+          docker inspect timeout-diagnosis > "$RUNNER_TEMP/timeout-evidence/container.json"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: v2-timeout-diagnosis
+          path: ${{ runner.temp }}/timeout-evidence
+          retention-days: 14
+      - name: Cleanup isolated diagnostic
+        if: always()
+        run: docker rm -f timeout-diagnosis || true
