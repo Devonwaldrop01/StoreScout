@@ -1,0 +1,117 @@
+{
+  "source_commit": "8bdc0ef6881107c713a28e1d6f6e3ab1f1056e4f",
+  "stores": 88,
+  "queries": 25,
+  "matrix_pairs": 2200,
+  "matrix_labels": {
+    "adjacent": 173,
+    "irrelevant": 2005,
+    "useful": 22
+  },
+  "preserved_judgment_pairs": 94,
+  "useful_query_store_pairs": 22,
+  "availability_distribution": {
+    "0": {
+      "queries": 13,
+      "percent": 52
+    },
+    "1": {
+      "queries": 5,
+      "percent": 20
+    },
+    "2": {
+      "queries": 6,
+      "percent": 24
+    }
+  },
+  "availability_3plus": {
+    "queries": 1,
+    "percent": 4
+  },
+  "perfect_supply_ceiling": {
+    "p5": 0.176,
+    "p10": 0.088,
+    "searches_three_useful_top5": 1,
+    "current_top8_cap_p10_ceiling": 0.088
+  },
+  "missing_useful_slots_to_three": 55,
+  "known_references": {
+    "relationships": 50,
+    "present": 2,
+    "absent": 48,
+    "recall_ceiling": 0.04
+  },
+  "misses_by_mode": {
+    "description_only": {
+      "tied_or_near_tied_with_nonuseful": 3,
+      "filtered": 1
+    },
+    "structured_profile": {
+      "survived_scored_too_low": 3,
+      "filtered": 1
+    }
+  },
+  "classification_concern_stores": 25,
+  "classification_attributable_useful_misses": 0,
+  "classification_concern_useful_pairs": 0,
+  "sql_membership_assertions_passed": 132,
+  "pilot_expansion_estimate": {
+    "domains": 500,
+    "point_eligible": 270,
+    "wilson95_yield": [
+      0.44264685393523856,
+      0.6343935614666815
+    ],
+    "yield_interval_times_500": [
+      221.32342696761927,
+      317.19678073334074
+    ],
+    "caution": "Sampling-only uncertainty; prior pilot may not represent next batch. Not a guarantee or a prediction of useful benchmark competitors."
+  },
+  "decision": "B — bounded 500-domain expansion, separate approval required; no execution",
+  "current": {
+    "description_only": {
+      "useful_top5": 18,
+      "useful_top10": 19,
+      "p5": 0.144,
+      "p10": 0.076,
+      "perfect_ranking_existing_survivors_p5": 0.168,
+      "queries_useful_survivors_6_20": [
+        "quince"
+      ]
+    },
+    "structured_profile": {
+      "useful_top5": 18,
+      "useful_top10": 20,
+      "p5": 0.144,
+      "p10": 0.08,
+      "perfect_ranking_existing_survivors_p5": 0.168,
+      "queries_useful_survivors_6_20": [
+        "quince"
+      ]
+    }
+  },
+  "sensitivity_new_partial_labels_downgraded": {
+    "p5": 0.16,
+    "p10": 0.08,
+    "three_useful_queries": 1
+  },
+  "input_sha256": {
+    "outputs/discovery-quality-fixed-supply/combined.json": "a18ff357527983ad7586cbfbd2eec13191185f1d54907fd4389413b192bcc787",
+    "outputs/discovery-quality-fixed-supply/legacy.json": "b42a4d587f39eaf87d4673ccb56b2a13f4f6be6f31401c9e0238b4ec6c92c2e6",
+    "outputs/discovery-quality-fixed-supply/v2.json": "759996a8359e336e18c9d905dd38c965d266b094e6e5f1f03690f2f731af1c51",
+    "outputs/discovery-quality-fixed-supply/clock.json": "03a9c53c52a29ba93868ded98575466229bb85a2dd47e80b39c4f31a75b1614c",
+    "outputs/discovery-quality-fixed-supply/combined/evidence/replay-results.json": "3b606d07d0b6cc67b3120dfdec10f265a6571cfa976791826f219729e8c9a903",
+    "outputs/index-v2-pilot-100/pilot-results-20260922.sqlite": "6c5b00b34188892f87cba9a6a7b6ede520c4d237d547f14264236e10538c5a26",
+    "docs/quality-audit/real-world/evidence/relevance-labels.json": "ebdd9a0182633954ea978c627f943880215c5a73b158e902aad4f6d3039a5662",
+    "docs/quality-audit/index-growth/frozen/relevance-labels.json": "9d62cfcbf8ac1e9db41cb516b70c676c30d363af5ea096c113a51f2fcad2666d",
+    "docs/quality-audit/index-growth/controlled/relevance-labels.json": "9eb414564d9da126f9a1fb23cb754a14ca3a467c735c028bf199053cd13566ef",
+    "docs/quality-audit/index-growth/new-judgments.json": "856cabe4422687d4a7ce2bb0088705ac43915e144007b06dd6337246d22220a5",
+    "outputs/index-v2-pilot-100/benchmark/new-judgments.json": "3ebba9edf4a90914207cdc1e89b4d7642e4c2d1cc9394bf92a7ad36afd0871c0",
+    "outputs/discovery-quality-fixed-supply/new-judgments.json": "d6ba162205a447ad3b7be179aff29f4e924c1e6c47336f6cde71fec5e6971667",
+    "docs/quality-audit/discovery-quality/eligible-store-audit.json": "e8c0cbe02e84357766067c1987e8fbbc7052dedd502311c9eb0cc9783e568a5d",
+    "app/services/product_intent.py": "eb9cfcb7374501f98c89eac9ce85d148322525894c0502953b8e58a88bb9b948",
+    "app/services/discovery_quality.py": "18854fe52a8ea53c29a77817e218914bd73d680aac3d8cd7ab2e23ba46efccc2",
+    "app/api/v1/competitors.py": "e4b52e02903c5c760d64ed2120ee28bed07b7f74c72246216ae9af43938723b7"
+  }
+}

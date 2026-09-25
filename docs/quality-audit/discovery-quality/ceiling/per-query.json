@@ -1,0 +1,864 @@
+[
+  {
+    "case_id": "durstongear",
+    "business": "Durston",
+    "query": "We sell ultralight backpacking tents and packs for long-distance hikers.",
+    "useful_count": 0,
+    "useful_domains": [],
+    "adjacent_count": 6,
+    "modes": {
+      "description_only": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 6,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 6,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "zpacks",
+    "business": "Zpacks",
+    "query": "We sell ultralight two-person backpacking tents.",
+    "useful_count": 0,
+    "useful_domains": [],
+    "adjacent_count": 6,
+    "modes": {
+      "description_only": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 6,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 6,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "gossamergear",
+    "business": "Gossamer Gear",
+    "query": "We sell lightweight hiking backpacks and shelters.",
+    "useful_count": 0,
+    "useful_domains": [],
+    "adjacent_count": 6,
+    "modes": {
+      "description_only": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 7,
+        "survivor_count": 1,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 7,
+        "survivor_count": 1,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "iliabeauty",
+    "business": "ILIA",
+    "query": "We sell light-coverage skin tint with mineral SPF for adults.",
+    "useful_count": 2,
+    "useful_domains": [
+      "peachandlily.com",
+      "tower28beauty.com"
+    ],
+    "adjacent_count": 4,
+    "modes": {
+      "description_only": {
+        "useful_top5": 2,
+        "useful_top10": 2,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 12,
+        "survivor_count": 3,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 2,
+        "useful_top10": 2,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 12,
+        "survivor_count": 3,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "tower28beauty",
+    "business": "Tower 28",
+    "query": "We sell tinted sunscreen and everyday complexion makeup.",
+    "useful_count": 1,
+    "useful_domains": [
+      "peachandlily.com"
+    ],
+    "adjacent_count": 4,
+    "modes": {
+      "description_only": {
+        "useful_top5": 1,
+        "useful_top10": 1,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 20,
+        "survivor_count": 3,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 1,
+        "useful_top10": 1,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 20,
+        "survivor_count": 3,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "saiehello",
+    "business": "Saie",
+    "query": "We sell tinted moisturizer with SPF and everyday makeup.",
+    "useful_count": 2,
+    "useful_domains": [
+      "peachandlily.com",
+      "tower28beauty.com"
+    ],
+    "adjacent_count": 4,
+    "modes": {
+      "description_only": {
+        "useful_top5": 2,
+        "useful_top10": 2,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 20,
+        "survivor_count": 3,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 2,
+        "useful_top10": 2,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 20,
+        "survivor_count": 3,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "pipettebaby",
+    "business": "Pipette",
+    "query": "We sell fragrance-free baby lotion for sensitive skin.",
+    "useful_count": 0,
+    "useful_domains": [],
+    "adjacent_count": 7,
+    "modes": {
+      "description_only": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 23,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 23,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "tubbytodd",
+    "business": "Tubby Todd",
+    "query": "We sell fragrance-free ointment and skin care for babies.",
+    "useful_count": 0,
+    "useful_domains": [],
+    "adjacent_count": 8,
+    "modes": {
+      "description_only": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 17,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 17,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "babobotanicals",
+    "business": "Babo Botanicals",
+    "query": "We sell fragrance-free sensitive baby skin care.",
+    "useful_count": 0,
+    "useful_domains": [],
+    "adjacent_count": 7,
+    "modes": {
+      "description_only": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 29,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 29,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "onyxcoffeelab",
+    "business": "Onyx Coffee Lab",
+    "query": "We roast specialty coffee for home brewers and sell subscriptions.",
+    "useful_count": 1,
+    "useful_domains": [
+      "madcapcoffee.com"
+    ],
+    "adjacent_count": 2,
+    "modes": {
+      "description_only": {
+        "useful_top5": 1,
+        "useful_top10": 1,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 11,
+        "survivor_count": 1,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 1,
+        "useful_top10": 1,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 11,
+        "survivor_count": 1,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "counterculturecoffee",
+    "business": "Counter Culture",
+    "query": "We sell specialty coffee beans and recurring home deliveries.",
+    "useful_count": 1,
+    "useful_domains": [
+      "madcapcoffee.com"
+    ],
+    "adjacent_count": 2,
+    "modes": {
+      "description_only": {
+        "useful_top5": 1,
+        "useful_top10": 1,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 11,
+        "survivor_count": 1,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 1,
+        "useful_top10": 1,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 11,
+        "survivor_count": 1,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "vervecoffee",
+    "business": "Verve",
+    "query": "We sell freshly roasted specialty coffee and subscriptions.",
+    "useful_count": 1,
+    "useful_domains": [
+      "madcapcoffee.com"
+    ],
+    "adjacent_count": 2,
+    "modes": {
+      "description_only": {
+        "useful_top5": 1,
+        "useful_top10": 1,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 11,
+        "survivor_count": 1,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 1,
+        "useful_top10": 1,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 11,
+        "survivor_count": 1,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "littlesleepies",
+    "business": "Little Sleepies",
+    "query": "We sell bamboo pajamas for babies and matching families.",
+    "useful_count": 0,
+    "useful_domains": [],
+    "adjacent_count": 7,
+    "modes": {
+      "description_only": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 7,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 7,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "kytebaby",
+    "business": "Kyte Baby",
+    "query": "We sell bamboo baby sleep bags and sleepwear.",
+    "useful_count": 0,
+    "useful_domains": [],
+    "adjacent_count": 7,
+    "modes": {
+      "description_only": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 29,
+        "survivor_count": 1,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 29,
+        "survivor_count": 1,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "birdiebean",
+    "business": "Birdie Bean",
+    "query": "We sell printed bamboo pajamas and clothing for children.",
+    "useful_count": 0,
+    "useful_domains": [],
+    "adjacent_count": 7,
+    "modes": {
+      "description_only": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 39,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 39,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "purebites",
+    "business": "PureBites",
+    "query": "We sell freeze-dried single-protein dog treats.",
+    "useful_count": 2,
+    "useful_domains": [
+      "fetchyourpetneeds.ie",
+      "redbarn.com"
+    ],
+    "adjacent_count": 4,
+    "modes": {
+      "description_only": {
+        "useful_top5": 2,
+        "useful_top10": 2,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 12,
+        "survivor_count": 4,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 2,
+        "useful_top10": 2,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 12,
+        "survivor_count": 4,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "stewartpet",
+    "business": "Stewart",
+    "query": "We sell freeze-dried raw dog treats and toppers.",
+    "useful_count": 2,
+    "useful_domains": [
+      "fetchyourpetneeds.ie",
+      "redbarn.com"
+    ],
+    "adjacent_count": 4,
+    "modes": {
+      "description_only": {
+        "useful_top5": 2,
+        "useful_top10": 2,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 13,
+        "survivor_count": 4,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 2,
+        "useful_top10": 2,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 13,
+        "survivor_count": 4,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "stellaandchewys",
+    "business": "Stella & Chewy's",
+    "query": "We sell freeze-dried raw training treats for dogs.",
+    "useful_count": 2,
+    "useful_domains": [
+      "fetchyourpetneeds.ie",
+      "redbarn.com"
+    ],
+    "adjacent_count": 4,
+    "modes": {
+      "description_only": {
+        "useful_top5": 2,
+        "useful_top10": 2,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 13,
+        "survivor_count": 4,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 2,
+        "useful_top10": 2,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 13,
+        "survivor_count": 4,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "quince",
+    "business": "Quince",
+    "query": "We sell affordable clothing, home essentials, bedding, bags and jewelry.",
+    "useful_count": 5,
+    "useful_domains": [
+      "arlingtontx.clothesmentor.com",
+      "shoppandcboutique.com",
+      "shopworthandgray.com",
+      "thezerano.com",
+      "wilkinsandolander.com"
+    ],
+    "adjacent_count": 59,
+    "modes": {
+      "description_only": {
+        "useful_top5": 1,
+        "useful_top10": 2,
+        "never_candidate": [],
+        "not_returned": [
+          "shoppandcboutique.com",
+          "shopworthandgray.com",
+          "wilkinsandolander.com"
+        ],
+        "returned_below5": [
+          "arlingtontx.clothesmentor.com"
+        ],
+        "all_survivor_useful_below5": [
+          "arlingtontx.clothesmentor.com",
+          "shoppandcboutique.com",
+          "wilkinsandolander.com"
+        ],
+        "candidate_count": 38,
+        "survivor_count": 15,
+        "useful_survivor_6_20": [
+          "arlingtontx.clothesmentor.com",
+          "shoppandcboutique.com",
+          "wilkinsandolander.com"
+        ]
+      },
+      "structured_profile": {
+        "useful_top5": 1,
+        "useful_top10": 3,
+        "never_candidate": [],
+        "not_returned": [
+          "shoppandcboutique.com",
+          "shopworthandgray.com"
+        ],
+        "returned_below5": [
+          "arlingtontx.clothesmentor.com",
+          "wilkinsandolander.com"
+        ],
+        "all_survivor_useful_below5": [
+          "arlingtontx.clothesmentor.com",
+          "shoppandcboutique.com",
+          "wilkinsandolander.com"
+        ],
+        "candidate_count": 38,
+        "survivor_count": 20,
+        "useful_survivor_6_20": [
+          "arlingtontx.clothesmentor.com",
+          "wilkinsandolander.com",
+          "shoppandcboutique.com"
+        ]
+      }
+    }
+  },
+  {
+    "case_id": "brooklinen",
+    "business": "Brooklinen",
+    "query": "We sell bedding, sheets and comforters directly to consumers.",
+    "useful_count": 1,
+    "useful_domains": [
+      "amorcustomgifts.com"
+    ],
+    "adjacent_count": 6,
+    "modes": {
+      "description_only": {
+        "useful_top5": 1,
+        "useful_top10": 1,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 13,
+        "survivor_count": 1,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 1,
+        "useful_top10": 1,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 13,
+        "survivor_count": 1,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "parachutehome",
+    "business": "Parachute",
+    "query": "We sell linen bedding and bath linens for the home.",
+    "useful_count": 0,
+    "useful_domains": [],
+    "adjacent_count": 7,
+    "modes": {
+      "description_only": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 12,
+        "survivor_count": 1,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 12,
+        "survivor_count": 1,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "keychron",
+    "business": "Keychron",
+    "query": "We sell customizable mechanical keyboards for Mac and Windows.",
+    "useful_count": 0,
+    "useful_domains": [],
+    "adjacent_count": 2,
+    "modes": {
+      "description_only": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 7,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 7,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "nuphy",
+    "business": "NuPhy",
+    "query": "We sell low-profile wireless mechanical keyboards.",
+    "useful_count": 0,
+    "useful_domains": [],
+    "adjacent_count": 2,
+    "modes": {
+      "description_only": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 6,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 6,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "epomaker",
+    "business": "EPOMAKER",
+    "query": "We sell mechanical keyboards including low-profile models.",
+    "useful_count": 0,
+    "useful_domains": [],
+    "adjacent_count": 2,
+    "modes": {
+      "description_only": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 9,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 0,
+        "useful_top10": 0,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 9,
+        "survivor_count": 0,
+        "useful_survivor_6_20": []
+      }
+    }
+  },
+  {
+    "case_id": "colourpop",
+    "business": "ColourPop",
+    "query": "We sell affordable eye palettes, lip products and face makeup.",
+    "useful_count": 2,
+    "useful_domains": [
+      "peachandlily.com",
+      "tower28beauty.com"
+    ],
+    "adjacent_count": 4,
+    "modes": {
+      "description_only": {
+        "useful_top5": 2,
+        "useful_top10": 2,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 17,
+        "survivor_count": 3,
+        "useful_survivor_6_20": []
+      },
+      "structured_profile": {
+        "useful_top5": 2,
+        "useful_top10": 2,
+        "never_candidate": [],
+        "not_returned": [],
+        "returned_below5": [],
+        "all_survivor_useful_below5": [],
+        "candidate_count": 17,
+        "survivor_count": 3,
+        "useful_survivor_6_20": []
+      }
+    }
+  }
+]

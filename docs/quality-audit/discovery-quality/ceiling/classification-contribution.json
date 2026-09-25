@@ -1,0 +1,202 @@
+[
+  {
+    "domain": "74manstore.com",
+    "concern": "subcategory_mismatch",
+    "rationale": "Womenswear contradicts explicit men's mercantile and Western shirts.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "andyfrisella.com",
+    "concern": "mixed_or_overbroad",
+    "rationale": "Tees are real, but Fashion omits the creator-merchandise business model.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "aprasi.com",
+    "concern": "mixed_or_overbroad",
+    "rationale": "Toys exists; Kids & Baby implies an audience not established by anime/gaming collectibles.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "claymoreshop.com",
+    "concern": "subcategory_mismatch",
+    "rationale": "Womenswear not supported by captured tailored menswear-style assortment; gender should stay unknown without explicit evidence.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "cougarpaws.com",
+    "concern": "mixed_or_overbroad",
+    "rationale": "Footwear supported, Fashion omits explicit professional roofing use.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "dc2miami.com",
+    "concern": "subcategory_mismatch",
+    "rationale": "Womenswear directly contradicts explicit men's swimwear description.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "electricpedalpower.com.au",
+    "concern": "mixed_or_overbroad",
+    "rationale": "Parts supported; Automotive is too broad to establish car-parts competitors.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "highspeedgear.com",
+    "concern": "mixed_or_overbroad",
+    "rationale": "Pet accessories exist but majority captured titles are holsters/pouches/duty equipment.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "jmrhousetohome.ie",
+    "concern": "mixed_or_overbroad",
+    "rationale": "Home category broad; captured titles dominated by tiles, detached Bedding type not representative evidence.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "kpopnw.com",
+    "concern": "primary_mismatch",
+    "rationale": "Kids Apparel conflicts with albums/lightsticks/photocards; artist names containing Kids are not an audience.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "meadow-nest.com",
+    "concern": "primary_mismatch",
+    "rationale": "Beauty/Cosmetics misreads storage bags; captured poultry products and bag accessories are not makeup.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "megafootystore.com.au",
+    "concern": "subcategory_mismatch",
+    "rationale": "Womenswear overstates mixed men's/youth/team products.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "merino.tech",
+    "concern": "mixed_or_overbroad",
+    "rationale": "Kids Apparel exists but adult thermal sets/shirts dominate captured titles.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "pintrill.com",
+    "concern": "mixed_or_overbroad",
+    "rationale": "Phone accessories exist; primary Tech/Phone Cases masks collectible-accessory composition.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "riverbendfairhope.com",
+    "concern": "subcategory_mismatch",
+    "rationale": "Womenswear contradicts explicit Men and Boys description.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "shopcasinoquest.com",
+    "concern": "mixed_or_overbroad",
+    "rationale": "Apparel exists, but gaming tools/chips/sliders dominate sample.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "shoutandabout.com",
+    "concern": "mixed_or_overbroad",
+    "rationale": "Streetwear is one segment; Lotion and baby gifts do not imply baby lotion.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "theclosetinc.com",
+    "concern": "subcategory_mismatch",
+    "rationale": "Womenswear fails to summarize men's footwear/team apparel in captured sample.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "thesocialdawg.com",
+    "concern": "mixed_or_overbroad",
+    "rationale": "Pet Accessories real, but treats are a major captured segment; freeze-dried/raw not established.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "thewindopal.com",
+    "concern": "subcategory_mismatch",
+    "rationale": "Fashion Jewelry understates explicit 14K-gold/diamond gemstone product evidence.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "tuttifruttikidsco.com",
+    "concern": "subcategory_mismatch",
+    "rationale": "Womenswear misrepresents predominantly baby/toddler catalog.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "uk.sunnylife.com",
+    "concern": "mixed_or_overbroad",
+    "rationale": "Kids Apparel exists but pool floats/leisure goods dominate; no basis to treat all goods as apparel.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "us.thesomewhereco.com",
+    "concern": "primary_mismatch",
+    "rationale": "Food/Snacks is product-container confusion; lunch bags/snack boxes are not edible food.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "woodtonestrings.com",
+    "concern": "mixed_or_overbroad",
+    "rationale": "Tees real but guitar strings/picks dominate; Fashion confidence is not primary-business proof.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  },
+  {
+    "domain": "wragal.com",
+    "concern": "mixed_or_overbroad",
+    "rationale": "Fashion exists; shoes, jerseys and industrial shackle demonstrate heterogeneous sample.",
+    "benchmark_useful_pairs": [],
+    "missed_useful_pairs": [],
+    "conclusion": "No demonstrated useful benchmark pair, so no useful miss attributable to this defect."
+  }
+]

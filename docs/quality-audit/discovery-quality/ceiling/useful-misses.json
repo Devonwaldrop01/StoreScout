@@ -1,0 +1,595 @@
+[
+  {
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "arlingtontx.clothesmentor.com",
+    "failure_type": "tied_or_near_tied_with_nonuseful",
+    "actual_rank": 8,
+    "uncapped_survivor_rank": 8,
+    "trace": {
+      "domain": "arlingtontx.clothesmentor.com",
+      "pre_filter_rank": 12,
+      "match": {
+        "score": 9.43,
+        "matched_terms": [
+          "jewelry"
+        ],
+        "intent": {
+          "supported": true,
+          "requested_families": [
+            "apparel",
+            "bags",
+            "bedding",
+            "jewelry"
+          ],
+          "matching_title_count": 19,
+          "sampled_title_count": 40,
+          "child_audience_required": false,
+          "child_audience_evidenced": false,
+          "observed_families": [
+            "apparel",
+            "bags",
+            "jewelry"
+          ],
+          "reason": null
+        },
+        "product_evidence": true,
+        "query_coverage": 0.143,
+        "assessment": "candidate for review"
+      },
+      "exclusions": [],
+      "returned_rank": 8
+    },
+    "top5_nonuseful_blockers": [
+      {
+        "domain": "shopelvis.com",
+        "label": 1,
+        "score": 18.84,
+        "gap": 9.41
+      },
+      {
+        "domain": "broadrivermercantile.com",
+        "label": 1,
+        "score": 18.8,
+        "gap": 9.37
+      },
+      {
+        "domain": "tuttifruttikidsco.com",
+        "label": 1,
+        "score": 9.52,
+        "gap": 0.09
+      },
+      {
+        "domain": "stagecoachgifts.biz",
+        "label": 1,
+        "score": 9.46,
+        "gap": 0.03
+      }
+    ],
+    "near_ties_0_1_score": [
+      {
+        "domain": "tuttifruttikidsco.com",
+        "label": 1,
+        "score": 9.52,
+        "gap": 0.09
+      },
+      {
+        "domain": "stagecoachgifts.biz",
+        "label": 1,
+        "score": 9.46,
+        "gap": 0.03
+      }
+    ],
+    "classification_concern": "supported"
+  },
+  {
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "shoppandcboutique.com",
+    "failure_type": "tied_or_near_tied_with_nonuseful",
+    "actual_rank": null,
+    "uncapped_survivor_rank": 11,
+    "trace": {
+      "domain": "shoppandcboutique.com",
+      "pre_filter_rank": 15,
+      "match": {
+        "score": 9.42,
+        "matched_terms": [
+          "bags"
+        ],
+        "intent": {
+          "supported": true,
+          "requested_families": [
+            "apparel",
+            "bags",
+            "bedding",
+            "jewelry"
+          ],
+          "matching_title_count": 24,
+          "sampled_title_count": 40,
+          "child_audience_required": false,
+          "child_audience_evidenced": false,
+          "observed_families": [
+            "apparel",
+            "bags",
+            "jewelry"
+          ],
+          "reason": null
+        },
+        "product_evidence": true,
+        "query_coverage": 0.143,
+        "assessment": "candidate for review"
+      },
+      "exclusions": [],
+      "returned_rank": null
+    },
+    "top5_nonuseful_blockers": [
+      {
+        "domain": "shopelvis.com",
+        "label": 1,
+        "score": 18.84,
+        "gap": 9.42
+      },
+      {
+        "domain": "broadrivermercantile.com",
+        "label": 1,
+        "score": 18.8,
+        "gap": 9.38
+      },
+      {
+        "domain": "tuttifruttikidsco.com",
+        "label": 1,
+        "score": 9.52,
+        "gap": 0.1
+      },
+      {
+        "domain": "stagecoachgifts.biz",
+        "label": 1,
+        "score": 9.46,
+        "gap": 0.04
+      }
+    ],
+    "near_ties_0_1_score": [
+      {
+        "domain": "tuttifruttikidsco.com",
+        "label": 1,
+        "score": 9.52,
+        "gap": 0.1
+      },
+      {
+        "domain": "stagecoachgifts.biz",
+        "label": 1,
+        "score": 9.46,
+        "gap": 0.04
+      }
+    ],
+    "classification_concern": "supported"
+  },
+  {
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "shopworthandgray.com",
+    "failure_type": "filtered",
+    "actual_rank": null,
+    "uncapped_survivor_rank": null,
+    "trace": {
+      "domain": "shopworthandgray.com",
+      "pre_filter_rank": 25,
+      "match": {
+        "score": 0,
+        "matched_terms": [],
+        "intent": {
+          "supported": true,
+          "requested_families": [
+            "apparel",
+            "bags",
+            "bedding",
+            "jewelry"
+          ],
+          "matching_title_count": 8,
+          "sampled_title_count": 40,
+          "child_audience_required": false,
+          "child_audience_evidenced": false,
+          "observed_families": [
+            "apparel",
+            "jewelry"
+          ],
+          "reason": null
+        },
+        "product_evidence": true,
+        "query_coverage": 0.0,
+        "assessment": "insufficient product evidence"
+      },
+      "exclusions": [
+        "no_matched_product_terms"
+      ],
+      "returned_rank": null
+    },
+    "top5_nonuseful_blockers": [
+      {
+        "domain": "shopelvis.com",
+        "label": 1,
+        "score": 18.84,
+        "gap": 18.84
+      },
+      {
+        "domain": "broadrivermercantile.com",
+        "label": 1,
+        "score": 18.8,
+        "gap": 18.8
+      },
+      {
+        "domain": "tuttifruttikidsco.com",
+        "label": 1,
+        "score": 9.52,
+        "gap": 9.52
+      },
+      {
+        "domain": "stagecoachgifts.biz",
+        "label": 1,
+        "score": 9.46,
+        "gap": 9.46
+      }
+    ],
+    "near_ties_0_1_score": [],
+    "classification_concern": "supported"
+  },
+  {
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "wilkinsandolander.com",
+    "failure_type": "tied_or_near_tied_with_nonuseful",
+    "actual_rank": null,
+    "uncapped_survivor_rank": 13,
+    "trace": {
+      "domain": "wilkinsandolander.com",
+      "pre_filter_rank": 17,
+      "match": {
+        "score": 9.4,
+        "matched_terms": [
+          "clothing"
+        ],
+        "intent": {
+          "supported": true,
+          "requested_families": [
+            "apparel",
+            "bags",
+            "bedding",
+            "jewelry"
+          ],
+          "matching_title_count": 17,
+          "sampled_title_count": 40,
+          "child_audience_required": false,
+          "child_audience_evidenced": false,
+          "observed_families": [
+            "apparel",
+            "bags",
+            "jewelry"
+          ],
+          "reason": null
+        },
+        "product_evidence": true,
+        "query_coverage": 0.143,
+        "assessment": "candidate for review"
+      },
+      "exclusions": [],
+      "returned_rank": null
+    },
+    "top5_nonuseful_blockers": [
+      {
+        "domain": "shopelvis.com",
+        "label": 1,
+        "score": 18.84,
+        "gap": 9.44
+      },
+      {
+        "domain": "broadrivermercantile.com",
+        "label": 1,
+        "score": 18.8,
+        "gap": 9.4
+      },
+      {
+        "domain": "tuttifruttikidsco.com",
+        "label": 1,
+        "score": 9.52,
+        "gap": 0.12
+      },
+      {
+        "domain": "stagecoachgifts.biz",
+        "label": 1,
+        "score": 9.46,
+        "gap": 0.06
+      }
+    ],
+    "near_ties_0_1_score": [
+      {
+        "domain": "stagecoachgifts.biz",
+        "label": 1,
+        "score": 9.46,
+        "gap": 0.06
+      }
+    ],
+    "classification_concern": "supported"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "arlingtontx.clothesmentor.com",
+    "failure_type": "survived_scored_too_low",
+    "actual_rank": 6,
+    "uncapped_survivor_rank": 6,
+    "trace": {
+      "domain": "arlingtontx.clothesmentor.com",
+      "pre_filter_rank": 8,
+      "match": {
+        "score": 7.52,
+        "matched_terms": [
+          "accessorie",
+          "jewelry"
+        ],
+        "intent": {
+          "supported": true,
+          "requested_families": [
+            "apparel",
+            "bags",
+            "bedding",
+            "jewelry"
+          ],
+          "matching_title_count": 19,
+          "sampled_title_count": 40,
+          "child_audience_required": false,
+          "child_audience_evidenced": false,
+          "observed_families": [
+            "apparel",
+            "bags",
+            "jewelry"
+          ],
+          "reason": null
+        },
+        "product_evidence": true,
+        "query_coverage": 0.111,
+        "assessment": "candidate for review"
+      },
+      "exclusions": [],
+      "returned_rank": 6
+    },
+    "top5_nonuseful_blockers": [
+      {
+        "domain": "broadrivermercantile.com",
+        "label": 1,
+        "score": 14.9,
+        "gap": 7.38
+      },
+      {
+        "domain": "tuttifruttikidsco.com",
+        "label": 1,
+        "score": 11.54,
+        "gap": 4.02
+      },
+      {
+        "domain": "shopelvis.com",
+        "label": 1,
+        "score": 11.24,
+        "gap": 3.72
+      },
+      {
+        "domain": "uk.sunnylife.com",
+        "label": 1,
+        "score": 11.23,
+        "gap": 3.71
+      }
+    ],
+    "near_ties_0_1_score": [],
+    "classification_concern": "supported"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "shoppandcboutique.com",
+    "failure_type": "survived_scored_too_low",
+    "actual_rank": null,
+    "uncapped_survivor_rank": 18,
+    "trace": {
+      "domain": "shoppandcboutique.com",
+      "pre_filter_rank": 23,
+      "match": {
+        "score": 3.75,
+        "matched_terms": [
+          "bags"
+        ],
+        "intent": {
+          "supported": true,
+          "requested_families": [
+            "apparel",
+            "bags",
+            "bedding",
+            "jewelry"
+          ],
+          "matching_title_count": 24,
+          "sampled_title_count": 40,
+          "child_audience_required": false,
+          "child_audience_evidenced": false,
+          "observed_families": [
+            "apparel",
+            "bags",
+            "jewelry"
+          ],
+          "reason": null
+        },
+        "product_evidence": true,
+        "query_coverage": 0.056,
+        "assessment": "candidate for review"
+      },
+      "exclusions": [],
+      "returned_rank": null
+    },
+    "top5_nonuseful_blockers": [
+      {
+        "domain": "broadrivermercantile.com",
+        "label": 1,
+        "score": 14.9,
+        "gap": 11.15
+      },
+      {
+        "domain": "tuttifruttikidsco.com",
+        "label": 1,
+        "score": 11.54,
+        "gap": 7.79
+      },
+      {
+        "domain": "shopelvis.com",
+        "label": 1,
+        "score": 11.24,
+        "gap": 7.49
+      },
+      {
+        "domain": "uk.sunnylife.com",
+        "label": 1,
+        "score": 11.23,
+        "gap": 7.48
+      }
+    ],
+    "near_ties_0_1_score": [],
+    "classification_concern": "supported"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "shopworthandgray.com",
+    "failure_type": "filtered",
+    "actual_rank": null,
+    "uncapped_survivor_rank": null,
+    "trace": {
+      "domain": "shopworthandgray.com",
+      "pre_filter_rank": 29,
+      "match": {
+        "score": 0,
+        "matched_terms": [],
+        "intent": {
+          "supported": true,
+          "requested_families": [
+            "apparel",
+            "bags",
+            "bedding",
+            "jewelry"
+          ],
+          "matching_title_count": 8,
+          "sampled_title_count": 40,
+          "child_audience_required": false,
+          "child_audience_evidenced": false,
+          "observed_families": [
+            "apparel",
+            "jewelry"
+          ],
+          "reason": null
+        },
+        "product_evidence": true,
+        "query_coverage": 0.0,
+        "assessment": "insufficient product evidence"
+      },
+      "exclusions": [
+        "no_matched_product_terms"
+      ],
+      "returned_rank": null
+    },
+    "top5_nonuseful_blockers": [
+      {
+        "domain": "broadrivermercantile.com",
+        "label": 1,
+        "score": 14.9,
+        "gap": 14.9
+      },
+      {
+        "domain": "tuttifruttikidsco.com",
+        "label": 1,
+        "score": 11.54,
+        "gap": 11.54
+      },
+      {
+        "domain": "shopelvis.com",
+        "label": 1,
+        "score": 11.24,
+        "gap": 11.24
+      },
+      {
+        "domain": "uk.sunnylife.com",
+        "label": 1,
+        "score": 11.23,
+        "gap": 11.23
+      }
+    ],
+    "near_ties_0_1_score": [],
+    "classification_concern": "supported"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "wilkinsandolander.com",
+    "failure_type": "survived_scored_too_low",
+    "actual_rank": 7,
+    "uncapped_survivor_rank": 7,
+    "trace": {
+      "domain": "wilkinsandolander.com",
+      "pre_filter_rank": 9,
+      "match": {
+        "score": 7.45,
+        "matched_terms": [
+          "baby",
+          "clothing"
+        ],
+        "intent": {
+          "supported": true,
+          "requested_families": [
+            "apparel",
+            "bags",
+            "bedding",
+            "jewelry"
+          ],
+          "matching_title_count": 17,
+          "sampled_title_count": 40,
+          "child_audience_required": false,
+          "child_audience_evidenced": false,
+          "observed_families": [
+            "apparel",
+            "bags",
+            "jewelry"
+          ],
+          "reason": null
+        },
+        "product_evidence": true,
+        "query_coverage": 0.111,
+        "assessment": "candidate for review"
+      },
+      "exclusions": [],
+      "returned_rank": 7
+    },
+    "top5_nonuseful_blockers": [
+      {
+        "domain": "broadrivermercantile.com",
+        "label": 1,
+        "score": 14.9,
+        "gap": 7.45
+      },
+      {
+        "domain": "tuttifruttikidsco.com",
+        "label": 1,
+        "score": 11.54,
+        "gap": 4.09
+      },
+      {
+        "domain": "shopelvis.com",
+        "label": 1,
+        "score": 11.24,
+        "gap": 3.79
+      },
+      {
+        "domain": "uk.sunnylife.com",
+        "label": 1,
+        "score": 11.23,
+        "gap": 3.78
+      }
+    ],
+    "near_ties_0_1_score": [],
+    "classification_concern": "supported"
+  }
+]
