@@ -1,0 +1,75 @@
+name: Isolated V2 timeout repair validation
+on:
+  push:
+    branches: [codex/index-v2-timeout-fix-2026-09-25]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: index-v2-timeout-repair-validation
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      BASE_IMAGE: ghcr.io/devonwaldrop01/storescout-index-v2@sha256:9c88545592aebe38db653c4d9ffd0cad02dda767fce5e06872096d42d676f385
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Build exact source over immutable retained runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          E="$RUNNER_TEMP/timeout-evidence"
+          mkdir -p "$E" "$RUNNER_TEMP/testdeps"
+          chmod 0777 "$E"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test -z "$(git status --porcelain)"
+          docker pull "$BASE_IMAGE"
+          test "$(docker image inspect "$BASE_IMAGE" --format '{{.Id}}')" = sha256:5d64ab78d3f73a96978f4cd2910c306247aec1382e40e676d33418b4b1232a38
+          printf 'FROM %s\nCOPY . /app\nLABEL org.opencontainers.image.revision=%s\n' "$BASE_IMAGE" "$GITHUB_SHA" > "$RUNNER_TEMP/Dockerfile.timeout"
+          docker build --network none -f "$RUNNER_TEMP/Dockerfile.timeout" -t v2-timeout-candidate . 2>&1 | tee "$E/build.log"
+          docker image inspect v2-timeout-candidate > "$E/image.json"
+          python3 scripts/release_image_check.py inventory "$GITHUB_SHA" "$E/inventory.json"
+          docker run --rm --network none -e PYTHONDONTWRITEBYTECODE=1 -v "$E/inventory.json:/validation/inventory.json:ro" v2-timeout-candidate python scripts/release_image_check.py verify /validation/inventory.json > "$E/inventory-packages.json"
+          docker run --rm --network none v2-timeout-candidate python -m pip check > "$E/pip-check.txt"
+          docker run --rm -v "$RUNNER_TEMP/testdeps:/testdeps" v2-timeout-candidate python -m pip install --target /testdeps pytest==9.1.1 iniconfig==2.3.0 pluggy==1.6.0 pygments==2.21.0 packaging==26.3
+      - name: Entire backend and Linux suite, no network or credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm --network none --cpus .5 --memory 512m --memory-swap 512m -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONPATH=/testdeps:/app -v "$RUNNER_TEMP/testdeps:/testdeps:ro" v2-timeout-candidate python -m pytest tests -q -p no:cacheprovider 2>&1 | tee "$RUNNER_TEMP/timeout-evidence/pytest.txt"
+      - name: Repeat only approved real domain using unchanged 90-second deadline
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 110s docker run --name timeout-repair-real --cpus .5 --memory 512m --memory-swap 512m --pids-limit 32 --cap-drop ALL --security-opt no-new-privileges --read-only --tmpfs /tmp:rw,noexec,nosuid,size=32m -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONPATH=/app -e STORE_INDEX_DEPLOYMENT_HOLD=true -v "$RUNNER_TEMP/timeout-evidence:/evidence" v2-timeout-candidate python tests/evaluations/index_v2_timeout_diagnostic.py /evidence/real 2>&1 | tee "$RUNNER_TEMP/timeout-evidence/supervisor.log"
+          docker inspect timeout-repair-real > "$RUNNER_TEMP/timeout-evidence/real-container.json"
+          python3 -c 'import json,os; r=json.load(open(os.environ["RUNNER_TEMP"]+"/timeout-evidence/real/result.json")); assert r["outcome"]=="returned" and r["child_dead"] and r["child_returncodes"]==[0],r'
+      - name: Isolated persistent SQLite runtime and normal restart
+        shell: bash
+        run: |
+          bash scripts/validate_index_v2_runtime.sh v2-timeout-candidate "$RUNNER_TEMP/timeout-evidence" "$RUNNER_TEMP/testdeps"
+      - name: Retain exact candidate image
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/timeout-image"
+          docker save v2-timeout-candidate | gzip -1 > "$RUNNER_TEMP/timeout-image/image.tar.gz"
+          sha256sum "$RUNNER_TEMP/timeout-image/image.tar.gz" > "$RUNNER_TEMP/timeout-evidence/archive.sha256"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: v2-timeout-repair-evidence
+          path: ${{ runner.temp }}/timeout-evidence
+          retention-days: 14
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-timeout-repair-image
+          path: ${{ runner.temp }}/timeout-image
+          retention-days: 14
+          compression-level: 0
+      - name: Remove isolated test container
+        if: always()
+        run: docker rm -f timeout-repair-real || true

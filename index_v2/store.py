@@ -4,7 +4,7 @@ Only this process writes the V2 file. Public-fetch children have no DB handle.
 No SQL names/URLs are accepted from merchant inputs.
 """
 from contextlib import contextmanager,closing
-from datetime import datetime
+from datetime import datetime,timezone
 import json
 from pathlib import Path
 import sqlite3
@@ -76,6 +76,34 @@ class Store:
 
     def pause(self,key,reason):
         self.db.execute('UPDATE batches SET stopped_reason=? WHERE digest=?',(reason,key))
+
+    def recover_expired_attempt(self,key,attempt):
+        """Explicit paused-batch reconciliation only; never enables or claims work.
+
+        Caller must first establish that the old supervisor/child are gone.
+        Exact attempt identity, pause and expired lease are transactional guards.
+        """
+        from .compute import retry_time
+        with self.transaction():
+            if self.db.execute("SELECT 1 FROM events_v2 WHERE attempt_id=? AND state='expired_attempt_reconciled'",(attempt,)).fetchone():
+                return False
+            paused=self.db.execute('SELECT stopped_reason FROM batches WHERE digest=?',(key,)).fetchone()
+            if not paused or not paused[0]: raise ValueError('Recovery requires paused batch')
+            row=self.db.execute('SELECT * FROM jobs_v2 WHERE batch=? AND attempt_id=?',(key,attempt)).fetchone()
+            now=self.clock()
+            if not row or not row['owner'] or not row['lease_until'] or row['lease_until']>now or row['state'] not in ('claimed','verifying'):
+                raise ValueError('Expected expired verification owner absent')
+            old=self.db.execute('SELECT * FROM store_verification_v2 WHERE attempt_id=?',(attempt,)).fetchone()
+            if not old or old['finished_at'] is not None or old['outcome'] is not None:
+                raise ValueError('Cannot overwrite completed/checkpoint evidence')
+            due=retry_time(dict(row),'temporarily_unreachable',now=datetime.fromtimestamp(now,timezone.utc))
+            result={'state':'temporarily_unreachable','failure':'interrupted_unknown',
+                    'request_accounting':'unknown','recovery':'expired_attempt_reconciled'}
+            self.db.execute("UPDATE store_verification_v2 SET finished_at=?,outcome='interrupted_unknown',result_json=?,result_hash=? WHERE attempt_id=?",
+                            (now,encoded(result),digest(result),attempt))
+            self.db.execute("UPDATE jobs_v2 SET state='failed',owner=NULL,lease_until=NULL,next_due=? WHERE canonical=?",(due,row['canonical']))
+            self.event(attempt,'expired_attempt_reconciled')
+            return True
 
     def claim(self,key):
         now=self.clock();manifest=self.manifest(key)
@@ -168,10 +196,16 @@ class Store:
             outcomes=self.db.execute('SELECT outcome FROM store_verification_v2 WHERE batch=? AND finished_at IS NOT NULL',(job['batch'],)).fetchall()
             if len(outcomes)>=20:
                 blocked=sum(r[0] in ('blocked','password_protected') for r in outcomes)
-                temporary=sum(r[0] in ('temporarily_unreachable','interrupted_unknown') for r in outcomes)
+                temporary=sum(r[0] in ('temporarily_unreachable','interrupted_unknown','child_timeout') for r in outcomes)
                 if blocked/len(outcomes)>.30 or temporary/len(outcomes)>.25:
                     self.pause(job['batch'],'access_failure_rate')
-            if reason in ('child_timeout','memory_ceiling','invalid_child_result','interrupted_shutdown'):
+            # Reuse the existing 20-attempt / >25% failure budget: six
+            # timeouts in the latest 20 completions pause even during startup.
+            # One isolated safely terminated timeout remains independently retryable.
+            recent=self.db.execute('SELECT outcome FROM store_verification_v2 WHERE batch=? AND finished_at IS NOT NULL ORDER BY finished_at DESC,rowid DESC LIMIT 20',(job['batch'],)).fetchall()
+            if sum(r[0]=='child_timeout' for r in recent)>20*.25:
+                self.pause(job['batch'],'child_timeout_rate')
+            if reason in ('memory_ceiling','invalid_child_result','interrupted_shutdown'):
                 self.pause(job['batch'],reason)
         return True
 
@@ -201,7 +235,7 @@ class Store:
         for r in attempts:
             result=json.loads(r['result_json'] or '{}')
             requests+=len(result.get('requests') or [])
-            if r['finished_at'] is None or r['outcome']=='interrupted_unknown': unknown+=1
+            if r['finished_at'] is None or r['outcome'] in ('interrupted_unknown','child_timeout'): unknown+=1
             if result.get('supervisor_seconds') is not None: seconds.append(result['supervisor_seconds'])
             if result.get('peak_rss_kib') is not None: peaks.append(result['peak_rss_kib'])
         classified=self.db.execute('SELECT confidence,metrics_json FROM store_classification_v2 WHERE saved_at IS NOT NULL').fetchall()

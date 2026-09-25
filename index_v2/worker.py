@@ -37,18 +37,31 @@ def memory_bytes():
 
 
 def terminate(child):
-    if child.poll() is not None: return
-    if os.name=='posix': os.killpg(child.pid,signal.SIGTERM)
-    else: child.terminate()
-    try: child.wait(timeout=3)
-    except subprocess.TimeoutExpired:
-        if os.name=='posix': os.killpg(child.pid,signal.SIGKILL)
-        else: child.kill()
-        child.wait(timeout=3)
+    """Reap the child and prove its process group gone before another dispatch."""
+    try:
+        if os.name=='posix':
+            try: os.killpg(child.pid,signal.SIGTERM)
+            except ProcessLookupError: pass
+        elif child.poll() is None: child.terminate()
+        try: child.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            if os.name=='posix': os.killpg(child.pid,signal.SIGKILL)
+            else: child.kill()
+            child.wait(timeout=3)
+        if os.name=='posix':
+            try: os.killpg(child.pid,0)
+            except ProcessLookupError: return
+            # A descendant survived its leader: do not dispatch anything else.
+            os.killpg(child.pid,signal.SIGKILL)
+            raise ChildFailed('child_termination_unconfirmed')
+        if child.poll() is None: raise ChildFailed('child_termination_unconfirmed')
+    except (OSError,subprocess.TimeoutExpired) as exc:
+        raise ChildFailed('child_termination_unconfirmed') from exc
 
 
 class ChildFailed(RuntimeError):
-    def __init__(self,reason): self.reason=reason;super().__init__(reason)
+    def __init__(self,reason):
+        self.reason=reason;self.termination_confirmed=False;super().__init__(reason)
 
 
 def execute_child(payload,renew,stop):
@@ -64,6 +77,7 @@ def execute_child(payload,renew,stop):
             child=subprocess.Popen([sys.executable,'-m','index_v2.child'],stdin=input_stream,
                 stdout=stream,stderr=subprocess.DEVNULL,cwd=folder,env=child_environment(),
                 start_new_session=(os.name=='posix'))
+            failure=None
             try:
                 start=last_renew=time.monotonic()
                 while child.poll() is None:
@@ -75,7 +89,12 @@ def execute_child(payload,renew,stop):
                         renew();last_renew=time.monotonic()
                     time.sleep(.1)
                 if child.returncode!=0: raise ChildFailed('child_exit_'+str(child.returncode))
-            finally: terminate(child)
+            except ChildFailed as exc:
+                failure=exc
+                raise
+            finally:
+                terminate(child)
+                if failure is not None: failure.termination_confirmed=True
         renew()
         if output.stat().st_size>2*1024*1024: raise ChildFailed('invalid_child_result')
         try:
@@ -90,6 +109,7 @@ def process_job(store,job,executor=execute_child,stop=lambda:False):
     from .compute import retry_time
     from app.services.discovery_quality import is_recent_verified,is_classification_usable
     renew=lambda:store.renew(job)
+    stage='verify'
     try:
         if job['state']=='verified': row=json.loads(job['row_json'])
         else:
@@ -103,6 +123,7 @@ def process_job(store,job,executor=execute_child,stop=lambda:False):
             if not row or row.get('domain')!=job['canonical'] or not is_recent_verified(row):
                 raise ChildFailed('invalid_child_result')
             store.verified(job,row,result)
+        stage='classify'
         store.transition(job,'classifying')
         result=executor({'stage':'classify','row':row},renew,stop)
         updated=result['row']
@@ -115,6 +136,16 @@ def process_job(store,job,executor=execute_child,stop=lambda:False):
         store.pause(job['batch'],'lease_lost');raise
     except Exception as exc:
         reason=exc.reason if isinstance(exc,ChildFailed) else 'invalid_child_result'
+        if reason=='child_timeout' and exc.termination_confirmed and stage=='verify':
+            try:
+                store.complete(job,reason='child_timeout',
+                    retry_at=retry_time(job,'temporarily_unreachable'),
+                    result={'state':'temporarily_unreachable','failure':'child_timeout',
+                            'request_accounting':'unknown','termination_confirmed':True})
+                return
+            except Exception:
+                store.pause(job['batch'],'timeout_persistence_failed')
+                raise
         # Preserve a completed verification checkpoint for classification retry.
         # Leave ownership until expiry; never relabel an unknown child as success.
         store.pause(job['batch'],reason)

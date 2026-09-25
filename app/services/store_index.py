@@ -283,9 +283,22 @@ _TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
 _META_DESC_RE = re.compile(
     r'<meta[^>]+name=["\']description["\'][^>]+content=["\'](.*?)["\']', re.IGNORECASE | re.DOTALL
 )
-_META_DESC_RE2 = re.compile(
-    r'<meta[^>]+content=["\'](.*?)["\'][^>]+name=["\']description["\']', re.IGNORECASE | re.DOTALL
-)
+def _reversed_meta_description(html):
+    """Parse reversed attributes without regex backtracking across HTML tags."""
+    from html.parser import HTMLParser
+
+    class Description(HTMLParser):
+        value = None
+
+        def handle_starttag(self, tag, attrs):
+            if tag == 'meta' and self.value is None:
+                attributes = dict(attrs)
+                if (attributes.get('name') or '').lower() == 'description':
+                    self.value = attributes.get('content')
+
+    parser = Description(convert_charrefs=True)
+    parser.feed(html)
+    return parser.value
 _OG_SITE_RE = re.compile(
     r'<meta[^>]+property=["\']og:site_name["\'][^>]+content=["\'](.*?)["\']', re.IGNORECASE
 )
@@ -364,9 +377,10 @@ def probe_store_catalog(domain: str, *, make_client, get_response, pace) -> Dict
             title = _clean(title_m.group(1), 150) if title_m else ""
             profile["page_title"] = title
             profile["brand_name"] = _clean(m.group(1), 80) if m else (title.split("|")[0].split("â€“")[0].strip()[:80] or None)
-            desc_m = _META_DESC_RE.search(html) or _META_DESC_RE2.search(html)
-            if desc_m:
-                profile["meta_description"] = _clean(desc_m.group(1))
+            desc_m = _META_DESC_RE.search(html)
+            description = desc_m.group(1) if desc_m else _reversed_meta_description(html)
+            if description:
+                profile["meta_description"] = _clean(description)
             lang_m = _LANG_RE.search(html)
             if lang_m:
                 profile["language"] = lang_m.group(1)[:8]
