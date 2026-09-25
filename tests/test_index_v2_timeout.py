@@ -141,6 +141,28 @@ def test_unclean_termination_never_certifies_timeout(monkeypatch):
     assert not error.value.termination_confirmed
 
 
+@pytest.mark.skipif(sys.platform!='linux',reason='Linux alarm exit race')
+@pytest.mark.parametrize('signal_name,elapsed,reason',[
+    ('SIGALRM',90.1,'child_timeout'),
+    ('SIGALRM',1,'child_exit_-14'),
+    ('SIGKILL',90.1,'child_exit_-9'),
+])
+def test_child_alarm_race_is_timeout_only_at_deadline(monkeypatch,signal_name,elapsed,reason):
+    import signal
+    import index_v2.worker as worker
+    class Exited:
+        returncode=-getattr(signal,signal_name)
+        def poll(self): return self.returncode
+    monkeypatch.setattr(worker.subprocess,'Popen',lambda *a,**k:Exited())
+    clock=iter([0,elapsed])
+    monkeypatch.setattr(worker.time,'monotonic',lambda:next(clock))
+    reaped=[]
+    monkeypatch.setattr(worker,'terminate',lambda p:reaped.append(p))
+    with pytest.raises(ChildFailed,match=reason) as error:
+        worker.execute_child({'stage':'verify'},lambda:None,lambda:False)
+    assert reaped and error.value.termination_confirmed
+
+
 @pytest.mark.skipif(sys.platform!='linux',reason='Actual 90-second Linux subprocess deadline')
 def test_linux_healthy_forced_timeout_healthy(store,monkeypatch):
     import index_v2.worker as worker

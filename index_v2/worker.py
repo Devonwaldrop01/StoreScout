@@ -88,6 +88,9 @@ def execute_child(payload,renew,stop):
                     if time.monotonic()-last_renew>=20:
                         renew();last_renew=time.monotonic()
                     time.sleep(.1)
+                if (sys.platform=='linux' and child.returncode==-signal.SIGALRM
+                        and time.monotonic()-start>=90):
+                    raise ChildFailed('child_timeout')
                 if child.returncode!=0: raise ChildFailed('child_exit_'+str(child.returncode))
             except ChildFailed as exc:
                 failure=exc
