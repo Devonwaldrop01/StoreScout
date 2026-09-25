@@ -524,6 +524,9 @@ async def discover_ai(
         user_kw = normalize_keywords([kw_sources, own_dna_kw])
         if user_kw or user_category:
             user_match_ctx = {
+                # Intent needs the original phrase. A keyword union can combine
+                # unrelated profile notes or lose modifier/product relationships.
+                "sells": body.description,
                 "category": user_category, "pricing_tier": {"mid": "mid-market"}.get(profile.get("price_range"), profile.get("price_range")),
                 "dna_keywords": user_kw, "target_customer": audience,
             }

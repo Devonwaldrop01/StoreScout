@@ -1,0 +1,86 @@
+{
+  "store_reviews": {
+    "supported": 29,
+    "subcategory_mismatch": 8,
+    "mixed_or_overbroad": 14,
+    "primary_mismatch": 3
+  },
+  "eligible_stores": 54,
+  "globally_disqualified": 0,
+  "distinct_returned_v2_domains": 18,
+  "unique_case_mode_domain_pairs": 60,
+  "total_placements_across_two_variants": 115,
+  "unique_primary_causes": {
+    "beauty_subtype_confusion": 16,
+    "accessory_or_product_text_collision": 7,
+    "cross_product_demographic_join": 3,
+    "useful_supported_match": 11,
+    "preparation_use_case_mismatch": 6,
+    "detached_type_vs_catalog_composition": 5,
+    "audience_and_subcategory_mismatch": 2,
+    "price_or_business_model_mismatch": 3,
+    "legitimate_adjacent_low_business_fit": 7
+  },
+  "by_variant": {
+    "v2": {
+      "beauty_subtype_confusion": 16,
+      "accessory_or_product_text_collision": 7,
+      "cross_product_demographic_join": 3,
+      "useful_supported_match": 11,
+      "preparation_use_case_mismatch": 6,
+      "detached_type_vs_catalog_composition": 5,
+      "audience_and_subcategory_mismatch": 2,
+      "price_or_business_model_mismatch": 3,
+      "legitimate_adjacent_low_business_fit": 7
+    },
+    "combined": {
+      "beauty_subtype_confusion": 16,
+      "accessory_or_product_text_collision": 7,
+      "cross_product_demographic_join": 3,
+      "useful_supported_match": 10,
+      "preparation_use_case_mismatch": 6,
+      "detached_type_vs_catalog_composition": 5,
+      "audience_and_subcategory_mismatch": 2,
+      "legitimate_adjacent_low_business_fit": 6
+    }
+  },
+  "by_mode": {
+    "description_only": {
+      "beauty_subtype_confusion": 8,
+      "accessory_or_product_text_collision": 3,
+      "cross_product_demographic_join": 1,
+      "useful_supported_match": 6,
+      "preparation_use_case_mismatch": 3,
+      "detached_type_vs_catalog_composition": 3,
+      "audience_and_subcategory_mismatch": 1,
+      "price_or_business_model_mismatch": 3,
+      "legitimate_adjacent_low_business_fit": 2
+    },
+    "structured_profile": {
+      "beauty_subtype_confusion": 8,
+      "accessory_or_product_text_collision": 4,
+      "cross_product_demographic_join": 2,
+      "useful_supported_match": 5,
+      "preparation_use_case_mismatch": 3,
+      "audience_and_subcategory_mismatch": 1,
+      "legitimate_adjacent_low_business_fit": 5,
+      "detached_type_vs_catalog_composition": 2
+    }
+  },
+  "metadata_missing": {
+    "description": 9,
+    "product_types": 2,
+    "product_titles": 0,
+    "target_customer": 0,
+    "pricing_tier": 0,
+    "business_model": 54
+  },
+  "input_hashes": {
+    "outputs\\index-v2-pilot-100\\benchmark\\v2.json": "759996a8359e336e18c9d905dd38c965d266b094e6e5f1f03690f2f731af1c51",
+    "outputs\\index-v2-pilot-100\\benchmark\\combined.json": "a18ff357527983ad7586cbfbd2eec13191185f1d54907fd4389413b192bcc787",
+    "outputs\\index-v2-pilot-100\\benchmark\\legacy.json": "b42a4d587f39eaf87d4673ccb56b2a13f4f6be6f31401c9e0238b4ec6c92c2e6",
+    "outputs\\index-v2-pilot-100\\benchmark\\clock.json": "03a9c53c52a29ba93868ded98575466229bb85a2dd47e80b39c4f31a75b1614c",
+    "outputs\\index-v2-pilot-100\\pilot-results-20260922.sqlite": "6c5b00b34188892f87cba9a6a7b6ede520c4d237d547f14264236e10538c5a26"
+  },
+  "method": "Single-analyst public-evidence review; root causes are mutually exclusive primary explanations, secondary classification/score contributions retained per placement."
+}

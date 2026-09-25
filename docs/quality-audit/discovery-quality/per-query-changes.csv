@@ -1,0 +1,51 @@
+case_id,mode,niche,p5_before,p5_after,p10_before,p10_after,useful_before,useful_after,wrong_before,wrong_after,returned_before,returned_after,added,removed
+durstongear,description_only,ultralight,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+zpacks,description_only,ultralight,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+gossamergear,description_only,ultralight,0.0,0.0,0.0,0.0,0,0,1,1,1,1,,
+iliabeauty,description_only,tinted_complexion,0.4,0.4,0.2,0.2,2,2,0,0,4,3,,thekimyoung.com
+tower28beauty,description_only,tinted_complexion,0.2,0.2,0.1,0.1,1,1,2,1,5,3,,thekimyoung.com meadow-nest.com
+saiehello,description_only,tinted_complexion,0.4,0.4,0.2,0.2,2,2,1,0,5,3,,thekimyoung.com meadow-nest.com
+pipettebaby,description_only,baby_skin,0.0,0.0,0.0,0.0,0,0,1,0,1,0,,shoutandabout.com
+tubbytodd,description_only,baby_skin,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+babobotanicals,description_only,baby_skin,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+onyxcoffeelab,description_only,specialty_coffee,0.2,0.2,0.1,0.1,1,1,0,0,1,1,,
+counterculturecoffee,description_only,specialty_coffee,0.2,0.2,0.1,0.1,1,1,0,0,1,1,,
+vervecoffee,description_only,specialty_coffee,0.2,0.2,0.1,0.1,1,1,0,0,1,1,,
+littlesleepies,description_only,bamboo_family_sleepwear,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+kytebaby,description_only,bamboo_family_sleepwear,0.0,0.0,0.0,0.0,0,0,1,1,1,1,,
+birdiebean,description_only,bamboo_family_sleepwear,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+purebites,description_only,dog_freeze_dried_treats,0.4,0.4,0.2,0.2,2,2,0,0,4,4,,
+stewartpet,description_only,dog_freeze_dried_treats,0.4,0.4,0.2,0.2,2,2,0,0,4,4,,
+stellaandchewys,description_only,dog_freeze_dried_treats,0.4,0.4,0.2,0.2,2,2,0,0,4,4,,
+quince,description_only,bedding_and_broad_store,0.2,0.2,0.1,0.2,1,2,1,0,8,8,stagecoachgifts.biz 1036emporium.com leahmaria.dk arlingtontx.clothesmentor.com,jmrhousetohome.ie sandmarc.com accessprive.com elevateyoursole.co.uk
+brooklinen,description_only,bedding_and_broad_store,0.2,0.2,0.1,0.1,1,1,0,0,2,1,,jmrhousetohome.ie
+parachutehome,description_only,bedding_and_broad_store,0.0,0.0,0.0,0.0,0,0,0,0,2,1,,jmrhousetohome.ie
+keychron,description_only,mechanical_keyboards,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+nuphy,description_only,mechanical_keyboards,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+epomaker,description_only,mechanical_keyboards,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+colourpop,description_only,tinted_complexion,0.4,0.4,0.2,0.2,2,2,1,0,5,3,,thekimyoung.com meadow-nest.com
+durstongear,structured_profile,ultralight,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+zpacks,structured_profile,ultralight,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+gossamergear,structured_profile,ultralight,0.0,0.0,0.0,0.0,0,0,0,0,1,1,,
+iliabeauty,structured_profile,tinted_complexion,0.4,0.4,0.2,0.2,2,2,0,0,4,3,,thekimyoung.com
+tower28beauty,structured_profile,tinted_complexion,0.2,0.2,0.1,0.1,1,1,2,1,5,3,,thekimyoung.com meadow-nest.com
+saiehello,structured_profile,tinted_complexion,0.4,0.4,0.2,0.2,2,2,1,0,5,3,,thekimyoung.com meadow-nest.com
+pipettebaby,structured_profile,baby_skin,0.0,0.0,0.0,0.0,0,0,1,0,1,0,,shoutandabout.com
+tubbytodd,structured_profile,baby_skin,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+babobotanicals,structured_profile,baby_skin,0.0,0.0,0.0,0.0,0,0,1,0,1,0,,shoutandabout.com
+onyxcoffeelab,structured_profile,specialty_coffee,0.2,0.2,0.1,0.1,1,1,0,0,1,1,,
+counterculturecoffee,structured_profile,specialty_coffee,0.2,0.2,0.1,0.1,1,1,0,0,1,1,,
+vervecoffee,structured_profile,specialty_coffee,0.2,0.2,0.1,0.1,1,1,0,0,1,1,,
+littlesleepies,structured_profile,bamboo_family_sleepwear,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+kytebaby,structured_profile,bamboo_family_sleepwear,0.0,0.0,0.0,0.0,0,0,1,1,1,1,,
+birdiebean,structured_profile,bamboo_family_sleepwear,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+purebites,structured_profile,dog_freeze_dried_treats,0.4,0.4,0.2,0.2,2,2,0,0,4,4,,
+stewartpet,structured_profile,dog_freeze_dried_treats,0.4,0.4,0.2,0.2,2,2,0,0,4,4,,
+stellaandchewys,structured_profile,dog_freeze_dried_treats,0.4,0.4,0.2,0.2,2,2,0,0,4,4,,
+quince,structured_profile,bedding_and_broad_store,0.2,0.2,0.1,0.3,1,3,1,0,8,8,broadrivermercantile.com thezerano.com arlingtontx.clothesmentor.com designerrevival.com,fetchyourpetneeds.ie andyfrisella.com megafootystore.com.au amorcustomgifts.com
+brooklinen,structured_profile,bedding_and_broad_store,0.2,0.2,0.1,0.1,1,1,0,0,2,1,,jmrhousetohome.ie
+parachutehome,structured_profile,bedding_and_broad_store,0.0,0.0,0.0,0.0,0,0,1,0,3,1,,jmrhousetohome.ie meadow-nest.com
+keychron,structured_profile,mechanical_keyboards,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+nuphy,structured_profile,mechanical_keyboards,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+epomaker,structured_profile,mechanical_keyboards,0.0,0.0,0.0,0.0,0,0,0,0,0,0,,
+colourpop,structured_profile,tinted_complexion,0.4,0.4,0.2,0.2,2,2,1,0,5,3,,thekimyoung.com meadow-nest.com

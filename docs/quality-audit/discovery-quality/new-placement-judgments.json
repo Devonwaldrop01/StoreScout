@@ -1,0 +1,74 @@
+[
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "broadrivermercantile.com",
+    "label": 1,
+    "rationale": "Apparel, bags and jewelry overlap partially, but catalog primarily premium outdoor/hunting retail; affordable home/bedding business fit unestablished.",
+    "reviewer": "single-analyst frozen product-evidence review; prior labels unchanged",
+    "evidence": "retained 88-store snapshot; no new fetches"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "hydrusboardtech.com",
+    "label": 1,
+    "rationale": "Paddleboard-focused retailer with hats and accessories; narrow accessory overlap is adjacent, not comparable broad affordable apparel/home essentials.",
+    "reviewer": "single-analyst frozen product-evidence review; prior labels unchanged",
+    "evidence": "retained 88-store snapshot; no new fetches"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "blueingreensoho.com",
+    "label": 1,
+    "rationale": "Specialist Japanese denim/apparel overlaps clothing; affordable broad essentials positioning is unsupported.",
+    "reviewer": "single-analyst frozen product-evidence review; prior labels unchanged",
+    "evidence": "retained 88-store snapshot; no new fetches"
+  },
+  {
+    "case_id": "quince",
+    "mode": "description_only",
+    "domain": "uk.sunnylife.com",
+    "label": 1,
+    "rationale": "Pool floats, beach accessories and summer leisure products; incidental bags/towels do not establish broad apparel/home-essentials substitute.",
+    "reviewer": "single-analyst frozen product-evidence review; prior labels unchanged",
+    "evidence": "retained 88-store snapshot; no new fetches"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "thezerano.com",
+    "label": 2,
+    "rationale": "Discount menswear/womenswear, knitwear, jackets and bags provide useful apparel overlap. Multi-brand fashion retailer, not an evidenced bedding/home or direct-brand substitute.",
+    "reviewer": "single-analyst frozen product-evidence review; prior labels unchanged",
+    "evidence": "retained 88-store snapshot; no new fetches"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "arlingtontx.clothesmentor.com",
+    "label": 2,
+    "rationale": "Value-oriented secondhand adult designer apparel, bags and jewelry offer useful partial comparison; resale/local-store model and missing home/bedding assortment limit equivalence.",
+    "reviewer": "single-analyst frozen product-evidence review; prior labels unchanged",
+    "evidence": "retained 88-store snapshot; no new fetches"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "designerrevival.com",
+    "label": 1,
+    "rationale": "Observed designer handbags and apparel are adjacent; luxury assortment and absent pricing/business-model evidence do not establish affordable broad-essentials competition.",
+    "reviewer": "single-analyst frozen product-evidence review; prior labels unchanged",
+    "evidence": "retained 88-store snapshot; no new fetches"
+  },
+  {
+    "case_id": "quince",
+    "mode": "structured_profile",
+    "domain": "meadow-nest.com",
+    "label": 1,
+    "rationale": "Home decor, laundry storage and cosmetic bags provide narrow home/accessory adjacency to the broad query. Poultry supplies and mixed gift goods do not establish comparable apparel/bedding assortment.",
+    "reviewer": "single-analyst frozen product-evidence review; prior labels unchanged",
+    "evidence": "retained 88-store snapshot; no new fetches"
+  }
+]
