@@ -1,0 +1,53 @@
+name: Publish retained approved V2 timeout repair image
+on:
+  push:
+    branches: [codex/index-v2-timeout-image-2026-09-25]
+permissions:
+  contents: read
+  actions: read
+  packages: write
+jobs:
+  publish-retained-image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Verify retained artifact and publish without rebuilding
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_USER: ${{ github.actor }}
+        run: |
+          set -euo pipefail
+          SHA=4f4eaf80682e7b7c92892ec8f6f2ead8c69803ee
+          IMAGE_ID=sha256:49b8ffd2d64f6eb84f8330feb61c6cc92bad78277309aea8845a7b2cf38ba7d9
+          DEST=ghcr.io/devonwaldrop01/storescout-index-v2:$SHA
+          gh api repos/Devonwaldrop01/StoreScout/actions/runs/36132688202 > run.json
+          python -c 'import json; r=json.load(open("run.json")); assert r["head_sha"]=="4f4eaf80682e7b7c92892ec8f6f2ead8c69803ee" and r["conclusion"]=="success"'
+          gh api repos/Devonwaldrop01/StoreScout/actions/artifacts/10862494600/zip > artifact.zip
+          echo '30814275fd325bf4dc74fe78f2907dc1073420e462c336fd89605e4629d4c0fc  artifact.zip' | sha256sum -c -
+          unzip -q artifact.zip -d retained
+          echo '725a8174580d6d0d3977a936217be99b6fb0590e09653c5d5bec345396b11720  retained/image.tar.gz' | sha256sum -c -
+          gh api repos/Devonwaldrop01/StoreScout/actions/artifacts/10862654206/zip > evidence.zip
+          echo 'b2f7306f2626844d8bf217f6a651354cc696504da83d8b7e11c4d82e9b39015e  evidence.zip' | sha256sum -c -
+          unzip -q evidence.zip -d evidence
+          docker load -i retained/image.tar.gz
+          test "$(docker image inspect "$IMAGE_ID" --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')" = "$SHA"
+          test "$(docker image inspect "$IMAGE_ID" --format '{{json .Config.Cmd}}')" = '["./scripts/store_index_v2.py"]'
+          test "$(docker image inspect "$IMAGE_ID" --format '{{json .Config.Entrypoint}}')" = 'null'
+          docker run --rm --network none -e PYTHONDONTWRITEBYTECODE=1 -v "$PWD/evidence/inventory.json:/validation/inventory.json:ro" "$IMAGE_ID" python scripts/release_image_check.py verify /validation/inventory.json > source-check.json
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GH_USER" --password-stdin
+          docker tag "$IMAGE_ID" "$DEST"
+          docker push "$DEST" | tee publication.txt
+          docker image inspect "$DEST" > published-image.json
+          test "$(docker image inspect "$DEST" --format '{{.Id}}')" = "$IMAGE_ID"
+          docker logout ghcr.io
+          printf 'Approved source: %s\nExact image: %s\n' "$SHA" "$IMAGE_ID" >> "$GITHUB_STEP_SUMMARY"
+          docker image inspect "$DEST" --format '{{json .RepoDigests}}' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: v2-timeout-image-identity
+          path: |
+            published-image.json
+            source-check.json
+            publication.txt
+          retention-days: 30
