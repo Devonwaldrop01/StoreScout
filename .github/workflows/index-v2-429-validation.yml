@@ -1,0 +1,37 @@
+name: Offline V2 429 characterization on retained image
+on:
+  push:
+    branches: [codex/index-v2-429-validation-2026-09-25]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Check exact retained application image
+        run: |
+          set -euo pipefail
+          IMAGE=ghcr.io/devonwaldrop01/storescout-index-v2@sha256:df6965273400b2039f5417a19b2ea13ac4987a7a7433759785c1e5e5593cf176
+          docker pull "$IMAGE"
+          test "$(docker image inspect "$IMAGE" --format '{{.Id}}')" = sha256:49b8ffd2d64f6eb84f8330feb61c6cc92bad78277309aea8845a7b2cf38ba7d9
+          test "$(docker image inspect "$IMAGE" --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')" = 4f4eaf80682e7b7c92892ec8f6f2ead8c69803ee
+          docker image inspect "$IMAGE" > image.json
+          mkdir -p "$RUNNER_TEMP/testdeps"
+          docker run --rm -v "$RUNNER_TEMP/testdeps:/testdeps" "$IMAGE" python -m pip install --target /testdeps pytest==9.1.1 iniconfig==2.3.0 pluggy==1.6.0 pygments==2.21.0 packaging==26.3
+      - name: All backend and Linux tests with synthetic 429 fixtures and no network
+        run: |
+          set -euo pipefail
+          IMAGE=ghcr.io/devonwaldrop01/storescout-index-v2@sha256:df6965273400b2039f5417a19b2ea13ac4987a7a7433759785c1e5e5593cf176
+          docker run --rm --network none --cpus .5 --memory 512m --memory-swap 512m -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONPATH=/testdeps:/app -v "$RUNNER_TEMP/testdeps:/testdeps:ro" -v "$PWD/tests/test_index_v2_429_characterization.py:/app/tests/test_index_v2_429_characterization.py:ro" "$IMAGE" python -m pytest tests -q -p no:cacheprovider 2>&1 | tee pytest.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: v2-429-offline-evidence
+          path: |
+            image.json
+            pytest.txt
+          retention-days: 30
